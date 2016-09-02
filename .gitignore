@@ -1,0 +1,8 @@
+contentGeneration/bin/
+contentGeneration/node_modules/
+contentGeneration/routes/
+contentGeneration/views/
+
+
+contentGeneration/app.js
+contentGeneration/package.json
