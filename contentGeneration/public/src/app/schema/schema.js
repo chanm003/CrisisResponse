@@ -1,9 +1,8 @@
 ﻿var crisisReponseSchema = crisisReponseSchema || {};
 crisisReponseSchema.listDefs = {};
 
-crisisReponseSchema.listDefs["Mission Tracker"] = 
-	{
-		Title: "Mission Tracker",
+crisisReponseSchema.listDefs["Mission Tracker"] = {
+	Title: "Mission Tracker",
 		BaseTemplate: 'genericList',
 		shouldHideTitleField: true,
 		fieldsToCreate:[
@@ -151,8 +150,7 @@ crisisReponseSchema.listDefs["Mission Tracker"] =
 				
 			}		
 		]
-	};
-	
+};
 	
 crisisReponseSchema.listDefs["Mission Documents"] = {
 	Title: "Mission Documents",
@@ -384,7 +382,6 @@ crisisReponseSchema.listDefs["RFI"] = {
 	]
 };
 
-//ODEAIS
 crisisReponseSchema.listDefs["Watch Log"] = {
 	Title: "Watch Log",
 	BaseTemplate: 'genericList',
@@ -465,7 +462,6 @@ crisisReponseSchema.listDefs["Watch Log"] = {
 	]
 };
 
-//ISC
 crisisReponseSchema.listDefs["Message Traffic"] = {
 	Title: "Message Traffic",
 	BaseTemplate: 'genericList',
@@ -598,7 +594,6 @@ crisisReponseSchema.listDefs["Message Traffic"] = {
 	]
 };
 
-//OCNSD
 crisisReponseSchema.listDefs["CCIR"] = {
 	Title: "CCIR",
 	BaseTemplate: 'genericList',
@@ -662,6 +657,56 @@ crisisReponseSchema.listDefs["CCIR"] = {
 			MaxLength: 255,
 			Default: ""							//(optional)
 			
+		}
+	]
+};
+
+crisisReponseSchema.listDefs["Calendar"] = {
+	Title: 'Calendar',
+	BaseTemplate: 'events',
+	enableVersioning: false,
+	shouldHideTitleField: false,
+	fieldsToModify: [
+		{
+			Name: "Category",
+			DisplayName: "Category",
+			Type: "MultiChoice",
+			Required: "FALSE",
+			FillInChoice: "FALSE",
+			Description: "Select all that apply",
+			Choices: ['Battle Rhythm', 'Working Group', 'Briefing', 'SOCEUR Internal', 'Reporting Requirement', 'Academics', 'VTC'],
+			Default: ''						//(optional)
+		}
+	],	
+	fieldsToCreate:[
+		// Attendees, WebEx Link
+		{
+			Name: "Organization",
+			DisplayName: "Organization",
+			Type: "Choice",
+			Format: "Dropdown",
+			Required: "TRUE",
+			FillInChoice: "FALSE",
+			Choices: ['TODO: MUST BE DYNAMIC'],
+			Default: ''						//(optional)
+		},
+		{
+			//EXAMPLE: Person or Group (allow multiple)
+			Name: "Attendees",
+			DisplayName: "Attendees",
+			Type: "UserMulti",
+			Required: "FALSE",
+			UserSelectionMode: "PeopleAndGroups",	//please specify either 'PeopleOnly' or 'PeopleAndGroups'
+			ShowField: 'ImnName',				//Name with presence	
+			Mult: "TRUE"
+		},
+		{
+			//EXAMPLE: URL field
+			Name: "WebexLink",
+			DisplayName: "WebEx Link",
+			Type: "URL",
+			Required: "FALSE",
+			Format: "Hyperlink"								
 		}
 	]
 };

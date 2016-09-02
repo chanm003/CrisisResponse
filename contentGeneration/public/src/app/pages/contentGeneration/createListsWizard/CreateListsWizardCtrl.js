@@ -24,10 +24,16 @@
 		
 		*/
 		var webUrl = '/ngspa/';
-		//createCcirList();
+		createCalendarList();
 		
-		createMissionList()
-			.then(createRFIList);			
+		//createMissionList()
+		//	.then(createRFIList);			
+		function createCalendarList(){
+			//DEPENDENCIES: None
+			var listSchemaDef = crisisReponseSchema.listDefs["Calendar"];
+			listSchemaDef.webUrl = webUrl;
+			return sharepointUtilities.createList(listSchemaDef);
+		}
 
 		function createCcirList(){
 			//DEPENDENCIES: None

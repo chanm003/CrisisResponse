@@ -56,6 +56,13 @@
 				}
 				createdList.update();
 				
+				//delete fields
+				_.each(opts.fieldsToModify, function(fieldDef){
+					var existingField = createdList.get_fields().getByInternalNameOrTitle(fieldDef.Name);
+					existingField.set_schemaXml(fieldXmlGeneration.generate(fieldDef));
+					existingField.update();
+				});
+
 				//add fields
 				_.each(opts.fieldsToCreate, function(fieldDef){
 					if(fieldDef.Type === 'Lookup' || fieldDef.Type === 'LookupMulti'){
@@ -66,8 +73,7 @@
 						}
 					}
 				
-					var xml = fieldXmlGeneration.generate(fieldDef);
-					var newField = createdList.get_fields().addFieldAsXml(xml, true, SP.AddFieldOptions.addFieldInternalNameHint);	
+					var newField = createdList.get_fields().addFieldAsXml(fieldXmlGeneration.generate(fieldDef), true, SP.AddFieldOptions.addFieldInternalNameHint);	
 					createdFields.push(newField);
 				});
 				
@@ -84,7 +90,8 @@
 				
 				//update to default view
 				var defaultViews = {
-	    			documentLibrary: 'All Documents'
+	    			documentLibrary: 'All Documents',
+					events: 'All Events'
 	    		};
 				var viewName = defaultViews[opts.BaseTemplate] || "All Items";
 				var defaultView = createdList.get_views().getByTitle(viewName);
