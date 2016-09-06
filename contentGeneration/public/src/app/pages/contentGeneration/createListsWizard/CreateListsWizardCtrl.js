@@ -23,8 +23,14 @@
 			});
 		
 		*/
-		var webUrl = '/ngspa/';
-		createCalendarList();
+		var webUrl = '/ngspa/instance/';
+		sharepointUtilities.copyFile({
+			sourceWebUrl: '/ngspa',
+			sourceFileUrl:'artifacts/organization.aspx',
+			destinationWebUrl: '/ngspa/instance',
+			destinationWebFolderUrl: 'SitePages',
+			destinationFileUrl: 'socc.aspx'
+		});
 		
 		//createMissionList()
 		//	.then(createRFIList);			

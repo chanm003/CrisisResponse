@@ -6,16 +6,100 @@
   		.factory('fieldAttributeValuesValidation', fieldAttributeValuesValidation)
   		.factory('fieldXmlGeneration', fieldXmlGeneration);
 
-	dataservice.$inject = ['$http', '$location', '$q', 'fieldXmlGeneration', 'logger'];
-	
+	dataservice.$inject = ['$http', '$location', '$q', 'fieldXmlGeneration', 'logger'];	
 	function dataservice($http, $location, $q, fieldXmlGeneration, logger) {
-	    //logError(message, data, source, showNotification)
+
 	    return {
+			copyFile: copyFile,
 	    	createList: createList,
 	        getLists: getLists
 	    };
 	    
-	    
+	    function copyFile(opts){
+			var sourceExecutor = new SP.RequestExecutor(opts.sourceWebUrl);
+			var targetExecutor = new SP.RequestExecutor(opts.destinationWebUrl);
+			return getFormDigestForTargetSite(opts.destinationWebUrl)
+				.then(getFile)
+				.then(copyToDestination)
+				.then(function(){
+					logger.logSuccess('File copied: ' + opts.destinationFileUrl, null, 'sharepointUtilities service, copyFile()');
+				})
+				.catch(function(ex){
+					logger.logError('Request failed: ' + ex, null, 'sharepointUtilities service, copyFile()');
+				});
+			
+			function copyToDestination(opts){
+				var dfd = $q.defer();
+
+				var folderUrl = opts.destinationWebUrl + "/" + opts.destinationWebFolderUrl,
+					fileUrl = opts.destinationWebUrl + "/" + opts.destinationWebFolderUrl + '/' +opts.destinationFileUrl;
+
+				var copyFileAction = {
+					url: opts.destinationWebUrl + "/_api/web/GetFolderByServerRelativeUrl('" + folderUrl  + "')/Files/Add(url='" + fileUrl + "', overwrite=true)",
+					method: "POST",
+					headers: {
+						"Accept": "application/json; odata=verbose",
+						"X-RequestDigest": opts.formDigestForTargetWeb
+					},
+					contentType: "application/json;odata=verbose",
+					binaryStringRequestBody: true,
+					body: opts.fileBinary,
+					success: function(copyFileData) {
+						dfd.resolve();
+					},
+					error: function(ex) {
+						dfd.reject("Error retrieving file to copy: " + ex);
+					}
+				};
+				
+				targetExecutor.executeAsync(copyFileAction);
+
+				return dfd.promise;
+			}
+
+			function getFile(opts){
+				var dfd = $q.defer();
+
+				var locationOfSourceFile = opts.sourceWebUrl + '/' + opts.sourceFileUrl;
+
+				var getFileAction = {
+			    	url: opts.sourceWebUrl + "/_api/web/GetFileByServerRelativeUrl('" + locationOfSourceFile + "')/$value",
+			    	method: "GET",
+			    	binaryStringResponseBody: true,
+			    	success: function (data) {
+			    		// Get the binary data.
+			    		opts.fileBinary = data.body;
+						dfd.resolve(opts);
+			    	},
+					error: function(ex) {
+						dfd.reject("Error retrieving file to copy: " + ex);
+					}
+				};
+				sourceExecutor.executeAsync(getFileAction);
+
+				return dfd.promise;
+			}
+
+			function getFormDigestForTargetSite(url){
+				var dfd = $q.defer();
+				$.ajax({
+					url: url + "/_api/contextinfo",
+        			type: "POST",
+					withCredentials: true,
+					headers: {
+						"Accept": "application/json;odata=verbose"
+					}
+				})
+				.then(function(data){
+					opts.formDigestForTargetWeb = data.d.GetContextWebInformation.FormDigestValue;
+					dfd.resolve(opts);
+				})
+				.fail(function(ex){
+					dfd.reject("Error retrieving form digest:" + ex);
+				});
+				return dfd.promise;
+			}
+		}
 	    
 	    function createList(opts){
 	    	return getDependencies()
@@ -264,9 +348,6 @@
 			};
 	}
 	
-	
-				
-	
 	fieldXmlGeneration.$inject = ['fieldAttributeValuesValidation', 'logger'];
 	function fieldXmlGeneration(fieldAttributeValuesValidation, logger){
 		var svc = {
@@ -429,8 +510,6 @@
 		}	
 				
 	}
-
-
 })();
 
 

@@ -15,12 +15,17 @@ angular.module('BlurAdmin', [
 	'BlurAdmin.theme',
 	'BlurAdmin.pages'
 ])
-.config(['$sceDelegateProvider', 'commonConfigProvider', function ($sce, cfg) {
+.config(['$httpProvider', '$sceDelegateProvider', 'commonConfigProvider', function ($httpProvider, $sce, cfg) {
 	// setup events
   	cfg.settings.showDebugNotiSetting = true;
 
 	//override security because our HTML templates violate CORS
 	$sce.resourceUrlWhitelist(['**']);
+
+	// enable CORS
+	$httpProvider.defaults.useXDomain = true;
+  	delete $httpProvider.defaults.headers.common['X-Requested-With'];
+
 }]);
 
 
