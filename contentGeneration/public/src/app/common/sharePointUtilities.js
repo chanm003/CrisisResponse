@@ -10,11 +10,97 @@
 	function dataservice($http, $location, $q, fieldXmlGeneration, logger) {
 
 	    return {
+			addListViewWebPart: addListViewWebPart,
 			copyFile: copyFile,
 	    	createList: createList,
 	        getLists: getLists
 	    };
 	    
+		function addListViewWebPart(opts){
+			return addWebPartToPage(opts);
+
+			function addWebPartToPage(opts){
+				var dfd = $q.defer();
+
+				var xmlToImport = generateXmlDef(opts);
+				var aspxURL = opts.webUrl + "/" + opts.pageUrl;
+				var ctx = new SP.ClientContext(opts.webUrl);
+	    		var spWeb = ctx.get_web();
+				var list = spWeb.get_lists().getByTitle(opts.listTitle);
+				var aspxFile = spWeb.getFileByServerRelativeUrl(aspxURL);
+				var wpManager = aspxFile.getLimitedWebPartManager(SP.WebParts.PersonalizationScope.shared);
+				var wpDefinition = wpManager.importWebPart(xmlToImport);
+				var wp = wpDefinition.get_webPart();
+				wpManager.addWebPart(wp, opts.zoneName, opts.zoneIndex);
+				
+				ctx.load(list);
+				ctx.load(aspxFile);
+				ctx.load(wpManager);
+
+				
+				ctx.executeQueryAsync(
+			        Function.createDelegate(this, onWebpartAdded), 
+			        Function.createDelegate(this, onQueryFailed)
+			    );
+
+				return dfd.promise;
+
+				function generateXmlDef(opts){
+					//required property:  <property name="ListUrl" type="string">Lists/WatchLog</property>\
+
+					var propertiesXml = '';
+					_.each(opts.webPartProperties, function(prop){
+
+						var attributes = '';
+						_.each(prop.attributes, function(val, key){
+							attributes += key +'="' + val + '" ';
+						});
+						
+						propertiesXml +=
+							[
+								"<property ",
+								attributes,
+								" >",
+								(prop.innerText || ''),
+								"</property>"
+							].join('');
+					
+					});
+
+					var baseWebPartXmlString = 
+						'<webParts>\
+							<webPart xmlns="http://schemas.microsoft.com/WebPart/v3">\
+								<metaData>\
+									<type name="Microsoft.SharePoint.WebPartPages.XsltListViewWebPart, Microsoft.SharePoint, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c" />\
+									<importErrorMessage>Cannot import this Web Part.</importErrorMessage>\
+								</metaData>\
+								<data>\
+									<properties>' +
+									propertiesXml +
+									'</properties>\
+								</data>\
+							</webPart>\
+						</webParts>';
+				
+					
+					
+					return baseWebPartXmlString;
+					//return webPartXml.appendTo('<x></x>').parent().html();
+				}
+
+				function onWebpartAdded(){
+					console.log(list);
+					console.log(aspxFile);
+					dfd.resolve();
+				}
+
+				function onQueryFailed(sender, args){
+					logger.logError('Request to create webpart ('+opts.listTitle+ ', ' + opts.pageUrl+') failed: ' + args.get_message(), args.get_stackTrace(), 'sharepointUtilities service, addListViewWebpart()');
+					dfd.reject();
+				}
+			}			
+		}
+
 	    function copyFile(opts){
 			var sourceExecutor = new SP.RequestExecutor(opts.sourceWebUrl);
 			var targetExecutor = new SP.RequestExecutor(opts.destinationWebUrl);

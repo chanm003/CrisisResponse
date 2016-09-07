@@ -14,7 +14,6 @@
 
 	  	
 	  	/*		
-		common.logger.logSuccess('test');
 		sharepointUtilities.getLists('/ngspa/')
 			.then(function(data){
 				console.log(data);
@@ -23,6 +22,8 @@
 			});
 		
 		*/
+
+		/*
 		var webUrl = '/ngspa/instance/';
 		sharepointUtilities.copyFile({
 			sourceWebUrl: '/ngspa',
@@ -31,9 +32,29 @@
 			destinationWebFolderUrl: 'SitePages',
 			destinationFileUrl: 'socc.aspx'
 		});
+		*/
 		
-		//createMissionList()
-		//	.then(createRFIList);			
+		/*
+		createMissionList()
+			.then(createRFIList);
+		*/
+
+		
+
+		sharepointUtilities.addListViewWebPart({
+			listTitle: 'Documents',
+			pageUrl: 'SitePages/socc.aspx',
+			webUrl: '/ngspa/instance',
+			webPartProperties: [
+				{
+					attributes: {name: 'ListUrl', type: 'string'},
+					innerText: 'Lists/WatchLog'
+				}
+			],
+			zoneName: 'Left',
+			zoneIndex: 1
+		});
+		
 		function createCalendarList(){
 			//DEPENDENCIES: None
 			var listSchemaDef = crisisReponseSchema.listDefs["Calendar"];
