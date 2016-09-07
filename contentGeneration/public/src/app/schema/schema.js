@@ -1,7 +1,8 @@
-﻿var crisisReponseSchema = crisisReponseSchema || {};
-crisisReponseSchema.listDefs = {};
+﻿var crisisResponseSchema = crisisResponseSchema || {};
+crisisResponseSchema.listDefs = {};
+crisisResponseSchema.webpartPageDefs = {};
 
-crisisReponseSchema.listDefs["Mission Tracker"] = {
+crisisResponseSchema.listDefs["Mission Tracker"] = {
 	Title: "Mission Tracker",
 		BaseTemplate: 'genericList',
 		shouldHideTitleField: true,
@@ -152,7 +153,7 @@ crisisReponseSchema.listDefs["Mission Tracker"] = {
 		]
 };
 	
-crisisReponseSchema.listDefs["Mission Documents"] = {
+crisisResponseSchema.listDefs["Mission Documents"] = {
 	Title: "Mission Documents",
 	BaseTemplate: 'documentLibrary',
 	enableVersioning: true,
@@ -194,7 +195,7 @@ crisisReponseSchema.listDefs["Mission Documents"] = {
 	]
 }; 
 
-crisisReponseSchema.listDefs["RFI"] = {
+crisisResponseSchema.listDefs["RFI"] = {
 	Title: "RFI",
 	BaseTemplate: 'genericList',
 	enableVersioning: true,
@@ -382,7 +383,7 @@ crisisReponseSchema.listDefs["RFI"] = {
 	]
 };
 
-crisisReponseSchema.listDefs["Watch Log"] = {
+crisisResponseSchema.listDefs["Watch Log"] = {
 	Title: "Watch Log",
 	BaseTemplate: 'genericList',
 	enableVersioning: false,
@@ -462,7 +463,7 @@ crisisReponseSchema.listDefs["Watch Log"] = {
 	]
 };
 
-crisisReponseSchema.listDefs["Message Traffic"] = {
+crisisResponseSchema.listDefs["Message Traffic"] = {
 	Title: "Message Traffic",
 	BaseTemplate: 'genericList',
 	enableVersioning: false,
@@ -594,7 +595,7 @@ crisisReponseSchema.listDefs["Message Traffic"] = {
 	]
 };
 
-crisisReponseSchema.listDefs["CCIR"] = {
+crisisResponseSchema.listDefs["CCIR"] = {
 	Title: "CCIR",
 	BaseTemplate: 'genericList',
 	enableVersioning: false,
@@ -661,7 +662,7 @@ crisisReponseSchema.listDefs["CCIR"] = {
 	]
 };
 
-crisisReponseSchema.listDefs["Calendar"] = {
+crisisResponseSchema.listDefs["Calendar"] = {
 	Title: 'Calendar',
 	BaseTemplate: 'events',
 	enableVersioning: false,
@@ -711,15 +712,69 @@ crisisReponseSchema.listDefs["Calendar"] = {
 	]
 };
 
-/*
+crisisResponseSchema.webpartPageDefs['Task Group Page'] = {
+	url: 'SitePages/sotg.aspx',
+	webparts: [
+		{
+			listTitle: 'Watch Log',
+			webPartProperties: [
+				{
+					attributes: {name: 'ListUrl', type: 'string'},
+					innerText: 'Lists/WatchLog'
+				}
+			],
+			viewName: 'SOTG.aspx Watch Log',
+			viewFields: ['Attachments', 'DTG', 'LinkTitle', 'EventDetails', 'ActionTaken', 'Initials', 'Significant'],
+			viewCAML: '<OrderBy><FieldRef Name="DateTimeGroup" Ascending="FALSE"/></OrderBy><Where><Contains><FieldRef Name="Organization"/><Value Type="Text">{organizationalEntity}</Value></Contains></Where>',
+			zoneName: 'Top',
+			zoneIndex: 100
+		},
+		{
+			listTitle: 'Message Traffic',
+			webPartProperties: [
+				{
+					attributes: {name: 'ListUrl', type: 'string'},
+					innerText: 'Lists/MessageTraffic'
+				},
+				{
+					attributes: {name: 'Title', type: 'string'},
+					innerText: 'Inbound Messages'
+				}
+			],
+			viewName: 'SOTG.aspx Inbound Messages',
+			viewFields: ['Attachments', 'DTG', 'OriginatorSender', 'LinkTitle', 'LinkToMissionDocument', 'Initials', 'Significant'],
+			viewCAML: '<OrderBy><FieldRef Name="DateTimeGroup" Ascending="FALSE"/></OrderBy><Where><Contains><FieldRef Name="Receiver"/><Value Type="Text">{organizationalEntity}</Value></Contains></Where>',
+			zoneName: 'Left',
+			zoneIndex: 100
+		},
+		{
+			listTitle: 'Message Traffic',
+			webPartProperties: [
+				{
+					attributes: {name: 'ListUrl', type: 'string'},
+					innerText: 'Lists/MessageTraffic'
+				},
+				{
+					attributes: {name: 'Title', type: 'string'},
+					innerText: 'Outbound Messages'
+				}
+			],
+			viewName: 'SOTG.aspx Outbound Messages',
+			viewFields: ['DTG', 'Receiver', 'LinkTitle', 'LinkToMissionDocument', 'Initials', 'Significant'],
+			viewCAML: '<OrderBy><FieldRef Name="DateTimeGroup" Ascending="FALSE"/></OrderBy><Where><Contains><FieldRef Name="OriginatorSender"/><Value Type="Text">{organizationalEntity}</Value></Contains></Where>',
+			zoneName: 'Left',
+			zoneIndex: 200
+		}
+	]
+}
 
+/*
 var listDefinitionExample = [
 	{
 		Title: 'Missions',						//TODO:  Can you create list, and edit the title within one network request?
 		BaseTemplate: 'genericList'				//events,genericList
 	}
 ];
-
 
 var fieldDefinitionExamples = [
 	{
@@ -858,5 +913,20 @@ var fieldDefinitionExamples = [
 	}
 ];
 
-
+var listViewWebpartDefinitionExample = {
+		listTitle: 'Watch Log',
+		pageUrl: 'SitePages/socc.aspx',
+		webUrl: '/ngspa/instance',
+		webPartProperties: [
+			{
+				attributes: {name: 'ListUrl', type: 'string'},
+				innerText: 'Lists/WatchLog'
+			}
+		],
+		viewName: 'SOCC.aspx Watch Log',
+		viewFields: ['Attachments', 'DTG', 'LinkTitle', 'EventDetails', 'ActionTaken', 'Initials', 'Significant'],
+		viewCAML: '<OrderBy><FieldRef Name="DateTimeGroup" Ascending="FALSE"/></OrderBy><Where><Contains><FieldRef Name="Organization"/><Value Type="Text">{organizationalEntity}</Value></Contains></Where>',
+		zoneName: 'Left',
+		zoneIndex: 1
+	}
 */

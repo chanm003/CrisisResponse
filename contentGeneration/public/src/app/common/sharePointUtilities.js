@@ -10,10 +10,10 @@
 	function dataservice($http, $location, $q, fieldXmlGeneration, logger) {
 
 	    return {
-			addListViewWebPart: addListViewWebPart,
 			copyFile: copyFile,
 	    	createList: createList,
-	        getLists: getLists
+	        getLists: getLists,
+			provisionListViewWebparts: provisionListViewWebparts
 	    };
 	    
 		function addListViewWebPart(opts){
@@ -24,18 +24,23 @@
 
 				var xmlToImport = generateXmlDef(opts);
 				var aspxURL = opts.webUrl + "/" + opts.pageUrl;
+				
 				var ctx = new SP.ClientContext(opts.webUrl);
 	    		var spWeb = ctx.get_web();
-				var list = spWeb.get_lists().getByTitle(opts.listTitle);
 				var aspxFile = spWeb.getFileByServerRelativeUrl(aspxURL);
 				var wpManager = aspxFile.getLimitedWebPartManager(SP.WebParts.PersonalizationScope.shared);
 				var wpDefinition = wpManager.importWebPart(xmlToImport);
 				var wp = wpDefinition.get_webPart();
 				wpManager.addWebPart(wp, opts.zoneName, opts.zoneIndex);
+
+				//act of adding a web part, creates a hidden view for the list
+				var list = spWeb.get_lists().getByTitle(opts.listTitle);
+				list.update();
+				var listViews = list.get_views();
 				
+				ctx.load(wp);
 				ctx.load(list);
-				ctx.load(aspxFile);
-				ctx.load(wpManager);
+				ctx.load(listViews);
 
 				
 				ctx.executeQueryAsync(
@@ -47,7 +52,7 @@
 
 				function generateXmlDef(opts){
 					//required property:  <property name="ListUrl" type="string">Lists/WatchLog</property>\
-
+					addParameterBindingsProperty(opts.webPartProperties);
 					var propertiesXml = '';
 					_.each(opts.webPartProperties, function(prop){
 
@@ -85,13 +90,63 @@
 					
 					
 					return baseWebPartXmlString;
-					//return webPartXml.appendTo('<x></x>').parent().html();
+
+					function addParameterBindingsProperty(webPartProperties){
+						//makes it possible to use {organizationalEntity} in our CAML queries (maps to value for the 'org' querystring parameter)
+						var innerText = '&lt;ParameterBinding Name="dvt_sortdir" Location="Postback;Connection"/&gt;'+
+										'&lt;ParameterBinding Name="dvt_sortfield" Location="Postback;Connection"/&gt;'+
+										'&lt;ParameterBinding Name="dvt_startposition" Location="Postback" DefaultValue=""/&gt;'+
+										'&lt;ParameterBinding Name="dvt_firstrow" Location="Postback;Connection"/&gt;'+
+										'&lt;ParameterBinding Name="OpenMenuKeyAccessible" Location="Resource(wss,OpenMenuKeyAccessible)" /&gt;'+
+										'&lt;ParameterBinding Name="open_menu" Location="Resource(wss,open_menu)" /&gt;'+
+										'&lt;ParameterBinding Name="select_deselect_all" Location="Resource(wss,select_deselect_all)" /&gt;'+
+										'&lt;ParameterBinding Name="idPresEnabled" Location="Resource(wss,idPresEnabled)" /&gt;'+
+										'&lt;ParameterBinding Name="NoAnnouncements" Location="Resource(wss,noXinviewofY_LIST)" /&gt;'+
+										'&lt;ParameterBinding Name="NoAnnouncementsHowTo" Location="Resource(wss,noXinviewofY_DEFAULT)" /&gt;'+
+										'&lt;ParameterBinding Name="organizationalEntity" Location="QueryString(org)" /&gt;';
+						webPartProperties.push({
+							attributes: {name: 'ParameterBindings', type: 'string'},
+							innerText: innerText
+						});
+					}
 				}
 
 				function onWebpartAdded(){
-					console.log(list);
-					console.log(aspxFile);
-					dfd.resolve();
+					var enumerator = listViews.getEnumerator();
+					var webPartView;
+
+					while (enumerator.moveNext()) {
+						var view = enumerator.get_current();
+
+						if (view.get_title() === '') {
+							//found the hidden view that was specifically created when we added our web part
+							webPartView = view;
+							break;
+						}
+					}
+
+					if(!webPartView){
+						//hidden view not found
+						dfd.resolve();
+					}
+
+					webPartView.get_viewFields().removeAll();
+					_.each(opts.viewFields, function(internalFieldName){
+						webPartView.get_viewFields().add(internalFieldName);
+					});
+					webPartView.set_title(opts.viewName);
+					webPartView.set_viewQuery(opts.viewCAML);
+					webPartView.set_hidden(false);
+					webPartView.update();
+					ctx.load(webPartView);
+					ctx.executeQueryAsync(
+						Function.createDelegate(this, onWebpartViewUpdated), 
+						Function.createDelegate(this, onQueryFailed)
+					);
+					function onWebpartViewUpdated(){
+						logger.logSuccess('Web part added: ('+opts.viewName+')', null, 'sharepointUtilities service, addListViewWebpart()');
+						dfd.resolve();
+					}
 				}
 
 				function onQueryFailed(sender, args){
@@ -356,6 +411,23 @@
 		    	logger.logError('Request failed: ' + args.get_message(), args.get_stackTrace(), 'sharepointUtilities service, getLists()');
 		    	dfd.reject();
 		    }
+		}
+
+		function provisionListViewWebparts(webpartPageDef){
+			var webpartDefs = _.map(webpartPageDef.webparts, function(def){
+				def.webUrl = webpartPageDef.webUrl;
+				def.pageUrl = webpartPageDef.url;
+				return def;
+			});
+
+			var chain = webpartDefs.reduce(function(previousPromise, webPartDef){
+				return previousPromise.then(function(){
+					return addListViewWebPart(webPartDef);
+				});
+			}, $q.when());
+
+			//returning promise chain that caller can resolve...
+			return chain;
 		}
 	}
 

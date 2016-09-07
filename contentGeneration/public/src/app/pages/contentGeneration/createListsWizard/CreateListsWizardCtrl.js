@@ -3,15 +3,14 @@
  * created on 16.12.2015
  */
 (function () {
-  'use strict';
+	'use strict';
 
-  angular.module('BlurAdmin.pages.contentGeneration')
-      .controller('CreateListsWizardCtrl', CtrlDefinition);
+  	angular.module('BlurAdmin.pages.contentGeneration')
+    	.controller('CreateListsWizardCtrl', CtrlDefinition);
 
-  /** @ngInject */
-	function CtrlDefinition($q, common, fieldXmlGeneration, sharepointUtilities) {
-	  	//console.log(fieldXmlGeneration.generate(fieldDefinitionForCalculatedField));
-
+  	/** @ngInject */
+	function CtrlDefinition($q, common, sharepointUtilities) {
+		var webUrl = '/ngspa/instance';
 	  	
 	  	/*		
 		sharepointUtilities.getLists('/ngspa/')
@@ -24,7 +23,6 @@
 		*/
 
 		/*
-		var webUrl = '/ngspa/instance/';
 		sharepointUtilities.copyFile({
 			sourceWebUrl: '/ngspa',
 			sourceFileUrl:'artifacts/organization.aspx',
@@ -34,72 +32,73 @@
 		});
 		*/
 		
-		/*
-		createMissionList()
-			.then(createRFIList);
-		*/
-
-		
-
-		sharepointUtilities.addListViewWebPart({
-			listTitle: 'Documents',
-			pageUrl: 'SitePages/socc.aspx',
-			webUrl: '/ngspa/instance',
-			webPartProperties: [
-				{
-					attributes: {name: 'ListUrl', type: 'string'},
-					innerText: 'Lists/WatchLog'
-				}
-			],
-			zoneName: 'Left',
-			zoneIndex: 1
+		var taskGroupPageDef = crisisResponseSchema.webpartPageDefs['Task Group Page'];
+		taskGroupPageDef.webUrl = webUrl;
+		sharepointUtilities.provisionListViewWebparts(taskGroupPageDef).then(function(){
+			console.log("all web parts done...")
 		});
+		
+		 
+
+		 /*
+		$q.all([
+			createCalendarList(),
+			createCcirList(),
+			createMissionList(),
+			createMessageTrafficList(),
+			createWatchLogList()
+		])
+		.then(function(){
+			createRFIList();
+			createMissionDocumentsLibrary();
+		})
+		*/
 		
 		function createCalendarList(){
 			//DEPENDENCIES: None
-			var listSchemaDef = crisisReponseSchema.listDefs["Calendar"];
+			var listSchemaDef = crisisResponseSchema.listDefs["Calendar"];
 			listSchemaDef.webUrl = webUrl;
 			return sharepointUtilities.createList(listSchemaDef);
 		}
 
 		function createCcirList(){
 			//DEPENDENCIES: None
-			var listSchemaDef = crisisReponseSchema.listDefs["CCIR"];
+			var listSchemaDef = crisisResponseSchema.listDefs["CCIR"];
 			listSchemaDef.webUrl = webUrl;
 			return sharepointUtilities.createList(listSchemaDef);
 		}
 		
 		function createMissionList(){
 			//DEPENDENCIES: None
-			var listSchemaDef = crisisReponseSchema.listDefs["Mission Tracker"];
+			var listSchemaDef = crisisResponseSchema.listDefs["Mission Tracker"];
 			listSchemaDef.webUrl = webUrl;
 			return sharepointUtilities.createList(listSchemaDef);
 		}
 		
 		function createMessageTrafficList(){
 			//DEPENDENCIES: None
-			var listSchemaDef = crisisReponseSchema.listDefs["Message Traffic"];
+			var listSchemaDef = crisisResponseSchema.listDefs["Message Traffic"];
 			listSchemaDef.webUrl = webUrl;
 			return sharepointUtilities.createList(listSchemaDef);
 		}
 		
-		function createMissionDocumentsLibrary(webUrl){
+		function createMissionDocumentsLibrary(){
 			//DEPENDENCIES: Mission Tracker
-			var listSchemaDef = crisisReponseSchema.listDefs["Mission Documents"];
+			var listSchemaDef = crisisResponseSchema.listDefs["Mission Documents"];
 			listSchemaDef.webUrl = webUrl;
 			return sharepointUtilities.createList(listSchemaDef);
 		}
 		
 		function createRFIList(){
 			//DEPENDENCIES: Mission Tracker
-			var listSchemaDef = crisisReponseSchema.listDefs["RFI"];
+			var listSchemaDef = crisisResponseSchema.listDefs["RFI"];
 			listSchemaDef.webUrl = webUrl;
 			return sharepointUtilities.createList(listSchemaDef);
 		}
 		
 		function createWatchLogList(){
 			//DEPENDENCIES: None
-			var listSchemaDef = crisisReponseSchema.listDefs["Watch Log"];
+			var listSchemaDef = crisisResponseSchema.listDefs["Watch Log"];
 			listSchemaDef.webUrl = webUrl;
 			return sharepointUtilities.createList(listSchemaDef);
 		}
