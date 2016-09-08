@@ -19,24 +19,12 @@
 			})
 			.catch(function(){
 			});
-		
+		*/
 			
 		 
 
-		/*
-		$q.all([
-			createCalendarList(),
-			createCcirList(),
-			createMissionList(),
-			createMessageTrafficList(),
-			createWatchLogList()
-		])
-		.then(function(){
-			createRFIList();
-			createMissionDocumentsLibrary();
-		})
-		*/
-		provisionTaskGroupPage();
+		createCoreLists()
+			.then(provisionTaskGroupPage);
 
 		function provisionTaskGroupPage(){
 			return provisionWebPartPage({
@@ -73,53 +61,74 @@
 			}
 		}
 		
-		function createCalendarList(){
-			//DEPENDENCIES: None
-			var listSchemaDef = crisisResponseSchema.listDefs["Calendar"];
-			listSchemaDef.webUrl = $scope.selectedWebUrl;
-			return sharepointUtilities.createList(listSchemaDef);
-		}
+		function createCoreLists(){
+			return createStandaloneLists().then(createChildLists);
 
-		function createCcirList(){
-			//DEPENDENCIES: None
-			var listSchemaDef = crisisResponseSchema.listDefs["CCIR"];
-			listSchemaDef.webUrl = $scope.selectedWebUrl;
-			return sharepointUtilities.createList(listSchemaDef);
-		}
-		
-		function createMissionList(){
-			//DEPENDENCIES: None
-			var listSchemaDef = crisisResponseSchema.listDefs["Mission Tracker"];
-			listSchemaDef.webUrl = $scope.selectedWebUrl;
-			return sharepointUtilities.createList(listSchemaDef);
-		}
-		
-		function createMessageTrafficList(){
-			//DEPENDENCIES: None
-			var listSchemaDef = crisisResponseSchema.listDefs["Message Traffic"];
-			listSchemaDef.webUrl = $scope.selectedWebUrl;
-			return sharepointUtilities.createList(listSchemaDef);
-		}
-		
-		function createMissionDocumentsLibrary(){
-			//DEPENDENCIES: Mission Tracker
-			var listSchemaDef = crisisResponseSchema.listDefs["Mission Documents"];
-			listSchemaDef.webUrl = $scope.selectedWebUrl;
-			return sharepointUtilities.createList(listSchemaDef);
-		}
-		
-		function createRFIList(){
-			//DEPENDENCIES: Mission Tracker
-			var listSchemaDef = crisisResponseSchema.listDefs["RFI"];
-			listSchemaDef.webUrl = $scope.selectedWebUrl;
-			return sharepointUtilities.createList(listSchemaDef);
-		}
-		
-		function createWatchLogList(){
-			//DEPENDENCIES: None
-			var listSchemaDef = crisisResponseSchema.listDefs["Watch Log"];
-			listSchemaDef.webUrl = $scope.selectedWebUrl;
-			return sharepointUtilities.createList(listSchemaDef);
+			function createStandaloneLists(){
+				return $q.all([
+					createCalendarList(),
+					createCcirList(),
+					createMissionList(),
+					createMessageTrafficList(),
+					createWatchLogList()
+				]);
+			}
+
+			function createChildLists(){
+				return $q.all([
+					createRFIList(),
+					createMissionDocumentsLibrary(),
+				]);
+			}
+
+			function createCalendarList(){
+				//DEPENDENCIES: None
+				var listSchemaDef = crisisResponseSchema.listDefs["Calendar"];
+				listSchemaDef.webUrl = $scope.selectedWebUrl;
+				return sharepointUtilities.createList(listSchemaDef);
+			}
+
+			function createCcirList(){
+				//DEPENDENCIES: None
+				var listSchemaDef = crisisResponseSchema.listDefs["CCIR"];
+				listSchemaDef.webUrl = $scope.selectedWebUrl;
+				return sharepointUtilities.createList(listSchemaDef);
+			}
+			
+			function createMissionList(){
+				//DEPENDENCIES: None
+				var listSchemaDef = crisisResponseSchema.listDefs["Mission Tracker"];
+				listSchemaDef.webUrl = $scope.selectedWebUrl;
+				return sharepointUtilities.createList(listSchemaDef);
+			}
+			
+			function createMessageTrafficList(){
+				//DEPENDENCIES: None
+				var listSchemaDef = crisisResponseSchema.listDefs["Message Traffic"];
+				listSchemaDef.webUrl = $scope.selectedWebUrl;
+				return sharepointUtilities.createList(listSchemaDef);
+			}
+			
+			function createMissionDocumentsLibrary(){
+				//DEPENDENCIES: Mission Tracker
+				var listSchemaDef = crisisResponseSchema.listDefs["Mission Documents"];
+				listSchemaDef.webUrl = $scope.selectedWebUrl;
+				return sharepointUtilities.createList(listSchemaDef);
+			}
+			
+			function createRFIList(){
+				//DEPENDENCIES: Mission Tracker
+				var listSchemaDef = crisisResponseSchema.listDefs["RFI"];
+				listSchemaDef.webUrl = $scope.selectedWebUrl;
+				return sharepointUtilities.createList(listSchemaDef);
+			}
+			
+			function createWatchLogList(){
+				//DEPENDENCIES: None
+				var listSchemaDef = crisisResponseSchema.listDefs["Watch Log"];
+				listSchemaDef.webUrl = $scope.selectedWebUrl;
+				return sharepointUtilities.createList(listSchemaDef);
+			}
 		}
 		
 		
