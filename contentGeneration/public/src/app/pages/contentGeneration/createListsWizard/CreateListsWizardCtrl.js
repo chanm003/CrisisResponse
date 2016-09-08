@@ -21,10 +21,37 @@
 			});
 		*/
 			
-		 
+		//Pump Script Editor Webpart into NewForm.aspx and EditForm.aspx <WebPartPages:WebPartZone runat="server" FrameType="None" ID="Main" Title="loc:Main"><ZoneTemplate>
+		//CAN we bootstrap ng-app from top of the page? (don't want to add two script editors to each page, i.e. one under the ListFormWebPart and one above it)
 
-		createCoreLists()
-			.then(provisionTaskGroupPage);
+		$scope.onStepOneClicked = function(){
+			createCoreLists()
+				.then(provisionComponentCommandPage)
+				.then(provisionTaskGroupPage);
+		}
+
+		$scope.onStepOneUndoClicked = function(){
+			sharepointUtilities.deleteLists({
+				webUrl: $scope.selectedWebUrl,
+				listTitles: ['Calendar', 'CCIR', "Mission Documents", 'Mission Tracker', 'Message Traffic', 'RFI', 'Watch Log']
+			});
+
+			var serverRelativeFileUrls = _.map(['socc.aspx', 'sotg.aspx'], function(sitepageFile){
+				return $scope.selectedWebUrl + "/SitePages/" + sitepageFile;
+			})
+
+			sharepointUtilities.deleteFiles({
+				webUrl: $scope.selectedWebUrl,
+				fileUrls: serverRelativeFileUrls
+			});
+		
+		}
+
+		function provisionComponentCommandPage(){
+			return provisionWebPartPage({
+				webpartPageDefinitionName: 'Component Command Page'
+			});
+		}
 
 		function provisionTaskGroupPage(){
 			return provisionWebPartPage({

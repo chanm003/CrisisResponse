@@ -723,6 +723,52 @@ crisisResponseSchema.listDefs["Calendar"] = {
 	]
 };
 
+crisisResponseSchema.webpartPageDefs['Component Command Page'] = {
+	folderName: 'SitePages',
+	aspxFileName: 'socc.aspx',
+	listviewWebparts: [],
+	scriptEditorWebparts: [
+		{
+			name: 'Gantt Mission Tracker',
+			webPartProperties: [
+				{
+					attributes: {name: 'Content', type: 'string'},
+					innerText: '&lt;div id="missionTrackerGanttChart"&gt;&lt;/div&gt;'
+				},
+				{
+					attributes: {name: 'Title', type: 'string'},
+					innerText: 'Mission Tracker'
+				},
+				{
+					attributes: {name: 'Description', type: 'string'},
+					innerText: 'ongoing missions (click checkbox to show past missions)'
+				}
+			],
+			zoneName: 'Right',
+			zoneIndex: 0
+		},
+		{
+			name: 'Full Calendar',
+			webPartProperties: [
+				{
+					attributes: {name: 'Content', type: 'string'},
+					innerText: '&lt;div ui-calendar ng-model="eventSources"&gt;&lt;/div&gt;'
+				},
+				{
+					attributes: {name: 'Title', type: 'string'},
+					innerText: 'Calendar'
+				},
+				{
+					attributes: {name: 'Description', type: 'string'},
+					innerText: 'Battle Rhythm, Academics, VTC&apos;s, Briefings'
+				}
+			],
+			zoneName: 'Bottom',
+			zoneIndex: 0
+		}
+	]
+}
+
 crisisResponseSchema.webpartPageDefs['Task Group Page'] = {
 	folderName: 'SitePages',
 	aspxFileName: 'sotg.aspx',
@@ -739,7 +785,7 @@ crisisResponseSchema.webpartPageDefs['Task Group Page'] = {
 			viewFields: ['Attachments', 'DTG', 'LinkTitle', 'EventDetails', 'ActionTaken', 'Initials', 'Significant'],
 			viewCAML: '<OrderBy><FieldRef Name="DateTimeGroup" Ascending="FALSE"/></OrderBy><Where><Contains><FieldRef Name="Organization"/><Value Type="Text">{orgQsParam}</Value></Contains></Where>',
 			zoneName: 'Top',
-			zoneIndex: 100
+			zoneIndex: 0
 		},
 		{
 			listTitle: 'Message Traffic',
@@ -757,7 +803,7 @@ crisisResponseSchema.webpartPageDefs['Task Group Page'] = {
 			viewFields: ['Attachments', 'DTG', 'OriginatorSender', 'LinkTitle', 'LinkToMissionDocument', 'Initials', 'Significant'],
 			viewCAML: '<OrderBy><FieldRef Name="DateTimeGroup" Ascending="FALSE"/></OrderBy><Where><Contains><FieldRef Name="Receiver"/><Value Type="Text">{orgQsParam}</Value></Contains></Where>',
 			zoneName: 'Left',
-			zoneIndex: 100
+			zoneIndex: 10
 		},
 		{
 			listTitle: 'Message Traffic',
@@ -775,7 +821,7 @@ crisisResponseSchema.webpartPageDefs['Task Group Page'] = {
 			viewFields: ['DTG', 'Receiver', 'LinkTitle', 'LinkToMissionDocument', 'Initials', 'Significant'],
 			viewCAML: '<OrderBy><FieldRef Name="DateTimeGroup" Ascending="FALSE"/></OrderBy><Where><Contains><FieldRef Name="OriginatorSender"/><Value Type="Text">{orgQsParam}</Value></Contains></Where>',
 			zoneName: 'Left',
-			zoneIndex: 200
+			zoneIndex: 20
 		},
 		{
 			listTitle: 'RFI',
@@ -793,7 +839,7 @@ crisisResponseSchema.webpartPageDefs['Task Group Page'] = {
 			viewFields: ['ActionsHtml', 'ID', 'LinkTitle', 'Priority', 'LTIOV'],
 			viewCAML: '<OrderBy><FieldRef Name="LTIOV"/></OrderBy><Where><And><Contains><FieldRef Name="RecommendedOPR"/><Value Type="Text">{orgQsParam}</Value></Contains><Eq><FieldRef Name="Status"/><Value Type="Text">Open</Value></Eq></And></Where>',
 			zoneName: 'Left',
-			zoneIndex: 300
+			zoneIndex: 30
 		},
 		{
 			listTitle: 'Mission Documents',
@@ -811,7 +857,7 @@ crisisResponseSchema.webpartPageDefs['Task Group Page'] = {
 			viewFields: ['LinkFilename', 'DocIcon', 'TypeOfDocument', 'Mission', 'Modified', 'Editor'],
 			viewCAML: '<GroupBy Collapse="TRUE" GroupLimit="30"><FieldRef Name="TypeOfDocument"/></GroupBy><OrderBy><FieldRef Name="FileLeafRef"/></OrderBy><Where><Contains><FieldRef Name="Organization"/><Value Type="Text">{orgQsParam}</Value></Contains></Where>',
 			zoneName: 'Right',
-			zoneIndex: 200
+			zoneIndex: 10
 		}
 	],
 	scriptEditorWebparts: [

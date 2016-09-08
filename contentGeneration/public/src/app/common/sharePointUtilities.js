@@ -12,6 +12,8 @@
 	    return {
 			copyFile: copyFile,
 	    	createList: createList,
+			deleteFiles: deleteFiles,
+			deleteLists: deleteLists,
 	        getLists: getLists,
 			provisionListViewWebparts: provisionListViewWebparts,
 			provisionScriptEditorWebparts: provisionScriptEditorWebparts
@@ -394,6 +396,58 @@
 			    }	    	
 	    	}
 	    }
+
+		function deleteFiles(opts){
+			var dfd = $q.defer();
+			var ctx = new SP.ClientContext(opts.webUrl);
+	    	var spWeb = ctx.get_web();	
+
+			_.each(opts.fileUrls, function(fileUrl){
+				var file = spWeb.getFileByServerRelativeUrl(fileUrl);
+        		file.deleteObject();
+			});
+			
+			ctx.executeQueryAsync(
+		        Function.createDelegate(this, onQuerySucceeded), 
+		        Function.createDelegate(this, onQueryFailed)
+		    );
+
+			function onQuerySucceeded(){
+				logger.logSuccess('Following file(s) deleted: ' + opts.fileUrls.join(', '), null, 'sharepointUtilities service, deleteFiles()');
+				dfd.resolve();
+			}
+
+			function onQueryFailed(sender, args){
+				logger.logError('Request failed: ' + args.get_message(), args.get_stackTrace(), 'sharepointUtilities service, deleteFiles()');
+		    	dfd.reject();
+			}
+		}
+
+		function deleteLists(opts){
+			var dfd = $q.defer();
+			var ctx = new SP.ClientContext(opts.webUrl);
+	    	var spWeb = ctx.get_web();	
+
+			_.each(opts.listTitles, function(listTitle){
+				var list = spWeb.get_lists().getByTitle(listTitle);
+    			list.deleteObject();
+			});
+			
+			ctx.executeQueryAsync(
+		        Function.createDelegate(this, onQuerySucceeded), 
+		        Function.createDelegate(this, onQueryFailed)
+		    );
+
+			function onQuerySucceeded(){
+				logger.logSuccess('Following list(s) deleted: ' + opts.listTitles.join(', '), null, 'sharepointUtilities service, deleteLists()');
+				dfd.resolve();
+			}
+
+			function onQueryFailed(sender, args){
+				logger.logError('Request failed: ' + args.get_message(), args.get_stackTrace(), 'sharepointUtilities service, deleteLists()');
+		    	dfd.reject();
+			}
+		}
 
 		function generateWebpartPropertyTags(webPartProperties){
 			var xml = '';
