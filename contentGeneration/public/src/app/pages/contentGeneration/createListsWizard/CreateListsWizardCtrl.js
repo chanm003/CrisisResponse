@@ -9,8 +9,8 @@
     	.controller('CreateListsWizardCtrl', CtrlDefinition);
 
   	/** @ngInject */
-	function CtrlDefinition($q, common, sharepointUtilities) {
-		var webUrl = '/ngspa/instance';
+	function CtrlDefinition($q, $scope, common, sharepointUtilities) {
+		$scope.selectedWebUrl = '/ngspa/instance';
 	  	
 	  	/*		
 		sharepointUtilities.getLists('/ngspa/')
@@ -20,27 +20,10 @@
 			.catch(function(){
 			});
 		
-		*/
-
-		/*
-		sharepointUtilities.copyFile({
-			sourceWebUrl: '/ngspa',
-			sourceFileUrl:'artifacts/organization.aspx',
-			destinationWebUrl: '/ngspa/instance',
-			destinationWebFolderUrl: 'SitePages',
-			destinationFileUrl: 'socc.aspx'
-		});
-		*/
-		
-		var taskGroupPageDef = crisisResponseSchema.webpartPageDefs['Task Group Page'];
-		taskGroupPageDef.webUrl = webUrl;
-		sharepointUtilities.provisionListViewWebparts(taskGroupPageDef).then(function(){
-			console.log("all web parts done...")
-		});
-		
+			
 		 
 
-		 /*
+		/*
 		$q.all([
 			createCalendarList(),
 			createCcirList(),
@@ -53,53 +36,89 @@
 			createMissionDocumentsLibrary();
 		})
 		*/
+		provisionTaskGroupPage();
+
+		function provisionTaskGroupPage(){
+			return provisionWebPartPage({
+				webpartPageDefinitionName: 'Task Group Page'
+			});
+		}
+
+		function provisionWebPartPage(opts){
+			var pageDef = crisisResponseSchema.webpartPageDefs[opts.webpartPageDefinitionName];
+			pageDef.webUrl = $scope.selectedWebUrl;
+			return provisionAspx(pageDef).then(provisionWebpartsOnAspx);
+
+			function provisionAspx(pageDef){
+				return sharepointUtilities.copyFile({
+					sourceWebUrl: _spPageContextInfo.webServerRelativeUrl,
+					sourceFileUrl:'generator/artifacts/fourWebpartZones.aspx',
+					destinationWebUrl: $scope.selectedWebUrl,
+					destinationWebFolderUrl: pageDef.folderName,
+					destinationFileUrl: pageDef.aspxFileName
+				})
+				.then(function(){
+					return pageDef;
+				});
+			}
+
+			function provisionWebpartsOnAspx(pageDef){
+				return $q.all([
+					sharepointUtilities.provisionListViewWebparts(pageDef),
+					sharepointUtilities.provisionScriptEditorWebparts(pageDef)
+				])
+				.then(function(){
+					console.log("all web parts added on " + pageDef.aspxFileName);
+				});
+			}
+		}
 		
 		function createCalendarList(){
 			//DEPENDENCIES: None
 			var listSchemaDef = crisisResponseSchema.listDefs["Calendar"];
-			listSchemaDef.webUrl = webUrl;
+			listSchemaDef.webUrl = $scope.selectedWebUrl;
 			return sharepointUtilities.createList(listSchemaDef);
 		}
 
 		function createCcirList(){
 			//DEPENDENCIES: None
 			var listSchemaDef = crisisResponseSchema.listDefs["CCIR"];
-			listSchemaDef.webUrl = webUrl;
+			listSchemaDef.webUrl = $scope.selectedWebUrl;
 			return sharepointUtilities.createList(listSchemaDef);
 		}
 		
 		function createMissionList(){
 			//DEPENDENCIES: None
 			var listSchemaDef = crisisResponseSchema.listDefs["Mission Tracker"];
-			listSchemaDef.webUrl = webUrl;
+			listSchemaDef.webUrl = $scope.selectedWebUrl;
 			return sharepointUtilities.createList(listSchemaDef);
 		}
 		
 		function createMessageTrafficList(){
 			//DEPENDENCIES: None
 			var listSchemaDef = crisisResponseSchema.listDefs["Message Traffic"];
-			listSchemaDef.webUrl = webUrl;
+			listSchemaDef.webUrl = $scope.selectedWebUrl;
 			return sharepointUtilities.createList(listSchemaDef);
 		}
 		
 		function createMissionDocumentsLibrary(){
 			//DEPENDENCIES: Mission Tracker
 			var listSchemaDef = crisisResponseSchema.listDefs["Mission Documents"];
-			listSchemaDef.webUrl = webUrl;
+			listSchemaDef.webUrl = $scope.selectedWebUrl;
 			return sharepointUtilities.createList(listSchemaDef);
 		}
 		
 		function createRFIList(){
 			//DEPENDENCIES: Mission Tracker
 			var listSchemaDef = crisisResponseSchema.listDefs["RFI"];
-			listSchemaDef.webUrl = webUrl;
+			listSchemaDef.webUrl = $scope.selectedWebUrl;
 			return sharepointUtilities.createList(listSchemaDef);
 		}
 		
 		function createWatchLogList(){
 			//DEPENDENCIES: None
 			var listSchemaDef = crisisResponseSchema.listDefs["Watch Log"];
-			listSchemaDef.webUrl = webUrl;
+			listSchemaDef.webUrl = $scope.selectedWebUrl;
 			return sharepointUtilities.createList(listSchemaDef);
 		}
 		

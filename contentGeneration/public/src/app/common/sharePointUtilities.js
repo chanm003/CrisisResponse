@@ -13,7 +13,8 @@
 			copyFile: copyFile,
 	    	createList: createList,
 	        getLists: getLists,
-			provisionListViewWebparts: provisionListViewWebparts
+			provisionListViewWebparts: provisionListViewWebparts,
+			provisionScriptEditorWebparts: provisionScriptEditorWebparts
 	    };
 	    
 		function addListViewWebPart(opts){
@@ -23,11 +24,10 @@
 				var dfd = $q.defer();
 
 				var xmlToImport = generateXmlDef(opts);
-				var aspxURL = opts.webUrl + "/" + opts.pageUrl;
 				
 				var ctx = new SP.ClientContext(opts.webUrl);
 	    		var spWeb = ctx.get_web();
-				var aspxFile = spWeb.getFileByServerRelativeUrl(aspxURL);
+				var aspxFile = spWeb.getFileByServerRelativeUrl(opts.aspxFileUrl);
 				var wpManager = aspxFile.getLimitedWebPartManager(SP.WebParts.PersonalizationScope.shared);
 				var wpDefinition = wpManager.importWebPart(xmlToImport);
 				var wp = wpDefinition.get_webPart();
@@ -53,24 +53,6 @@
 				function generateXmlDef(opts){
 					//required property:  <property name="ListUrl" type="string">Lists/WatchLog</property>\
 					addParameterBindingsProperty(opts.webPartProperties);
-					var propertiesXml = '';
-					_.each(opts.webPartProperties, function(prop){
-
-						var attributes = '';
-						_.each(prop.attributes, function(val, key){
-							attributes += key +'="' + val + '" ';
-						});
-						
-						propertiesXml +=
-							[
-								"<property ",
-								attributes,
-								" >",
-								(prop.innerText || ''),
-								"</property>"
-							].join('');
-					
-					});
 
 					var baseWebPartXmlString = 
 						'<webParts>\
@@ -81,7 +63,7 @@
 								</metaData>\
 								<data>\
 									<properties>' +
-									propertiesXml +
+									generateWebpartPropertyTags(opts.webPartProperties) +
 									'</properties>\
 								</data>\
 							</webPart>\
@@ -109,6 +91,8 @@
 							innerText: innerText
 						});
 					}
+
+					
 				}
 
 				function onWebpartAdded(){
@@ -144,13 +128,72 @@
 						Function.createDelegate(this, onQueryFailed)
 					);
 					function onWebpartViewUpdated(){
-						logger.logSuccess('Web part added: ('+opts.viewName+')', null, 'sharepointUtilities service, addListViewWebpart()');
+						logger.logSuccess('Web part added: ('+opts.viewName+') on '+opts.aspxFileUrl, null, 'sharepointUtilities service, addListViewWebpart()');
 						dfd.resolve();
 					}
 				}
 
 				function onQueryFailed(sender, args){
-					logger.logError('Request to create webpart ('+opts.listTitle+ ', ' + opts.pageUrl+') failed: ' + args.get_message(), args.get_stackTrace(), 'sharepointUtilities service, addListViewWebpart()');
+					logger.logError('Request to create webpart ('+opts.listTitle+ ') failed on '+opts.aspxFileUrl+': ' + args.get_message(), args.get_stackTrace(), 'sharepointUtilities service, addListViewWebpart()');
+					dfd.reject();
+				}
+			}			
+		}
+
+		function addScriptEditorWebPart(opts){
+			return addWebPartToPage(opts);
+
+			function addWebPartToPage(opts){
+				var dfd = $q.defer();
+
+				var xmlToImport = generateXmlDef(opts);
+				
+				
+				var ctx = new SP.ClientContext(opts.webUrl);
+	    		var spWeb = ctx.get_web();
+				var aspxFile = spWeb.getFileByServerRelativeUrl(opts.aspxFileUrl);
+				var wpManager = aspxFile.getLimitedWebPartManager(SP.WebParts.PersonalizationScope.shared);
+				var wpDefinition = wpManager.importWebPart(xmlToImport);
+				var wp = wpDefinition.get_webPart();
+				wpManager.addWebPart(wp, opts.zoneName, opts.zoneIndex);
+				
+				ctx.load(wp);
+				
+				ctx.executeQueryAsync(
+			        Function.createDelegate(this, onWebpartAdded), 
+			        Function.createDelegate(this, onQueryFailed)
+			    );
+
+				return dfd.promise;
+
+				function generateXmlDef(opts){
+					//required property:  <property name="Content" type="string"></property>\
+
+					var baseWebPartXmlString = 
+						'<webParts>\
+							<webPart xmlns="http://schemas.microsoft.com/WebPart/v3">\
+								<metaData>\
+									<type name="Microsoft.SharePoint.WebPartPages.ScriptEditorWebPart, Microsoft.SharePoint, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c" />\
+									<importErrorMessage>Cannot import this Web Part.</importErrorMessage>\
+								</metaData>\
+								<data>\
+									<properties>' +
+									generateWebpartPropertyTags(opts.webPartProperties) +
+									'</properties>\
+								</data>\
+							</webPart>\
+						</webParts>';
+
+					return baseWebPartXmlString;	
+				}
+
+				function onWebpartAdded(){
+					logger.logSuccess('Web part added: ('+opts.name+') on '+opts.aspxFileUrl, null, 'sharepointUtilities service, addScriptEditorWebpart()');
+					dfd.resolve();
+				}
+
+				function onQueryFailed(sender, args){
+					logger.logError('Request to create webpart ('+opts.name+') failed on '+opts.aspxFileUrl+': ' + args.get_message(), args.get_stackTrace(), 'sharepointUtilities service, addScriptEditorWebpart()');
 					dfd.reject();
 				}
 			}			
@@ -351,6 +394,28 @@
 			    }	    	
 	    	}
 	    }
+
+		function generateWebpartPropertyTags(webPartProperties){
+			var xml = '';
+			_.each(webPartProperties, function(prop){
+
+				var attributes = '';
+				_.each(prop.attributes, function(val, key){
+					attributes += key +'="' + val + '" ';
+				});
+				
+				xml +=
+					[
+						"<property ",
+						attributes,
+						" >",
+						(prop.innerText || ''),
+						"</property>"
+					].join('');
+			
+			});
+			return xml;
+		}
 	    
 		function getLists(webUrl){
 			var dfd = $q.defer();
@@ -414,20 +479,37 @@
 		}
 
 		function provisionListViewWebparts(webpartPageDef){
-			var webpartDefs = _.map(webpartPageDef.webparts, function(def){
+			var webpartDefs = _.map(webpartPageDef.listviewWebparts, function(def){
 				def.webUrl = webpartPageDef.webUrl;
-				def.pageUrl = webpartPageDef.url;
+				def.aspxFileUrl = webpartPageDef.webUrl + "/" + webpartPageDef.folderName + '/' +webpartPageDef.aspxFileName;
 				return def;
 			});
 
-			var chain = webpartDefs.reduce(function(previousPromise, webPartDef){
+			var listviewWebpartsChain = webpartDefs.reduce(function(previousPromise, webPartDef){
 				return previousPromise.then(function(){
 					return addListViewWebPart(webPartDef);
 				});
 			}, $q.when());
 
 			//returning promise chain that caller can resolve...
-			return chain;
+			return listviewWebpartsChain;
+		}
+
+		function provisionScriptEditorWebparts(webpartPageDef){
+			var webpartDefs = _.map(webpartPageDef.scriptEditorWebparts, function(def){
+				def.webUrl = webpartPageDef.webUrl;
+				def.aspxFileUrl = webpartPageDef.webUrl + "/" + webpartPageDef.folderName + '/' +webpartPageDef.aspxFileName;
+				return def;
+			});
+
+			var scriptEditorWebpartsChain = webpartDefs.reduce(function(previousPromise, webPartDef){
+				return previousPromise.then(function(){
+					return addScriptEditorWebPart(webPartDef);
+				});
+			}, $q.when());
+
+			//returning promise chain that caller can resolve...
+			return scriptEditorWebpartsChain;
 		}
 	}
 

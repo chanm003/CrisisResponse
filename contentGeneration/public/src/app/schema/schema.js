@@ -379,6 +379,17 @@ crisisResponseSchema.listDefs["RFI"] = {
 			RichText: "FALSE",						//RECOMMENDED
 			AppendOnly: "TRUE",						//VERSIONING MUST BE TURNED ON, otherwise specifie "FALSE"
 			Description: ""	
+		},
+		{
+			//EXAMPLE: Calculated
+			Name: 'ActionsHtml',
+			DisplayName: 'Actions',
+			Type: "Calculated",
+			Required: 'TRUE',
+			ResultType: 'Text',
+			ReadOnly: 'TRUE',
+			Formula: '="rfiBtn-"&amp;IF(Status="Open","Respond","Reopen")',
+			FieldRefs: ['Status']		
 		}
 	]
 };
@@ -713,8 +724,9 @@ crisisResponseSchema.listDefs["Calendar"] = {
 };
 
 crisisResponseSchema.webpartPageDefs['Task Group Page'] = {
-	url: 'SitePages/sotg.aspx',
-	webparts: [
+	folderName: 'SitePages',
+	aspxFileName: 'sotg.aspx',
+	listviewWebparts: [
 		{
 			listTitle: 'Watch Log',
 			webPartProperties: [
@@ -723,7 +735,7 @@ crisisResponseSchema.webpartPageDefs['Task Group Page'] = {
 					innerText: 'Lists/WatchLog'
 				}
 			],
-			viewName: 'SOTG.aspx Watch Log',
+			viewName: 'LVWP SOTG.aspx Watch Log',
 			viewFields: ['Attachments', 'DTG', 'LinkTitle', 'EventDetails', 'ActionTaken', 'Initials', 'Significant'],
 			viewCAML: '<OrderBy><FieldRef Name="DateTimeGroup" Ascending="FALSE"/></OrderBy><Where><Contains><FieldRef Name="Organization"/><Value Type="Text">{orgQsParam}</Value></Contains></Where>',
 			zoneName: 'Top',
@@ -741,7 +753,7 @@ crisisResponseSchema.webpartPageDefs['Task Group Page'] = {
 					innerText: 'Inbound Messages'
 				}
 			],
-			viewName: 'SOTG.aspx Inbound Messages',
+			viewName: 'LVWP SOTG.aspx Inbound Messages',
 			viewFields: ['Attachments', 'DTG', 'OriginatorSender', 'LinkTitle', 'LinkToMissionDocument', 'Initials', 'Significant'],
 			viewCAML: '<OrderBy><FieldRef Name="DateTimeGroup" Ascending="FALSE"/></OrderBy><Where><Contains><FieldRef Name="Receiver"/><Value Type="Text">{orgQsParam}</Value></Contains></Where>',
 			zoneName: 'Left',
@@ -759,11 +771,87 @@ crisisResponseSchema.webpartPageDefs['Task Group Page'] = {
 					innerText: 'Outbound Messages'
 				}
 			],
-			viewName: 'SOTG.aspx Outbound Messages',
+			viewName: 'LVWP SOTG.aspx Outbound Messages',
 			viewFields: ['DTG', 'Receiver', 'LinkTitle', 'LinkToMissionDocument', 'Initials', 'Significant'],
 			viewCAML: '<OrderBy><FieldRef Name="DateTimeGroup" Ascending="FALSE"/></OrderBy><Where><Contains><FieldRef Name="OriginatorSender"/><Value Type="Text">{orgQsParam}</Value></Contains></Where>',
 			zoneName: 'Left',
 			zoneIndex: 200
+		},
+		{
+			listTitle: 'RFI',
+			webPartProperties: [
+				{
+					attributes: {name: 'ListUrl', type: 'string'},
+					innerText: 'Lists/RFI'
+				},
+				{
+					attributes: {name: 'Title', type: 'string'},
+					innerText: 'Request for Information'
+				}
+			],
+			viewName: 'LVWP SOTG.aspx RFI',
+			viewFields: ['ActionsHtml', 'ID', 'LinkTitle', 'Priority', 'LTIOV'],
+			viewCAML: '<OrderBy><FieldRef Name="LTIOV"/></OrderBy><Where><And><Contains><FieldRef Name="RecommendedOPR"/><Value Type="Text">{orgQsParam}</Value></Contains><Eq><FieldRef Name="Status"/><Value Type="Text">Open</Value></Eq></And></Where>',
+			zoneName: 'Left',
+			zoneIndex: 300
+		},
+		{
+			listTitle: 'Mission Documents',
+			webPartProperties: [
+				{
+					attributes: {name: 'ListUrl', type: 'string'},
+					innerText: 'MissionDocuments'
+				},
+				{
+					attributes: {name: 'Title', type: 'string'},
+					innerText: 'Documents'
+				}
+			],
+			viewName: 'LVWP SOTG.aspx Documents',
+			viewFields: ['LinkFilename', 'DocIcon', 'TypeOfDocument', 'Mission', 'Modified', 'Editor'],
+			viewCAML: '<GroupBy Collapse="TRUE" GroupLimit="30"><FieldRef Name="TypeOfDocument"/></GroupBy><OrderBy><FieldRef Name="FileLeafRef"/></OrderBy><Where><Contains><FieldRef Name="Organization"/><Value Type="Text">{orgQsParam}</Value></Contains></Where>',
+			zoneName: 'Right',
+			zoneIndex: 200
+		}
+	],
+	scriptEditorWebparts: [
+		{
+			name: 'Gantt Mission Tracker',
+			webPartProperties: [
+				{
+					attributes: {name: 'Content', type: 'string'},
+					innerText: '&lt;div id="missionTrackerGanttChart"&gt;&lt;/div&gt;'
+				},
+				{
+					attributes: {name: 'Title', type: 'string'},
+					innerText: 'Mission Tracker'
+				},
+				{
+					attributes: {name: 'Description', type: 'string'},
+					innerText: 'ongoing missions (click checkbox to show past missions)'
+				}
+			],
+			zoneName: 'Right',
+			zoneIndex: 0
+		},
+		{
+			name: 'Full Calendar',
+			webPartProperties: [
+				{
+					attributes: {name: 'Content', type: 'string'},
+					innerText: '&lt;div ui-calendar ng-model="eventSources"&gt;&lt;/div&gt;'
+				},
+				{
+					attributes: {name: 'Title', type: 'string'},
+					innerText: 'Calendar'
+				},
+				{
+					attributes: {name: 'Description', type: 'string'},
+					innerText: 'Battle Rhythm, Academics, VTC&apos;s, Briefings'
+				}
+			],
+			zoneName: 'Bottom',
+			zoneIndex: 0
 		}
 	]
 }
@@ -915,7 +1003,6 @@ var fieldDefinitionExamples = [
 
 var listViewWebpartDefinitionExample = {
 		listTitle: 'Watch Log',
-		pageUrl: 'SitePages/socc.aspx',
 		webUrl: '/ngspa/instance',
 		webPartProperties: [
 			{
