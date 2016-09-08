@@ -725,7 +725,7 @@ crisisResponseSchema.webpartPageDefs['Task Group Page'] = {
 			],
 			viewName: 'SOTG.aspx Watch Log',
 			viewFields: ['Attachments', 'DTG', 'LinkTitle', 'EventDetails', 'ActionTaken', 'Initials', 'Significant'],
-			viewCAML: '<OrderBy><FieldRef Name="DateTimeGroup" Ascending="FALSE"/></OrderBy><Where><Contains><FieldRef Name="Organization"/><Value Type="Text">{organizationalEntity}</Value></Contains></Where>',
+			viewCAML: '<OrderBy><FieldRef Name="DateTimeGroup" Ascending="FALSE"/></OrderBy><Where><Contains><FieldRef Name="Organization"/><Value Type="Text">{orgQsParam}</Value></Contains></Where>',
 			zoneName: 'Top',
 			zoneIndex: 100
 		},
@@ -743,7 +743,7 @@ crisisResponseSchema.webpartPageDefs['Task Group Page'] = {
 			],
 			viewName: 'SOTG.aspx Inbound Messages',
 			viewFields: ['Attachments', 'DTG', 'OriginatorSender', 'LinkTitle', 'LinkToMissionDocument', 'Initials', 'Significant'],
-			viewCAML: '<OrderBy><FieldRef Name="DateTimeGroup" Ascending="FALSE"/></OrderBy><Where><Contains><FieldRef Name="Receiver"/><Value Type="Text">{organizationalEntity}</Value></Contains></Where>',
+			viewCAML: '<OrderBy><FieldRef Name="DateTimeGroup" Ascending="FALSE"/></OrderBy><Where><Contains><FieldRef Name="Receiver"/><Value Type="Text">{orgQsParam}</Value></Contains></Where>',
 			zoneName: 'Left',
 			zoneIndex: 100
 		},
@@ -761,7 +761,7 @@ crisisResponseSchema.webpartPageDefs['Task Group Page'] = {
 			],
 			viewName: 'SOTG.aspx Outbound Messages',
 			viewFields: ['DTG', 'Receiver', 'LinkTitle', 'LinkToMissionDocument', 'Initials', 'Significant'],
-			viewCAML: '<OrderBy><FieldRef Name="DateTimeGroup" Ascending="FALSE"/></OrderBy><Where><Contains><FieldRef Name="OriginatorSender"/><Value Type="Text">{organizationalEntity}</Value></Contains></Where>',
+			viewCAML: '<OrderBy><FieldRef Name="DateTimeGroup" Ascending="FALSE"/></OrderBy><Where><Contains><FieldRef Name="OriginatorSender"/><Value Type="Text">{orgQsParam}</Value></Contains></Where>',
 			zoneName: 'Left',
 			zoneIndex: 200
 		}
@@ -925,7 +925,7 @@ var listViewWebpartDefinitionExample = {
 		],
 		viewName: 'SOCC.aspx Watch Log',
 		viewFields: ['Attachments', 'DTG', 'LinkTitle', 'EventDetails', 'ActionTaken', 'Initials', 'Significant'],
-		viewCAML: '<OrderBy><FieldRef Name="DateTimeGroup" Ascending="FALSE"/></OrderBy><Where><Contains><FieldRef Name="Organization"/><Value Type="Text">{organizationalEntity}</Value></Contains></Where>',
+		viewCAML: '<OrderBy><FieldRef Name="DateTimeGroup" Ascending="FALSE"/></OrderBy><Where><Contains><FieldRef Name="Organization"/><Value Type="Text">{orgQsParam}</Value></Contains></Where>',
 		zoneName: 'Left',
 		zoneIndex: 1
 	}

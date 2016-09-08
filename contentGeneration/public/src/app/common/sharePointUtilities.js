@@ -92,7 +92,7 @@
 					return baseWebPartXmlString;
 
 					function addParameterBindingsProperty(webPartProperties){
-						//makes it possible to use {organizationalEntity} in our CAML queries (maps to value for the 'org' querystring parameter)
+						//makes it possible to use {{orgQsParam}} in our CAML queries (maps to value for the 'org' querystring parameter)
 						var innerText = '&lt;ParameterBinding Name="dvt_sortdir" Location="Postback;Connection"/&gt;'+
 										'&lt;ParameterBinding Name="dvt_sortfield" Location="Postback;Connection"/&gt;'+
 										'&lt;ParameterBinding Name="dvt_startposition" Location="Postback" DefaultValue=""/&gt;'+
@@ -103,7 +103,7 @@
 										'&lt;ParameterBinding Name="idPresEnabled" Location="Resource(wss,idPresEnabled)" /&gt;'+
 										'&lt;ParameterBinding Name="NoAnnouncements" Location="Resource(wss,noXinviewofY_LIST)" /&gt;'+
 										'&lt;ParameterBinding Name="NoAnnouncementsHowTo" Location="Resource(wss,noXinviewofY_DEFAULT)" /&gt;'+
-										'&lt;ParameterBinding Name="organizationalEntity" Location="QueryString(org)" /&gt;';
+										'&lt;ParameterBinding Name="{orgQsParam}" Location="QueryString(org)" /&gt;';
 						webPartProperties.push({
 							attributes: {name: 'ParameterBindings', type: 'string'},
 							innerText: innerText
