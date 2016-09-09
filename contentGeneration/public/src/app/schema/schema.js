@@ -726,7 +726,36 @@ crisisResponseSchema.listDefs["Calendar"] = {
 crisisResponseSchema.webpartPageDefs['Component Command Page'] = {
 	folderName: 'SitePages',
 	aspxFileName: 'socc.aspx',
-	listviewWebparts: [],
+	listviewWebparts: [
+		{
+			listTitle: 'Watch Log',
+			webPartProperties: [
+				{
+					attributes: {name: 'ListUrl', type: 'string'},
+					innerText: 'Lists/WatchLog'
+				}
+			],
+			viewName: 'LVWP SOCC.aspx Watch Log',
+			viewFields: ['Attachments', 'DTG', 'LinkTitle', 'EventDetails', 'ActionTaken', 'Initials', 'Significant'],
+			viewCAML: '<OrderBy><FieldRef Name="DateTimeGroup" Ascending="FALSE"/></OrderBy><Where><Contains><FieldRef Name="Organization"/><Value Type="Text">{orgQsParam}</Value></Contains></Where>',
+			zoneName: 'Top',
+			zoneIndex: 0
+		},
+		{
+			listTitle: 'Message Traffic',
+			webPartProperties: [
+				{
+					attributes: {name: 'ListUrl', type: 'string'},
+					innerText: 'Lists/MessageTraffic'
+				}
+			],
+			viewName: 'LVWP SOCC.aspx Inbound Messages',
+			viewFields: ['Attachments', 'DTG', 'LinkTitle', 'EventDetails', 'ActionTaken', 'Initials', 'Significant'],
+			viewCAML: '<OrderBy><FieldRef Name="DateTimeGroup" Ascending="FALSE"/></OrderBy><Where><Contains><FieldRef Name="Organization"/><Value Type="Text">{orgQsParam}</Value></Contains></Where>',
+			zoneName: 'Left',
+			zoneIndex: 0
+		}
+	],
 	scriptEditorWebparts: [
 		{
 			name: 'Gantt Mission Tracker',
@@ -901,6 +930,165 @@ crisisResponseSchema.webpartPageDefs['Task Group Page'] = {
 		}
 	]
 }
+
+crisisResponseSchema.organizationalChoiceFields = [
+	{
+		listName: "Calendar",
+		fieldName: "Organization",
+		generationFlags: {
+			includeComponentCommands: true,
+			includeTaskGroups: true,
+			includeStaffSections: true,
+			includeNotionals: false,
+			includeExerciseControlGroup: true,
+			includeAirComponent: true,
+			includeCommunicationsComponent: false
+		}
+	},
+	{
+		listName: "CCIR",
+		fieldName: "Organization",
+		generationFlags: {
+			includeComponentCommands: true,
+			includeTaskGroups: false,
+			includeStaffSections: false,
+			includeNotionals: false,
+			includeExerciseControlGroup: false,
+			includeAirComponent: false,
+			includeCommunicationsComponent: false
+		}
+	},
+	{
+		listName: "Message Traffic",
+		fieldName: "OriginatorSender",
+		generationFlags: {
+			includeComponentCommands: true,
+			includeTaskGroups: true,
+			includeStaffSections: false,
+			includeNotionals: true,
+			includeExerciseControlGroup: true,
+			includeAirComponent: true,
+			includeCommunicationsComponent: false
+		}
+	},
+	{
+		listName: "Message Traffic",
+		fieldName: "Receiver",
+		generationFlags: {
+			includeComponentCommands: true,
+			includeTaskGroups: true,
+			includeStaffSections: false,
+			includeNotionals: true,
+			includeExerciseControlGroup: true,
+			includeAirComponent: true,
+			includeCommunicationsComponent: false
+		}
+	},
+	{
+		listName: "Mission Documents",
+		fieldName: "MessageOriginatorSender",
+		generationFlags: {
+			includeComponentCommands: true,
+			includeTaskGroups: true,
+			includeStaffSections: false,
+			includeNotionals: false,
+			includeExerciseControlGroup: false,
+			includeAirComponent: true,
+			includeCommunicationsComponent: false
+		}
+	},
+	{
+		listName: "Mission Documents",
+		fieldName: "MessageRecipients",
+		generationFlags: {
+			includeComponentCommands: true,
+			includeTaskGroups: true,
+			includeStaffSections: false,
+			includeNotionals: false,
+			includeExerciseControlGroup: false,
+			includeAirComponent: true,
+			includeCommunicationsComponent: false
+		}
+	},
+	{
+		listName: "Mission Documents",
+		fieldName: "Organization",
+		generationFlags: {
+			includeComponentCommands: true,
+			includeTaskGroups: true,
+			includeStaffSections: true,
+			includeNotionals: false,
+			includeExerciseControlGroup: false,
+			includeAirComponent: true,
+			includeCommunicationsComponent: false
+		}
+	},
+	{
+		listName: "Mission Tracker",
+		fieldName: "Organization",
+		generationFlags: {
+			includeComponentCommands: true,
+			includeTaskGroups: true,
+			includeStaffSections: false,
+			includeNotionals: false,
+			includeExerciseControlGroup: false,
+			includeAirComponent: true,
+			includeCommunicationsComponent: false
+		}
+	},
+	{
+		listName: "Mission Tracker",
+		fieldName: "ParticipatingOrganizations",
+		generationFlags: {
+			includeComponentCommands: true,
+			includeTaskGroups: true,
+			includeStaffSections: false,
+			includeNotionals: false,
+			includeExerciseControlGroup: false,
+			includeAirComponent: true,
+			includeCommunicationsComponent: false
+		}
+	},
+	{
+		listName: "RFI",
+		fieldName: "PocOrganization",
+		generationFlags: {
+			includeComponentCommands: true,
+			includeTaskGroups: true,
+			includeStaffSections: true,
+			includeNotionals: true,
+			includeExerciseControlGroup: true,
+			includeAirComponent: true,
+			includeCommunicationsComponent: false
+		}
+	},
+	{
+		listName: "RFI",
+		fieldName: "RecommendedOPR",
+		generationFlags: {
+			includeComponentCommands: true,
+			includeTaskGroups: true,
+			includeStaffSections: true,
+			includeNotionals: true,
+			includeExerciseControlGroup: true,
+			includeAirComponent: true,
+			includeCommunicationsComponent: false
+		}
+	},
+	{
+		listName: "Watch Log",
+		fieldName: "Organization",
+		generationFlags: {
+			includeComponentCommands: true,
+			includeTaskGroups: true,
+			includeStaffSections: false,
+			includeNotionals: false,
+			includeExerciseControlGroup: false,
+			includeAirComponent: true,
+			includeCommunicationsComponent: true
+		}
+	}
+];
 
 /*
 var listDefinitionExample = [
