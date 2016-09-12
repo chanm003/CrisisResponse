@@ -390,6 +390,17 @@ crisisResponseSchema.listDefs["RFI"] = {
 			ReadOnly: 'TRUE',
 			Formula: '="rfiBtn-"&amp;IF(Status="Open","Respond","Reopen")',
 			FieldRefs: ['Status']		
+		},
+		{
+			//EXAMPLE: Calculated
+			Name: 'PrioritySort',
+			DisplayName: 'PrioritySort',
+			Type: "Calculated",
+			Required: 'TRUE',
+			ResultType: 'Number',
+			ReadOnly: 'TRUE',
+			Formula: '=IF(ISNUMBER(SEARCH("Immediate",Priority)),1,IF(ISNUMBER(SEARCH("Priority",Priority)),2,3))',
+			FieldRefs: ['Priority']		
 		}
 	]
 };
@@ -747,12 +758,88 @@ crisisResponseSchema.webpartPageDefs['Component Command Page'] = {
 				{
 					attributes: {name: 'ListUrl', type: 'string'},
 					innerText: 'Lists/MessageTraffic'
+				},
+				{
+					attributes: {name: 'Title', type: 'string'},
+					innerText: 'Inbound Messages'
 				}
 			],
 			viewName: 'LVWP SOCC.aspx Inbound Messages',
-			viewFields: ['Attachments', 'DTG', 'LinkTitle', 'EventDetails', 'ActionTaken', 'Initials', 'Significant'],
-			viewCAML: '<OrderBy><FieldRef Name="DateTimeGroup" Ascending="FALSE"/></OrderBy><Where><Contains><FieldRef Name="Organization"/><Value Type="Text">{orgQsParam}</Value></Contains></Where>',
+			viewFields: ['Attachments', 'DTG', 'OriginatorSender', 'LinkTitle', 'LinkToMissionDocument', 'Initials', 'Significant'],
+			viewCAML: '<OrderBy><FieldRef Name="DateTimeGroup" Ascending="FALSE"/></OrderBy><Where><Contains><FieldRef Name="Receiver"/><Value Type="Text">{orgQsParam}</Value></Contains></Where>',
 			zoneName: 'Left',
+			zoneIndex: 0
+		},
+		{
+			listTitle: 'Message Traffic',
+			webPartProperties: [
+				{
+					attributes: {name: 'ListUrl', type: 'string'},
+					innerText: 'Lists/MessageTraffic'
+				},
+				{
+					attributes: {name: 'Title', type: 'string'},
+					innerText: 'Outbound Messages'
+				}
+			],
+			viewName: 'LVWP SOCC.aspx Outbound Messages',
+			viewFields: ['DTG', 'Receiver', 'LinkTitle', 'LinkToMissionDocument', 'Initials', 'Significant'],
+			viewCAML: '<OrderBy><FieldRef Name="DateTimeGroup" Ascending="FALSE"/></OrderBy><Where><Contains><FieldRef Name="OriginatorSender"/><Value Type="Text">{orgQsParam}</Value></Contains></Where>',
+			zoneName: 'Left',
+			zoneIndex: 10
+		},
+		{
+			listTitle: 'RFI',
+			webPartProperties: [
+				{
+					attributes: {name: 'ListUrl', type: 'string'},
+					innerText: 'Lists/RFI'
+				},
+				{
+					attributes: {name: 'Title', type: 'string'},
+					innerText: 'Request for Information'
+				}
+			],
+			viewName: 'LVWP SOCC.aspx RFI',
+			viewFields: ['ActionsHtml', 'ID', 'LinkTitle', 'Priority', 'LTIOV'],
+			viewCAML: '<GroupBy Collapse="TRUE" GroupLimit="30"><FieldRef Name="RecommendedOPR"/></GroupBy><OrderBy><FieldRef Name="LTIOV"/><FieldRef Name="PrioritySort"/></OrderBy><Where><And><Contains><FieldRef Name="RecommendedOPR"/><Value Type="Text">{orgQsParam}</Value></Contains><Eq><FieldRef Name="Status"/><Value Type="Text">Open</Value></Eq></And></Where>',
+			zoneName: 'Left',
+			zoneIndex: 20
+		},
+		{
+			listTitle: 'Mission Documents',
+			webPartProperties: [
+				{
+					attributes: {name: 'ListUrl', type: 'string'},
+					innerText: 'MissionDocuments'
+				},
+				{
+					attributes: {name: 'Title', type: 'string'},
+					innerText: 'Documents'
+				}
+			],
+			viewName: 'LVWP SOCC.aspx Documents',
+			viewFields: ['DocIcon', 'TypeOfDocument', 'Organization', 'LinkFilename', 'Mission', 'Modified', 'Editor'],
+			viewCAML: '<GroupBy Collapse="TRUE" GroupLimit="30"><FieldRef Name="TypeOfDocument"/><FieldRef Name="Organization"/></GroupBy><OrderBy><FieldRef Name="FileLeafRef"/></OrderBy><Where><Contains><FieldRef Name="Organization"/><Value Type="Text">{orgQsParam}</Value></Contains></Where>',
+			zoneName: 'Right',
+			zoneIndex: 10
+		},
+		{
+			listTitle: 'CCIR',
+			webPartProperties: [
+				{
+					attributes: {name: 'ListUrl', type: 'string'},
+					innerText: 'Lists/CCIR'
+				},
+				{
+					attributes: {name: 'Title', type: 'string'},
+					innerText: 'CCIR'
+				}
+			],
+			viewName: 'LVWP SOCC.aspx CCIR',
+			viewFields: ['Number', 'LinkTitle', 'Status', 'Description'],
+			viewCAML: '<GroupBy Collapse="TRUE" GroupLimit="30"><FieldRef Name="Category"/></GroupBy><OrderBy><FieldRef Name="Number"/></OrderBy><Where><Contains><FieldRef Name="Organization"/><Value Type="Text">{orgQsParam}</Value></Contains></Where>',
+			zoneName: 'Bottom',
 			zoneIndex: 0
 		}
 	],
@@ -793,7 +880,7 @@ crisisResponseSchema.webpartPageDefs['Component Command Page'] = {
 				}
 			],
 			zoneName: 'Bottom',
-			zoneIndex: 0
+			zoneIndex: 10
 		}
 	]
 }
