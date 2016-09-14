@@ -30,6 +30,7 @@
         'ui.router',
         'ngplus'
     ])
+        .constant('_', _)
         .constant('toastr', toastr)
         .constant('moment', moment)
         .value('config', globalConfig)
@@ -307,7 +308,36 @@ lpm.models.learningItem = function () {
     RfiModel.$inject = ['RfiRepository'];
     function RfiModel(RfiRepository){
         var RFI = function(data){
-            this.Id = (data && data.Id) || -1;
+            if(!data){
+                this.Id = undefined; //number
+                this.Title = undefined; //string
+                this.DateClosed = undefined; //string (ISO) or null "2016-08-01T07:00:00Z"
+                this.Details = undefined; //string or null
+                this.InsufficientExplanation = undefined; //string or null
+                this.LTIOV = undefined; //string (ISO) or null "2016-08-01T07:00:00Z"
+                this.ManageRFIId = undefined; // object or null {results: [8, 16, 23]}  
+                this.MissionId = undefined; //integer or null
+                this.PocNameId = undefined; //integer
+                this.PocOrganization = undefined; //string
+                this.PocPhone = undefined; //string
+                this.Priority = undefined; //string
+                this.RecommendedOPR = undefined; //string
+                this.RespondentNameId = undefined; //integer or null
+                this.RespondentPhone = undefined; //string or null
+                this.ResponseSufficient = undefined; //string or null
+                this.ResponseToRequest = undefined; //string or null
+                this.RfiTrackingNumber = undefined; //integer or null
+                this.Status = undefined; //string
+                this.__metadata = {
+                    type: "SP.Data.RfiListItem"
+                };
+            } else {
+                for(var prop in data){
+                    if(data.hasOwnProperty(prop)){
+                        this[prop] = data[prop];
+                    }
+                }
+            }
         }
 
         RFI.prototype.complete = function(){
@@ -333,8 +363,93 @@ lpm.models.learningItem = function () {
     RfiRepository.$inject = ['$http', '$q', '$resource', 'exception', 'logger', 'spContext'];
     function RfiRepository($http, $q, $resource, exception, logger, spContext) {
         var service = {
+            getAll: getAll,
             save: save
         };
+
+        var fieldsToSelect = [
+                spContext.SP2013REST.selectForCommonFields, 
+                'Status,RfiTrackingNumber,MissionId,Details,Priority,LTIOV,PocNameId,PocPhone,PocOrganization,RecommendedOPR',
+                'ManageRFIId,RespondentNameId,RespondentPhone,ResponseToRequest,DateClosed,ResponseSufficient,InsufficientExplanation',
+                'Mission/FullName,PocName/Title,ManageRFI/Title,RespondentName/Title'
+            ].join(',');
+        
+        var fieldsToExpand = [
+                spContext.SP2013REST.expandoForCommonFields,
+                'Mission,PocName,ManageRFI,RespondentName'
+            ].join(',');
+
+        function getDataContextForCollection(params){
+            return $resource("../_api/web/lists/getbytitle('RFI')/items",
+                {},
+                {
+                    get: {
+                        method: 'GET',
+                        params: {
+                            '$select': fieldsToSelect,
+                            '$expand': fieldsToExpand
+                        },
+                        headers: {
+                            'Accept': 'application/json;odata=verbose;'
+                        }
+                    },
+                    post: {
+                        method: 'POST',
+                        headers: {
+                            'Accept': 'application/json;odata=verbose',
+                            'Content-Type': 'application/json;odata=verbose;',
+                            'X-RequestDigest': spContext.securityValidation
+                        }
+                    }
+                });
+        }
+
+        function getDataContextForResource(item){
+             return $resource("../_api/web/lists/getbytitle('RFI')/items(:itemId)",
+                { itemId: item.Id },
+                {
+                get: {
+                    method: 'GET',
+                    params: {
+                        '$select': 'Id,Title,Comments,Created,Modified'
+                    },
+                    headers: {
+                        'Accept': 'application/json;odata=verbose;'
+                    }
+                },
+                post: {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json;odata=verbose;',
+                        'Content-Type': 'application/json;odata=verbose;',
+                        'X-RequestDigest': spContext.securityValidation,
+                        'X-HTTP-Method': 'MERGE',
+                        'If-Match': item.__metadata.etag
+                    }
+                },
+                delete: {
+                    method: 'DELETE',
+                    headers: {
+                        'Accept': 'application/json;odata=verbose;',
+                        'Content-Type': 'application/json;odata=verbose;',
+                        'X-RequestDigest': spContext.securityValidation,
+                        'If-Match': '*'
+                    }
+                }
+            });
+        }
+
+        function getAll(){
+            var dfd = $q.defer();
+            getDataContextForCollection().get({}, 
+                function (data){
+                    dfd.resolve(data.d.results);
+                }, 
+                function (error){
+                     dfd.reject(error);
+                }); 
+            return dfd.promise;
+        }
 
         function save(rfi){
             console.log('Repository method...');
@@ -346,6 +461,11 @@ lpm.models.learningItem = function () {
     spContext.$inject = ['$resource', '$timeout', 'logger'];
     function spContext($resource, $timeout, logger) {
         var service = this;
+
+        service.SP2013REST ={
+            selectForCommonFields: 'Id,Title,Created,Modified,AuthorId,EditorId,Attachments,Author/Title,Editor/Title',
+            expandoForCommonFields: 'Author,Editor'
+        }
 
         init();
 
@@ -424,10 +544,11 @@ lpm.models.learningItem = function () {
         }
     }
 
-    RfiController.$inject = ['logger', 'RFI', 'RfiRepository'];
-    function RfiController(logger, RFI, RFIRepository) {
+    RfiController.$inject = ['_', 'logger', 'RFI', 'RfiRepository'];
+    function RfiController(_, logger, RFI, RFIRepository) {
         var vm = this;
         vm.title = "Mike";
+        vm.rfiList = [];
         vm.tabConfig = {
             selectedSize: "large",
             selectedType: "tabs",
@@ -447,8 +568,14 @@ lpm.models.learningItem = function () {
         activate();
 
         function activate() {
-            var newRfi = new RFI();
-            newRfi.complete();
+            RFIRepository.getAll()
+                .then(function(data){
+                    vm.rfiList = _.map(data, function(item){ return new RFI(item); })
+                    _.each(vm.rfiList, function(item){
+                        console.log(item);
+                        item.complete();
+                    });
+                })
 
             logger.info('Activated RFI View');
         }

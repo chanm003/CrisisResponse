@@ -9,8 +9,8 @@ crisisResponseSchema.listDefs["Mission Tracker"] = {
 		fieldsToCreate:[
 			{
 				//EXAMPLE: SINGLE LINE OF TEXT
-				Name: "DisplayName",
-				DisplayName: "Display Name",
+				Name: "Identifier",
+				DisplayName: "Identifier",
 				Type: "Text",
 				Required: "False",
 				MaxLength: 255,
@@ -24,7 +24,7 @@ crisisResponseSchema.listDefs["Mission Tracker"] = {
 				Type: "Text",
 				Required: "False",
 				MaxLength: 255,
-				Description: "This field should be hidden from data entry forms using CSS.  Generated on save using following format: Organization_XXX_MissionType (ObjectiveName, OperationName), ex. SOTG10_003_KS, (OBJ_HAN, OP_SOLO)",
+				Description: "This field should be hidden from data entry forms using CSS.  Generated on save using following format: Organization_XXX_MissionType (ObjectiveName, OperationName), ex. SOTG10_003_KS (OBJ_HAN, OBJ, SOLO)",
 				Default: ""							//(optional)
 			},
 			{
@@ -331,7 +331,7 @@ crisisResponseSchema.listDefs["RFI"] = {
 		{
 			//EXAMPLE: SINGLE LINE OF TEXT
 			Name: "RespondentPhone",
-			DisplayName: "Resopondent Phone",
+			DisplayName: "Respondent Phone",
 			Type: "Text",
 			Required: "FALSE",
 			Description: "Respondent&apos;s telephone number",
