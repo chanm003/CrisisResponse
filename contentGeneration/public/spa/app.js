@@ -286,20 +286,6 @@
 
 })();
 
-var lpm = lpm || {};
-lpm.models = lpm.models || {};
-
-// learning item entity
-lpm.models.learningItem = function () {
-  this.Id = undefined;
-  this.Title = undefined;
-  this.ItemType = undefined;
-  this.LearningPathId = undefined;
-  this.__metadata = {
-    type: 'SP.Data.LearningItemsListItem'
-  };
-};
-
 (function () {
     'use strict';
      
@@ -406,7 +392,7 @@ lpm.models.learningItem = function () {
         }
 
         function getDataContextForResource(item){
-             return $resource(_spPageContextInfo.webServerRelativeUrl+"_api/web/lists/getbytitle('RFI')/items(:itemId)",
+             return $resource(_spPageContextInfo.webServerRelativeUrl+"/_api/web/lists/getbytitle('RFI')/items(:itemId)",
                 { itemId: item.Id },
                 {
                 get: {
@@ -570,7 +556,49 @@ lpm.models.learningItem = function () {
         activate();
 
         function activate() {
-            RFIRepository.getAll()
+
+            vm.missionItems = [
+                {
+                    Id: 3,
+                    Identifier: "SOTG10_003_KS",
+                    Status: 'COA Approved',
+                    ExpectedExecution: "2016-08-01T07:00:00Z",
+                    ExpectedTermination: "2016-08-03T07:00:00Z",
+                    Organization: 'SOTG 10',
+                    ParticipatingOrganizations: {
+                        results: [
+                            'SOAC', 'SOTG 20'
+                        ]
+                    },
+                    ObjectiveName: "OBJ_HAN",            
+                    ApprovalAuthority: "2B: SOCC NRF",
+                    OperationName: "OP_SOLO",
+                },
+                {
+                    Id: 8,
+                    Identifier: "SOTG10_004_DA",
+                    Status: 'Mission Closed',
+                    ExpectedExecution: "2016-08-02T07:00:00Z",
+                    ExpectedTermination: "2016-08-08T07:00:00Z",
+                    Organization: 'SOTG 10',
+                    ParticipatingOrganizations: {
+                        results: [
+                            'SOTG 20', 'SOTG 30'
+                        ]
+                    },
+                    ObjectiveName: "OBJ_DARTH",            
+                    ApprovalAuthority: "3A: NRF SOCC",
+                    OperationName: "OP_VADER",
+                }
+            ];
+
+            fetchData().then(function(){
+                logger.info('Activated RFI View');
+            });
+        }
+
+        function fetchData(){
+            return RFIRepository.getAll()
                 .then(function(data){
                     vm.rfiList = _.map(data, function(item){ return new RFI(item); })
                     _.each(vm.rfiList, function(item){
@@ -578,11 +606,69 @@ lpm.models.learningItem = function () {
                         item.complete();
                     });
                 })
-
-            logger.info('Activated RFI View');
         }
 
+    }
 
+})();
+
+(function () {
+    angular
+        .module('app.core')
+        .directive('missionTimeline', missionTimeline);
+    
+    function missionTimeline(){
+        /* 
+        USAGE: <timeline></timeline>
+        */
+        var directiveDefinition = {
+            link: link,
+            restrict: 'E',
+            scope:{
+                items: "="
+            }
+        };
+        return directiveDefinition;
+
+        function link(scope, elem, attrs){
+            var options = {
+                stack: false,
+                start: new Date(),
+                end: new Date(1000*60*60*24 + (new Date()).valueOf()),
+                editable: false,
+                margin: {
+                    item: 10, // minimal margin between items
+                    axis: 5   // minimal margin between items and the axis
+                },
+                orientation: 'top'
+            };
+            
+            scope.$watch('items', function(){
+                renderTimeline(scope.items);
+                console.log('directive received data: ', scope.items);
+            })
+
+            function renderTimeline(missions){
+                var groups = new vis.DataSet(_.map(missions, function(item){ return { id: item.Id, content: item.Identifier }; }));
+                var items = new vis.DataSet(
+                        _.map(missions, function(item){ 
+                            return { 
+                                id: item.Id, 
+                                group: item.Id, 
+                                start: new Date(item.ExpectedExecution),
+                                end: new Date(item.ExpectedTermination)
+                            }; 
+                        })
+                    );
+
+
+                var timeline = new vis.Timeline(elem[0], null, options);
+                timeline.setGroups(groups);
+                timeline.setItems(items);
+            }
+            
+     
+        }
     }
 
 })();

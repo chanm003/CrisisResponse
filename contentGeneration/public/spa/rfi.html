@@ -3,10 +3,10 @@
   <uif-pivot-ellipsis ng-click="vm.openMenu()">
     <uif-contextual-menu uif-is-open="vm.tabConfig.menuOpened" uif-close-on-click="true">
       <uif-contextual-menu-item>
-          <uif-content>
-            <uif-icon uif-type="plus"></uif-icon> New RFI
-          </uif-content>
-        </uif-contextual-menu-item>
+        <uif-content>
+          <uif-icon uif-type="plus"></uif-icon> New RFI
+        </uif-content>
+      </uif-contextual-menu-item>
     </uif-contextual-menu>
   </uif-pivot-ellipsis>
 </uif-pivot>
@@ -14,7 +14,13 @@
 <table>
   <tr>
     <td>
-<div ui-calendar ng-model="vm.eventSources"></div>
-  </td>
+      
+      <mission-timeline items="vm.missionItems"></mission-timeline>
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <div ui-calendar ng-model="vm.eventSources"></div>
+    </td>
   </tr>
 </table>
