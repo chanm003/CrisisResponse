@@ -381,7 +381,7 @@ lpm.models.learningItem = function () {
             ].join(',');
 
         function getDataContextForCollection(params){
-            return $resource("../_api/web/lists/getbytitle('RFI')/items",
+            return $resource(_spPageContextInfo.webServerRelativeUrl+"/_api/web/lists/getbytitle('RFI')/items",
                 {},
                 {
                     get: {
@@ -406,7 +406,7 @@ lpm.models.learningItem = function () {
         }
 
         function getDataContextForResource(item){
-             return $resource("../_api/web/lists/getbytitle('RFI')/items(:itemId)",
+             return $resource(_spPageContextInfo.webServerRelativeUrl+"_api/web/lists/getbytitle('RFI')/items(:itemId)",
                 { itemId: item.Id },
                 {
                 get: {
@@ -479,7 +479,7 @@ lpm.models.learningItem = function () {
                 logger.info("refreshing soon-to-expire security validation: " + service.securityValidation);
             }
 
-            var siteContextInfoResource = $resource('_api/contextinfo?$select=FormDigestValue', {}, {
+            var siteContextInfoResource = $resource(_spPageContextInfo.webServerRelativeUrl+'/_api/contextinfo?$select=FormDigestValue', {}, {
                 post: {
                     method: 'POST',
                     headers: {
@@ -508,7 +508,7 @@ lpm.models.learningItem = function () {
             }
 
             function fail(error) {
-                common.logger.logError("response from contextinfo", error, serviceId);
+                logger.logError("response from contextinfo: " + error);
             }
 
         }
