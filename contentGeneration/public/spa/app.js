@@ -27,6 +27,7 @@
         'blocks.exception',
         'blocks.logger',
         'blocks.router',
+        'ui.calendar',
         'ui.router',
         'ngplus'
     ])
@@ -549,6 +550,7 @@ lpm.models.learningItem = function () {
         var vm = this;
         vm.title = "Mike";
         vm.rfiList = [];
+        vm.eventSources = [];
         vm.tabConfig = {
             selectedSize: "large",
             selectedType: "tabs",
