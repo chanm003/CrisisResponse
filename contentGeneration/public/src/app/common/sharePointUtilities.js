@@ -314,7 +314,7 @@
 	    		
 	    		//create list
 	    		var listCreationInfo = new SP.ListCreationInformation();
-	    		var uglyListName = new Sugar.String(opts.Title).camelize().raw;
+	    		var uglyListName = S(opts.Title).camelize().toString()
 				listCreationInfo.set_title(uglyListName);
 				listCreationInfo.set_templateType(SP.ListTemplateType[opts.BaseTemplate]);
 				createdList = spWeb.get_lists().add(listCreationInfo);
