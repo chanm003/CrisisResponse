@@ -534,30 +534,112 @@
     RfiController.$inject = ['_', 'logger', 'RFI', 'RfiRepository'];
     function RfiController(_, logger, RFI, RFIRepository) {
         var vm = this;
-        vm.title = "Mike";
-        vm.rfiList = [];
         vm.eventSources = [];
-        vm.tabConfig = {
-            selectedSize: "large",
-            selectedType: "tabs",
-            pivots: [
-                { title: "Open" },
-                { title: "Closed" },
-                { title: "My RFIs" },
-                { title: "Manage RFIs" }
-            ],
-            selectedPivot: { title: "Open" },
-            menuOpened: false
-        }
-        vm.openMenu = function () {
-            vm.tabConfig.menuOpened = !vm.tabConfig.menuOpened;
-        }
 
         activate();
 
         function activate() {
+            initTabs(); 
+            fetchData().then(function(){
+                logger.info('Activated RFI View');
+            });
+        }
 
-            vm.missionItems = [
+        function initTabs(){
+            vm.tabConfig = {
+                selectedSize: "large",
+                selectedType: "tabs",
+                pivots: [
+                    { title: "Open" },
+                    { title: "Closed" },
+                    { title: "My RFIs" },
+                    { title: "Manage RFIs" }
+                ],
+                selectedPivot: { title: "Open" },
+                menuOpened: false
+            }
+            vm.openMenu = function () {
+                vm.tabConfig.menuOpened = !vm.tabConfig.menuOpened;
+            }
+        }
+
+        function fetchData(){
+            return RFIRepository.getAll()
+                .then(function(data){
+                    vm.rfiList = _.map(data, function(item){ return new RFI(item); })
+                    _.each(vm.rfiList, function(item){
+                        console.log(item);
+                        item.complete();
+                    });
+                })
+        }
+
+    }
+
+})();
+
+(function () {
+    'use strict';
+
+    angular
+        .module('app.core')
+        .run(registerMissionTrackerRoute)
+        .controller('MissionTrackerController', MissionTrackerController);
+
+    registerMissionTrackerRoute.$inject = ['config', 'routerHelper'];
+    function registerMissionTrackerRoute(config, routerHelper) {
+        routerHelper.configureStates(getStates());
+
+        function getStates() {
+            return [
+                {
+                    state: 'missionTracker',
+                    config: {
+                        url: '/missionTracker',
+                        templateUrl: config.baseUrl + '/missionTracker.html',
+                        controller: 'MissionTrackerController',
+                        controllerAs: 'vm',
+                        title: 'Mission Tracker'
+                    }
+                }
+            ];
+        }
+    }
+
+    MissionTrackerController.$inject = ['$q', '_', 'logger'];
+    function MissionTrackerController($q, _, logger) {
+        var vm = this;
+        
+        activate();
+
+        function activate() {
+            initTabs();
+            fetchData()
+                .then(function(data){
+                    vm.missionItems = data;
+                    logger.info('Activated Mission Tacker View');
+                });
+        }
+
+        function initTabs(){
+            vm.tabConfig = {
+                selectedSize: "large",
+                selectedType: "tabs",
+                pivots: [
+                    { title: "Timeline" },
+                    { title: "Products" },
+                    { title: "Product Chop" }
+                ],
+                selectedPivot: { title: "Timeline" },
+                menuOpened: false
+            }
+            vm.openMenu = function () {
+                vm.tabConfig.menuOpened = !vm.tabConfig.menuOpened;
+            }
+        }
+
+        function fetchData(){
+            var staticData = [
                 {
                     Id: 3,
                     Identifier: "SOTG10_003_KS",
@@ -591,21 +673,7 @@
                     OperationName: "OP_VADER",
                 }
             ];
-
-            fetchData().then(function(){
-                logger.info('Activated RFI View');
-            });
-        }
-
-        function fetchData(){
-            return RFIRepository.getAll()
-                .then(function(data){
-                    vm.rfiList = _.map(data, function(item){ return new RFI(item); })
-                    _.each(vm.rfiList, function(item){
-                        console.log(item);
-                        item.complete();
-                    });
-                })
+            return $q.when(staticData);
         }
 
     }
