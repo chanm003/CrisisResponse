@@ -581,7 +581,7 @@
 
 (function () {
     'use strict';
-
+    //nicer looking plugin found here but requires bootstrap: http://www.dijit.fr/demo/angular-weekly-scheduler/
     angular
         .module('app.core')
         .run(registerMissionTrackerRoute)
