@@ -29,6 +29,7 @@
         'blocks.router',
         'ui.calendar',
         'ui.router',
+        'ngJsTree',
         'ngplus'
     ])
         .constant('_', _)
@@ -288,14 +289,14 @@
 
 (function () {
     'use strict';
-     
-     angular.module('app.models', [])
+
+    angular.module('app.models', [])
         .factory('RFI', RfiModel);
 
     RfiModel.$inject = ['RfiRepository'];
-    function RfiModel(RfiRepository){
-        var RFI = function(data){
-            if(!data){
+    function RfiModel(RfiRepository) {
+        var RFI = function (data) {
+            if (!data) {
                 this.Id = undefined; //number
                 this.Title = undefined; //string
                 this.DateClosed = undefined; //string (ISO) or null "2016-08-01T07:00:00Z"
@@ -319,15 +320,15 @@
                     type: "SP.Data.RfiListItem"
                 };
             } else {
-                for(var prop in data){
-                    if(data.hasOwnProperty(prop)){
+                for (var prop in data) {
+                    if (data.hasOwnProperty(prop)) {
                         this[prop] = data[prop];
                     }
                 }
             }
         }
 
-        RFI.prototype.complete = function(){
+        RFI.prototype.complete = function () {
             console.log('business object saving...');
             RfiRepository.save(this);
         }
@@ -342,7 +343,7 @@
     angular.module('app.data', ['app.models'])
         .service('spContext', spContext)
         .service('RfiRepository', RfiRepository)
-        .run(['spContext', function(spContext) {
+        .run(['spContext', function (spContext) {
             //simply requiring this singleton runs it initialization code..
         }]);
 
@@ -355,19 +356,19 @@
         };
 
         var fieldsToSelect = [
-                spContext.SP2013REST.selectForCommonFields, 
-                'Status,RfiTrackingNumber,MissionId,Details,Priority,LTIOV,PocNameId,PocPhone,PocOrganization,RecommendedOPR',
-                'ManageRFIId,RespondentNameId,RespondentPhone,ResponseToRequest,DateClosed,ResponseSufficient,InsufficientExplanation',
-                'Mission/FullName,PocName/Title,ManageRFI/Title,RespondentName/Title'
-            ].join(',');
-        
-        var fieldsToExpand = [
-                spContext.SP2013REST.expandoForCommonFields,
-                'Mission,PocName,ManageRFI,RespondentName'
-            ].join(',');
+            spContext.SP2013REST.selectForCommonFields,
+            'Status,RfiTrackingNumber,MissionId,Details,Priority,LTIOV,PocNameId,PocPhone,PocOrganization,RecommendedOPR',
+            'ManageRFIId,RespondentNameId,RespondentPhone,ResponseToRequest,DateClosed,ResponseSufficient,InsufficientExplanation',
+            'Mission/FullName,PocName/Title,ManageRFI/Title,RespondentName/Title'
+        ].join(',');
 
-        function getDataContextForCollection(params){
-            return $resource(_spPageContextInfo.webServerRelativeUrl+"/_api/web/lists/getbytitle('RFI')/items",
+        var fieldsToExpand = [
+            spContext.SP2013REST.expandoForCommonFields,
+            'Mission,PocName,ManageRFI,RespondentName'
+        ].join(',');
+
+        function getDataContextForCollection(params) {
+            return $resource(_spPageContextInfo.webServerRelativeUrl + "/_api/web/lists/getbytitle('RFI')/items",
                 {},
                 {
                     get: {
@@ -391,54 +392,54 @@
                 });
         }
 
-        function getDataContextForResource(item){
-             return $resource(_spPageContextInfo.webServerRelativeUrl+"/_api/web/lists/getbytitle('RFI')/items(:itemId)",
+        function getDataContextForResource(item) {
+            return $resource(_spPageContextInfo.webServerRelativeUrl + "/_api/web/lists/getbytitle('RFI')/items(:itemId)",
                 { itemId: item.Id },
                 {
-                get: {
-                    method: 'GET',
-                    params: {
-                        '$select': 'Id,Title,Comments,Created,Modified'
+                    get: {
+                        method: 'GET',
+                        params: {
+                            '$select': 'Id,Title,Comments,Created,Modified'
+                        },
+                        headers: {
+                            'Accept': 'application/json;odata=verbose;'
+                        }
                     },
-                    headers: {
-                        'Accept': 'application/json;odata=verbose;'
+                    post: {
+                        method: 'POST',
+                        headers: {
+                            'Accept': 'application/json;odata=verbose;',
+                            'Content-Type': 'application/json;odata=verbose;',
+                            'X-RequestDigest': spContext.securityValidation,
+                            'X-HTTP-Method': 'MERGE',
+                            'If-Match': item.__metadata.etag
+                        }
+                    },
+                    delete: {
+                        method: 'DELETE',
+                        headers: {
+                            'Accept': 'application/json;odata=verbose;',
+                            'Content-Type': 'application/json;odata=verbose;',
+                            'X-RequestDigest': spContext.securityValidation,
+                            'If-Match': '*'
+                        }
                     }
-                },
-                post: {
-                    method: 'POST',
-                    headers: {
-                        'Accept': 'application/json;odata=verbose;',
-                        'Content-Type': 'application/json;odata=verbose;',
-                        'X-RequestDigest': spContext.securityValidation,
-                        'X-HTTP-Method': 'MERGE',
-                        'If-Match': item.__metadata.etag
-                    }
-                },
-                delete: {
-                    method: 'DELETE',
-                    headers: {
-                        'Accept': 'application/json;odata=verbose;',
-                        'Content-Type': 'application/json;odata=verbose;',
-                        'X-RequestDigest': spContext.securityValidation,
-                        'If-Match': '*'
-                    }
-                }
-            });
+                });
         }
 
-        function getAll(){
+        function getAll() {
             var dfd = $q.defer();
-            getDataContextForCollection().get({}, 
-                function (data){
+            getDataContextForCollection().get({},
+                function (data) {
                     dfd.resolve(data.d.results);
-                }, 
-                function (error){
-                     dfd.reject(error);
-                }); 
+                },
+                function (error) {
+                    dfd.reject(error);
+                });
             return dfd.promise;
         }
 
-        function save(rfi){
+        function save(rfi) {
             console.log('Repository method...');
         }
 
@@ -449,7 +450,7 @@
     function spContext($resource, $timeout, logger) {
         var service = this;
 
-        service.SP2013REST ={
+        service.SP2013REST = {
             selectForCommonFields: 'Id,Title,Created,Modified,AuthorId,EditorId,Attachments,Author/Title,Editor/Title',
             expandoForCommonFields: 'Author,Editor'
         }
@@ -461,11 +462,11 @@
         }
 
         function refreshSecurityValidation() {
-            if(service.securityValidation){
+            if (service.securityValidation) {
                 logger.info("refreshing soon-to-expire security validation: " + service.securityValidation);
             }
 
-            var siteContextInfoResource = $resource(_spPageContextInfo.webServerRelativeUrl+'/_api/contextinfo?$select=FormDigestValue', {}, {
+            var siteContextInfoResource = $resource(_spPageContextInfo.webServerRelativeUrl + '/_api/contextinfo?$select=FormDigestValue', {}, {
                 post: {
                     method: 'POST',
                     headers: {
@@ -500,7 +501,7 @@
         }
     }
 
-  
+
 })();
 
 (function () {
@@ -539,13 +540,13 @@
         activate();
 
         function activate() {
-            initTabs(); 
-            fetchData().then(function(){
+            initTabs();
+            fetchData().then(function () {
                 logger.info('Activated RFI View');
             });
         }
 
-        function initTabs(){
+        function initTabs() {
             vm.tabConfig = {
                 selectedSize: "large",
                 selectedType: "tabs",
@@ -563,11 +564,11 @@
             }
         }
 
-        function fetchData(){
+        function fetchData() {
             return RFIRepository.getAll()
-                .then(function(data){
-                    vm.rfiList = _.map(data, function(item){ return new RFI(item); })
-                    _.each(vm.rfiList, function(item){
+                .then(function (data) {
+                    vm.rfiList = _.map(data, function (item) { return new RFI(item); })
+                    _.each(vm.rfiList, function (item) {
                         console.log(item);
                         item.complete();
                     });
@@ -609,19 +610,19 @@
     MissionTrackerController.$inject = ['$q', '_', 'logger'];
     function MissionTrackerController($q, _, logger) {
         var vm = this;
-        
+
         activate();
 
         function activate() {
             initTabs();
             fetchData()
-                .then(function(data){
+                .then(function (data) {
                     vm.missionItems = data;
                     logger.info('Activated Mission Tacker View');
                 });
         }
 
-        function initTabs(){
+        function initTabs() {
             vm.tabConfig = {
                 selectedSize: "large",
                 selectedType: "tabs",
@@ -638,7 +639,7 @@
             }
         }
 
-        function fetchData(){
+        function fetchData() {
             var staticData = [
                 {
                     Id: 3,
@@ -652,7 +653,7 @@
                             'SOAC', 'SOTG 20'
                         ]
                     },
-                    ObjectiveName: "OBJ_HAN",            
+                    ObjectiveName: "OBJ_HAN",
                     ApprovalAuthority: "2B: SOCC NRF",
                     OperationName: "OP_SOLO",
                 },
@@ -668,7 +669,7 @@
                             'SOTG 20', 'SOTG 30'
                         ]
                     },
-                    ObjectiveName: "OBJ_DARTH",            
+                    ObjectiveName: "OBJ_DARTH",
                     ApprovalAuthority: "3A: NRF SOCC",
                     OperationName: "OP_VADER",
                 }
@@ -681,28 +682,154 @@
 })();
 
 (function () {
+    'use strict';
+
+    angular
+        .module('app.core')
+        .run(registerEditNavRoute)
+        .controller('EditNavController', EditNavController);
+
+    registerEditNavRoute.$inject = ['config', 'routerHelper'];
+    function registerEditNavRoute(config, routerHelper) {
+        routerHelper.configureStates(getStates());
+
+        function getStates() {
+            return [
+                {
+                    state: 'editNav',
+                    config: {
+                        url: '/editNav',
+                        templateUrl: config.baseUrl + '/editnav.html',
+                        controller: 'EditNavController',
+                        controllerAs: 'vm',
+                        title: 'Edit Navigation'
+                    }
+                }
+            ];
+        }
+    }
+
+    EditNavController.$inject = ['$q', '$timeout', '_', 'logger'];
+    function EditNavController($q, $timeout, _, logger) {
+        var vm = this;
+
+        var newId = 1;
+        vm.ignoreChanges = false;
+        vm.newNode = {};
+        vm.originalData = [
+            { id: 'ajson1', parent: '#', text: 'Simple root node', state: { opened: true } },
+            { id: 'ajson2', parent: '#', text: 'Root node 2', state: { opened: true } },
+            { id: 'ajson3', parent: 'ajson2', text: 'Child 1', state: { opened: true } },
+            { id: 'ajson4', parent: 'ajson2', text: 'Child 2', state: { opened: true } }
+        ];
+        vm.treeData = [];
+        angular.copy(vm.originalData, vm.treeData);
+        vm.treeConfig = {
+            core: {
+                multiple: false,
+                animation: true,
+                error: function (error) {
+                    $log.error('treeCtrl: error from js tree - ' + angular.toJson(error));
+                },
+                check_callback: true,
+                worker: true
+            },
+            types: {
+                default: {
+                    icon: 'glyphicon glyphicon-flash'
+                },
+                star: {
+                    icon: 'glyphicon glyphicon-star'
+                },
+                cloud: {
+                    icon: 'glyphicon glyphicon-cloud'
+                }
+            },
+            version: 1,
+            plugins: ['dnd', 'contextmenu']
+        };
+
+
+        vm.reCreateTree = function () {
+            vm.ignoreChanges = true;
+            angular.copy(this.originalData, this.treeData);
+            vm.treeConfig.version++;
+        };
+
+        vm.simulateAsyncData = function () {
+            vm.promise = $timeout(function () {
+                vm.treeData.push({ id: (newId++).toString(), parent: vm.treeData[0].id, text: 'Async Loaded' })
+            }, 3000);
+        };
+
+        vm.addNewNode = function () {
+            vm.treeData.push({ id: (newId++).toString(), parent: vm.newNode.parent, text: vm.newNode.text });
+        };
+
+        this.setNodeType = function () {
+            var item = _.findWhere(this.treeData, { id: this.selectedNode });
+            item.type = this.newType;
+            console.log('Changed the type of node ' + this.selectedNode);
+        };
+
+        this.readyCB = function () {
+            $timeout(function () {
+                vm.ignoreChanges = false;
+                console.log('Js Tree issued the ready event');
+            });
+        };
+
+        this.createCB = function (e, item) {
+            $timeout(function () { console.log('Added new node with the text ' + item.node.text) });
+        };
+
+        this.applyModelChanges = function () {
+            return !vm.ignoreChanges;
+        };
+
+        activate();
+
+        function activate() {
+            fetchData()
+                .then(function (data) {
+                    logger.info('Activated Edit Nav View');
+                });
+        }
+
+        function fetchData() {
+            var staticData = [];
+            return $q.when(staticData);
+        }
+
+    }
+
+})();
+
+
+
+(function () {
     angular
         .module('app.core')
         .directive('missionTimeline', missionTimeline);
-    
-    function missionTimeline(){
+
+    function missionTimeline() {
         /* 
         USAGE: <timeline></timeline>
         */
         var directiveDefinition = {
             link: link,
             restrict: 'E',
-            scope:{
+            scope: {
                 items: "="
             }
         };
         return directiveDefinition;
 
-        function link(scope, elem, attrs){
+        function link(scope, elem, attrs) {
             var options = {
                 stack: false,
                 start: new Date(),
-                end: new Date(1000*60*60*24 + (new Date()).valueOf()),
+                end: new Date(1000 * 60 * 60 * 24 + (new Date()).valueOf()),
                 editable: false,
                 margin: {
                     item: 10, // minimal margin between items
@@ -710,32 +837,32 @@
                 },
                 orientation: 'top'
             };
-            
-            scope.$watch('items', function(){
+
+            scope.$watch('items', function () {
                 renderTimeline(scope.items);
                 console.log('directive received data: ', scope.items);
             })
 
-            function renderTimeline(missions){
-                var groups = new vis.DataSet(_.map(missions, function(item){ return { id: item.Id, content: item.Identifier }; }));
+            function renderTimeline(missions) {
+                var groups = new vis.DataSet(_.map(missions, function (item) { return { id: item.Id, content: item.Identifier }; }));
                 var items = new vis.DataSet(
-                        _.map(missions, function(item){ 
-                            return { 
-                                id: item.Id, 
-                                group: item.Id, 
-                                start: new Date(item.ExpectedExecution),
-                                end: new Date(item.ExpectedTermination)
-                            }; 
-                        })
-                    );
+                    _.map(missions, function (item) {
+                        return {
+                            id: item.Id,
+                            group: item.Id,
+                            start: new Date(item.ExpectedExecution),
+                            end: new Date(item.ExpectedTermination)
+                        };
+                    })
+                );
 
 
                 var timeline = new vis.Timeline(elem[0], null, options);
                 timeline.setGroups(groups);
                 timeline.setItems(items);
             }
-            
-     
+
+
         }
     }
 
