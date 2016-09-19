@@ -615,9 +615,15 @@
 
         function activate() {
             initTabs();
-            fetchData()
+            $q.all([
+                    getDataForMissionTimeline(),
+                    getDataForVerticalTimeline(),
+                    getDataForProcess()
+                ])
                 .then(function (data) {
-                    vm.missionItems = data;
+                    vm.missionItems = data[0];
+                    vm.missionLifecycleEvents = data[1];
+                    vm.routingSteps = data[2];
                     logger.info('Activated Mission Tacker View');
                 });
         }
@@ -639,7 +645,48 @@
             }
         }
 
-        function fetchData() {
+        
+        function getDataForVerticalTimeline(){
+            var staticData = [
+                {
+                    direction: 'right',
+                    subject: 'Born on this date',
+                    message: 'Lodash makes JavaScript easier by taking the hassle out of working with arrays, numbers, objects, strings, etc. Lodash’s modular methods are great',
+                    moment: moment()
+                },
+                {
+                    direction: 'left',
+                    subject: 'Got footprint',
+                    message: 'When choosing a motion for side panels, consider the origin of the triggering element. Use the motion to create a link between the action and the resulting UI.',
+                    moment: moment().add(1, 'days')
+                }       
+            ];
+            return $q.when(staticData);
+        }
+
+        function getDataForProcess(){
+            var staticData = [
+                {
+                    status: 'complete',
+                    text: "Shift Created"
+                },
+                {
+                    status: 'complete',
+                    text: "Email Sent"
+                },
+                {
+                    status: 'incomplete',
+                    text: "SIC Approval"
+                },
+                {
+                    status: '',
+                    text: "Shift Completed"
+                }
+            ];
+            return $q.when(staticData);
+        }
+
+        function getDataForMissionTimeline(){
             var staticData = [
                 {
                     Id: 3,
@@ -676,6 +723,8 @@
             ];
             return $q.when(staticData);
         }
+
+
 
     }
 
@@ -805,8 +854,6 @@
 
 })();
 
-
-
 (function () {
     angular
         .module('app.core')
@@ -864,6 +911,68 @@
 
 
         }
+    }
+
+})();
+
+(function () {
+    angular
+        .module('app.core')
+        .directive('verticalTimeline', verticalTimeline);
+
+    function verticalTimeline() {
+        /* 
+        USAGE: <vertical-timeline items=""></vertical-timeline>
+        */
+        var directiveDefinition = {
+            restrict: 'E',
+            scope: {
+                items: "="
+            },
+            template: 
+                '<ul class="vertical-timeline">\
+                    <li ng-repeat="item in items | orderBy: \'moment\': \'desc\'">\
+                        <div ng-class="(item.direction === \'right\' ? \'direction-r\' : \'direction-l\' )">\
+                            <div class="flag-wrapper">\
+                                <span class="flag">{{item.subject}}</span>\
+                                <span class="time-wrapper"><span class="time">{{item.moment.format("DD MMM YY")}}</span></span>\
+                            </div>\
+                            <div class="desc">{{item.message}}</div>\
+                        </div>\
+                    </li>\
+                </ul>'
+        };
+        return directiveDefinition;
+    }
+
+})();
+
+(function () {
+    angular
+        .module('app.core')
+        .directive('routingProcessVisualization', routingProcessVisualization);
+
+    function routingProcessVisualization() {
+        /* 
+        USAGE: <routing-process-visualization steps=""></routing-process-visualization>
+        */
+        var directiveDefinition = {
+            restrict: 'E',
+            scope: {
+                steps: "="
+            },
+            template: 
+                '<ul class="horizontal-timeline">\
+                    <li ng-repeat="step in steps" class="li" ng-class="{\'complete\': step.status===\'complete\', \'incomplete\': step.status===\'incomplete\' }">\
+                        <div class="status">\
+                            <h4>\
+                                {{step.text}}\
+                            </h4>\
+                        </div>\
+                    </li>\
+                </ul>'
+        };
+        return directiveDefinition;
     }
 
 })();
