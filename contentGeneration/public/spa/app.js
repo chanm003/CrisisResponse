@@ -2,9 +2,9 @@
     'use strict';
 
     var currentURL = window.location.href.toUpperCase();
-    if (currentURL.indexOf('/SITEPAGES/APP.ASPX') >= 0) {
+    //if (currentURL.indexOf('/SITEPAGES/APP.ASPX') >= 0) {
         angular.element(document).ready(function () { angular.bootstrap(document, ['singlePageApp']); });
-    }
+    //}
 
     var globalConfig = {
         appErrorPrefix: '[Exercise Application Error] ',
@@ -60,8 +60,8 @@
         .controller('ShellController', ShellController);
 
 
-    configureCoreModule.$inject = ['$logProvider', 'exceptionHandlerProvider', 'routerHelperProvider', 'toastr'];
-    function configureCoreModule($logProvider, exceptionHandlerProvider, routerHelperProvider, toastr) {
+    configureCoreModule.$inject = ['$logProvider', '$sceDelegateProvider', 'exceptionHandlerProvider', 'routerHelperProvider', 'toastr'];
+    function configureCoreModule($logProvider, $sce, exceptionHandlerProvider, routerHelperProvider, toastr) {
         if ($logProvider.debugEnabled) {
             $logProvider.debugEnabled(true);
         }
@@ -69,6 +69,9 @@
         routerHelperProvider.configure({ docTitle: globalConfig.appTitle + ': ' });
         toastr.options.timeOut = 4000;
         toastr.options.positionClass = 'toast-bottom-right';
+
+        //override security because our HTML templates violate CORS
+	    $sce.resourceUrlWhitelist(['**']);
     }
 
     configureExceptionModule.$inject = ['$provide'];
@@ -975,4 +978,71 @@
         return directiveDefinition;
     }
 
+})();
+
+(function () {
+
+    angular
+        .module('app.core')
+        .directive('scrollableCurrentOpsSummary', scrollableCurrentOpsSummary);
+
+        scrollableCurrentOpsSummary.$inject = ['$timeout', 'config'];
+        function scrollableCurrentOpsSummary($timeout, config) {
+      
+	        function controller() {
+                var vm = this;
+				var slideNames = ['alpha', 'bravo', 'charlie', 'delta'];
+				vm.currentVisibleSlide = 'alpha';				
+
+			
+				vm.nextSlide = function(){
+					var indexOfCurrentSlide = _.indexOf(slideNames, vm.currentVisibleSlide);
+					var indexForNextSlide = (indexOfCurrentSlide === slideNames.length-1) ? 0 :  indexOfCurrentSlide+1;
+					vm.currentVisibleSlide = slideNames[indexForNextSlide];
+					console.log('next slide clicked ' + new Date());
+				};
+				
+				
+				vm.prevSlide = function(){
+					var indexOfCurrentSlide = _.indexOf(slideNames, vm.currentVisibleSlide);
+					var indexForNextSlide = (indexOfCurrentSlide === 0) ? slideNames.length-1 :  indexOfCurrentSlide-1;
+					vm.currentVisibleSlide = slideNames[indexForNextSlide];
+				};
+				
+				
+				vm.slideShowTimer = null;
+				
+				function startSlideShowTimer(){
+					vm.slideShowTimer = $timeout(
+						function(){
+							vm.nextSlide();
+							vm.slideShowTimer = $timeout(startSlideShowTimer, 2000);
+						},
+						2000);
+				};
+				
+				startSlideShowTimer();
+				
+				vm.startShow = function(){
+					startSlideShowTimer();				
+				};
+				
+				vm.stopShow = function(){
+					$timeout.cancel(vm.slideShowTimer);	
+					vm.slideShowTimer = null;			
+				};    
+		    };    
+		       
+            return {
+                restrict: 'EA', //Default for 1.3+
+                scope: {
+                    datasource: '=',
+                    add: '&',
+                },
+                controller: controller,
+                controllerAs: 'vm',
+                bindToController: true, //required in 1.3+ with controllerAs
+                templateUrl: config.baseUrl + '/current-operations-summary.html'
+            };
+        }
 })();

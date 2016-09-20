@@ -1,0 +1,32 @@
+<div class="slider">
+			
+			
+			<div class="slide" ng-show="vm.currentVisibleSlide === 'alpha'" style="background-color:red;">
+				alpha			
+			</div>
+			<div class="slide ng-hide" ng-show="vm.currentVisibleSlide === 'bravo'" style="background-color:green;">
+				bravo			
+			</div>
+			<div class="slide ng-hide" ng-show="vm.currentVisibleSlide === 'charlie'" style="background-color:blue;">
+				charlie			
+			</div>
+			<div class="slide ng-hide" ng-show="vm.currentVisibleSlide === 'delta'" style="background-color:orange;">
+				delta			
+			</div>
+
+			<div class="control-panel">
+				<uif-button ng-click="vm.prevSlide()" uif-type="primary">
+				  	<i class="fa fa-backward"></i> Prev
+				</uif-button>
+				<uif-button ng-click="vm.startShow()" ng-disabled="vm.slideShowTimer" uif-type="primary">
+					Play <i class="fa fa-play"></i>
+				</uif-button>
+				<uif-button ng-click="vm.stopShow()" ng-disabled="!vm.slideShowTimer" uif-type="primary">
+					Pause <i class="fa fa-pause"></i>
+				</uif-button>
+				<uif-button ng-click="vm.nextSlide()" uif-type="primary">
+					Next <i class="fa fa-forward"></i>
+				</uif-button>
+			</div>
+			
+		</div>
