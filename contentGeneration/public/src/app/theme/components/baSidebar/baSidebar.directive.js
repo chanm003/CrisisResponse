@@ -9,11 +9,11 @@
       .directive('baSidebar', baSidebar);
 
   /** @ngInject */
-  function baSidebar($timeout, baSidebarService, baUtil, layoutSizes) {
+  function baSidebar($timeout, baSidebarService, baUtil, commonConfig, layoutSizes) {
     var jqWindow = $(window);
     return {
       restrict: 'E',
-      templateUrl: 'http://localhost:3000/src/app/theme/components/baSidebar/ba-sidebar.html',
+      templateUrl: commonConfig.settings.baseUrl + '/src/app/theme/components/baSidebar/ba-sidebar.html',
       controller: 'BaSidebarCtrl',
       link: function(scope, el) {
 

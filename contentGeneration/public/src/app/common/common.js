@@ -63,7 +63,9 @@
 	
 	
 	function commonConfig() {
-    	this.settings = {};
+    	this.settings = {
+			baseUrl: 'http://localhost:3000'
+		};
 
     	this.$get = function () {
       		return {

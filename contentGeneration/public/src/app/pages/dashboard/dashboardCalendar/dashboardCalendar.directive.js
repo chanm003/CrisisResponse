@@ -9,11 +9,11 @@
       .directive('dashboardCalendar', dashboardCalendar);
 
   /** @ngInject */
-  function dashboardCalendar() {
+  function dashboardCalendar(commonConfig) {
     return {
       restrict: 'E',
       controller: 'DashboardCalendarCtrl',
-      templateUrl: 'http://localhost:3000/src/app/pages/dashboard/dashboardCalendar/dashboardCalendar.html'
+      templateUrl: commonConfig.settings.baseUrl + '/src/app/pages/dashboard/dashboardCalendar/dashboardCalendar.html'
     };
   }
 })();

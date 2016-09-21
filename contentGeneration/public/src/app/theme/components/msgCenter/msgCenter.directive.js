@@ -9,10 +9,10 @@
       .directive('msgCenter', msgCenter);
 
   /** @ngInject */
-  function msgCenter() {
+  function msgCenter(commonConfig) {
     return {
       restrict: 'E',
-      templateUrl: 'http://localhost:3000/src/app/theme/components/msgCenter/msgCenter.html',
+      templateUrl: commonConfig.settings.baseUrl + '/src/app/theme/components/msgCenter/msgCenter.html',
       controller: 'MsgCenterCtrl'
     };
   }

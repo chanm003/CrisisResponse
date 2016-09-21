@@ -9,11 +9,11 @@
       .directive('includeWithScope', includeWithScope);
 
   /** @ngInject */
-  function includeWithScope() {
+  function includeWithScope(commonConfig) {
     return {
       restrict: 'AE',
       templateUrl: function(ele, attrs) {
-        return attrs.includeWithScope;
+        return commonConfig.settings.baseUrl + "/src/" + attrs.includeWithScope;
       }
     };
   }

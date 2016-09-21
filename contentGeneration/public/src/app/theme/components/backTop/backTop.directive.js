@@ -9,10 +9,10 @@
       .directive('backTop', backTop);
 
   /** @ngInject */
-  function backTop() {
+  function backTop(commonConfig) {
     return {
       restrict: 'E',
-      templateUrl: 'http://localhost:3000/src/app/theme/components/backTop/backTop.html',
+      templateUrl: commonConfig.settings.baseUrl + '/src/app/theme/components/backTop/backTop.html',
       controller: function () {
         $('#backTop').backTop({
           'position': 200,

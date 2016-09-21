@@ -9,7 +9,7 @@
     .config(routeConfig);
 
   /** @ngInject */
-  function routeConfig($stateProvider, $urlRouterProvider) {
+  function routeConfig($stateProvider, $urlRouterProvider, commonConfigProvider) {
     $stateProvider
         .state('tables', {
           url: '/tables',
@@ -23,14 +23,14 @@
           },
         }).state('tables.basic', {
           url: '/basic',
-          templateUrl: 'http://localhost:3000/src/app/pages/tables/basic/tables.html',
+          templateUrl: commonConfigProvider.settings.baseUrl + '/src/app/pages/tables/basic/tables.html',
           title: 'Basic Tables',
           sidebarMeta: {
             order: 0,
           },
         }).state('tables.smart', {
           url: '/smart',
-          templateUrl: 'http://localhost:3000/src/app/pages/tables/smart/tables.html',
+          templateUrl: commonConfigProvider.settings.baseUrl + '/src/app/pages/tables/smart/tables.html',
           title: 'Smart Tables',
           sidebarMeta: {
             order: 100,

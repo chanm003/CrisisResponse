@@ -9,10 +9,10 @@
       .directive('contentTop', contentTop);
 
   /** @ngInject */
-  function contentTop($location, $state) {
+  function contentTop($location, $state, commonConfig) {
     return {
       restrict: 'E',
-      templateUrl: 'http://localhost:3000/src/app/theme/components/contentTop/contentTop.html',
+      templateUrl: commonConfig.settings.baseUrl + '/src/app/theme/components/contentTop/contentTop.html',
       link: function($scope) {
         $scope.$watch(function () {
           $scope.activePageTitle = $state.current.title;

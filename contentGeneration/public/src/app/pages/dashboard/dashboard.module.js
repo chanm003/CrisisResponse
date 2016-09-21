@@ -9,11 +9,11 @@
       .config(routeConfig);
 
   /** @ngInject */
-  function routeConfig($stateProvider) {
+  function routeConfig($stateProvider, commonConfigProvider) {
     $stateProvider
         .state('dashboard', {
           url: '/dashboard',
-          templateUrl: 'http://localhost:3000/src/app/pages/dashboard/dashboard.html',
+          templateUrl: commonConfigProvider.settings.baseUrl + '/src/app/pages/dashboard/dashboard.html',
           title: 'Dashboard',
           sidebarMeta: {
             icon: 'ion-android-home',

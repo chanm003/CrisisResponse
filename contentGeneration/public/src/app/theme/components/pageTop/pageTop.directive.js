@@ -9,10 +9,10 @@
       .directive('pageTop', pageTop);
 
   /** @ngInject */
-  function pageTop() {
+  function pageTop(commonConfig) {
     return {
       restrict: 'E',
-      templateUrl: 'http://localhost:3000/src/app/theme/components/pageTop/pageTop.html'
+      templateUrl: commonConfig.settings.baseUrl + '/src/app/theme/components/pageTop/pageTop.html'
     };
   }
 

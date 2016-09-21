@@ -9,13 +9,13 @@
       .directive('widgets', widgets);
 
   /** @ngInject */
-  function widgets() {
+  function widgets(commonConfig) {
     return {
       restrict: 'EA',
       scope: {
         ngModel: '='
       },
-      templateUrl: 'http://localhost:3000/src/app/theme/components/widgets/widgets.html',
+      templateUrl: commonConfig.settings.baseUrl + '/src/app/theme/components/widgets/widgets.html',
       replace: true
     };
   }

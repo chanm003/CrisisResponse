@@ -9,11 +9,11 @@
       .config(routeConfig);
 
   /** @ngInject */
-  function routeConfig($stateProvider) {
+  function routeConfig($stateProvider, commonConfigProvider) {
     $stateProvider
         .state('generation', {
           url: '/generation',
-          templateUrl: 'http://localhost:3000/src/app/pages/contentGeneration/contentGeneration.html',
+          templateUrl: commonConfigProvider.settings.baseUrl + '/src/app/pages/contentGeneration/contentGeneration.html',
           title: 'Content Generation',
           sidebarMeta: {
             icon: 'ion-android-home',

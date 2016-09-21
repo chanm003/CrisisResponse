@@ -9,11 +9,11 @@
       .directive('createListsWizard', createListsWizard);
 
   /** @ngInject */
-  function createListsWizard() {
+  function createListsWizard(commonConfig) {
     return {
       restrict: 'E',
       controller: 'CreateListsWizardCtrl',
-      templateUrl: 'http://localhost:3000/src/app/pages/contentGeneration/createListsWizard/createListsWizard.html'
+      templateUrl: commonConfig.settings.baseUrl + '/src/app/pages/contentGeneration/createListsWizard/createListsWizard.html'
     };
   }
 })();
