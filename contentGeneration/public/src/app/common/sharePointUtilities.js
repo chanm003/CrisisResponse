@@ -12,6 +12,7 @@
 	    return {
 			copyFile: copyFile,
 	    	createList: createList,
+			createSite: createSite,
 			deleteFiles: deleteFiles,
 			deleteLists: deleteLists,
 	        getLists: getLists,
@@ -396,6 +397,56 @@
 			    }	    	
 	    	}
 	    }
+
+		function createSite(opts){
+			var dfd = $q.defer();
+			var ctx = new SP.ClientContext(opts.parentWeb);
+	    	var parentWeb = ctx.get_web();	
+
+			var webCreationInfo = new SP.WebCreationInformation();
+			webCreationInfo.set_title(opts.name);
+			webCreationInfo.set_description(opts.description);
+			webCreationInfo.set_language(1033);
+			webCreationInfo.set_url(opts.acronym);
+			webCreationInfo.set_useSamePermissionsAsParentSite(true);
+			webCreationInfo.set_webTemplate('STS');
+
+			var childWeb = parentWeb.get_webs().add(webCreationInfo);
+			parentWeb.update();
+
+        	//Navigation Provider Settings for Current Web.
+        	var webNavSettings = new SP.Publishing.Navigation.WebNavigationSettings(ctx, childWeb);
+        	var navigation = webNavSettings.get_globalNavigation();
+
+			/*
+			unknown: 0, 
+			portalProvider: 1 (Structural Navigation), 
+			taxonomyProvider: 2 (You will need the Term Store Id and Term Set Id too),
+			inheritFromParentWeb: 3 */
+        	navigation.set_source(3);
+        	webNavSettings.update();
+
+			//can we set alternate CSS URL before the file has been uploaded?  can we use tokens like ~site
+			//childWeb.set_alternateCssUrl('SiteAssets/test.css');
+			//childWeb.update();
+
+			ctx.executeQueryAsync(
+		        Function.createDelegate(this, onQuerySucceeded), 
+		        Function.createDelegate(this, onQueryFailed)
+		    );
+
+			return dfd.promise;
+
+			function onQuerySucceeded(){
+				logger.logSuccess('Following site created: ' + opts.name, null, 'sharepointUtilities service, createSite()');
+				dfd.resolve();
+			}
+
+			function onQueryFailed(sender, args){
+				logger.logError('Request failed: ' + args.get_message(), args.get_stackTrace(), 'sharepointUtilities service, createSite()');
+		    	dfd.reject();
+			}
+		}
 
 		function deleteFiles(opts){
 			var dfd = $q.defer();

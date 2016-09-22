@@ -5,8 +5,9 @@
 		.controller('ContentGenerationWizardCtrl', WizardCtrl);
 
 	/** @ngInject */
-	function WizardCtrl($q, $timeout) {
+	function WizardCtrl(common, sharepointUtilities) {
 		var vm = this;
+		vm.selectedWebUrl = "";
 		vm.siteInfo = {
 			name: "Trojan Footprint 16",
 			acronym: 'TF16',
@@ -15,11 +16,8 @@
 		};
 
 		vm.onSiteInfoCollected = function(){
-			var dfd = $q.defer();
-			$timeout(function(){
-				return dfd.resolve("Erfolg...");
-			}, 2000);
-			return dfd.promise;
+			vm.selectedWebUrl = vm.siteInfo.parentWeb + "/" + vm.acronym;
+			return sharepointUtilities.createSite(vm.siteInfo);
 		}
 
 	}
