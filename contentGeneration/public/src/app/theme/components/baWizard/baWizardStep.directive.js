@@ -5,15 +5,15 @@
     .directive('baWizardStep', baWizardStep);
 
   /** @ngInject */
-  function baWizardStep() {
+  function baWizardStep($q, $timeout, commonConfig) {
     return {
       restrict: 'E',
       transclude: true,
       require: '^baWizard',
       scope: {
-        form: '='
+        onNextStepClicked: '&'
       },
-      templateUrl:  'app/theme/components/baWizard/baWizardStep.html',
+      templateUrl: commonConfig.settings.baseUrl + '/src/app/theme/components/baWizard/baWizardStep.html',
       link: function($scope, $element, $attrs, wizard) {
         $scope.selected = true;
 
@@ -21,8 +21,6 @@
           title: $attrs.title,
           select: select,
           submit: submit,
-          isComplete: isComplete,
-          isAvailiable: isAvailiable,
           prevTab: undefined,
           setPrev: setPrev
         };
@@ -38,15 +36,7 @@
         }
 
         function submit() {
-          $scope.form && $scope.form.$setSubmitted(true);
-        }
-
-        function isComplete() {
-          return $scope.form ? $scope.form.$valid : true;
-        }
-
-        function isAvailiable() {
-          return tab.prevTab ? tab.prevTab.isComplete() : true;
+          return $scope.onNextStepClicked();
         }
 
         function setPrev(pTab) {

@@ -4,7 +4,7 @@
   	angular.module('BlurAdmin.common', ['toastr'])
   		.provider('commonConfig', commonConfig)
 		.factory('logger', ['$log', 'commonConfig', 'toastr', logger])
-		.factory('common', ['$q', '$rootScope', '$timeout', 'commonConfig', 'logger', common]);
+		.factory('common', ['$q', '$rootScope', '$timeout', '$uibModal', 'commonConfig', 'logger', common]);
 
 
   	// BEGIN LOGGER
@@ -75,14 +75,15 @@
   	}
 
   	// BEGIN COMMON
-	function common($q, $rootScope, $timeout, commonConfig, logger) {
+	function common($q, $rootScope, $timeout, $uibModal, commonConfig, logger) {
     	var service = {
 			// passthough common angular dependencies
 			$broadcast: $broadcast,
 			$q: $q,
 			$timeout: $timeout,
 			// my services
-			logger: logger    	
+			logger: logger,
+			showBusyModal: showBusyModal    	
 		};
 
     	return service;
@@ -91,6 +92,16 @@
     	function $broadcast() {
       		return $rootScope.$broadcast.apply($rootScope, arguments);
     	}
+
+		function showBusyModal(){
+			return $uibModal.open({
+				animation: true,
+				templateUrl: commonConfig.settings.baseUrl + "/src/app/common/busyModal.html",
+				size: 'md',
+				backdrop: 'static',
+				resolve: {}
+			});	
+		}
      }
 
 

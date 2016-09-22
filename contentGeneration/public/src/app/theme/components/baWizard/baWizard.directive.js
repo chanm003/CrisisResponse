@@ -5,11 +5,11 @@
     .directive('baWizard', baWizard);
 
   /** @ngInject */
-  function baWizard(commonConfigProvider) {
+  function baWizard(commonConfig) {
     return {
       restrict: 'E',
       transclude: true,
-      templateUrl: commonConfigProvider.settings.baseUrl + '/src/app/theme/components/baWizard/baWizard.html',
+      templateUrl: commonConfig.settings.baseUrl + '/src/app/theme/components/baWizard/baWizard.html',
       controllerAs: '$baWizardController',
       controller: 'baWizardCtrl'
     }

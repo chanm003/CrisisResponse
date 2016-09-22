@@ -1,11 +1,52 @@
-﻿<div class="row">
-  <div class="col-lg-12 col-md-12 col-sm-12"
-       ba-panel
-       ba-panel-title="Creating Lists"
-       ba-panel-class="medium-panel">
-         <create-lists-wizard></create-lists-wizard>
+﻿<div class="widgets">
+    <div class="row">
+        <div class="col-md-12">
+            <div ba-panel ba-panel-title="Exercise Site Creation Wizard" ba-panel-class="with-scroll">
+                <ba-wizard>
+                    <ba-wizard-step title="Create Site" on-next-step-clicked="vm.onSiteInfoCollected()">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Exercise Name</label>
+                                    <input type="text" class="form-control" placeholder="Name" ng-model="vm.siteInfo.name">
+                                </div>
+                                <div class="form-group">
+                                    <label>Description</label>
+                                    <textarea placeholder="Description" class="form-control" ng-model="vm.siteInfo.description"></textarea>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                 <div class="form-group">
+                                    <label>Select the parent web site</label>
+                                    <input type="text" class="form-control" placeholder="Parent Web Site" ng-model="vm.siteInfo.parentWeb" disabled>
+                                </div>
+                                <div class="form-group" ng-show="vm.siteInfo.parentWeb">
+                                    <label>Exercise Site Address</label>
+                                    <div class="input-group">
+                                        <span class="input-group-addon input-group-addon-primary addon-left">{{vm.siteInfo.parentWeb}}/</span>
+                                        <input type="text" class="form-control with-primary-addon" placeholder="URL" ng-model="vm.siteInfo.acronym">
+                                    </div>
+                                    <span class="help-block sub-little-text">Should be abbreviation or short acronym e.g. TF16</span>
+                                </div>
+                            </div>
+                        </div>
+                    </ba-wizard-step>
+                    <ba-wizard-step title="Component Commands/Task Groups" form="vm.productInfoForm">
 
-  </div>
+                    </ba-wizard-step>
+                    <ba-wizard-step title="Optional Features" form="vm.addressForm">
+
+                    </ba-wizard-step>
+                    <ba-wizard-step title="Finish">
+
+                    </ba-wizard-step>
+                </ba-wizard>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            {{vm}}
+        </div>
+    </div>
 </div>
-
-

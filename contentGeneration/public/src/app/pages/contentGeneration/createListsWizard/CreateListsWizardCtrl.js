@@ -1,42 +1,69 @@
-/**
- * @author v.lugovksy
- * created on 16.12.2015
- */
 (function () {
 	'use strict';
 
-  	angular.module('BlurAdmin.pages.contentGeneration')
-    	.controller('CreateListsWizardCtrl', CtrlDefinition);
+	angular.module('BlurAdmin.pages.contentGeneration')
+		.controller('ContentGenerationWizardCtrl', WizardCtrl);
 
-  	/** @ngInject */
+	/** @ngInject */
+	function WizardCtrl($q, $timeout) {
+		var vm = this;
+		vm.siteInfo = {
+			name: "Trojan Footprint 16",
+			acronym: 'TF16',
+			parentWeb: _spPageContextInfo.webAbsoluteUrl,
+			description: "This is boilerplate text so I can just click Next, Next, Next..."
+		};
+
+		vm.onSiteInfoCollected = function(){
+			var dfd = $q.defer();
+			$timeout(function(){
+				return dfd.resolve("Erfolg...");
+			}, 2000);
+			return dfd.promise;
+		}
+
+	}
+
+})();
+
+
+
+
+(function () {
+	'use strict';
+
+	angular.module('BlurAdmin.pages.contentGeneration')
+		.controller('CreateListsWizardCtrl', CtrlDefinition);
+
+	/** @ngInject */
 	function CtrlDefinition($q, $scope, common, sharepointUtilities) {
 		$scope.selectedWebUrl = '/ngspa/instance';
-	  	
-	  	/*		
-		sharepointUtilities.getLists('/ngspa/')
-			.then(function(data){
-				console.log(data);
-			})
-			.catch(function(){
-			});
-		*/
-			
+
+		/*		
+	sharepointUtilities.getLists('/ngspa/')
+		.then(function(data){
+			console.log(data);
+		})
+		.catch(function(){
+		});
+	*/
+
 		//Pump Script Editor Webpart into NewForm.aspx and EditForm.aspx <WebPartPages:WebPartZone runat="server" FrameType="None" ID="Main" Title="loc:Main"><ZoneTemplate>
 		//CAN we bootstrap ng-app from top of the page? (don't want to add two script editors to each page, i.e. one under the ListFormWebPart and one above it)
 
-		$scope.onStepOneClicked = function(){
+		$scope.onStepOneClicked = function () {
 			createCoreLists()
 				.then(provisionComponentCommandPage)
 				.then(provisionTaskGroupPage);
 		}
 
-		$scope.onStepOneUndoClicked = function(){
+		$scope.onStepOneUndoClicked = function () {
 			sharepointUtilities.deleteLists({
 				webUrl: $scope.selectedWebUrl,
 				listTitles: ['Calendar', 'CCIR', "Mission Documents", 'Mission Tracker', 'Message Traffic', 'RFI', 'Watch Log']
 			});
 
-			var serverRelativeFileUrls = _.map(['socc.aspx', 'sotg.aspx'], function(sitepageFile){
+			var serverRelativeFileUrls = _.map(['socc.aspx', 'sotg.aspx'], function (sitepageFile) {
 				return $scope.selectedWebUrl + "/SitePages/" + sitepageFile;
 			})
 
@@ -44,54 +71,54 @@
 				webUrl: $scope.selectedWebUrl,
 				fileUrls: serverRelativeFileUrls
 			});
-		
+
 		}
 
-		function provisionComponentCommandPage(){
+		function provisionComponentCommandPage() {
 			return provisionWebPartPage({
 				webpartPageDefinitionName: 'Component Command Page'
 			});
 		}
 
-		function provisionTaskGroupPage(){
+		function provisionTaskGroupPage() {
 			return provisionWebPartPage({
 				webpartPageDefinitionName: 'Task Group Page'
 			});
 		}
 
-		function provisionWebPartPage(opts){
+		function provisionWebPartPage(opts) {
 			var pageDef = crisisResponseSchema.webpartPageDefs[opts.webpartPageDefinitionName];
 			pageDef.webUrl = $scope.selectedWebUrl;
 			return provisionAspx(pageDef).then(provisionWebpartsOnAspx);
 
-			function provisionAspx(pageDef){
+			function provisionAspx(pageDef) {
 				return sharepointUtilities.copyFile({
 					sourceWebUrl: _spPageContextInfo.webServerRelativeUrl,
-					sourceFileUrl:'generator/artifacts/fourWebpartZones.aspx',
+					sourceFileUrl: 'generator/artifacts/fourWebpartZones.aspx',
 					destinationWebUrl: $scope.selectedWebUrl,
 					destinationWebFolderUrl: pageDef.folderName,
 					destinationFileUrl: pageDef.aspxFileName
 				})
-				.then(function(){
-					return pageDef;
-				});
+					.then(function () {
+						return pageDef;
+					});
 			}
 
-			function provisionWebpartsOnAspx(pageDef){
+			function provisionWebpartsOnAspx(pageDef) {
 				return $q.all([
 					sharepointUtilities.provisionListViewWebparts(pageDef),
 					sharepointUtilities.provisionScriptEditorWebparts(pageDef)
 				])
-				.then(function(){
-					console.log("all web parts added on " + pageDef.aspxFileName);
-				});
+					.then(function () {
+						console.log("all web parts added on " + pageDef.aspxFileName);
+					});
 			}
 		}
-		
-		function createCoreLists(){
+
+		function createCoreLists() {
 			return createStandaloneLists().then(createChildLists);
 
-			function createStandaloneLists(){
+			function createStandaloneLists() {
 				return $q.all([
 					createCalendarList(),
 					createCcirList(),
@@ -101,69 +128,69 @@
 				]);
 			}
 
-			function createChildLists(){
+			function createChildLists() {
 				return $q.all([
 					createRFIList(),
 					createMissionDocumentsLibrary(),
 				]);
 			}
 
-			function createCalendarList(){
+			function createCalendarList() {
 				//DEPENDENCIES: None
 				var listSchemaDef = crisisResponseSchema.listDefs["Calendar"];
 				listSchemaDef.webUrl = $scope.selectedWebUrl;
 				return sharepointUtilities.createList(listSchemaDef);
 			}
 
-			function createCcirList(){
+			function createCcirList() {
 				//DEPENDENCIES: None
 				var listSchemaDef = crisisResponseSchema.listDefs["CCIR"];
 				listSchemaDef.webUrl = $scope.selectedWebUrl;
 				return sharepointUtilities.createList(listSchemaDef);
 			}
-			
-			function createMissionList(){
+
+			function createMissionList() {
 				//DEPENDENCIES: None
 				var listSchemaDef = crisisResponseSchema.listDefs["Mission Tracker"];
 				listSchemaDef.webUrl = $scope.selectedWebUrl;
 				return sharepointUtilities.createList(listSchemaDef);
 			}
-			
-			function createMessageTrafficList(){
+
+			function createMessageTrafficList() {
 				//DEPENDENCIES: None
 				var listSchemaDef = crisisResponseSchema.listDefs["Message Traffic"];
 				listSchemaDef.webUrl = $scope.selectedWebUrl;
 				return sharepointUtilities.createList(listSchemaDef);
 			}
-			
-			function createMissionDocumentsLibrary(){
+
+			function createMissionDocumentsLibrary() {
 				//DEPENDENCIES: Mission Tracker
 				var listSchemaDef = crisisResponseSchema.listDefs["Mission Documents"];
 				listSchemaDef.webUrl = $scope.selectedWebUrl;
 				return sharepointUtilities.createList(listSchemaDef);
 			}
-			
-			function createRFIList(){
+
+			function createRFIList() {
 				//DEPENDENCIES: Mission Tracker
 				var listSchemaDef = crisisResponseSchema.listDefs["RFI"];
 				listSchemaDef.webUrl = $scope.selectedWebUrl;
 				return sharepointUtilities.createList(listSchemaDef);
 			}
-			
-			function createWatchLogList(){
+
+			function createWatchLogList() {
 				//DEPENDENCIES: None
 				var listSchemaDef = crisisResponseSchema.listDefs["Watch Log"];
 				listSchemaDef.webUrl = $scope.selectedWebUrl;
 				return sharepointUtilities.createList(listSchemaDef);
 			}
 		}
-		
-		
 
 
-  	}
-  	
-  	
+
+
+	}
+
+
 })();
 
 
@@ -199,7 +226,7 @@ var siteDefinitionExample = [
 		SiteLogoUrl: '/SiteCollectionImages/airbor_35px.gif',	//provide textbox so they can type URL
 		ServerRelativeUrl: '/openapps/KM/mc/deleteme',			//TODO (medium priority): should create a tree-view so user can pick the parent web (/openapps/KM/mc), and a textbox to type 'deleteme'								
 		WebTemplate: 'STS'										//Team Site (should not let the user customize)
-																//TODO (high priority) set to 24 hours /openapps/KM/mc/_api/web/RegionalSettings/Time24 (can it be set at same time as sitecreation HTTP POST?)
+		//TODO (high priority) set to 24 hours /openapps/KM/mc/_api/web/RegionalSettings/Time24 (can it be set at same time as sitecreation HTTP POST?)
 	}
 ];
 

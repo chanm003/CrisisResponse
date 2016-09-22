@@ -5,7 +5,7 @@
     .controller('baWizardCtrl', baWizardCtrl);
 
   /** @ngInject */
-  function baWizardCtrl($scope) {
+  function baWizardCtrl($scope, common) {
     var vm = this;
     vm.tabs = [];
 
@@ -18,16 +18,31 @@
       vm.selectTab(0);
     };
 
-    $scope.$watch(angular.bind(vm, function () {return vm.tabNum;}), calcProgress);
+    //$scope.$watch(angular.bind(vm, function () {return vm.tabNum;}), calcProgress);
 
     vm.selectTab = function (tabNum) {
-      vm.tabs[vm.tabNum].submit();
-      if (vm.tabs[tabNum].isAvailiable()) {
-        vm.tabNum = tabNum;
-        vm.tabs.forEach(function (t, tIndex) {
-          tIndex == vm.tabNum ? t.select(true) : t.select(false);
-        });
+      if(tabNum === 0){
+        //always OK to go to first tab
+        updateTabIndex(tabNum);
+        return;
       }
+
+      var busyModal = common.showBusyModal();
+      vm.tabs[vm.tabNum].submit()
+        .then(function(data){
+          updateTabIndex(tabNum);
+        })
+        .finally(function(err){
+          busyModal.close();
+        });
+
+        function updateTabIndex(tabNum){
+          vm.tabNum = tabNum;
+          vm.tabs.forEach(function (t, tIndex) {
+            tIndex == vm.tabNum ? t.select(true) : t.select(false);
+          });
+          calcProgress();
+        }
     };
 
     vm.isFirstTab = function () {

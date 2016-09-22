@@ -14,6 +14,8 @@
         .state('generation', {
           url: '/generation',
           templateUrl: commonConfigProvider.settings.baseUrl + '/src/app/pages/contentGeneration/contentGeneration.html',
+          controller: 'ContentGenerationWizardCtrl',
+          controllerAs: 'vm',
           title: 'Content Generation',
           sidebarMeta: {
             icon: 'ion-android-home',
