@@ -426,9 +426,11 @@
         	navigation.set_source(3);
         	webNavSettings.update();
 
-			//can we set alternate CSS URL before the file has been uploaded?  can we use tokens like ~site
-			//childWeb.set_alternateCssUrl('SiteAssets/test.css');
-			//childWeb.update();
+			//configured in /_layouts/15/ChangeSiteMasterPage.aspx (available only when publishing is activated)
+			var serverRelativeURL = (opts.parentWeb + "/" + opts.acronym).replace(document.location.protocol+"//", "").replace(document.location.host, "");
+			var alternateCssUrl = serverRelativeURL + "/Site Pages/app.css"; 
+			childWeb.set_alternateCssUrl(alternateCssUrl);
+			childWeb.update();
 
 			ctx.executeQueryAsync(
 		        Function.createDelegate(this, onQuerySucceeded), 
