@@ -5,68 +5,40 @@
 		.controller('ContentGenerationWizardCtrl', WizardCtrl);
 
 	/** @ngInject */
-	function WizardCtrl(common, sharepointUtilities) {
+	function WizardCtrl($q, common, sharepointUtilities) {
 		var vm = this;
-		vm.selectedWebUrl = "";
+		vm.childWebUrl = "";
+		vm.serverLocation = document.location.protocol + '//' + document.location.host;
 		vm.siteInfo = {
 			name: "Trojan Footprint 16",
 			acronym: 'TF16',
-			parentWeb: _spPageContextInfo.webAbsoluteUrl,
+			parentWeb: _spPageContextInfo.webServerRelativeUrl,
 			description: "This is boilerplate text so I can just click Next, Next, Next..."
 		};
 
 		vm.onSiteInfoCollected = function(){
-			vm.selectedWebUrl = vm.siteInfo.parentWeb + "/" + vm.acronym;
+			vm.childWebUrl = vm.siteInfo.parentWeb + "/" + vm.siteInfo.acronym;
 			return sharepointUtilities.createSite(vm.siteInfo);
 		}
 
-	}
-
-})();
-
-
-
-
-(function () {
-	'use strict';
-
-	angular.module('BlurAdmin.pages.contentGeneration')
-		.controller('CreateListsWizardCtrl', CtrlDefinition);
-
-	/** @ngInject */
-	function CtrlDefinition($q, $scope, common, sharepointUtilities) {
-		$scope.selectedWebUrl = '/ngspa/instance';
-
-		/*		
-	sharepointUtilities.getLists('/ngspa/')
-		.then(function(data){
-			console.log(data);
-		})
-		.catch(function(){
-		});
-	*/
-
-		//Pump Script Editor Webpart into NewForm.aspx and EditForm.aspx <WebPartPages:WebPartZone runat="server" FrameType="None" ID="Main" Title="loc:Main"><ZoneTemplate>
-		//CAN we bootstrap ng-app from top of the page? (don't want to add two script editors to each page, i.e. one under the ListFormWebPart and one above it)
-
-		$scope.onStepOneClicked = function () {
-			createCoreLists()
+		vm.onOrganizationsIdentified = function(){
+			return createCoreLists()
 				.then(provisionComponentCommandPage)
 				.then(provisionTaskGroupPage);
 		}
 
-		$scope.onStepOneUndoClicked = function () {
+		vm.deleteLists = function () {
 			sharepointUtilities.deleteLists({
-				webUrl: $scope.selectedWebUrl,
+				webUrl: vm.childWebUrl,
 				listTitles: ['Calendar', 'CCIR', "Mission Documents", 'Mission Tracker', 'Message Traffic', 'RFI', 'Watch Log']
 			});
 
 			var serverRelativeFileUrls = _.map(['socc.aspx', 'sotg.aspx'], function (sitepageFile) {
-				return $scope.selectedWebUrl + "/SitePages/" + sitepageFile;
+				return vm.childWebUrl + "/SitePages/" + sitepageFile;
 			})
 
 			sharepointUtilities.deleteFiles({
-				webUrl: $scope.selectedWebUrl,
+				webUrl: vm.childWebUrl,
 				fileUrls: serverRelativeFileUrls
 			});
 
@@ -86,14 +58,14 @@
 
 		function provisionWebPartPage(opts) {
 			var pageDef = crisisResponseSchema.webpartPageDefs[opts.webpartPageDefinitionName];
-			pageDef.webUrl = $scope.selectedWebUrl;
+			pageDef.webUrl = vm.childWebUrl;
 			return provisionAspx(pageDef).then(provisionWebpartsOnAspx);
 
 			function provisionAspx(pageDef) {
 				return sharepointUtilities.copyFile({
 					sourceWebUrl: _spPageContextInfo.webServerRelativeUrl,
 					sourceFileUrl: 'generator/artifacts/fourWebpartZones.aspx',
-					destinationWebUrl: $scope.selectedWebUrl,
+					destinationWebUrl: vm.childWebUrl,
 					destinationWebFolderUrl: pageDef.folderName,
 					destinationFileUrl: pageDef.aspxFileName
 				})
@@ -136,106 +108,54 @@
 			function createCalendarList() {
 				//DEPENDENCIES: None
 				var listSchemaDef = crisisResponseSchema.listDefs["Calendar"];
-				listSchemaDef.webUrl = $scope.selectedWebUrl;
+				listSchemaDef.webUrl = vm.childWebUrl;
 				return sharepointUtilities.createList(listSchemaDef);
 			}
 
 			function createCcirList() {
 				//DEPENDENCIES: None
 				var listSchemaDef = crisisResponseSchema.listDefs["CCIR"];
-				listSchemaDef.webUrl = $scope.selectedWebUrl;
+				listSchemaDef.webUrl = vm.childWebUrl;
 				return sharepointUtilities.createList(listSchemaDef);
 			}
 
 			function createMissionList() {
 				//DEPENDENCIES: None
 				var listSchemaDef = crisisResponseSchema.listDefs["Mission Tracker"];
-				listSchemaDef.webUrl = $scope.selectedWebUrl;
+				listSchemaDef.webUrl = vm.childWebUrl;
 				return sharepointUtilities.createList(listSchemaDef);
 			}
 
 			function createMessageTrafficList() {
 				//DEPENDENCIES: None
 				var listSchemaDef = crisisResponseSchema.listDefs["Message Traffic"];
-				listSchemaDef.webUrl = $scope.selectedWebUrl;
+				listSchemaDef.webUrl = vm.childWebUrl;
 				return sharepointUtilities.createList(listSchemaDef);
 			}
 
 			function createMissionDocumentsLibrary() {
 				//DEPENDENCIES: Mission Tracker
 				var listSchemaDef = crisisResponseSchema.listDefs["Mission Documents"];
-				listSchemaDef.webUrl = $scope.selectedWebUrl;
+				listSchemaDef.webUrl = vm.childWebUrl;
 				return sharepointUtilities.createList(listSchemaDef);
 			}
 
 			function createRFIList() {
 				//DEPENDENCIES: Mission Tracker
 				var listSchemaDef = crisisResponseSchema.listDefs["RFI"];
-				listSchemaDef.webUrl = $scope.selectedWebUrl;
+				listSchemaDef.webUrl = vm.childWebUrl;
 				return sharepointUtilities.createList(listSchemaDef);
 			}
 
 			function createWatchLogList() {
 				//DEPENDENCIES: None
 				var listSchemaDef = crisisResponseSchema.listDefs["Watch Log"];
-				listSchemaDef.webUrl = $scope.selectedWebUrl;
+				listSchemaDef.webUrl = vm.childWebUrl;
 				return sharepointUtilities.createList(listSchemaDef);
 			}
 		}
 
-
-
-
 	}
-
 
 })();
 
-
-
-var lists = [];
-
-
-
-
-/*
-
-RECIPE: generation
-
-Create Lists
-- Add Fields
-- Create Views
-
-Copy .ASPX to SitePages doclib
-- Add Webparts to various zones
-
-Set the 'Homepage' for SPWeb
-
-Create SharePoint Group
-
-*/
-
-
-//COPY AND PASTE THESE AS STARTING POINT
-
-var siteDefinitionExample = [
-	{
-		Title: 'Mike Chan',
-		SiteLogoUrl: '/SiteCollectionImages/airbor_35px.gif',	//provide textbox so they can type URL
-		ServerRelativeUrl: '/openapps/KM/mc/deleteme',			//TODO (medium priority): should create a tree-view so user can pick the parent web (/openapps/KM/mc), and a textbox to type 'deleteme'								
-		WebTemplate: 'STS'										//Team Site (should not let the user customize)
-		//TODO (high priority) set to 24 hours /openapps/KM/mc/_api/web/RegionalSettings/Time24 (can it be set at same time as sitecreation HTTP POST?)
-	}
-];
-
-var fieldDefinitionForCalculatedField = {
-	Name: 'StatusSort',
-	DisplayName: 'StatusSort',
-	Type: "Calculated",
-	Required: 'TRUE',
-	ResultType: 'Text',
-	ReadOnly: 'TRUE',
-	Formula: "=FirstName&amp; \" \" &amp;LastName&amp; \" (id: \" &amp;EmployeeID&amp; \" \"",
-	FieldRefs: ['Status'],
-	Description: "First stab at calculated field..."
-}

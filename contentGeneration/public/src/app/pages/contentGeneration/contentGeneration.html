@@ -23,7 +23,7 @@
                                 <div class="form-group" ng-show="vm.siteInfo.parentWeb">
                                     <label>Exercise Site Address</label>
                                     <div class="input-group">
-                                        <span class="input-group-addon input-group-addon-primary addon-left">{{vm.siteInfo.parentWeb}}/</span>
+                                        <span class="input-group-addon input-group-addon-primary addon-left">{{ vm.serverLocation + vm.siteInfo.parentWeb}}/</span>
                                         <input type="text" class="form-control with-primary-addon" placeholder="URL" ng-model="vm.siteInfo.acronym">
                                     </div>
                                     <span class="help-block sub-little-text">Should be abbreviation or short acronym e.g. TF16</span>
@@ -31,8 +31,8 @@
                             </div>
                         </div>
                     </ba-wizard-step>
-                    <ba-wizard-step title="Component Commands/Task Groups" form="vm.productInfoForm">
-
+                    <ba-wizard-step title="Component Commands/Task Groups" on-next-step-clicked="vm.onOrganizationsIdentified()">
+                        <button type="button" class="btn btn-primary" ng-click="vm.deleteLists()">Delete Lists</button>
                     </ba-wizard-step>
                     <ba-wizard-step title="Optional Features" form="vm.addressForm">
 
