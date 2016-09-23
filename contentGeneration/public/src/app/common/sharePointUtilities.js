@@ -414,23 +414,61 @@
 			var childWeb = parentWeb.get_webs().add(webCreationInfo);
 			parentWeb.update();
 
-        	//Navigation Provider Settings for Current Web.
+        	/*
+			Ensure child navigation inherits from parent web
+			inheritFromParentWeb: 3 */
         	var webNavSettings = new SP.Publishing.Navigation.WebNavigationSettings(ctx, childWeb);
         	var navigation = webNavSettings.get_globalNavigation();
-
-			/*
-			unknown: 0, 
-			portalProvider: 1 (Structural Navigation), 
-			taxonomyProvider: 2 (You will need the Term Store Id and Term Set Id too),
-			inheritFromParentWeb: 3 */
         	navigation.set_source(3);
         	webNavSettings.update();
 
-			//configured in /_layouts/15/ChangeSiteMasterPage.aspx (available only when publishing is activated)
+			/*
+			Change Alternate CSS Url
+			configured in /_layouts/15/ChangeSiteMasterPage.aspx (available only when publishing is activated)
+			*/
 			var serverRelativeURL = (opts.parentWeb + "/" + opts.acronym).replace(document.location.protocol+"//", "").replace(document.location.host, "");
 			var alternateCssUrl = serverRelativeURL + "/SitePages/app.css"; 
 			childWeb.set_alternateCssUrl(alternateCssUrl);
 			childWeb.update();
+
+			var vendorFiles = [
+				'jquery.min.js',
+				'lodash.min.js',
+				'string.min.js',		
+				'sputility.min.js',
+				'vis.min.js',	
+				'angular.min.js',
+				'angular-resource.min.js',
+				'angular-sanitize.min.js',
+				'ngplus-overlay.js',
+				'moment.min.js',
+				'angular-ui-router.min.js',
+				'toastr.min.js',
+				'angular-animate.min.js',
+				'ngOfficeUiFabric.min.js',
+				'angular-ui-calendar.js',
+				'fullCalendar.min.js',
+				'jstree.min.js',
+				'ngJsTree.min.js'
+			];
+			var userCustomActions = childWeb.get_userCustomActions();
+			var numFilesAdded = 0;
+			_.each(vendorFiles, function(fileName){
+				var action = userCustomActions.add();
+				action.set_location("ScriptLink");
+				action.set_title(fileName);
+				action.set_scriptSrc(opts.cdn + '/' + fileName);				
+				//action.set_scriptSrc(opts.cdn + '/' + fileName);
+				action.set_sequence(1000+(numFilesAdded++));
+				action.update();
+			});
+			var action = userCustomActions.add();
+			action.set_location("ScriptLink");
+			action.set_title('app.js');
+			action.set_scriptSrc(opts.cdn + "/app.js");				
+			//action.set_scriptSrc(opts.cdn + "/app.js");
+			action.set_sequence(1000+numFilesAdded);
+			action.update();
 
 			ctx.executeQueryAsync(
 		        Function.createDelegate(this, onQuerySucceeded), 

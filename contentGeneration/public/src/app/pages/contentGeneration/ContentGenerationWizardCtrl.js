@@ -5,11 +5,13 @@
 		.controller('ContentGenerationWizardCtrl', WizardCtrl);
 
 	/** @ngInject */
-	function WizardCtrl($q, common, sharepointUtilities) {
+	function WizardCtrl($q, common, commonConfig, sharepointUtilities) {
 		var vm = this;
 		vm.childWebUrl = "";
 		vm.serverLocation = document.location.protocol + '//' + document.location.host;
 		vm.siteInfo = {
+			cdn: commonConfig.settings.baseUrl + '/spa',
+			//cdn: '~site/SitePages',
 			name: "Trojan Footprint 16",
 			acronym: 'TF16',
 			parentWeb: _spPageContextInfo.webServerRelativeUrl,
