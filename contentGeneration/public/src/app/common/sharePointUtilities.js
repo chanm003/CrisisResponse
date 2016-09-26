@@ -89,7 +89,7 @@
 										'&lt;ParameterBinding Name="idPresEnabled" Location="Resource(wss,idPresEnabled)" /&gt;'+
 										'&lt;ParameterBinding Name="NoAnnouncements" Location="Resource(wss,noXinviewofY_LIST)" /&gt;'+
 										'&lt;ParameterBinding Name="NoAnnouncementsHowTo" Location="Resource(wss,noXinviewofY_DEFAULT)" /&gt;'+
-										'&lt;ParameterBinding Name="{orgQsParam}" Location="QueryString(org)" /&gt;';
+										'&lt;ParameterBinding Name="orgQsParam" Location="QueryString(org)" /&gt;';
 						webPartProperties.push({
 							attributes: {name: 'ParameterBindings', type: 'string'},
 							innerText: innerText

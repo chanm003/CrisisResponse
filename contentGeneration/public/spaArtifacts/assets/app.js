@@ -1,15 +1,24 @@
 (function () {
     'use strict';
 
-    var currentURL = window.location.href.toUpperCase();
-    //if (currentURL.indexOf('/SITEPAGES/APP.ASPX') >= 0) {
+    
+    $(document).ready(bootstrapNG);
+
+    function bootstrapNG(){
+        var currentURL = S(window.location.href.toUpperCase());
+        var spPage = $("body");
+        if(currentURL.include('/SITEPAGES/SOCC.ASPX')){
+            spPage.attr('ng-controller', 'SoccAspxController as vm');
+        }
+        
+        //BOOTSTRAP NG-APP
         angular.element(document).ready(function () { angular.bootstrap(document, ['singlePageApp']); });
-    //}
+    }
 
     var globalConfig = {
         appErrorPrefix: '[Exercise Application Error] ',
         appTitle: 'Exercise Application',
-        baseUrl: 'http://localhost:3000/spa'
+        baseUrl: 'http://localhost:3000/spaArtifacts'
     };
 
     angular.module('singlePageApp', [
@@ -508,6 +517,234 @@
 })();
 
 (function () {
+
+
+    angular.module('app.data', ['app.models'])
+        .service('spContext', spContext)
+        .service('MissionTrackerRepository', MissionTrackerRepository)
+        .run(['spContext', function (spContext) {
+            //simply requiring this singleton runs it initialization code..
+        }]);
+
+
+    MissionTrackerRepository.$inject = ['$http', '$q', '$resource', 'exception', 'logger', 'spContext'];
+    function MissionTrackerRepository($http, $q, $resource, exception, logger, spContext) {
+        var service = {
+            getTestData: getTestData,
+            getAll: getAll,
+            save: save
+        };
+
+        var fieldsToSelect = [
+            spContext.SP2013REST.selectForCommonFields,
+            'Status,RfiTrackingNumber,MissionId,Details,Priority,LTIOV,PocNameId,PocPhone,PocOrganization,RecommendedOPR',
+            'ManageRFIId,RespondentNameId,RespondentPhone,ResponseToRequest,DateClosed,ResponseSufficient,InsufficientExplanation',
+            'Mission/FullName,PocName/Title,ManageRFI/Title,RespondentName/Title'
+        ].join(',');
+
+        var fieldsToExpand = [
+            spContext.SP2013REST.expandoForCommonFields,
+            'Mission,PocName,ManageRFI,RespondentName'
+        ].join(',');
+
+        function getDataContextForCollection(params) {
+            return $resource(_spPageContextInfo.webServerRelativeUrl + "/_api/web/lists/getbytitle('RFI')/items",
+                {},
+                {
+                    get: {
+                        method: 'GET',
+                        params: {
+                            '$select': fieldsToSelect,
+                            '$expand': fieldsToExpand
+                        },
+                        headers: {
+                            'Accept': 'application/json;odata=verbose;'
+                        }
+                    },
+                    post: {
+                        method: 'POST',
+                        headers: {
+                            'Accept': 'application/json;odata=verbose',
+                            'Content-Type': 'application/json;odata=verbose;',
+                            'X-RequestDigest': spContext.securityValidation
+                        }
+                    }
+                });
+        }
+
+        function getDataContextForResource(item) {
+            return $resource(_spPageContextInfo.webServerRelativeUrl + "/_api/web/lists/getbytitle('RFI')/items(:itemId)",
+                { itemId: item.Id },
+                {
+                    get: {
+                        method: 'GET',
+                        params: {
+                            '$select': 'Id,Title,Comments,Created,Modified'
+                        },
+                        headers: {
+                            'Accept': 'application/json;odata=verbose;'
+                        }
+                    },
+                    post: {
+                        method: 'POST',
+                        headers: {
+                            'Accept': 'application/json;odata=verbose;',
+                            'Content-Type': 'application/json;odata=verbose;',
+                            'X-RequestDigest': spContext.securityValidation,
+                            'X-HTTP-Method': 'MERGE',
+                            'If-Match': item.__metadata.etag
+                        }
+                    },
+                    delete: {
+                        method: 'DELETE',
+                        headers: {
+                            'Accept': 'application/json;odata=verbose;',
+                            'Content-Type': 'application/json;odata=verbose;',
+                            'X-RequestDigest': spContext.securityValidation,
+                            'If-Match': '*'
+                        }
+                    }
+                });
+        }
+
+        function getAll() {
+            var dfd = $q.defer();
+            getDataContextForCollection().get({},
+                function (data) {
+                    dfd.resolve(data.d.results);
+                },
+                function (error) {
+                    dfd.reject(error);
+                });
+            return dfd.promise;
+        }
+
+        function save(rfi) {
+            console.log('Repository method...');
+        }
+
+        function getTestData(orgFilter){
+            var staticData = [
+                {
+                    Id: 3,
+                    Identifier: "SOTG10_003_KS",
+                    Status: 'COA Approved',
+                    ExpectedExecution: "2016-08-01T07:00:00Z",
+                    ExpectedTermination: "2016-08-03T07:00:00Z",
+                    Organization: 'SOTG 10',
+                    ParticipatingOrganizations: {
+                        results: [
+                            'SOAC', 'SOTG 20'
+                        ]
+                    },
+                    ObjectiveName: "OBJ_HAN",
+                    ApprovalAuthority: "2B: SOCC NRF",
+                    OperationName: "OP_SOLO",
+                },
+                {
+                    Id: 8,
+                    Identifier: "SOTG10_004_DA",
+                    Status: 'Mission Closed',
+                    ExpectedExecution: "2016-08-02T07:00:00Z",
+                    ExpectedTermination: "2016-08-08T07:00:00Z",
+                    Organization: 'SOTG 10',
+                    ParticipatingOrganizations: {
+                        results: [
+                            'SOTG 20', 'SOTG 30'
+                        ]
+                    },
+                    ObjectiveName: "OBJ_DARTH",
+                    ApprovalAuthority: "3A: NRF SOCC",
+                    OperationName: "OP_VADER",
+                },
+                {
+                    Id: 9,
+                    Identifier: "SOTG15_004_DA",
+                    Status: 'Mission Closed',
+                    ExpectedExecution: "2016-08-02T07:00:00Z",
+                    ExpectedTermination: "2016-08-08T07:00:00Z",
+                    Organization: 'SOTG 15',
+                    ParticipatingOrganizations: {
+                        results: [
+                            'SOLTG 35', 'SOAC'
+                        ]
+                    },
+                    ObjectiveName: "OBJ_DARTH",
+                    ApprovalAuthority: "3A: NRF SOCC",
+                    OperationName: "OP_VADER",
+                }
+            ];
+
+            if(orgFilter){
+                staticData = _.filter(staticData, function(item){
+                    return item.Organization === orgFilter || _.contains(item.ParticipatingOrganizations.results, orgFilter);
+                })
+            }
+            return $q.when(staticData);
+        }
+
+        return service;
+    }
+
+    spContext.$inject = ['$resource', '$timeout', 'logger'];
+    function spContext($resource, $timeout, logger) {
+        var service = this;
+
+        service.SP2013REST = {
+            selectForCommonFields: 'Id,Title,Created,Modified,AuthorId,EditorId,Attachments,Author/Title,Editor/Title',
+            expandoForCommonFields: 'Author,Editor'
+        }
+
+        init();
+
+        function init() {
+            refreshSecurityValidation();
+        }
+
+        function refreshSecurityValidation() {
+            if (service.securityValidation) {
+                logger.info("refreshing soon-to-expire security validation: " + service.securityValidation);
+            }
+
+            var siteContextInfoResource = $resource(_spPageContextInfo.webServerRelativeUrl + '/_api/contextinfo?$select=FormDigestValue', {}, {
+                post: {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json;odata=verbose;',
+                        'Content-Type': 'application/json;odata=verbose;'
+                    }
+                }
+            });
+
+            // request validation
+            siteContextInfoResource.post({}, success, fail);
+
+            function success(data) {
+                // obtain security digest timeout & value & store in service
+                var validationRefreshTimeout = data.d.GetContextWebInformation.FormDigestTimeoutSeconds - 10;
+                service.securityValidation = data.d.GetContextWebInformation.FormDigestValue;
+                logger.info("refreshed security validation: " + service.securityValidation);
+                logger.info("next refresh of security validation: " + validationRefreshTimeout + " seconds");
+
+                // repeat this in FormDigestTimeoutSeconds-10
+                $timeout(
+                    function () {
+                        refreshSecurityValidation();
+                    },
+                    validationRefreshTimeout * 1000);
+            }
+
+            function fail(error) {
+                logger.logError("response from contextinfo: " + error);
+            }
+
+        }
+    }
+
+
+})();
+
+(function () {
     'use strict';
 
     angular
@@ -525,7 +762,7 @@
                     state: 'rfi',
                     config: {
                         url: '/rfi',
-                        templateUrl: config.baseUrl + '/rfi.html',
+                        templateUrl: config.baseUrl + '/assets/rfi.html',
                         controller: 'RfiController',
                         controllerAs: 'vm',
                         title: 'RFI'
@@ -600,7 +837,7 @@
                     state: 'missionTracker',
                     config: {
                         url: '/missionTracker',
-                        templateUrl: config.baseUrl + '/missionTracker.html',
+                        templateUrl: config.baseUrl + '/assets/missionTracker.html',
                         controller: 'MissionTrackerController',
                         controllerAs: 'vm',
                         title: 'Mission Tracker'
@@ -610,8 +847,8 @@
         }
     }
 
-    MissionTrackerController.$inject = ['$q', '_', 'logger'];
-    function MissionTrackerController($q, _, logger) {
+    MissionTrackerController.$inject = ['$q', '_', 'logger', 'MissionTrackerRepository'];
+    function MissionTrackerController($q, _, logger, MissionTrackerRepository) {
         var vm = this;
 
         activate();
@@ -619,7 +856,7 @@
         function activate() {
             initTabs();
             $q.all([
-                    getDataForMissionTimeline(),
+                    MissionTrackerRepository.getTestData(),
                     getDataForVerticalTimeline(),
                     getDataForProcess()
                 ])
@@ -689,43 +926,7 @@
             return $q.when(staticData);
         }
 
-        function getDataForMissionTimeline(){
-            var staticData = [
-                {
-                    Id: 3,
-                    Identifier: "SOTG10_003_KS",
-                    Status: 'COA Approved',
-                    ExpectedExecution: "2016-08-01T07:00:00Z",
-                    ExpectedTermination: "2016-08-03T07:00:00Z",
-                    Organization: 'SOTG 10',
-                    ParticipatingOrganizations: {
-                        results: [
-                            'SOAC', 'SOTG 20'
-                        ]
-                    },
-                    ObjectiveName: "OBJ_HAN",
-                    ApprovalAuthority: "2B: SOCC NRF",
-                    OperationName: "OP_SOLO",
-                },
-                {
-                    Id: 8,
-                    Identifier: "SOTG10_004_DA",
-                    Status: 'Mission Closed',
-                    ExpectedExecution: "2016-08-02T07:00:00Z",
-                    ExpectedTermination: "2016-08-08T07:00:00Z",
-                    Organization: 'SOTG 10',
-                    ParticipatingOrganizations: {
-                        results: [
-                            'SOTG 20', 'SOTG 30'
-                        ]
-                    },
-                    ObjectiveName: "OBJ_DARTH",
-                    ApprovalAuthority: "3A: NRF SOCC",
-                    OperationName: "OP_VADER",
-                }
-            ];
-            return $q.when(staticData);
-        }
+        
 
 
 
@@ -751,7 +952,7 @@
                     state: 'editNav',
                     config: {
                         url: '/editNav',
-                        templateUrl: config.baseUrl + '/editnav.html',
+                        templateUrl: config.baseUrl + '/assets/editnav.html',
                         controller: 'EditNavController',
                         controllerAs: 'vm',
                         title: 'Edit Navigation'
@@ -1042,7 +1243,26 @@
                 controller: controller,
                 controllerAs: 'vm',
                 bindToController: true, //required in 1.3+ with controllerAs
-                templateUrl: config.baseUrl + '/current-operations-summary.html'
+                templateUrl: config.baseUrl + '/assets/current-operations-summary.html'
             };
         }
+})();
+
+
+(function () {
+    'use strict';
+
+    angular
+        .module('app.core')
+        .controller('SoccAspxController', SoccAspxController);
+
+
+
+    SoccAspxController.$inject = ['$stateParams', 'MissionTrackerRepository'];
+    function SoccAspxController($stateParams, MissionTrackerRepository) {
+        var vm = this;
+        MissionTrackerRepository.getTestData($stateParams.org).then(function(data){ 
+            vm.missionItems = data;
+        })
+    }
 })();
