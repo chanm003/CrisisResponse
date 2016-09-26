@@ -10,7 +10,7 @@
 		vm.childWebUrl = "";
 		vm.serverLocation = document.location.protocol + '//' + document.location.host;
 		vm.siteInfo = {
-			cdn: commonConfig.settings.baseUrl + '/spa',
+			cdn: commonConfig.settings.baseUrl + '/spaArtifacts/assets',
 			//cdn: '~site/SitePages',
 			name: "Trojan Footprint 16",
 			acronym: 'TF16',
@@ -37,7 +37,7 @@
 			function getAssetsFromArtifactsFolder(){
 				return sharepointUtilities.getFilesFromFolder({
 					webUrl: _spPageContextInfo.webServerRelativeUrl,
-					folderServerRelativeUrl: _spPageContextInfo.webServerRelativeUrl + '/generator/artifacts/assets'
+					folderServerRelativeUrl: _spPageContextInfo.webServerRelativeUrl + '/generator/spaArtifacts/assets'
 				});
 			}
 			
@@ -46,7 +46,7 @@
 				_.each(files, function(file){
 					promises.push(sharepointUtilities.copyFile({
 						sourceWebUrl: _spPageContextInfo.webServerRelativeUrl,
-						sourceFileUrl: 'generator/artifacts/assets/' + file.name,
+						sourceFileUrl: 'generator/spaArtifacts/assets/' + file.name,
 						destinationWebUrl: vm.childWebUrl,
 						destinationWebFolderUrl: 'SitePages',
 						destinationFileUrl: file.name
@@ -93,7 +93,7 @@
 			function provisionAspx(pageDef) {
 				return sharepointUtilities.copyFile({
 					sourceWebUrl: _spPageContextInfo.webServerRelativeUrl,
-					sourceFileUrl: 'generator/artifacts/fourWebpartZones.aspx',
+					sourceFileUrl: 'generator/spaArtifacts/fourWebpartZones.aspx',
 					destinationWebUrl: vm.childWebUrl,
 					destinationWebFolderUrl: pageDef.folderName,
 					destinationFileUrl: pageDef.aspxFileName
