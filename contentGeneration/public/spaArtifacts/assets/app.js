@@ -21,6 +21,19 @@
         baseUrl: 'http://localhost:3000/spaArtifacts'
     };
 
+    function extendLoDash(_){
+        _.parseQueryString = function(qstr) {
+            var query = {};
+            var a = qstr.substr(1).split('&');
+            for (var i = 0; i < a.length; i++) {
+                var b = a[i].split('=');
+                query[decodeURIComponent(b[0])] = decodeURIComponent(b[1] || '');
+            }
+            return query;
+        }
+        return _;
+    }
+
     angular.module('singlePageApp', [
         'app.core',
         'app.data',
@@ -41,7 +54,7 @@
         'ngJsTree',
         'ngplus'
     ])
-        .constant('_', _)
+        .constant('_', extendLoDash(_))
         .constant('toastr', toastr)
         .constant('moment', moment)
         .value('config', globalConfig)
@@ -276,11 +289,7 @@
         vm.busyMessage = 'Please wait ...';
         vm.isBusy = true;
         $rootScope.showSplash = true;
-        vm.navline = {
-            title: config.appTitle,
-            text: 'Created by John Papa',
-            link: 'http://twitter.com/john_papa'
-        };
+
 
         activate();
 
@@ -677,7 +686,7 @@
 
             if(orgFilter){
                 staticData = _.filter(staticData, function(item){
-                    return item.Organization === orgFilter || _.contains(item.ParticipatingOrganizations.results, orgFilter);
+                    return item.Organization === orgFilter || _.includes(item.ParticipatingOrganizations.results, orgFilter);
                 })
             }
             return $q.when(staticData);
@@ -1258,10 +1267,11 @@
 
 
 
-    SoccAspxController.$inject = ['$stateParams', 'MissionTrackerRepository'];
-    function SoccAspxController($stateParams, MissionTrackerRepository) {
+    SoccAspxController.$inject = ['_', 'MissionTrackerRepository'];
+    function SoccAspxController(_, MissionTrackerRepository) {
         var vm = this;
-        MissionTrackerRepository.getTestData($stateParams.org).then(function(data){ 
+        var qsParams = _.parseQueryString(location.search);
+        MissionTrackerRepository.getTestData(qsParams.org).then(function(data){ 
             vm.missionItems = data;
         })
     }
