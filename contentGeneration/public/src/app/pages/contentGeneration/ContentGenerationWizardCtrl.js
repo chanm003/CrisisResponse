@@ -20,13 +20,40 @@
 
 		vm.onSiteInfoCollected = function(){
 			vm.childWebUrl = vm.siteInfo.parentWeb + "/" + vm.siteInfo.acronym;
-			return sharepointUtilities.createSite(vm.siteInfo);
+			return sharepointUtilities.createSite(vm.siteInfo).then(provisionAssetsToSitePagesLibrary);
 		}
 
 		vm.onOrganizationsIdentified = function(){
 			return createCoreLists()
 				.then(provisionComponentCommandPage)
 				.then(provisionTaskGroupPage);
+		}
+
+		function provisionAssetsToSitePagesLibrary(){
+			return getAssetsFromArtifactsFolder()
+				.then(copyToSitePagesInChildWeb);
+
+
+			function getAssetsFromArtifactsFolder(){
+				return sharepointUtilities.getFilesFromFolder({
+					webUrl: _spPageContextInfo.webServerRelativeUrl,
+					folderServerRelativeUrl: _spPageContextInfo.webServerRelativeUrl + '/generator/artifacts/assets'
+				});
+			}
+			
+			function copyToSitePagesInChildWeb(files){
+				var promises = [];
+				_.each(files, function(file){
+					promises.push(sharepointUtilities.copyFile({
+						sourceWebUrl: _spPageContextInfo.webServerRelativeUrl,
+						sourceFileUrl: 'generator/artifacts/assets/' + file.name,
+						destinationWebUrl: vm.childWebUrl,
+						destinationWebFolderUrl: 'SitePages',
+						destinationFileUrl: file.name
+					}));
+				})
+				return $q.all(promises);
+			}
 		}
 
 		vm.deleteLists = function () {

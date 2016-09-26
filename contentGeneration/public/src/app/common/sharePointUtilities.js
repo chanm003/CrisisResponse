@@ -16,6 +16,7 @@
 			deleteFiles: deleteFiles,
 			deleteLists: deleteLists,
 	        getLists: getLists,
+			getFilesFromFolder: getFilesFromFolder,
 			provisionListViewWebparts: provisionListViewWebparts,
 			provisionScriptEditorWebparts: provisionScriptEditorWebparts
 	    };
@@ -457,8 +458,8 @@
 				var action = userCustomActions.add();
 				action.set_location("ScriptLink");
 				action.set_title(fileName);
-				action.set_scriptSrc(opts.cdn + '/' + fileName);				
-				//action.set_scriptSrc(opts.cdn + '/' + fileName);
+				//action.set_scriptSrc(opts.cdn + '/' + fileName);	
+				action.set_scriptSrc('~site/SitePages/' + fileName);			
 				action.set_sequence(1000+(numFilesAdded++));
 				action.update();
 			});
@@ -466,7 +467,6 @@
 			action.set_location("ScriptLink");
 			action.set_title('app.js');
 			action.set_scriptSrc(opts.cdn + "/app.js");				
-			//action.set_scriptSrc(opts.cdn + "/app.js");
 			action.set_sequence(1000+numFilesAdded);
 			action.update();
 
@@ -560,6 +560,41 @@
 			
 			});
 			return xml;
+		}
+
+		function getFilesFromFolder(opts){
+			var dfd = $q.defer();
+			var ctx = new SP.ClientContext(opts.webUrl);
+    		var spWeb = ctx.get_web();
+		    
+			// do not need subfolders, so no need to use SP.CamlQuery.createAllItemsQuery
+			var folder = spWeb.getFolderByServerRelativeUrl(opts.folderServerRelativeUrl);
+        	var spFiles = folder.get_files();
+        	ctx.load(spFiles);
+
+			ctx.executeQueryAsync(
+		        Function.createDelegate(this, onQuerySucceeded), 
+		        Function.createDelegate(this, onQueryFailed)
+		    );
+		    
+		    return dfd.promise;
+		    
+		    function onQuerySucceeded(){
+				var files = [];
+				var listItemEnumerator = spFiles.getEnumerator();
+           	 	while (listItemEnumerator.moveNext()) {
+					var spFile = listItemEnumerator.get_current();
+					files.push({
+						name: spFile.get_name()
+					})             
+            	}
+				dfd.resolve(files);                          
+			}
+
+			function onQueryFailed(sender, args){
+		    	logger.logError('Request failed: ' + args.get_message(), args.get_stackTrace(), 'sharepointUtilities service, getFilesFromFolder()');
+		    	dfd.reject();
+		    }
 		}
 	    
 		function getLists(webUrl){
