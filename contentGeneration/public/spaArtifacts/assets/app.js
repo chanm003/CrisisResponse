@@ -638,8 +638,8 @@
                     Id: 3,
                     Identifier: "SOTG10_003_KS",
                     Status: 'COA Approved',
-                    ExpectedExecution: "2016-08-01T07:00:00Z",
-                    ExpectedTermination: "2016-08-03T07:00:00Z",
+                    ExpectedExecution: moment(),
+                    ExpectedTermination: moment().add(3, 'days'),
                     Organization: 'SOTG 10',
                     ParticipatingOrganizations: {
                         results: [
@@ -654,8 +654,8 @@
                     Id: 8,
                     Identifier: "SOTG10_004_DA",
                     Status: 'Mission Closed',
-                    ExpectedExecution: "2016-08-02T07:00:00Z",
-                    ExpectedTermination: "2016-08-08T07:00:00Z",
+                    ExpectedExecution: moment().add(-3, 'days'),
+                    ExpectedTermination: moment().add(1, 'days'),
                     Organization: 'SOTG 10',
                     ParticipatingOrganizations: {
                         results: [
@@ -670,8 +670,8 @@
                     Id: 9,
                     Identifier: "SOTG15_004_DA",
                     Status: 'Mission Closed',
-                    ExpectedExecution: "2016-08-02T07:00:00Z",
-                    ExpectedTermination: "2016-08-08T07:00:00Z",
+                    ExpectedExecution: moment().add(3, 'days'),
+                    ExpectedTermination: moment().add(7, 'days'),
                     Organization: 'SOTG 15',
                     ParticipatingOrganizations: {
                         results: [
@@ -1088,15 +1088,38 @@
         function link(scope, elem, attrs) {
             var options = {
                 stack: false,
-                start: new Date(),
-                end: new Date(1000 * 60 * 60 * 24 + (new Date()).valueOf()),
+                start: moment(),
+                end: moment().add(15, 'days'),
                 editable: false,
                 margin: {
-                    item: 10, // minimal margin between items
-                    axis: 5   // minimal margin between items and the axis
+                    item: 5, // minimal margin between items
+                    axis: 3   // minimal margin between items and the axis
                 },
                 orientation: 'top'
             };
+
+            var statusColorLegend = {
+			    	"Initial Targeting": 'background-color:#FFFF00; border-color: #FFFF00; color: #000;', //yellow,black
+			        "JPG Assigned": 'background-color:#FFFF00; border-color: #FFFF00; color: #000;', //yellow,black
+					"COA Approved": 'background-color:#FFFF00; border-color: #FFFF00; color: #000;', //yellow,black
+					"CONOP Received - In Chop": 'background-color:#FFFF00; border-color: #FFFF00; color: #000;', //yellow,black
+					
+					"CONOP Disapproved": 'background-color:#ff0000; border-color: #ff0000; color: #fff;', //red,white	
+					
+					"CONOP Approved": 'background-color:#007f00; border-color: #007f00; color: #fff;', //yellow,black
+					"FRAGO In-Chop": 'background-color:#007f00; border-color: #007f00; color: #fff;', //yellow,black
+					"FRAGO Released": 'background-color:#007f00; border-color: #007f00; color: #fff;', //yellow,black
+					"EXORD Released": 'background-color:#007f00; border-color: #007f00; color: #fff;', //yellow,black
+
+					"Mission In Progress": 'background-color:#ffa500; border-color: #ffa500; color: #000;', //orange, black
+					
+                    "Return to Base": 'background-color:#2C5197; border-color: #2C5197; color: #000;', //blue, black		
+					"QuickLook": 'background-color:#2C5197; border-color: #2C5197; color: #000;', //blue, black	
+					"StoryBoard": 'background-color:#2C5197; border-color: #2C5197; color: #000;', //blue, black
+					"OPSUM": 'background-color:#2C5197; border-color: #2C5197; color: #000;', //blue, black
+
+					"Mission Closed": 'background-color:#000; border-color: #000; color: #fff;' //black, white
+		    };
 
             scope.$watch('items', function () {
                 renderTimeline(scope.items);
@@ -1111,7 +1134,9 @@
                             id: item.Id,
                             group: item.Id,
                             start: new Date(item.ExpectedExecution),
-                            end: new Date(item.ExpectedTermination)
+                            end: new Date(item.ExpectedTermination),
+                            style: statusColorLegend[item.Status],
+                            title: buildOnHoverText(item)
                         };
                     })
                 );
@@ -1120,6 +1145,29 @@
                 var timeline = new vis.Timeline(elem[0], null, options);
                 timeline.setGroups(groups);
                 timeline.setItems(items);
+                timeline.on('click', function(props){
+                    if(props.what === 'group-label' || props.what === 'item'){
+                        var url = _spPageContextInfo.webServerRelativeUrl + '/Lists/MissionTracker/DispForm.aspx?ID=' + props.group;
+                        window.open(url , '_blank');    
+                    }
+                })
+
+                function buildOnHoverText(item){
+                    var hoverTextParts = [];
+                    hoverTextParts.push(item.Status);
+                    hoverTextParts.push(item.ObjectiveName);
+                    if(item.OperationName){
+                        hoverTextParts.push(item.OperationName);
+                    }
+                    hoverTextParts.push(item.ApprovalAuthority);
+                    var timePortion = moment.utc(item.ExpectedExecution).format("DDHHmm[Z]MMMYY").toUpperCase();
+                    if(item.ExpectedTermination){
+                        timePortion += " - " + moment.utc(item.ExpectedTermination).format("DDHHmm[Z]MMMYY").toUpperCase();
+                    }
+                    hoverTextParts.push(timePortion);
+
+                    return hoverTextParts.join(', ');
+                }
             }
 
 

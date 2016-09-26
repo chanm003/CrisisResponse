@@ -488,7 +488,7 @@
 }
 /*#endregion HORIZONTAL-TIMELINE END*/
 
-/*region SLIDESHOW-ANIMATION */
+/*#region SLIDESHOW-ANIMATION */
 .fullpage {
 				margin:0;
 				padding:0;
@@ -542,4 +542,10 @@
 				top:0;
 			}
 
-      /*endregion SLIDESHOW-ANIMATION */
+/*#endregion SLIDESHOW-ANIMATION */
+
+/*#region VISJS TIMELINE */
+.vis-item, .vis-label{
+  cursor: pointer;
+}
+/*#endregion VISJS TIMELINE */
