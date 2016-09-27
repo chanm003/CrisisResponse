@@ -361,6 +361,67 @@
 (function () {
     'use strict';
 
+    angular.module('app.models', [])
+        .factory('Mission', MissionModel);
+
+    MissionModel.$inject = ['MissionTrackerRepository'];
+    function MissionModel(MissionTrackerRepository) {
+        var Mission = function (data) {
+            if (!data) {
+                this.Id = undefined; //number
+                this.Identifier = undefined; //string
+                this.FullName = undefined; //string
+                this.ObjectiveName = undefined; //string 
+                this.Organization = undefined; //string
+                this.MissionType = undefined; //string
+                this.ApprovalAuthority = undefined; //string
+                this.OperationName = undefined; //string or null
+                this.Status = undefined; //string
+                this.MissionApproved  = undefined; //string (ISO) or null "2016-08-01T07:00:00Z"
+                this.ExpectedExecution = undefined; //string (ISO) "2016-08-01T07:00:00Z"
+                this.ExpectedTermination = undefined; //string (ISO) or null "2016-08-01T07:00:00Z"
+                this.ParticipatingOrganizations = undefined; //object {results: ['SOTG 10', 'SOTG 15', 'SOTG 25']} 
+                this.Comments = undefined; //string or null
+                this.__metadata = {
+                    type: "SP.Data.MissionTrackerListItem"
+                };
+            } else {
+                for (var prop in data) {
+                    if (data.hasOwnProperty(prop)) {
+                        this[prop] = data[prop];
+                    }
+                }
+            }
+        }
+
+        Mission.prototype.complete = function () {
+  
+        }
+
+        Mission.prototype.buildOnHoverText = function (){
+            var hoverTextParts = [];
+            hoverTextParts.push(this.Status);
+            hoverTextParts.push(this.ObjectiveName);
+            if(this.OperationName){
+                hoverTextParts.push(this.OperationName);
+            }
+            hoverTextParts.push(this.ApprovalAuthority);
+            var timePortion = moment.utc(this.ExpectedExecution).format("DDHHmm[Z]MMMYY").toUpperCase();
+            if(this.ExpectedTermination){
+                timePortion += " - " + moment.utc(this.ExpectedTermination).format("DDHHmm[Z]MMMYY").toUpperCase();
+            }
+            hoverTextParts.push(timePortion);
+
+            return hoverTextParts.join(', ');
+        }
+
+        return Mission;
+    }
+})();
+
+(function () {
+    'use strict';
+
     angular.module('app.data', ['app.models'])
         .service('spContext', spContext)
         .service('RfiRepository', RfiRepository)
@@ -648,7 +709,7 @@
                     },
                     ObjectiveName: "OBJ_HAN",
                     ApprovalAuthority: "2B: SOCC NRF",
-                    OperationName: "OP_SOLO",
+                    OperationName: "OP_SOLO"
                 },
                 {
                     Id: 8,
@@ -664,23 +725,37 @@
                     },
                     ObjectiveName: "OBJ_DARTH",
                     ApprovalAuthority: "3A: NRF SOCC",
-                    OperationName: "OP_VADER",
+                    OperationName: "OP_VADER"
                 },
                 {
                     Id: 9,
                     Identifier: "SOTG15_004_DA",
                     Status: 'Mission Closed',
-                    ExpectedExecution: moment().add(3, 'days'),
-                    ExpectedTermination: moment().add(7, 'days'),
+                    ExpectedExecution: moment().add(-9, 'days'),
+                    ExpectedTermination: moment().add(-2, 'days'),
                     Organization: 'SOTG 15',
                     ParticipatingOrganizations: {
                         results: [
                             'SOLTG 35', 'SOAC'
                         ]
                     },
-                    ObjectiveName: "OBJ_DARTH",
+                    ObjectiveName: "OBJ_YODA",
                     ApprovalAuthority: "3A: NRF SOCC",
-                    OperationName: "OP_VADER",
+                    OperationName: "OP_SITHLORD"
+                },
+                {
+                    Id: 11,
+                    Identifier: "SOMTG35_001_DA",
+                    Status: 'EXORD Released',
+                    ExpectedExecution: moment().add(2, 'days'),
+                    ExpectedTermination: '',
+                    Organization: 'SOMTG 35',
+                    ParticipatingOrganizations: {
+                        results: []                
+                    },
+                    ObjectiveName: "OBJ_LUKE",
+                    ApprovalAuthority: "3A: NRF SOCC",
+                    OperationName: "OP_SKYWALKER"
                 }
             ];
 
@@ -702,6 +777,25 @@
         service.SP2013REST = {
             selectForCommonFields: 'Id,Title,Created,Modified,AuthorId,EditorId,Attachments,Author/Title,Editor/Title',
             expandoForCommonFields: 'Author,Editor'
+        }
+        service.htmlHelpers = {};
+        service.htmlHelpers.buildHeroButton = function(text, href){
+            var html = 
+                '<table dir="none" cellpadding="0" cellspacing="0" border="0">\
+                    <tbody>\
+                        <tr>\
+                            <td class="ms-list-addnew ms-textXLarge ms-list-addnew-aligntop ms-soften">\
+                                <a class="ms-heroCommandLink ms-hero-command-enabled-alt" href="'+ href + '">\
+                                    <span class="ms-list-addnew-imgSpan20">\
+                                        <img src="/_layouts/15/images/spcommon.png?rev=44" class="ms-list-addnew-img20">\
+                                    </span>\
+                                    <span>'+ (text || 'new item') +'</span>\
+                                </a>\
+                            </td>\
+                        </tr>\
+                    </tbody>\
+                </table>';
+            return html;
         }
 
         init();
@@ -1071,17 +1165,18 @@
     angular
         .module('app.core')
         .directive('missionTimeline', missionTimeline);
-
-    function missionTimeline() {
+    
+    missionTimeline.$inject = ['Mission', 'MissionTrackerRepository', 'spContext'];
+    function missionTimeline(Mission, MissionTrackerRepository, spContext) {
         /* 
         USAGE: <timeline></timeline>
         */
+        var newFormUrl = _spPageContextInfo.webServerRelativeUrl + "/Lists/MissionTracker/NewForm.aspx?Source=" + document.location.href;
         var directiveDefinition = {
             link: link,
             restrict: 'E',
-            scope: {
-                items: "="
-            }
+            scope: {},
+            template: spContext.htmlHelpers.buildHeroButton('new item', newFormUrl) + buildCheckboxHtml() + buildShowLegendHyperlink() + buildCalloutHtml() + '<div class="mission-timeline" ng-show="missions.length"></div>' + buildMessageBarHtml()
         };
         return directiveDefinition;
 
@@ -1097,52 +1192,71 @@
                 },
                 orientation: 'top'
             };
-
-            var statusColorLegend = {
-			    	"Initial Targeting": 'background-color:#FFFF00; border-color: #FFFF00; color: #000;', //yellow,black
-			        "JPG Assigned": 'background-color:#FFFF00; border-color: #FFFF00; color: #000;', //yellow,black
-					"COA Approved": 'background-color:#FFFF00; border-color: #FFFF00; color: #000;', //yellow,black
-					"CONOP Received - In Chop": 'background-color:#FFFF00; border-color: #FFFF00; color: #000;', //yellow,black
+            var items = [];
+            scope.showPastMissions = false;
+            scope.statusColorLegend = [
+			    	{ name: "Initial Targeting", cssStyle : 'background-color:#FFFF00; border-color: #FFFF00; color: #000;'}, //yellow,black
+			        { name: "JPG Assigned", cssStyle: 'background-color:#FFFF00; border-color: #FFFF00; color: #000;'}, //yellow,black
+					{ name: "COA Approved", cssStyle: 'background-color:#FFFF00; border-color: #FFFF00; color: #000;'}, //yellow,black
+					{ name: "CONOP Received - In Chop", cssStyle: 'background-color:#FFFF00; border-color: #FFFF00; color: #000;'}, //yellow,black
 					
-					"CONOP Disapproved": 'background-color:#ff0000; border-color: #ff0000; color: #fff;', //red,white	
+					{ name: "CONOP Disapproved", cssStyle: 'background-color:#ff0000; border-color: #ff0000; color: #fff;'}, //red,white	
 					
-					"CONOP Approved": 'background-color:#007f00; border-color: #007f00; color: #fff;', //yellow,black
-					"FRAGO In-Chop": 'background-color:#007f00; border-color: #007f00; color: #fff;', //yellow,black
-					"FRAGO Released": 'background-color:#007f00; border-color: #007f00; color: #fff;', //yellow,black
-					"EXORD Released": 'background-color:#007f00; border-color: #007f00; color: #fff;', //yellow,black
+					{ name: "CONOP Approved", cssStyle: 'background-color:#007f00; border-color: #007f00; color: #fff;'}, //yellow,black
+					{ name: "FRAGO In-Chop", cssStyle: 'background-color:#007f00; border-color: #007f00; color: #fff;'}, //yellow,black
+					{ name: "FRAGO Released", cssStyle: 'background-color:#007f00; border-color: #007f00; color: #fff;'}, //yellow,black
+					{ name: "EXORD Released", cssStyle: 'background-color:#007f00; border-color: #007f00; color: #fff;'}, //yellow,black
 
-					"Mission In Progress": 'background-color:#ffa500; border-color: #ffa500; color: #000;', //orange, black
+					{ name: "Mission In Progress", cssStyle: 'background-color:#ffa500; border-color: #ffa500; color: #000;'}, //orange, black
 					
-                    "Return to Base": 'background-color:#2C5197; border-color: #2C5197; color: #000;', //blue, black		
-					"QuickLook": 'background-color:#2C5197; border-color: #2C5197; color: #000;', //blue, black	
-					"StoryBoard": 'background-color:#2C5197; border-color: #2C5197; color: #000;', //blue, black
-					"OPSUM": 'background-color:#2C5197; border-color: #2C5197; color: #000;', //blue, black
+                    { name: "Return to Base", cssStyle: 'background-color:#2C5197; border-color: #2C5197; color: #000;'}, //blue, black		
+					{ name: "QuickLook", cssStyle: 'background-color:#2C5197; border-color: #2C5197; color: #000;'}, //blue, black	
+					{ name: "StoryBoard", cssStyle: 'background-color:#2C5197; border-color: #2C5197; color: #000;'}, //blue, black
+					{ name: "OPSUM", cssStyle: 'background-color:#2C5197; border-color: #2C5197; color: #000;'}, //blue, black
 
-					"Mission Closed": 'background-color:#000; border-color: #000; color: #fff;' //black, white
-		    };
+					{ name: "Mission Closed", cssStyle: 'background-color:#000; border-color: #000; color: #fff;'} //black, white
+		    ];
 
-            scope.$watch('items', function () {
-                renderTimeline(scope.items);
-                console.log('directive received data: ', scope.items);
+            $(elem).css({"postion": "relative"});
+
+            var qsParams = _.parseQueryString(location.search);
+            scope.selectedOrg = (qsParams.org || ""); 
+
+            MissionTrackerRepository.getTestData(qsParams.org).then(function(data){ 
+                items = _.map(data, function(item){ return new Mission(item); });
+                renderTimeline(items)
             })
 
-            function renderTimeline(missions) {
-                var groups = new vis.DataSet(_.map(missions, function (item) { return { id: item.Id, content: item.Identifier }; }));
+            scope.$watch('showPastMissions', function () {
+                renderTimeline(items);
+            })
+
+            var timeline = null;
+            function renderTimeline(items) {
+                if(timeline){
+                    timeline.destroy();
+                }
+                
+                var now = moment();
+                scope.missions = _.filter(items, function(item){
+                    return scope.showPastMissions || (!item.ExpectedTermination || moment(item.ExpectedTermination) > now); 
+                });
+
+                var groups = new vis.DataSet(_.map(scope.missions, function (item) { return { id: item.Id, content: item.Identifier }; }));
                 var items = new vis.DataSet(
-                    _.map(missions, function (item) {
+                    _.map(scope.missions, function (item) {
                         return {
                             id: item.Id,
                             group: item.Id,
-                            start: new Date(item.ExpectedExecution),
-                            end: new Date(item.ExpectedTermination),
-                            style: statusColorLegend[item.Status],
-                            title: buildOnHoverText(item)
+                            start: moment(item.ExpectedExecution),
+                            end: moment(item.ExpectedTermination),
+                            style: _.find(scope.statusColorLegend, {name: item.Status}).cssStyle,
+                            title: item.buildOnHoverText()
                         };
                     })
                 );
 
-
-                var timeline = new vis.Timeline(elem[0], null, options);
+                timeline = new vis.Timeline($(elem).find(".mission-timeline").get(0), null, options);
                 timeline.setGroups(groups);
                 timeline.setItems(items);
                 timeline.on('click', function(props){
@@ -1152,25 +1266,45 @@
                     }
                 })
 
-                function buildOnHoverText(item){
-                    var hoverTextParts = [];
-                    hoverTextParts.push(item.Status);
-                    hoverTextParts.push(item.ObjectiveName);
-                    if(item.OperationName){
-                        hoverTextParts.push(item.OperationName);
-                    }
-                    hoverTextParts.push(item.ApprovalAuthority);
-                    var timePortion = moment.utc(item.ExpectedExecution).format("DDHHmm[Z]MMMYY").toUpperCase();
-                    if(item.ExpectedTermination){
-                        timePortion += " - " + moment.utc(item.ExpectedTermination).format("DDHHmm[Z]MMMYY").toUpperCase();
-                    }
-                    hoverTextParts.push(timePortion);
-
-                    return hoverTextParts.join(', ');
-                }
+                
             }
+        }
 
+        function buildCalloutHtml(){
+            var html = 
+                '<div class="ms-Callout ms-Callout--arrowLeft" style="position:absolute;left:80px;top:-56px;" ng-show="showLegend">\
+                    <div class="ms-Callout-main">\
+                        <div class="ms-Callout-header">\
+                            <p class="ms-Callout-title">Mission Statuses</p>\
+                        </div>\
+                        <div class="ms-Callout-inner">\
+                            <div class="ms-Callout-content">\
+                                <p class="ms-Callout-subText ms-Callout-subText--s">\
+                                    <table>\
+                                        <tr ng-repeat="status in statusColorLegend">\
+                                            <td style="{{status.cssStyle + \';width:25px;\'}}">&nbsp;</td>\
+                                            <td>{{status.name}}</td>\
+                                        </tr>\
+                                    </table>\
+                                </p>\
+                            </div>\
+                        </div>\
+                    </div>\
+                </div>';
+            return html;
+        }
 
+        function buildCheckboxHtml(){
+            var html = '<uif-choicefield-option uif-type="checkbox" value="value1" ng-model="showPastMissions" ng-true-value="true" ng-false-value="false"> Show Past Missions</uif-choicefield-option>';
+            return html;
+        }
+
+        function buildShowLegendHyperlink(){
+            return '<a ng-mouseover="showLegend = true" ng-mouseleave="showLegend = false" ng-show="missions.length">Show Legend</a>';
+        }
+
+        function buildMessageBarHtml(){
+            return '<uif-message-bar ng-show="missions.length === 0"> <uif-content>No {{showPastMissions ? "past/ongoing" : "ongoing" }} {{selectedOrg}} missions</uif-content> </uif-message-bar>';
         }
     }
 
@@ -1318,9 +1452,6 @@
     SoccAspxController.$inject = ['_', 'MissionTrackerRepository'];
     function SoccAspxController(_, MissionTrackerRepository) {
         var vm = this;
-        var qsParams = _.parseQueryString(location.search);
-        MissionTrackerRepository.getTestData(qsParams.org).then(function(data){ 
-            vm.missionItems = data;
-        })
+        
     }
 })();

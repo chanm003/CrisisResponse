@@ -121,6 +121,10 @@
   color: black !important;
 }
 
+.ms-MessageBar{
+  display: block;
+}
+
 /*#endregion Override Office UI Fabric:  END*/
 
 
