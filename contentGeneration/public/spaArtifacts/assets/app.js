@@ -1,38 +1,12 @@
 (function () {
     'use strict';
-
-    
-    $(document).ready(bootstrapNG);
-
-    function bootstrapNG(){
-        var currentURL = S(window.location.href.toUpperCase());
-        var spPage = $("body");
-        if(currentURL.include('/SITEPAGES/SOCC.ASPX')){
-            spPage.attr('ng-controller', 'SoccAspxController as vm');
-        }
-        
-        //BOOTSTRAP NG-APP
-        angular.element(document).ready(function () { angular.bootstrap(document, ['singlePageApp']); });
-    }
-
     var globalConfig = {
         appErrorPrefix: '[Exercise Application Error] ',
         appTitle: 'Exercise Application',
         baseUrl: 'http://localhost:3000/spaArtifacts'
     };
-
-    function extendLoDash(_){
-        _.parseQueryString = function(qstr) {
-            var query = {};
-            var a = qstr.substr(1).split('&');
-            for (var i = 0; i < a.length; i++) {
-                var b = a[i].split('=');
-                query[decodeURIComponent(b[0])] = decodeURIComponent(b[1] || '');
-            }
-            return query;
-        }
-        return _;
-    }
+    
+    $(document).ready(bootstrapNgApplication);
 
     angular.module('singlePageApp', [
         'app.core',
@@ -81,6 +55,16 @@
     ])
         .controller('ShellController', ShellController);
 
+    function bootstrapNgApplication(){
+        var currentURL = S(window.location.href.toUpperCase());
+        var spPage = $("body");
+        if(currentURL.include('/SITEPAGES/SOCC.ASPX')){
+            spPage.attr('ng-controller', 'SoccAspxController as vm');
+        }
+        
+        //BOOTSTRAP NG-APP
+        angular.element(document).ready(function () { angular.bootstrap(document, ['singlePageApp']); });
+    }
 
     configureCoreModule.$inject = ['$logProvider', '$sceDelegateProvider', 'exceptionHandlerProvider', 'routerHelperProvider', 'toastr'];
     function configureCoreModule($logProvider, $sce, exceptionHandlerProvider, routerHelperProvider, toastr) {
@@ -101,6 +85,43 @@
         $provide.decorator('$exceptionHandler', extendExceptionHandler);
     }
 
+    function exceptionHandlerProvider() {
+        /* jshint validthis:true */
+        this.config = {
+            appErrorPrefix: undefined
+        };
+
+        this.configure = function (appErrorPrefix) {
+            this.config.appErrorPrefix = appErrorPrefix;
+        };
+
+        this.$get = function () {
+            return { config: this.config };
+        };
+    }
+
+    exceptionService.$inject = ['$q', 'logger'];
+    function exceptionService($q, logger) {
+        var service = {
+            catcher: catcher
+        };
+        return service;
+
+        function catcher(message) {
+            return function (e) {
+                var thrownDescription;
+                var newMessage;
+                if (e.data && e.data.description) {
+                    thrownDescription = '\n' + e.data.description;
+                    newMessage = message + thrownDescription;
+                }
+                e.data.description = newMessage;
+                logger.error(newMessage);
+                return $q.reject(e);
+            };
+        }
+    }
+
     extendExceptionHandler.$inject = ['$delegate', 'exceptionHandler', 'logger'];
     function extendExceptionHandler($delegate, exceptionHandler, logger) {
         return function (exception, cause) {
@@ -110,6 +131,57 @@
             $delegate(exception, cause);
             logger.error(exception.message, errorData);
         };
+    }
+
+    function extendLoDash(_){
+        _.parseQueryString = function(qstr) {
+            var query = {};
+            var a = qstr.substr(1).split('&');
+            for (var i = 0; i < a.length; i++) {
+                var b = a[i].split('=');
+                query[decodeURIComponent(b[0])] = decodeURIComponent(b[1] || '');
+            }
+            return query;
+        }
+        return _;
+    }
+
+    loggerService.$inject = ['$log', 'toastr'];
+    function loggerService($log, toastr) {
+        var service = {
+            showToasts: true,
+
+            error: error,
+            info: info,
+            success: success,
+            warning: warning,
+
+            // straight to console; bypass toastr
+            log: $log.log
+        };
+
+        return service;
+        /////////////////////
+
+        function error(message, data, title) {
+            toastr.error(message, title);
+            $log.error('Error: ' + message, data);
+        }
+
+        function info(message, data, title) {
+            toastr.info(message, title);
+            $log.info('Info: ' + message, data);
+        }
+
+        function success(message, data, title) {
+            toastr.success(message, title);
+            $log.info('Success: ' + message, data);
+        }
+
+        function warning(message, data, title) {
+            toastr.warning(message, title);
+            $log.warn('Warning: ' + message, data);
+        }
     }
 
     routerHelperProvider.$inject = ['$locationProvider', '$stateProvider', '$urlRouterProvider'];
@@ -208,81 +280,6 @@
         }
     }
 
-    function exceptionHandlerProvider() {
-        /* jshint validthis:true */
-        this.config = {
-            appErrorPrefix: undefined
-        };
-
-        this.configure = function (appErrorPrefix) {
-            this.config.appErrorPrefix = appErrorPrefix;
-        };
-
-        this.$get = function () {
-            return { config: this.config };
-        };
-    }
-
-    exceptionService.$inject = ['$q', 'logger'];
-    function exceptionService($q, logger) {
-        var service = {
-            catcher: catcher
-        };
-        return service;
-
-        function catcher(message) {
-            return function (e) {
-                var thrownDescription;
-                var newMessage;
-                if (e.data && e.data.description) {
-                    thrownDescription = '\n' + e.data.description;
-                    newMessage = message + thrownDescription;
-                }
-                e.data.description = newMessage;
-                logger.error(newMessage);
-                return $q.reject(e);
-            };
-        }
-    }
-
-    loggerService.$inject = ['$log', 'toastr'];
-    function loggerService($log, toastr) {
-        var service = {
-            showToasts: true,
-
-            error: error,
-            info: info,
-            success: success,
-            warning: warning,
-
-            // straight to console; bypass toastr
-            log: $log.log
-        };
-
-        return service;
-        /////////////////////
-
-        function error(message, data, title) {
-            toastr.error(message, title);
-            $log.error('Error: ' + message, data);
-        }
-
-        function info(message, data, title) {
-            toastr.info(message, title);
-            $log.info('Info: ' + message, data);
-        }
-
-        function success(message, data, title) {
-            toastr.success(message, title);
-            $log.info('Success: ' + message, data);
-        }
-
-        function warning(message, data, title) {
-            toastr.warning(message, title);
-            $log.warn('Warning: ' + message, data);
-        }
-    }
-
     ShellController.$inject = ['$rootScope', '$timeout', 'config', 'logger'];
     function ShellController($rootScope, $timeout, config, logger) {
         var vm = this;
@@ -305,13 +302,95 @@
             }, 1000);
         }
     }
-
 })();
 
+/* Module: app.data and app.models */
 (function () {
-    'use strict';
+    angular.module('app.models', []);
+    angular.module('app.data', ['app.models'])
+        .service('spContext', spContext)
+        .run(['spContext', function (spContext) {
+            //simply requiring this singleton runs it initialization code..
+        }]);
 
-    angular.module('app.models', [])
+    spContext.$inject = ['$resource', '$timeout', 'logger'];
+    function spContext($resource, $timeout, logger) {
+        var service = this;
+
+        service.SP2013REST = {
+            selectForCommonFields: 'Id,Title,Created,Modified,AuthorId,EditorId,Attachments,Author/Title,Editor/Title',
+            expandoForCommonFields: 'Author,Editor'
+        }
+        service.htmlHelpers = {};
+        service.htmlHelpers.buildHeroButton = function(text, href){
+            var html = 
+                '<table dir="none" cellpadding="0" cellspacing="0" border="0">\
+                    <tbody>\
+                        <tr>\
+                            <td class="ms-list-addnew ms-textXLarge ms-list-addnew-aligntop ms-soften">\
+                                <a class="ms-heroCommandLink ms-hero-command-enabled-alt" href="'+ href + '">\
+                                    <span class="ms-list-addnew-imgSpan20">\
+                                        <img src="/_layouts/15/images/spcommon.png?rev=44" class="ms-list-addnew-img20">\
+                                    </span>\
+                                    <span>'+ (text || 'new item') +'</span>\
+                                </a>\
+                            </td>\
+                        </tr>\
+                    </tbody>\
+                </table>';
+            return html;
+        }
+
+        init();
+
+        function init() {
+            refreshSecurityValidation();
+        }
+
+        function refreshSecurityValidation() {
+            if (service.securityValidation) {
+                logger.info("refreshing soon-to-expire security validation: " + service.securityValidation);
+            }
+
+            var siteContextInfoResource = $resource(_spPageContextInfo.webServerRelativeUrl + '/_api/contextinfo?$select=FormDigestValue', {}, {
+                post: {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json;odata=verbose;',
+                        'Content-Type': 'application/json;odata=verbose;'
+                    }
+                }
+            });
+
+            // request validation
+            siteContextInfoResource.post({}, success, fail);
+
+            function success(data) {
+                // obtain security digest timeout & value & store in service
+                var validationRefreshTimeout = data.d.GetContextWebInformation.FormDigestTimeoutSeconds - 10;
+                service.securityValidation = data.d.GetContextWebInformation.FormDigestValue;
+                logger.info("refreshed security validation: " + service.securityValidation);
+                logger.info("next refresh of security validation: " + validationRefreshTimeout + " seconds");
+
+                // repeat this in FormDigestTimeoutSeconds-10
+                $timeout(
+                    function () {
+                        refreshSecurityValidation();
+                    },
+                    validationRefreshTimeout * 1000);
+            }
+
+            function fail(error) {
+                logger.logError("response from contextinfo: " + error);
+            }
+
+        }
+    }
+})();
+
+/* Model: RFI */
+(function () {
+    angular.module('app.models')
         .factory('RFI', RfiModel);
 
     RfiModel.$inject = ['RfiRepository'];
@@ -358,10 +437,9 @@
     }
 })();
 
+/* Model: Mission Tracker */
 (function () {
-    'use strict';
-
-    angular.module('app.models', [])
+    angular.module('app.models')
         .factory('Mission', MissionModel);
 
     MissionModel.$inject = ['MissionTrackerRepository'];
@@ -419,17 +497,10 @@
     }
 })();
 
+/* Data Repository: RFI */
 (function () {
-    'use strict';
-
-    angular.module('app.data', ['app.models'])
-        .service('spContext', spContext)
-        .service('RfiRepository', RfiRepository)
-        .run(['spContext', function (spContext) {
-            //simply requiring this singleton runs it initialization code..
-        }]);
-
-
+    angular.module('app.data')
+        .service('RfiRepository', RfiRepository);
     RfiRepository.$inject = ['$http', '$q', '$resource', 'exception', 'logger', 'spContext'];
     function RfiRepository($http, $q, $resource, exception, logger, spContext) {
         var service = {
@@ -527,76 +598,12 @@
 
         return service;
     }
-
-    spContext.$inject = ['$resource', '$timeout', 'logger'];
-    function spContext($resource, $timeout, logger) {
-        var service = this;
-
-        service.SP2013REST = {
-            selectForCommonFields: 'Id,Title,Created,Modified,AuthorId,EditorId,Attachments,Author/Title,Editor/Title',
-            expandoForCommonFields: 'Author,Editor'
-        }
-
-        init();
-
-        function init() {
-            refreshSecurityValidation();
-        }
-
-        function refreshSecurityValidation() {
-            if (service.securityValidation) {
-                logger.info("refreshing soon-to-expire security validation: " + service.securityValidation);
-            }
-
-            var siteContextInfoResource = $resource(_spPageContextInfo.webServerRelativeUrl + '/_api/contextinfo?$select=FormDigestValue', {}, {
-                post: {
-                    method: 'POST',
-                    headers: {
-                        'Accept': 'application/json;odata=verbose;',
-                        'Content-Type': 'application/json;odata=verbose;'
-                    }
-                }
-            });
-
-            // request validation
-            siteContextInfoResource.post({}, success, fail);
-
-            function success(data) {
-                // obtain security digest timeout & value & store in service
-                var validationRefreshTimeout = data.d.GetContextWebInformation.FormDigestTimeoutSeconds - 10;
-                service.securityValidation = data.d.GetContextWebInformation.FormDigestValue;
-                logger.info("refreshed security validation: " + service.securityValidation);
-                logger.info("next refresh of security validation: " + validationRefreshTimeout + " seconds");
-
-                // repeat this in FormDigestTimeoutSeconds-10
-                $timeout(
-                    function () {
-                        refreshSecurityValidation();
-                    },
-                    validationRefreshTimeout * 1000);
-            }
-
-            function fail(error) {
-                logger.logError("response from contextinfo: " + error);
-            }
-
-        }
-    }
-
-
 })();
 
+/* Data Repository: Mission Tracker */
 (function () {
-
-
-    angular.module('app.data', ['app.models'])
-        .service('spContext', spContext)
+    angular.module('app.data')            
         .service('MissionTrackerRepository', MissionTrackerRepository)
-        .run(['spContext', function (spContext) {
-            //simply requiring this singleton runs it initialization code..
-        }]);
-
-
     MissionTrackerRepository.$inject = ['$http', '$q', '$resource', 'exception', 'logger', 'spContext'];
     function MissionTrackerRepository($http, $q, $resource, exception, logger, spContext) {
         var service = {
@@ -769,159 +776,9 @@
 
         return service;
     }
-
-    spContext.$inject = ['$resource', '$timeout', 'logger'];
-    function spContext($resource, $timeout, logger) {
-        var service = this;
-
-        service.SP2013REST = {
-            selectForCommonFields: 'Id,Title,Created,Modified,AuthorId,EditorId,Attachments,Author/Title,Editor/Title',
-            expandoForCommonFields: 'Author,Editor'
-        }
-        service.htmlHelpers = {};
-        service.htmlHelpers.buildHeroButton = function(text, href){
-            var html = 
-                '<table dir="none" cellpadding="0" cellspacing="0" border="0">\
-                    <tbody>\
-                        <tr>\
-                            <td class="ms-list-addnew ms-textXLarge ms-list-addnew-aligntop ms-soften">\
-                                <a class="ms-heroCommandLink ms-hero-command-enabled-alt" href="'+ href + '">\
-                                    <span class="ms-list-addnew-imgSpan20">\
-                                        <img src="/_layouts/15/images/spcommon.png?rev=44" class="ms-list-addnew-img20">\
-                                    </span>\
-                                    <span>'+ (text || 'new item') +'</span>\
-                                </a>\
-                            </td>\
-                        </tr>\
-                    </tbody>\
-                </table>';
-            return html;
-        }
-
-        init();
-
-        function init() {
-            refreshSecurityValidation();
-        }
-
-        function refreshSecurityValidation() {
-            if (service.securityValidation) {
-                logger.info("refreshing soon-to-expire security validation: " + service.securityValidation);
-            }
-
-            var siteContextInfoResource = $resource(_spPageContextInfo.webServerRelativeUrl + '/_api/contextinfo?$select=FormDigestValue', {}, {
-                post: {
-                    method: 'POST',
-                    headers: {
-                        'Accept': 'application/json;odata=verbose;',
-                        'Content-Type': 'application/json;odata=verbose;'
-                    }
-                }
-            });
-
-            // request validation
-            siteContextInfoResource.post({}, success, fail);
-
-            function success(data) {
-                // obtain security digest timeout & value & store in service
-                var validationRefreshTimeout = data.d.GetContextWebInformation.FormDigestTimeoutSeconds - 10;
-                service.securityValidation = data.d.GetContextWebInformation.FormDigestValue;
-                logger.info("refreshed security validation: " + service.securityValidation);
-                logger.info("next refresh of security validation: " + validationRefreshTimeout + " seconds");
-
-                // repeat this in FormDigestTimeoutSeconds-10
-                $timeout(
-                    function () {
-                        refreshSecurityValidation();
-                    },
-                    validationRefreshTimeout * 1000);
-            }
-
-            function fail(error) {
-                logger.logError("response from contextinfo: " + error);
-            }
-
-        }
-    }
-
-
 })();
 
-(function () {
-    'use strict';
-
-    angular
-        .module('app.core')
-        .run(registerRfiRoute)
-        .controller('RfiController', RfiController);
-
-    registerRfiRoute.$inject = ['config', 'routerHelper'];
-    function registerRfiRoute(config, routerHelper) {
-        routerHelper.configureStates(getStates());
-
-        function getStates() {
-            return [
-                {
-                    state: 'rfi',
-                    config: {
-                        url: '/rfi',
-                        templateUrl: config.baseUrl + '/assets/rfi.html',
-                        controller: 'RfiController',
-                        controllerAs: 'vm',
-                        title: 'RFI'
-                    }
-                }
-            ];
-        }
-    }
-
-    RfiController.$inject = ['_', 'logger', 'RFI', 'RfiRepository'];
-    function RfiController(_, logger, RFI, RFIRepository) {
-        var vm = this;
-        vm.eventSources = [];
-
-        activate();
-
-        function activate() {
-            initTabs();
-            fetchData().then(function () {
-                logger.info('Activated RFI View');
-            });
-        }
-
-        function initTabs() {
-            vm.tabConfig = {
-                selectedSize: "large",
-                selectedType: "tabs",
-                pivots: [
-                    { title: "Open" },
-                    { title: "Closed" },
-                    { title: "My RFIs" },
-                    { title: "Manage RFIs" }
-                ],
-                selectedPivot: { title: "Open" },
-                menuOpened: false
-            }
-            vm.openMenu = function () {
-                vm.tabConfig.menuOpened = !vm.tabConfig.menuOpened;
-            }
-        }
-
-        function fetchData() {
-            return RFIRepository.getAll()
-                .then(function (data) {
-                    vm.rfiList = _.map(data, function (item) { return new RFI(item); })
-                    _.each(vm.rfiList, function (item) {
-                        console.log(item);
-                        item.complete();
-                    });
-                })
-        }
-
-    }
-
-})();
-
+/* Controller: MissionTrackerController */
 (function () {
     'use strict';
     //nicer looking plugin found here but requires bootstrap: http://www.dijit.fr/demo/angular-weekly-scheduler/
@@ -1034,12 +891,10 @@
 
 
     }
-
 })();
 
+/* Controller: EditNavController */
 (function () {
-    'use strict';
-
     angular
         .module('app.core')
         .run(registerEditNavRoute)
@@ -1158,9 +1013,9 @@
         }
 
     }
-
 })();
 
+/* Directive: missionTimeline */
 (function () {
     angular
         .module('app.core')
@@ -1307,9 +1162,9 @@
             return '<uif-message-bar ng-show="missions.length === 0"> <uif-content>No {{showPastMissions ? "past/ongoing" : "ongoing" }} {{selectedOrg}} missions</uif-content> </uif-message-bar>';
         }
     }
-
 })();
 
+/* Directive: verticalTimeline */
 (function () {
     angular
         .module('app.core')
@@ -1342,6 +1197,7 @@
 
 })();
 
+/* Directive: routingProcessVisualization */
 (function () {
     angular
         .module('app.core')
@@ -1372,8 +1228,8 @@
 
 })();
 
+/* Directive: scrollableCurrentOpsSummary */
 (function () {
-
     angular
         .module('app.core')
         .directive('scrollableCurrentOpsSummary', scrollableCurrentOpsSummary);
@@ -1439,10 +1295,8 @@
         }
 })();
 
-
+/* Controller: SoccAspxController */
 (function () {
-    'use strict';
-
     angular
         .module('app.core')
         .controller('SoccAspxController', SoccAspxController);
@@ -1453,5 +1307,77 @@
     function SoccAspxController(_, MissionTrackerRepository) {
         var vm = this;
         
+    }
+})();
+
+/* Controller: RfiController */
+(function () {
+    angular
+        .module('app.core')
+        .run(registerRfiRoute)
+        .controller('RfiController', RfiController);
+
+    registerRfiRoute.$inject = ['config', 'routerHelper'];
+    function registerRfiRoute(config, routerHelper) {
+        routerHelper.configureStates(getStates());
+
+        function getStates() {
+            return [
+                {
+                    state: 'rfi',
+                    config: {
+                        url: '/rfi',
+                        templateUrl: config.baseUrl + '/assets/rfi.html',
+                        controller: 'RfiController',
+                        controllerAs: 'vm',
+                        title: 'Request for Information'
+                    }
+                }
+            ];
+        }
+    }
+
+    RfiController.$inject = ['_', 'logger', 'RFI', 'RfiRepository'];
+    function RfiController(_, logger, RFI, RFIRepository){
+        var vm = this;
+        vm.eventSources = [];
+
+        activate();
+
+        function activate() {
+            initTabs();
+            fetchData().then(function () {
+                logger.info('Activated RFI View');
+            });
+        }
+
+        function initTabs() {
+            vm.tabConfig = {
+                selectedSize: "large",
+                selectedType: "tabs",
+                pivots: [
+                    { title: "Open" },
+                    { title: "Closed" },
+                    { title: "My RFIs" },
+                    { title: "Manage RFIs" }
+                ],
+                selectedPivot: { title: "Open" },
+                menuOpened: false
+            }
+            vm.openMenu = function () {
+                vm.tabConfig.menuOpened = !vm.tabConfig.menuOpened;
+            }
+        }
+
+        function fetchData() {
+            return RFIRepository.getAll()
+                .then(function (data) {
+                    vm.rfiList = _.map(data, function (item) { return new RFI(item); })
+                    _.each(vm.rfiList, function (item) {
+                        console.log(item);
+                        item.complete();
+                    });
+                })
+        }
     }
 })();
