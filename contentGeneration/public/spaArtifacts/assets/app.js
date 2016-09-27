@@ -607,25 +607,22 @@
     MissionTrackerRepository.$inject = ['$http', '$q', '$resource', 'exception', 'logger', 'spContext'];
     function MissionTrackerRepository($http, $q, $resource, exception, logger, spContext) {
         var service = {
-            getTestData: getTestData,
-            getAll: getAll,
+            getByOrganization: getByOrganization,
             save: save
         };
 
         var fieldsToSelect = [
             spContext.SP2013REST.selectForCommonFields,
-            'Status,RfiTrackingNumber,MissionId,Details,Priority,LTIOV,PocNameId,PocPhone,PocOrganization,RecommendedOPR',
-            'ManageRFIId,RespondentNameId,RespondentPhone,ResponseToRequest,DateClosed,ResponseSufficient,InsufficientExplanation',
-            'Mission/FullName,PocName/Title,ManageRFI/Title,RespondentName/Title'
+            "Identifier,FullName,ObjectiveName,Organization,MissionType,ApprovalAuthority,OperationName,Status,MissionApproved",
+            "ExpectedExecution,ExpectedTermination,ParticipatingOrganizations,Comments"
         ].join(',');
 
         var fieldsToExpand = [
-            spContext.SP2013REST.expandoForCommonFields,
-            'Mission,PocName,ManageRFI,RespondentName'
+            spContext.SP2013REST.expandoForCommonFields
         ].join(',');
 
         function getDataContextForCollection(params) {
-            return $resource(_spPageContextInfo.webServerRelativeUrl + "/_api/web/lists/getbytitle('RFI')/items",
+            return $resource(_spPageContextInfo.webServerRelativeUrl + "/_api/web/lists/getbytitle('Mission Tracker')/items",
                 {},
                 {
                     get: {
@@ -650,7 +647,7 @@
         }
 
         function getDataContextForResource(item) {
-            return $resource(_spPageContextInfo.webServerRelativeUrl + "/_api/web/lists/getbytitle('RFI')/items(:itemId)",
+            return $resource(_spPageContextInfo.webServerRelativeUrl + "/_api/web/lists/getbytitle('Mission Tracker')/items(:itemId)",
                 { itemId: item.Id },
                 {
                     get: {
@@ -684,11 +681,17 @@
                 });
         }
 
-        function getAll() {
+        function getByOrganization(orgFilter) {
             var dfd = $q.defer();
             getDataContextForCollection().get({},
                 function (data) {
-                    dfd.resolve(data.d.results);
+                    var queryResults = data.d.results;
+                    if(orgFilter){
+                        queryResults = _.filter(queryResults, function(item){
+                            return item.Organization === orgFilter || _.includes(item.ParticipatingOrganizations.results, orgFilter);
+                        })
+                    }
+                    dfd.resolve(queryResults);
                 },
                 function (error) {
                     dfd.reject(error);
@@ -1073,12 +1076,10 @@
 					{ name: "Mission Closed", cssStyle: 'background-color:#000; border-color: #000; color: #fff;'} //black, white
 		    ];
 
-            //$(elem).css({"postion": "relative"});
-
             var qsParams = _.parseQueryString(location.search);
             scope.selectedOrg = (qsParams.org || ""); 
 
-            MissionTrackerRepository.getTestData(qsParams.org).then(function(data){ 
+            MissionTrackerRepository.getByOrganization(qsParams.org).then(function(data){ 
                 items = _.map(data, function(item){ return new Mission(item); });
                 renderTimeline(items)
             })
