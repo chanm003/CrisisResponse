@@ -322,9 +322,9 @@
             expandoForCommonFields: 'Author,Editor'
         }
         service.htmlHelpers = {};
-        service.htmlHelpers.buildHeroButton = function(text, href){
+        service.htmlHelpers.buildHeroButton = function(text, href, ngShowAttrValue){
             var html = 
-                '<table dir="none" cellpadding="0" cellspacing="0" border="0">\
+                '<table dir="none" cellpadding="0" cellspacing="0" border="0" ng-show="'+ ngShowAttrValue +'">\
                     <tbody>\
                         <tr>\
                             <td class="ms-list-addnew ms-textXLarge ms-list-addnew-aligntop ms-soften">\
@@ -332,7 +332,7 @@
                                     <span class="ms-list-addnew-imgSpan20">\
                                         <img src="/_layouts/15/images/spcommon.png?rev=44" class="ms-list-addnew-img20">\
                                     </span>\
-                                    <span>'+ (text || 'new item') +'</span>\
+                                    <span>'+ text +'</span>\
                                 </a>\
                             </td>\
                         </tr>\
@@ -1026,12 +1026,13 @@
         /* 
         USAGE: <timeline></timeline>
         */
-        var newFormUrl = _spPageContextInfo.webServerRelativeUrl + "/Lists/MissionTracker/NewForm.aspx?Source=" + document.location.href;
         var directiveDefinition = {
             link: link,
             restrict: 'E',
-            scope: {},
-            template: spContext.htmlHelpers.buildHeroButton('new item', newFormUrl) + buildCheckboxHtml() + buildShowLegendHyperlink() + buildCalloutHtml() + '<div class="mission-timeline" ng-show="missions.length"></div>' + buildMessageBarHtml()
+            scope:{
+                showNewItemLink: '='
+            },
+            template: buildHeroButtonHtml() + buildCheckboxHtml() + buildLegendHtml() + '<div class="mission-timeline" ng-show="missions.length"></div>' + buildMessageBarHtml()
         };
         return directiveDefinition;
 
@@ -1072,7 +1073,7 @@
 					{ name: "Mission Closed", cssStyle: 'background-color:#000; border-color: #000; color: #fff;'} //black, white
 		    ];
 
-            $(elem).css({"postion": "relative"});
+            //$(elem).css({"postion": "relative"});
 
             var qsParams = _.parseQueryString(location.search);
             scope.selectedOrg = (qsParams.org || ""); 
@@ -1125,37 +1126,50 @@
             }
         }
 
-        function buildCalloutHtml(){
-            var html = 
-                '<div class="ms-Callout ms-Callout--arrowLeft" style="position:absolute;left:80px;top:-56px;" ng-show="showLegend">\
-                    <div class="ms-Callout-main">\
-                        <div class="ms-Callout-header">\
-                            <p class="ms-Callout-title">Mission Statuses</p>\
-                        </div>\
-                        <div class="ms-Callout-inner">\
-                            <div class="ms-Callout-content">\
-                                <p class="ms-Callout-subText ms-Callout-subText--s">\
-                                    <table>\
-                                        <tr ng-repeat="status in statusColorLegend">\
-                                            <td style="{{status.cssStyle + \';width:25px;\'}}">&nbsp;</td>\
-                                            <td>{{status.name}}</td>\
-                                        </tr>\
-                                    </table>\
-                                </p>\
+        function buildLegendHtml(){
+            var html = '<div style="position:relative;">';
+            html += buildShowLegendHyperlink();
+            html += buildCalloutHtml();
+            html += "</div>";
+            return html;
+
+            function buildCalloutHtml(){
+                var html = 
+                    '<div class="ms-Callout ms-Callout--arrowLeft" style="position:absolute;left:80px;top:-56px;" ng-show="showLegend">\
+                        <div class="ms-Callout-main">\
+                            <div class="ms-Callout-header">\
+                                <p class="ms-Callout-title">Mission Statuses</p>\
+                            </div>\
+                            <div class="ms-Callout-inner">\
+                                <div class="ms-Callout-content">\
+                                    <p class="ms-Callout-subText ms-Callout-subText--s">\
+                                        <table>\
+                                            <tr ng-repeat="status in statusColorLegend">\
+                                                <td style="{{status.cssStyle + \';width:25px;\'}}">&nbsp;</td>\
+                                                <td>{{status.name}}</td>\
+                                            </tr>\
+                                        </table>\
+                                    </p>\
+                                </div>\
                             </div>\
                         </div>\
-                    </div>\
-                </div>';
-            return html;
+                    </div>';
+                return html;
+            }
+
+            function buildShowLegendHyperlink(){
+                return '<a ng-mouseover="showLegend = true" ng-mouseleave="showLegend = false" ng-show="missions.length">Show Legend</a>';
+            }
         }
 
         function buildCheckboxHtml(){
             var html = '<uif-choicefield-option uif-type="checkbox" value="value1" ng-model="showPastMissions" ng-true-value="true" ng-false-value="false"> Show Past Missions</uif-choicefield-option>';
             return html;
-        }
+        }       
 
-        function buildShowLegendHyperlink(){
-            return '<a ng-mouseover="showLegend = true" ng-mouseleave="showLegend = false" ng-show="missions.length">Show Legend</a>';
+        function buildHeroButtonHtml(){
+            var newFormUrl = _spPageContextInfo.webServerRelativeUrl + "/Lists/MissionTracker/NewForm.aspx?Source=" + document.location.href;
+            return spContext.htmlHelpers.buildHeroButton('new item', newFormUrl, 'showNewItemLink');
         }
 
         function buildMessageBarHtml(){
