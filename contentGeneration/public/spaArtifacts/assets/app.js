@@ -23,7 +23,6 @@
         'blocks.exception',
         'blocks.logger',
         'blocks.router',
-        'ui.calendar',
         'ui.router',
         'ngJsTree',
         'ngplus'
