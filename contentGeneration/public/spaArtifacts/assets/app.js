@@ -815,13 +815,26 @@
 
             var camlIntervals = {
                 "month": "<Month />",
-                "week": "<Week />",
-                "day": "Week/>"
+                "week": "<Week />"
             };
+
+            /* 
+            CAML query for recurring events takes two params (1) Date e.g. 2016-02-04T12:00:00Z and (2) <Month /> or <Week />
+            Results not intuitive: 
+            9/14/2016	<Month/>	returns events 8/25/2016 to 10/8/2016
+            12/14/2016	<Month />	returns events 11/24/2016 to 1/8/2017
+            1/18/2017	<Month/>	returns events 12/25/2016 to 2/08/2017
+            2/15/2017	<Month/>	returns events 1/25/2017 to 3/08/2017
+
+            3/5/2017	<Week/>	returns events 2/26/2017 to 3/5/2017 (Sunday)
+            3/6/2017	<Week/>	returns events 3/5/2017 to 3/12/2017 (Monday)
+            3/8/2017	<Week/>	returns events 3/5/2017 to 3/12/2017 (Wednesday)
+            3/12/207	<Week/>	returns events 3/5/2017 to 3/12/2017 (Sunday)
+            */
 
             var getListItemsSoap = 
                 "<soap:Envelope xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xmlns:xsd='http://www.w3.org/2001/XMLSchema' xmlns:soap='http://schemas.xmlsoap.org/soap/envelope/'><soap:Body><GetListItemChangesSinceToken xmlns='http://schemas.microsoft.com/sharepoint/soap/'><listName>Calendar</listName><viewName></viewName><query><Query><Where><DateRangesOverlap><FieldRef Name='EventDate' /><FieldRef Name='EndDate' /><FieldRef Name='RecurrenceID' /><Value Type='DateTime'>"+ camlIntervals[intervalUnit]+"</Value></DateRangesOverlap></Where><OrderBy><FieldRef Name='EventDate' /></OrderBy></Query></query><viewFields><ViewFields><FieldRef Name='ID' /><FieldRef Name='Title' /><FieldRef Name='EventDate' /><FieldRef Name='EndDate' /><FieldRef Name='Location' /><FieldRef Name='Description' /><FieldRef Name='Category' /><FieldRef Name='fRecurrence' /><FieldRef Name='RecurrenceData' /><FieldRef Name='fAllDayEvent' /><FieldRef Name='Organization' /></ViewFields></viewFields><rowLimit>300</rowLimit><queryOptions><QueryOptions><CalendarDate>"
-                +camlCalendarDate+"</CalendarDate><ExpandRecurrence>TRUE</ExpandRecurrence><RecurrenceOrderBy>TRUE</RecurrenceOrderBy><ViewAttributes Scope='RecursiveAll'/></QueryOptions></queryOptions></GetListItemChangesSinceToken></soap:Body></soap:Envelope>";
+                +camlCalendarDate+"</CalendarDate><ExpandRecurrence>TRUE</ExpandRecurrence><RecurrenceOrderBy>TRUE</RecurrenceOrderBy><DatesInUtc>True</DatesInUtc><ViewAttributes Scope='RecursiveAll'/></QueryOptions></queryOptions></GetListItemChangesSinceToken></soap:Body></soap:Envelope>";
             
             return $http({
                 url: _spPageContextInfo.webServerRelativeUrl +"/_vti_bin/Lists.asmx",
@@ -1116,7 +1129,7 @@
                 header: {
                     left:'prev,next today',
                     center: 'title',
-                    right: 'month, agendaWeek, agendaDay'
+                    right: 'month, agendaWeek'
                 },
                 defaultView: "month", // Set the default view to month
                 firstHour: "0", // Set the first visible hour in agenda views to 5 a.m.
