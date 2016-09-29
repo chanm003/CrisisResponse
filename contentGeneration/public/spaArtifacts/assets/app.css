@@ -553,3 +553,8 @@
   cursor: pointer;
 }
 /*#endregion VISJS TIMELINE */
+
+/*#region FullCalendar */
+.fc-event:visited{
+  color: #fff;
+}

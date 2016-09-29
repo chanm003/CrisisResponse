@@ -866,9 +866,9 @@ crisisResponseSchema.webpartPageDefs['Component Command Page'] = {
 		{
 			name: 'Full Calendar',
 			webPartProperties: [
-				{
+				{ 
 					attributes: {name: 'Content', type: 'string'},
-					innerText: '&lt;div ui-calendar ng-model="eventSources"&gt;&lt;/div&gt;'
+					innerText: '&lt;exercise-calendar&gt;&lt;/exercise-calendar&gt;'
 				},
 				{
 					attributes: {name: 'Title', type: 'string'},
@@ -1001,7 +1001,7 @@ crisisResponseSchema.webpartPageDefs['Task Group Page'] = {
 			webPartProperties: [
 				{
 					attributes: {name: 'Content', type: 'string'},
-					innerText: '&lt;div ui-calendar ng-model="eventSources"&gt;&lt;/div&gt;'
+					innerText: '&lt;exercise-calendar&gt;&lt;/exercise-calendar&gt;'
 				},
 				{
 					attributes: {name: 'Title', type: 'string'},

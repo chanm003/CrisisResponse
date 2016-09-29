@@ -788,29 +788,62 @@
     CalendarRepository.$inject = ['$http', '$q', '$resource', 'exception', 'logger', 'spContext'];
     function CalendarRepository($http, $q, $resource, exception, logger, spContext) {
         var service = {
-            getByOrganization: getByOrganization
+            getEvents: getEvents
         };
+        return service;
 
-        var calendarName = "Calendar",
-            viewFields = "<FieldRef Name=\"Title\" /><FieldRef Name=\"EventDate\" /><FieldRef Name=\"EndDate\" /><FieldRef Name=\"fAllDayEvent\" /><FieldRef Name=\"ID\" /><FieldRef Name=\"FileRef\" /><FieldRef Name=\"RecurrenceID\" /><FieldRef Name=\"Location\" /><FieldRef Name=\"fRecurrence\" />";
+        function convertToFullCalendarEvent(xmlNode){
+            var itemID = xmlNode.attr('ows_ID');
+            return {
+                "start": moment.utc(xmlNode.attr("ows_EventDate")),
+                "end": moment.utc(xmlNode.attr("ows_EndDate")),
+                "title": xmlNode.attr("ows_Title"),
+                "location": xmlNode.attr("ows_Location"),
+                "allDay": xmlNode.attr("ows_fAllDayEvent") == 1 ? true : false,                                   
+                "url" : _spPageContextInfo.webServerRelativeUrl  + "/Lists/Calendar/DispForm.aspx?ID=" + itemID + '&Source=' + window.location,
+                "isRecurrence" : xmlNode.attr("ows_fRecurrence") == 1 ? true : false,
+                "organization": xmlNode.attr("ows_Organization")
+            }
+        }
 
-        function getByOrganization(orgFilter){
-            /*var xml = 
-                "<soap:Envelope xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xmlns:xsd='http://www.w3.org/2001/XMLSchema' xmlns:soap='http://schemas.xmlsoap.org/soap/envelope/'>" + 
-                    "<soap:Body>" + 
-                        "<GetListItems xmlns='http://schemas.microsoft.com/sharepoint/soap/'>" +
-                            "<listName>" + calendarName + "</listName>" +           
-                            "<viewFields><ViewFields>" + viewFields + "</ViewFields></viewFields>" +
-                            "<query><Query><Where>" + camlQuery + "</Where>" + orderByClause + "</Query></query>" +
-                            "<queryOptions><QueryOptions>" +
-                                "<ExpandRecurrence>TRUE</ExpandRecurrence>" +
-                                "<DateInUtc>TRUE</DateInUtc>" +
-                                "<CalendarDate>"+ calendarDate +"</CalendarDate>" +             
-                            "</QueryOptions></queryOptions>" +
-                        "</GetListItems>" +
-                    "</soap:Body>" + 
-                "</soap:Envelope>";
-            */
+        function getEvents(start, end, intervalUnit, organizationFilter){
+            var diff = end.diff(start, 'hours');
+            var midPoint = start.clone().add((diff/2), 'hours');
+            //using midpoint in CAML query seems to worker
+            //http://www.nothingbutsharepoint.com/2012/04/26/use-spservices-to-get-recurring-events-as-distinct-items-aspx/
+            var camlCalendarDate = midPoint.format("YYYY-MM-DD[T]HH:mm:ss[Z]");
+
+            var camlIntervals = {
+                "month": "<Month />",
+                "week": "<Week />",
+                "day": "Week/>"
+            };
+
+            var getListItemsSoap = 
+                "<soap:Envelope xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xmlns:xsd='http://www.w3.org/2001/XMLSchema' xmlns:soap='http://schemas.xmlsoap.org/soap/envelope/'><soap:Body><GetListItemChangesSinceToken xmlns='http://schemas.microsoft.com/sharepoint/soap/'><listName>Calendar</listName><viewName></viewName><query><Query><Where><DateRangesOverlap><FieldRef Name='EventDate' /><FieldRef Name='EndDate' /><FieldRef Name='RecurrenceID' /><Value Type='DateTime'>"+ camlIntervals[intervalUnit]+"</Value></DateRangesOverlap></Where><OrderBy><FieldRef Name='EventDate' /></OrderBy></Query></query><viewFields><ViewFields><FieldRef Name='ID' /><FieldRef Name='Title' /><FieldRef Name='EventDate' /><FieldRef Name='EndDate' /><FieldRef Name='Location' /><FieldRef Name='Description' /><FieldRef Name='Category' /><FieldRef Name='fRecurrence' /><FieldRef Name='RecurrenceData' /><FieldRef Name='fAllDayEvent' /><FieldRef Name='Organization' /></ViewFields></viewFields><rowLimit>300</rowLimit><queryOptions><QueryOptions><CalendarDate>"
+                +camlCalendarDate+"</CalendarDate><ExpandRecurrence>TRUE</ExpandRecurrence><RecurrenceOrderBy>TRUE</RecurrenceOrderBy><ViewAttributes Scope='RecursiveAll'/></QueryOptions></queryOptions></GetListItemChangesSinceToken></soap:Body></soap:Envelope>";
+            
+            return $http({
+                url: _spPageContextInfo.webServerRelativeUrl +"/_vti_bin/Lists.asmx",
+                method: "POST",
+                data: getListItemsSoap,
+                headers: {
+                    "Accept": "application/xml, text/xml, */*; q=0.01",
+                    "Content-Type": 'text/xml; charset="utf-8"'
+                }
+            })
+            .then(function(response){
+                var events = [];
+                $(response.data).find("listitems").find("[ows_ID]").each(function () {    
+                    events.push(convertToFullCalendarEvent($(this)));   
+                });
+
+                if(organizationFilter){
+                    events = _.filter(events, {organization: organizationFilter});
+                }
+
+                return events;
+            });
         }
     }
 })();
@@ -1052,6 +1085,63 @@
     }
 })();
 
+/* Directive: exerciseCalendar */
+(function () {
+    angular
+        .module('app.core')
+        .directive('exerciseCalendar', exerciseCalendar);
+
+    exerciseCalendar.$inject = ['CalendarRepository','spContext'];
+    function exerciseCalendar(CalendarRepository, spContext) {
+        /* 
+        USAGE: <exercise-calendar list-name=""></exercise-calendar>
+        */
+        var directiveDefinition = {
+            restrict: 'E',
+            scope: {
+            },
+            link:link
+        };
+        return directiveDefinition;
+
+        function buildHeroButtonHtml(){
+            var newFormUrl = _spPageContextInfo.webServerRelativeUrl + "/Lists/Calendar/NewForm.aspx?Source=" + document.location.href;
+            return spContext.htmlHelpers.buildHeroButton('new item', newFormUrl, 'showNewItemLink');
+        }
+
+        function link(scope, elem, attrs) {
+            $(elem).before(buildHeroButtonHtml());
+            $(elem).fullCalendar({
+                // Assign buttons to the header of the calendar. See FullCalendar documentation for details.
+                header: {
+                    left:'prev,next today',
+                    center: 'title',
+                    right: 'month, agendaWeek, agendaDay'
+                },
+                defaultView: "month", // Set the default view to month
+                firstHour: "0", // Set the first visible hour in agenda views to 5 a.m.
+                weekMode: "liquid", // Only display the weeks that are needed
+                theme: false, // Use a jQuery UI theme instead of the default fullcalendar theme
+                editable: false, // Set the calendar to read-only; events can't be dragged or resized
+
+                // Add events to the calendar. This is where the "magic" happens!
+                events: function( start, end, timezone, callback ) {
+                    var qsParams = _.parseQueryString(location.search);
+                    var calView = $(elem).fullCalendar('getView');
+                    CalendarRepository.getEvents(start, end, calView.intervalUnit, (qsParams.org || ""))
+                        .then(function(data){
+                            callback(data);
+                        })
+                    
+                }
+	        });
+
+        }
+    }
+
+})();
+
+
 /* Directive: missionTimeline */
 (function () {
     angular
@@ -1095,10 +1185,10 @@
 					
 					{ name: "CONOP Disapproved", cssStyle: 'background-color:#ff0000; border-color: #ff0000; color: #fff;'}, //red,white	
 					
-					{ name: "CONOP Approved", cssStyle: 'background-color:#007f00; border-color: #007f00; color: #fff;'}, //yellow,black
-					{ name: "FRAGO In-Chop", cssStyle: 'background-color:#007f00; border-color: #007f00; color: #fff;'}, //yellow,black
-					{ name: "FRAGO Released", cssStyle: 'background-color:#007f00; border-color: #007f00; color: #fff;'}, //yellow,black
-					{ name: "EXORD Released", cssStyle: 'background-color:#007f00; border-color: #007f00; color: #fff;'}, //yellow,black
+					{ name: "CONOP Approved", cssStyle: 'background-color:#007f00; border-color: #007f00; color: #fff;'}, //green,black
+					{ name: "FRAGO In-Chop", cssStyle: 'background-color:#007f00; border-color: #007f00; color: #fff;'}, //green,black
+					{ name: "FRAGO Released", cssStyle: 'background-color:#007f00; border-color: #007f00; color: #fff;'}, //green,black
+					{ name: "EXORD Released", cssStyle: 'background-color:#007f00; border-color: #007f00; color: #fff;'}, //green,black
 
 					{ name: "Mission In Progress", cssStyle: 'background-color:#ffa500; border-color: #ffa500; color: #000;'}, //orange, black
 					
@@ -1152,8 +1242,9 @@
                 timeline.setItems(items);
                 timeline.on('click', function(props){
                     if(props.what === 'group-label' || props.what === 'item'){
-                        var url = _spPageContextInfo.webServerRelativeUrl + '/Lists/MissionTracker/DispForm.aspx?ID=' + props.group;
-                        window.open(url , '_blank');    
+                        var url = _spPageContextInfo.webServerRelativeUrl + '/Lists/MissionTracker/DispForm.aspx?ID=' + props.group + "&Source=" + document.location.href;
+                        document.location.href = url;
+                        //window.open(url , '_blank');    
                     }
                 })
 
@@ -1390,36 +1481,6 @@
     function RfiController($scope, _, logger, RFI, RFIRepository){
         var vm = this;
 
-        var date = new Date();
-        var d = date.getDate();
-        var m = date.getMonth();
-        var y = date.getFullYear()
-
-        var events = [{
-            title: "mike",
-            start: moment()
-        }];
-
-        vm.eventSources = [events];
-
-        
-
-        vm.calendarConfig = {
-            editable: false,
-            header:{
-                left: 'prev,next today',
-                center: 'title',
-                right: 'month,basicWeek,basicDay'
-            },
-            viewRender: function(view, element) {
-                var startISO = view.start.toISOString(),
-                    endISO = view.end.toISOString(),
-                    selectedView = view.intervalUnit;     
-            } 
-        };
-    
-     
-
         activate();
 
         function activate() {
@@ -1459,131 +1520,3 @@
         }
     }
 })();
-
-
-function CalendarCtrl($scope,$compile,uiCalendarConfig) {
-    var date = new Date();
-    var d = date.getDate();
-    var m = date.getMonth();
-    var y = date.getFullYear();
-    
-    $scope.changeTo = 'Hungarian';
-    /* event source that pulls from google.com */
-    $scope.eventSource = {
-            url: "http://www.google.com/calendar/feeds/usa__en%40holiday.calendar.google.com/public/basic",
-            className: 'gcal-event',           // an option!
-            currentTimezone: 'America/Chicago' // an option!
-    };
-    /* event source that contains custom events on the scope */
-    $scope.events = [
-      {title: 'All Day Event',start: new Date(y, m, 1)},
-      {title: 'Long Event',start: new Date(y, m, d - 5),end: new Date(y, m, d - 2)},
-      {id: 999,title: 'Repeating Event',start: new Date(y, m, d - 3, 16, 0),allDay: false},
-      {id: 999,title: 'Repeating Event',start: new Date(y, m, d + 4, 16, 0),allDay: false},
-      {title: 'Birthday Party',start: new Date(y, m, d + 1, 19, 0),end: new Date(y, m, d + 1, 22, 30),allDay: false},
-      {title: 'Click for Google',start: new Date(y, m, 28),end: new Date(y, m, 29),url: 'http://google.com/'}
-    ];
-    /* event source that calls a function on every view switch */
-    $scope.eventsF = function (start, end, timezone, callback) {
-      var s = new Date(start).getTime() / 1000;
-      var e = new Date(end).getTime() / 1000;
-      var m = new Date(start).getMonth();
-      var events = [{title: 'Feed Me ' + m,start: s + (50000),end: s + (100000),allDay: false, className: ['customFeed']}];
-      callback(events);
-    };
-
-    $scope.calEventsExt = {
-       color: '#f00',
-       textColor: 'yellow',
-       events: [ 
-          {type:'party',title: 'Lunch',start: new Date(y, m, d, 12, 0),end: new Date(y, m, d, 14, 0),allDay: false},
-          {type:'party',title: 'Lunch 2',start: new Date(y, m, d, 12, 0),end: new Date(y, m, d, 14, 0),allDay: false},
-          {type:'party',title: 'Click for Google',start: new Date(y, m, 28),end: new Date(y, m, 29),url: 'http://google.com/'}
-        ]
-    };
-    /* alert on eventClick */
-    $scope.alertOnEventClick = function( date, jsEvent, view){
-        $scope.alertMessage = (date.title + ' was clicked ');
-    };
-    /* alert on Drop */
-     $scope.alertOnDrop = function(event, delta, revertFunc, jsEvent, ui, view){
-       $scope.alertMessage = ('Event Droped to make dayDelta ' + delta);
-    };
-    /* alert on Resize */
-    $scope.alertOnResize = function(event, delta, revertFunc, jsEvent, ui, view ){
-       $scope.alertMessage = ('Event Resized to make dayDelta ' + delta);
-    };
-    /* add and removes an event source of choice */
-    $scope.addRemoveEventSource = function(sources,source) {
-      var canAdd = 0;
-      angular.forEach(sources,function(value, key){
-        if(sources[key] === source){
-          sources.splice(key,1);
-          canAdd = 1;
-        }
-      });
-      if(canAdd === 0){
-        sources.push(source);
-      }
-    };
-    /* add custom event*/
-    $scope.addEvent = function() {
-      $scope.events.push({
-        title: 'Open Sesame',
-        start: new Date(y, m, 28),
-        end: new Date(y, m, 29),
-        className: ['openSesame']
-      });
-    };
-    /* remove event */
-    $scope.remove = function(index) {
-      $scope.events.splice(index,1);
-    };
-    /* Change View */
-    $scope.changeView = function(view,calendar) {
-      uiCalendarConfig.calendars[calendar].fullCalendar('changeView',view);
-    };
-    /* Change View */
-    $scope.renderCalender = function(calendar) {
-      if(uiCalendarConfig.calendars[calendar]){
-        uiCalendarConfig.calendars[calendar].fullCalendar('render');
-      }
-    };
-     /* Render Tooltip */
-    $scope.eventRender = function( event, element, view ) { 
-        element.attr({'tooltip': event.title,
-                     'tooltip-append-to-body': true});
-        $compile(element)($scope);
-    };
-    /* config object */
-    $scope.uiConfig = {
-      calendar:{
-        height: 450,
-        editable: true,
-        header:{
-          left: 'title',
-          center: '',
-          right: 'today prev,next'
-        },
-        eventClick: $scope.alertOnEventClick,
-        eventDrop: $scope.alertOnDrop,
-        eventResize: $scope.alertOnResize,
-        eventRender: $scope.eventRender
-      }
-    };
-
-    $scope.changeLang = function() {
-      if($scope.changeTo === 'Hungarian'){
-        $scope.uiConfig.calendar.dayNames = ["Vasárnap", "Hétfő", "Kedd", "Szerda", "Csütörtök", "Péntek", "Szombat"];
-        $scope.uiConfig.calendar.dayNamesShort = ["Vas", "Hét", "Kedd", "Sze", "Csüt", "Pén", "Szo"];
-        $scope.changeTo= 'English';
-      } else {
-        $scope.uiConfig.calendar.dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-        $scope.uiConfig.calendar.dayNamesShort = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-        $scope.changeTo = 'Hungarian';
-      }
-    };
-    /* event sources array*/
-    $scope.eventSources = [$scope.events, $scope.eventSource, $scope.eventsF];
-    $scope.eventSources2 = [$scope.calEventsExt, $scope.eventsF, $scope.events];
-}

@@ -1,6 +1,6 @@
 # CrisisResponse
 
-# H3 Setup: 
+# Setup: 
 1. Scaffold out an Express app running on localhost:3000
 ..* 'Public' folder in our Express app holds all our .JS, .CSS and images
 2. Type 'npm start' on the terminal to serves these files 

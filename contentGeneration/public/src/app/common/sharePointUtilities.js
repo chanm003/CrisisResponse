@@ -447,7 +447,6 @@
 				'toastr.min.js',
 				'angular-animate.min.js',
 				'ngOfficeUiFabric.min.js',
-				'angular-ui-calendar.js',
 				'fullCalendar.min.js',
 				'jstree.min.js',
 				'ngJsTree.min.js'
