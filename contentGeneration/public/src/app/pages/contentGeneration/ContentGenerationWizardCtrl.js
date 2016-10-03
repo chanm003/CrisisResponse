@@ -8,6 +8,11 @@
 	/** @ngInject */
 	function WizardCtrl($q, common, commonConfig, countriesSvc, sharepointUtilities) {
 		var vm = this;
+
+		var defaults ={
+			staffSectionsForCombatantCommand: ["J1", "J2", "J33", "J35", "J39", "J4", "J6", "Legal", "Medical", "Public Affairs"]
+		};
+
 		vm.childWebUrl = "";
 		vm.serverLocation = document.location.protocol + '//' + document.location.host;
 		vm.siteInfo = {
@@ -21,14 +26,8 @@
 
 		countriesSvc.getAll().then(function(data){
 			vm.countries = data;
+			generateDefaults();
 		});
-
-		vm.options = [
-  {name: 'AngularJS', bg: 'label-danger'},
-  {name: 'Bootstrap', bg: 'label-primary'},
-  {name: 'Foundation', bg: 'label-success'},
-  {name: 'Polymer', bg: 'label-warning'}
-];
 
 		vm.onSiteInfoCollected = function(){
 			vm.childWebUrl = vm.siteInfo.parentWeb + "/" + vm.siteInfo.acronym;
@@ -39,6 +38,49 @@
 			return createCoreLists()
 				.then(provisionComponentCommandPage)
 				.then(provisionTaskGroupPage);
+		}
+
+		vm.addComponentCommand = function(){
+			vm.componentCommands.push({
+				name: "",
+				country: null,
+				staffSections: defaults.staffSectionsForCombatantCommand.join(", ")
+			});
+		}
+
+		vm.removeComponentCommand = function(item){
+			var index = vm.componentCommands.indexOf(item);
+			vm.componentCommands.splice(index,1);
+		}
+
+		vm.addTaskGroup = function(){
+			vm.taskGroups.push({
+				name: "",
+				country: null,
+				type: null
+			});
+		}
+
+		vm.removeTaskGroup = function(item){
+			var index = vm.taskGroups.indexOf(item);
+			vm.taskGroups.splice(index,1);
+		}
+
+
+		function generateDefaults(){
+			vm.componentCommands = [
+				{name: "SOCC", country: _.find(vm.countries, {code: "US"}), staffSections: defaults.staffSectionsForCombatantCommand.join(", ")}
+			];
+
+			vm.taskGroups = [
+				{name: "SOTG 10", country: vm.countries[getRandom(vm.countries.length)], type: "Land"},
+				{name: "SOMTG 20", country: vm.countries[getRandom(vm.countries.length)], type: "Maritime"},
+				{name: "SOLTG 30", country: vm.countries[getRandom(vm.countries.length)], type: "Land"}
+			];
+
+			function getRandom(max){
+				return Math.floor(Math.random() * max);
+			}
 		}
 
 		function provisionAssetsToSitePagesLibrary(){

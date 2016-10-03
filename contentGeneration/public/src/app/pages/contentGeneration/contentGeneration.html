@@ -1,7 +1,16 @@
-﻿<div class="widgets">
+﻿<style type="text/css">
+    tr.data-entry td {
+        padding: 8px !important;
+    }
+    
+    button.show-special-title {
+        height: 46px;
+    }
+</style>
+<div class="widgets">
     <div class="row">
         <div class="col-md-12">
-            <div ba-panel ba-panel-title="Exercise Site Creation Wizard" ba-panel-class="with-scroll">
+            <div ba-panel>
                 <ba-wizard>
                     <!--
                     <ba-wizard-step title="Create Site" on-next-step-clicked="vm.onSiteInfoCollected()">
@@ -34,17 +43,123 @@
                     </ba-wizard-step>
                     -->
                     <ba-wizard-step title="Commands/Task Groups" on-next-step-clicked="vm.onOrganizationsIdentified()">
-                        {{model1}}
-                        
-                        <ol class="nya-bs-select" ng-model="model1">
-  <li nya-bs-option="ctry in vm.countries">
-    <a>
-       <div class="f32">
-            <div class="flag" ng-class="ctry.flag"><span style="margin-left:36px;">{{ctry.name}}</span></div>
-        </div>
-    </a>
-  </li>
-</ol>
+
+                        <h3 class="with-line">Component Commands</h3>
+
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr class="black-muted-bg">
+                                    <th>Name</th>
+                                    <th>Country</th>
+                                    <th>Staff Sections</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="org in vm.componentCommands" class="data-entry">
+                                    <td class="col-md-2">
+                                        <input type="text" class="form-control input-lg" ng-model="org.name" />
+                                    </td>
+                                    <td class="col-md-2">
+                                        <ol class="nya-bs-select input-lg" ng-model="org.country" title="Select a Country" data-live-search="true">
+                                            <li nya-bs-option="ctry in vm.countries">
+                                                <a>
+                                                    <div class="f32">
+                                                        <div class="flag" ng-class="ctry.flag"><span style="margin-left:36px;">{{ctry.name}}</span></div>
+                                                    </div>
+                                                </a>
+                                            </li>
+                                        </ol>
+                                    </td>
+                                    <td class="col-md-6">
+                                        <input type="text" class="form-control input-lg" ng-model="org.staffSections" />
+                                    </td>
+                                    <td class="col-md-1">
+                                        <button type="button" class="btn btn-danger pull-right" ng-disabled="$index === 0 && vm.componentCommands.length === 1" ng-click="vm.removeComponentCommand(org)">
+                                            <i class="fa fa fa-trash"></i>
+                                            Delete
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr class="data-entry">
+                                    <td colspan="4">
+                                        <button type="button" class="btn btn-primary pull-right" ng-click="vm.addComponentCommand()">
+                                           <i class="fa fa fa-plus"></i>
+                                           Add Another
+                                       </button>
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+
+                        <h3 class="with-line">Task Groups</h3>
+
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr class="black-muted-bg">
+                                    <th>Name</th>
+                                    <th>Country</th>
+                                    <th>Type</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="org in vm.taskGroups" class="data-entry">
+                                    <td class="col-md-2">
+                                        <input type="text" class="form-control input-lg" ng-model="org.name" />
+                                    </td>
+                                    <td class="col-md-2">
+                                        <ol class="nya-bs-select input-lg" ng-model="org.country" title="Select a Country" data-live-search="true">
+                                            <li nya-bs-option="ctry in vm.countries">
+                                                <a>
+                                                    <div class="f32">
+                                                        <div class="flag" ng-class="ctry.flag"><span style="margin-left:36px;">{{ctry.name}}</span></div>
+                                                    </div>
+                                                </a>
+                                            </li>
+                                        </ol>
+                                    </td>
+                                    <td class="col-md-6">
+                                        <ol class="nya-bs-select" ng-model="org.type" title="Select a Task Group Type">
+                                            <li class="nya-bs-option" data-value="Land">
+                                                <a>
+                                                    <div>
+                                                        <i class="gi gi-tank gi-2x" style=" vertical-align: middle;"></i>
+                                                        <span>Land</span>
+                                                    </div>
+                                                </a>
+                                            </li>
+                                            <li class="nya-bs-option" data-value="Maritime">
+                                                <a>
+                                                     <div>
+                                                        <i class="gi gi-ship-front gi-2x" style=" vertical-align: middle;"></i>
+                                                        <span>Maritime</span>
+                                                    </div>
+                                                </a>
+                                            </li>
+                                        </ol>
+                                    </td>
+                                    <td class="col-md-1">
+                                        <button type="button" class="btn btn-danger pull-right" ng-click="vm.removeTaskGroup(org)">
+                                            <i class="fa fa fa-trash"></i>
+                                            Delete
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr class="data-entry">
+                                    <td colspan="4">
+                                        <button type="button" class="btn btn-primary pull-right" ng-click="vm.addTaskGroup()">
+                                           <i class="fa fa fa-plus"></i>
+                                           Add Another
+                                       </button>
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
                     </ba-wizard-step>
                     <ba-wizard-step title="Optional Features" form="vm.addressForm">
 
@@ -56,9 +171,5 @@
             </div>
         </div>
     </div>
-    <div class="row">
-        <div class="col-md-12">
-            {{vm}}
-        </div>
-    </div>
+
 </div>
