@@ -185,14 +185,14 @@
   float: right;
 }
 
-.flag-wrapper {
+.timeline-flag-wrapper {
   position: relative;
   display: inline-block;
   
   text-align: center;
 }
 
-.flag {
+.timeline-flag {
   position: relative;
   display: inline;
   background: rgb(248,248,248);
@@ -203,20 +203,20 @@
   text-align: left;
 }
 
-.direction-l .flag {
+.direction-l .timeline-flag {
   -webkit-box-shadow: -1px 1px 1px rgba(0,0,0,0.15), 0 0 1px rgba(0,0,0,0.15);
   -moz-box-shadow: -1px 1px 1px rgba(0,0,0,0.15), 0 0 1px rgba(0,0,0,0.15);
   box-shadow: -1px 1px 1px rgba(0,0,0,0.15), 0 0 1px rgba(0,0,0,0.15);
 }
 
-.direction-r .flag {
+.direction-r .timeline-flag {
   -webkit-box-shadow: 1px 1px 1px rgba(0,0,0,0.15), 0 0 1px rgba(0,0,0,0.15);
   -moz-box-shadow: 1px 1px 1px rgba(0,0,0,0.15), 0 0 1px rgba(0,0,0,0.15);
   box-shadow: 1px 1px 1px rgba(0,0,0,0.15), 0 0 1px rgba(0,0,0,0.15);
 }
 
-.direction-l .flag:before,
-.direction-r .flag:before {
+.direction-l .timeline-flag:before,
+.direction-r .timeline-flag:before {
   position: absolute;
   top: 50%;
   right: -40px;
@@ -231,11 +231,11 @@
   z-index: 10;
 }
 
-.direction-r .flag:before {
+.direction-r .timeline-flag:before {
   left: -40px;
 }
 
-.direction-l .flag:after {
+.direction-l .timeline-flag:after {
   content: "";
   position: absolute;
   left: 100%;
@@ -249,7 +249,7 @@
   pointer-events: none;
 }
 
-.direction-r .flag:after {
+.direction-r .timeline-flag:after {
   content: "";
   position: absolute;
   right: 100%;
@@ -319,17 +319,17 @@
 	text-align: center;
 }
 
-.flag-wrapper {
+.timeline-flag-wrapper {
 	text-align: center;
 }
 
-.flag {
+.timeline-flag {
 	background: rgb(255,255,255);
 	z-index: 15;
 }
 
-.direction-l .flag:before,
-.direction-r .flag:before {
+.direction-l .timeline-flag:before,
+.direction-r .timeline-flag:before {
   position: absolute;
   top: -30px;
 	left: 50%;
@@ -344,8 +344,8 @@
 	z-index: 10;
 }
 
-.direction-l .flag:after,
-.direction-r .flag:after {
+.direction-l .timeline-flag:after,
+.direction-r .timeline-flag:after {
 	content: "";
 	position: absolute;
 	left: 50%;

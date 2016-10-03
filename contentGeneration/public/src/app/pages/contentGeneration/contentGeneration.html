@@ -3,6 +3,7 @@
         <div class="col-md-12">
             <div ba-panel ba-panel-title="Exercise Site Creation Wizard" ba-panel-class="with-scroll">
                 <ba-wizard>
+                    <!--
                     <ba-wizard-step title="Create Site" on-next-step-clicked="vm.onSiteInfoCollected()">
                         <div class="row">
                             <div class="col-md-4">
@@ -31,8 +32,33 @@
                             </div>
                         </div>
                     </ba-wizard-step>
-                    <ba-wizard-step title="Component Commands/Task Groups" on-next-step-clicked="vm.onOrganizationsIdentified()">
-                        <button type="button" class="btn btn-primary" ng-click="vm.deleteLists()">Delete Lists</button>
+                    -->
+                    <ba-wizard-step title="Commands/Task Groups" on-next-step-clicked="vm.onOrganizationsIdentified()">
+                        
+                    
+        <div class="row">
+    <div class="col-sm-6">
+      <div class="form-group">
+        <select class="form-control" title="Select with Option Groups" selectpicker
+                ng-model="selectpickerVm.groupedSelectedItem"
+                ng-options="item as item.label group by item.group for item in selectpickerVm.groupedSelectItems">
+        </select>
+      </div>
+    </div>
+    <div class="col-sm-6">
+      <div class="form-group">
+        <select class="form-control" title="Select with Divider" selectpicker>
+          <option>Group 1 - Option 1</option>
+          <option>Group 1 - Option 2</option>
+          <option data-divider="true"></option>
+          <option>Group 2 - Option 1</option>
+          <option>Group 2 - Option 2</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+
                     </ba-wizard-step>
                     <ba-wizard-step title="Optional Features" form="vm.addressForm">
 

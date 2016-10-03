@@ -14,7 +14,9 @@
 <div class="ms-Grid">
     <div class="ms-Grid-row">
         <div class="ms-Grid-col ms-u-sm12 ms-u-md12 ms-u-lg12">
-            
+            <div class="f16" ng-repeat="ctry in vm.countries">
+                <span class="flag" ng-class="ctry.flag"></span> {{ctry.name}}
+            </div>
         </div>
     </div>
 </div>
