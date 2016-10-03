@@ -2,10 +2,11 @@
 	'use strict';
 
 	angular.module('BlurAdmin.pages.contentGeneration')
-		.controller('ContentGenerationWizardCtrl', WizardCtrl);
+		.controller('ContentGenerationWizardCtrl', WizardCtrl)
+		.factory('countriesSvc', countriesSvc);
 
 	/** @ngInject */
-	function WizardCtrl($q, common, commonConfig, sharepointUtilities) {
+	function WizardCtrl($q, common, commonConfig, countriesSvc, sharepointUtilities) {
 		var vm = this;
 		vm.childWebUrl = "";
 		vm.serverLocation = document.location.protocol + '//' + document.location.host;
@@ -17,6 +18,17 @@
 			parentWeb: _spPageContextInfo.webServerRelativeUrl,
 			description: "This is boilerplate text so I can just click Next, Next, Next..."
 		};
+
+		countriesSvc.getAll().then(function(data){
+			vm.countries = data;
+		});
+
+		vm.options = [
+  {name: 'AngularJS', bg: 'label-danger'},
+  {name: 'Bootstrap', bg: 'label-primary'},
+  {name: 'Foundation', bg: 'label-success'},
+  {name: 'Polymer', bg: 'label-warning'}
+];
 
 		vm.onSiteInfoCollected = function(){
 			vm.childWebUrl = vm.siteInfo.parentWeb + "/" + vm.siteInfo.acronym;
@@ -186,5 +198,68 @@
 
 	}
 
+	function countriesSvc($q){
+		return {
+			getAll: getAll
+		}
+
+		function getAll(){
+			return $q.when([
+				{code:"NATO", flag: "_NATO", name: "NATO"},
+				{code:"US", flag: "us", name: "USA"},
+				{code:"AL", flag: "al", name:"Albania"},
+				{code:"AD", flag: "ad", name:"Andorra"},
+				{code:"AM", flag: "am", name:"Armenia"},
+				{code:"AT", flag: "at", name:"Austria"},
+				{code:"AZ", flag: "az", name:"Azerbaijan"},
+				{code:"BY", flag: "by", name:"Belarus"},
+				{code:"BE", flag: "be", name:"Belgium"},
+				{code:"BA", flag: "ba", name:"Bosnia and Herzegovina"},
+				{code:"BG", flag: "bg", name:"Bulgaria"},
+				{code:"HR", flag: "hr", name:"Croatia"},
+				{code:"CY", flag: "cy", name:"Cyprus"},
+				{code:"CZ", flag: "cz", name:"Czech Republic"},
+				{code:"DK", flag: "dk", name:"Denmark"},
+				{code:"EE", flag: "ee", name:"Estonia"},
+				{code:"FI", flag: "fi", name:"Finland"},
+				{code:"FR", flag: "fr", name:"France"},
+				{code:"GE", flag: "ge", name:"Georgia"},
+				{code:"DE", flag: "de", name:"Germany"},
+				{code:"GR", flag: "gr", name:"Greece"},
+				{code:"VA", flag: "va", name:"Holy See (Vatican City)"},
+				{code:"HU", flag: "hu", name:"Hungary"},
+				{code:"IS", flag: "is", name:"Iceland"},
+				{code:"IE", flag: "ie", name:"Ireland"},
+				{code:"IL", flag: "il", name:"Israel"},
+				{code:"IT", flag: "it", name:"Italy"},
+				{code:"XK", flag: "_Kosovo", name:"Kosovo"},
+				{code:"LV", flag: "lv", name:"Latvia"},
+				{code:"LI", flag: "li", name:"Liechtenstein"},
+				{code:"LT", flag: "lt", name:"Lithuania"},
+				{code:"LU", flag: "lu", name:"Luxembourg"},
+				{code:"MT", flag: "mt", name:"Malta"},
+				{code:"MD", flag: "md", name:"Moldova"},
+				{code:"MC", flag: "mc", name:"Monaco"},
+				{code:"ME", flag: "me", name:"Montenegro"},
+				{code:"NL", flag: "nl", name:"Netherlands"},
+				{code:"NO", flag: "no", name:"Norway"},
+				{code:"PL", flag: "pl", name:"Poland"},
+				{code:"PT", flag: "pt", name:"Portugal"},
+				{code:"MK", flag: "mk", name:"Republic of Macedonia"},
+				{code:"RO", flag: "ro", name:"Romania"},
+				{code:"RU", flag: "ru", name:"Russia"},
+				{code:"SM", flag: "sm", name:"San Marino"},
+				{code:"RS", flag: "rs", name:"Serbia"},
+				{code:"SK", flag: "sk", name:"Slovakia"},
+				{code:"SI", flag: "si", name:"Slovenia"},
+				{code:"ES", flag: "es", name:"Spain"},
+				{code:"SE", flag: "se", name:"Sweden"},
+				{code:"CH", flag: "ch", name:"Switzerland"},
+				{code:"TR", flag: "tr", name:"Turkey"},
+				{code:"UA", flag: "ua", name:"Ukraine"},
+				{code:"GB", flag: "gb", name:"United Kingdom"}
+			]);
+		}
+	}
 })();
 

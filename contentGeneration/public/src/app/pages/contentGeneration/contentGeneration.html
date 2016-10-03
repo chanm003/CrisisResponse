@@ -34,31 +34,17 @@
                     </ba-wizard-step>
                     -->
                     <ba-wizard-step title="Commands/Task Groups" on-next-step-clicked="vm.onOrganizationsIdentified()">
+                        {{model1}}
                         
-                    
-        <div class="row">
-    <div class="col-sm-6">
-      <div class="form-group">
-        <select class="form-control" title="Select with Option Groups" selectpicker
-                ng-model="selectpickerVm.groupedSelectedItem"
-                ng-options="item as item.label group by item.group for item in selectpickerVm.groupedSelectItems">
-        </select>
-      </div>
-    </div>
-    <div class="col-sm-6">
-      <div class="form-group">
-        <select class="form-control" title="Select with Divider" selectpicker>
-          <option>Group 1 - Option 1</option>
-          <option>Group 1 - Option 2</option>
-          <option data-divider="true"></option>
-          <option>Group 2 - Option 1</option>
-          <option>Group 2 - Option 2</option>
-        </select>
-      </div>
-    </div>
-  </div>
-
-
+                        <ol class="nya-bs-select" ng-model="model1">
+  <li nya-bs-option="ctry in vm.countries">
+    <a>
+       <div class="f32">
+            <div class="flag" ng-class="ctry.flag"><span style="margin-left:36px;">{{ctry.name}}</span></div>
+        </div>
+    </a>
+  </li>
+</ol>
                     </ba-wizard-step>
                     <ba-wizard-step title="Optional Features" form="vm.addressForm">
 

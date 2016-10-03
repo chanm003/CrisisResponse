@@ -8,6 +8,7 @@ angular.module('BlurAdmin', [
 	'toastr',
 	'smart-table',
 	'ngJsTree',
+    'nya.bootstrap.select',
 	'angular-progress-button-styles',
 	
 	'SharePoint.common',
