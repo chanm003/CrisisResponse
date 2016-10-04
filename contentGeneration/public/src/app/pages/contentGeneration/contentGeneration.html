@@ -6,6 +6,12 @@
     button.show-special-title {
         height: 46px;
     }
+
+    .bootstrap-tagsinput input {
+        /*seems to fix IE*/
+        line-height: 17px;
+        padding:5px;
+    }
 </style>
 <div class="widgets">
     <div class="row">
@@ -41,7 +47,7 @@
                             </div>
                         </div>
                     </ba-wizard-step>
-                    -->
+                   
                     <ba-wizard-step title="Commands/Task Groups" on-next-step-clicked="vm.onOrganizationsIdentified()">
 
                         <h3 class="with-line"><i class="gi gi-capitol"></i>Component Commands <small class="text-muted">at least one required</small></h3>
@@ -94,7 +100,7 @@
                             </tfoot>
                         </table>
 
-                        <h3 class="with-line"><i class="fa fa-sitemap"></i>Task Groups</h3>
+                        <h3 class="with-line"><i class="fa fa-sitemap"></i>Task Groups <small class="text-muted">optional</small></h3>
 
                         <table class="table table-bordered">
                             <thead>
@@ -161,10 +167,19 @@
                             </tfoot>
                         </table>
                     </ba-wizard-step>
-                    
-                    <ba-wizard-step title="Optional Features" form="vm.addressForm">
-                     
-                      
+                     -->
+                    <ba-wizard-step title="Additional Features" >
+                        <h3 class="with-line"><i class="gi gi-airplane"></i> Air Component <small class="text-muted">optional</small></h3>
+                        
+                        <div class="switches clearfix">
+                            <switch color="primary" ng-model="vm.switcherValues.primary" on-text="Required" off-text="Not Required"></switch>
+                        </div>
+                        {{vm.switcherValues.primary}}
+                        <h3 class="with-line"><i class="gi gi-satellite"></i> Communications Component <small class="text-muted">optional</small></h3>
+
+                        <h3 class="with-line"><i class="fa fa-random"></i> Exercise Control Group <small class="text-muted">optional</small></h3>
+
+                        <h3 class="with-line"><i class="fa fa-desktop"></i> Help Desk Ticketing System <small class="text-muted">optional</small></h3>
                     </ba-wizard-step>
                     <ba-wizard-step title="Finish">
 

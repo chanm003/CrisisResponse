@@ -24,6 +24,10 @@
 			description: "This is boilerplate text so I can just click Next, Next, Next..."
 		};
 
+		vm.switcherValues = {
+      		primary: true
+		}
+
 		countriesSvc.getAll().then(function(data){
 			vm.countries = data;
 			generateDefaults();
