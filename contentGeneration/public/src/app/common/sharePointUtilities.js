@@ -13,6 +13,7 @@
 			copyFile: copyFile,
 	    	createList: createList,
 			createSite: createSite,
+			createTypeaheadDataSourceForSiteUsersList: createTypeaheadDataSourceForSiteUsersList,
 			deleteFiles: deleteFiles,
 			deleteLists: deleteLists,
 	        getLists: getLists,
@@ -496,6 +497,23 @@
 				logger.logError('Request failed: ' + args.get_message(), args.get_stackTrace(), 'sharepointUtilities service, createSite()');
 		    	dfd.reject();
 			}
+		}
+
+		function createTypeaheadDataSourceForSiteUsersList(){
+			// constructs the suggestion engine
+            var bhSource = new Bloodhound({
+                datumTokenizer: Bloodhound.tokenizers.obj.whitespace('value'),
+                queryTokenizer: Bloodhound.tokenizers.whitespace,
+                remote: {
+                    //REST endpoint: /_api/web/siteusers?$filter=substringof('Chan', Title)
+                    url: _spPageContextInfo.webServerRelativeUrl + "/_api/web/siteusers?$filter=substringof('%QUERY', Title)",
+                    wildcard: '%QUERY',
+                    transform: function(response){
+                        return _.pluck(response.value, "Title");
+                    }
+                }
+            });
+			return bhSource;
 		}
 
 		function deleteFiles(opts){

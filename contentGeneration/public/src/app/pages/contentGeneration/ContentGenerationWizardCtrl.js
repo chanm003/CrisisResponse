@@ -13,6 +13,8 @@
 			staffSectionsForCombatantCommand: ["J1", "J2", "J33", "J35", "J39", "J4", "J6", "Legal", "Medical", "Public Affairs"]
 		};
 
+		vm.typeaheadDataSource = sharepointUtilities.createTypeaheadDataSourceForSiteUsersList();
+
 		vm.childWebUrl = "";
 		vm.serverLocation = document.location.protocol + '//' + document.location.host;
 		vm.siteInfo = {
