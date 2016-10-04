@@ -44,7 +44,7 @@
                     -->
                     <ba-wizard-step title="Commands/Task Groups" on-next-step-clicked="vm.onOrganizationsIdentified()">
 
-                        <h3 class="with-line">Component Commands</h3>
+                        <h3 class="with-line"><i class="gi gi-capitol"></i>Component Commands <small class="text-muted">at least one required</small></h3>
 
                         <table class="table table-bordered">
                             <thead>
@@ -72,7 +72,7 @@
                                         </ol>
                                     </td>
                                     <td class="col-md-6">
-                                        <input type="text" class="form-control input-lg" ng-model="org.staffSections" />
+                                        <tag-input placeholder='add another...' taglist='org.staffSections'></tag-input>
                                     </td>
                                     <td class="col-md-1">
                                         <button type="button" class="btn btn-danger pull-right" ng-disabled="$index === 0 && vm.componentCommands.length === 1" ng-click="vm.removeComponentCommand(org)">
@@ -94,7 +94,7 @@
                             </tfoot>
                         </table>
 
-                        <h3 class="with-line">Task Groups</h3>
+                        <h3 class="with-line"><i class="fa fa-sitemap"></i>Task Groups</h3>
 
                         <table class="table table-bordered">
                             <thead>
@@ -161,8 +161,10 @@
                             </tfoot>
                         </table>
                     </ba-wizard-step>
+                    
                     <ba-wizard-step title="Optional Features" form="vm.addressForm">
-
+                     
+                      
                     </ba-wizard-step>
                     <ba-wizard-step title="Finish">
 
@@ -171,5 +173,5 @@
             </div>
         </div>
     </div>
-
+{{vm.componentCommands}}
 </div>

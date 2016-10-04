@@ -44,7 +44,7 @@
 			vm.componentCommands.push({
 				name: "",
 				country: null,
-				staffSections: defaults.staffSectionsForCombatantCommand.join(", ")
+				staffSections: defaults.staffSectionsForCombatantCommand
 			});
 		}
 
@@ -69,7 +69,7 @@
 
 		function generateDefaults(){
 			vm.componentCommands = [
-				{name: "SOCC", country: _.find(vm.countries, {code: "US"}), staffSections: defaults.staffSectionsForCombatantCommand.join(", ")}
+				{name: "SOCC", country: _.find(vm.countries, {code: "US"}), staffSections: defaults.staffSectionsForCombatantCommand.join(',')}
 			];
 
 			vm.taskGroups = [
