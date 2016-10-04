@@ -13,7 +13,7 @@
       return {
             restrict: 'E',
             scope: {
-                inputTags: '=taglist',
+                tagArray: '=taglist',
                 autocomplete: '=autocomplete'
             },
             link: function ($scope, element, attrs) {
@@ -63,27 +63,19 @@
                         }(this)
                     });
                 }
-                $scope.tagArray = function () {
-                    if ($scope.inputTags === undefined) {
-                        return [];
-                    }
-                    return $scope.inputTags.split(',').filter(function (tag) {
-                        return tag !== '';
-                    });
-                };
                 $scope.addTag = function () {
-                    var tagArray;
                     if ($scope.tagText.length === 0) {
                         return;
                     }
-                    tagArray = $scope.tagArray();
-                    tagArray.push($scope.tagText);
-                    $scope.inputTags = tagArray.join(',');
-                    return $scope.tagText = '';
+                    if(!_.contains($scope.tagArray, $scope.tagText)){
+                        $scope.tagArray.push($scope.tagText);
+                        $scope.tagArray = _.sortBy($scope.tagArray);
+                    } 
+                    $scope.tagText = '';
                 };
                 $scope.deleteTag = function (key) {
                     var tagArray;
-                    tagArray = $scope.tagArray();
+                    tagArray = $scope.tagArray;
                     if (tagArray.length > 0 && $scope.tagText.length === 0 && key === undefined) {
                         tagArray.pop();
                     } else {
@@ -91,7 +83,6 @@
                             tagArray.splice(key, 1);
                         }
                     }
-                    return $scope.inputTags = tagArray.join(',');
                 };
                 $scope.$watch('tagText', function (newVal, oldVal) {
                     var tempEl;
@@ -123,7 +114,7 @@
                     }
                 });
             },
-            template: '<div class=\'bootstrap-tagsinput\'><span class=\'tag label label-primary\' data-ng-repeat="tag in tagArray()">{{tag}}<span data-role="remove" data-ng-click=\'deleteTag($index)\'></span></span><input type=\'text\' data-ng-style=\'{width: inputWidth}\' data-ng-model=\'tagText\' placeholder=\'{{placeholder}}\'/></div>'
+            template: '<div class=\'bootstrap-tagsinput\'><span class=\'tag label label-primary\' data-ng-repeat="tag in tagArray">{{tag}}<span data-role="remove" data-ng-click=\'deleteTag($index)\'></span></span><input type=\'text\' data-ng-style=\'{width: inputWidth}\' data-ng-model=\'tagText\' placeholder=\'{{placeholder}}\'/></div>'
         };
   }
 })();
