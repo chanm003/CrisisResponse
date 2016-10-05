@@ -758,7 +758,7 @@
 					return _.isString(val) && _.contains(['TRUE', 'FALSE'], val.toUpperCase());			
 				},
 				Format: function(val){
-					return _.isString(val) && _.contains(['DateOnly', 'DateTime', 'Dropdown', 'Hyperlink', 'Image', 'RadioButtons'], val);			
+					return _.isString(val) && _.contains(['Calculated', 'DateOnly', 'DateTime', 'Dropdown', 'Hyperlink', 'Image', 'RadioButtons'], val);			
 				},
 				Hidden: function(val){
 					return _.isString(val) && _.contains(['TRUE', 'FALSE'], val.toUpperCase());			
@@ -915,7 +915,7 @@
 		}
 		
 		function generateCamlForCalculatedField(mapping){
-   			var supported = ["Name", "DisplayName", "Type", "Required", "ResultType", "ReadOnly", "Formula", "FieldRefs", "Description"];			
+   			var supported = ["Name", "DisplayName", "Type", "Required", "ResultType", "ReadOnly", "Formula", "FieldRefs", "Description", "Format"];			
 			return generateCaml(mapping, supported);
 		}
 		

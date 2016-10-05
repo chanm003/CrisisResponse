@@ -191,6 +191,30 @@ crisisResponseSchema.listDefs["Mission Documents"] = {
 			List: "Mission Tracker",
 			ShowField: 'FullName',
 			Description: 'Select here to associate the document to a mission. NOTE - do not tie *draft* CONOPs to missions.'								
+		},
+		{
+			//EXAMPLE: Dropdown
+			Name: "FlaggedForSoacDailyUpdate",
+			DisplayName: "Flag as SOAC Daily Product",
+			Type: "Choice",
+			Format:"Dropdown",
+			Required: "FALSE",
+			FillInChoice: "FALSE",
+			Choices: ['Yes', 'No'], 
+			Default: ''							//(optional)
+		},
+		{
+			//EXAMPLE: Calculated
+			Name: 'DailyProductDate',
+			DisplayName: 'DailyProductDate',
+			Type: "Calculated",
+			Required: 'TRUE',
+			Format: 'DateTime',
+			ResultType: 'DateTime',
+			ReadOnly: 'TRUE',
+			Formula: '=VALUE(TEXT(DATE(MID(Title,1,4),MID(Title,5,2),MID(Title,7,2)),"mm/dd/yyyy"))',
+			FieldRefs: ['Title'],
+			Description: 'Only applicable to SOAC.   Document Title must start with date: YYYYMMDD e.g. 20160915 AIR DOCTRINE'		
 		}
 	]
 }; 
