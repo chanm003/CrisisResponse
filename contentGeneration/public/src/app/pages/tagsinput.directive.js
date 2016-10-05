@@ -50,6 +50,11 @@
                         return false;
                     }
 
+                    if($scope.displayText && angular.isString(tag)){
+                        console.log("User attempted to free text, when they should have selected from suggestions dropdown...");
+                        return false;
+                    }
+
                     return !_.find($scope.selectedTags, function(item){
                         if(angular.isObject(item) && $scope.displayText){
                             return item[$scope.displayText].toLowerCase() === tag[$scope.displayText].toLowerCase();
@@ -108,9 +113,11 @@
                     var key;
                     key = e.which;
                     if (key === 9 || key === 13) {
+                        //tab or enter
                         e.preventDefault();
                     }
                     if (key === 8) {
+                        //backspace
                         return $scope.$apply('deleteTag()');
                     }
                 });
@@ -118,6 +125,7 @@
                     var key;
                     key = e.which;
                     if (key === 9 || key === 13 || key === 188) {
+                        //tab or enter or comma
                         e.preventDefault();
                         return $scope.$apply('addTag()');
                     }
