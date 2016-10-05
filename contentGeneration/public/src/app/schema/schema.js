@@ -412,7 +412,7 @@ crisisResponseSchema.listDefs["RFI"] = {
 			Required: 'TRUE',
 			ResultType: 'Text',
 			ReadOnly: 'TRUE',
-			Formula: '="rfiBtn-"&amp;IF(Status="Open","Respond","Reopen")',
+			Formula: '="rfibutton-"&amp;IF(Status="Open","Respond","Reopen")',
 			FieldRefs: ['Status']		
 		},
 		{
@@ -822,11 +822,15 @@ crisisResponseSchema.webpartPageDefs['Component Command Page'] = {
 				{
 					attributes: {name: 'Title', type: 'string'},
 					innerText: 'Request for Information'
+				},
+				{
+					attributes: {name: 'JSLink', type: 'string'},
+					innerText: '~site/SitePages/action-buttons-displayTemplates.js'
 				}
 			],
 			viewName: 'LVWP SOCC.aspx RFI',
 			viewFields: ['ActionsHtml', 'ID', 'LinkTitle', 'Priority', 'LTIOV'],
-			viewCAML: '<GroupBy Collapse="TRUE" GroupLimit="30"><FieldRef Name="RecommendedOPR"/></GroupBy><OrderBy><FieldRef Name="LTIOV"/><FieldRef Name="PrioritySort"/></OrderBy><Where><And><Contains><FieldRef Name="RecommendedOPR"/><Value Type="Text">{orgQsParam}</Value></Contains><Eq><FieldRef Name="Status"/><Value Type="Text">Open</Value></Eq></And></Where>',
+			viewCAML: '<GroupBy Collapse="FALSE" GroupLimit="30"><FieldRef Name="RecommendedOPR"/></GroupBy><OrderBy><FieldRef Name="LTIOV"/><FieldRef Name="PrioritySort"/></OrderBy><Where><And><Contains><FieldRef Name="RecommendedOPR"/><Value Type="Text">{orgQsParam}</Value></Contains><Eq><FieldRef Name="Status"/><Value Type="Text">Open</Value></Eq></And></Where>',
 			zoneName: 'Left',
 			zoneIndex: 20
 		},
@@ -840,11 +844,15 @@ crisisResponseSchema.webpartPageDefs['Component Command Page'] = {
 				{
 					attributes: {name: 'Title', type: 'string'},
 					innerText: 'Documents'
+				},
+				{
+					attributes: {name: 'JSLink', type: 'string'},
+					innerText: '~site/SitePages/action-buttons-displayTemplates.js'
 				}
 			],
 			viewName: 'LVWP SOCC.aspx Documents',
 			viewFields: ['DocIcon', 'TypeOfDocument', 'Organization', 'LinkFilename', 'Mission', 'Modified', 'Editor'],
-			viewCAML: '<GroupBy Collapse="TRUE" GroupLimit="30"><FieldRef Name="TypeOfDocument"/><FieldRef Name="Organization"/></GroupBy><OrderBy><FieldRef Name="FileLeafRef"/></OrderBy><Where><Contains><FieldRef Name="Organization"/><Value Type="Text">{orgQsParam}</Value></Contains></Where>',
+			viewCAML: '<GroupBy Collapse="FALSE" GroupLimit="30"><FieldRef Name="TypeOfDocument"/><FieldRef Name="Organization"/></GroupBy><OrderBy><FieldRef Name="FileLeafRef"/></OrderBy><Where><Contains><FieldRef Name="Organization"/><Value Type="Text">{orgQsParam}</Value></Contains></Where>',
 			zoneName: 'Right',
 			zoneIndex: 10
 		},
@@ -973,6 +981,10 @@ crisisResponseSchema.webpartPageDefs['Task Group Page'] = {
 				{
 					attributes: {name: 'Title', type: 'string'},
 					innerText: 'Request for Information'
+				},
+				{
+					attributes: {name: 'JSLink', type: 'string'},
+					innerText: '~site/SitePages/action-buttons-displayTemplates.js'
 				}
 			],
 			viewName: 'LVWP SOTG.aspx RFI',
@@ -991,11 +1003,15 @@ crisisResponseSchema.webpartPageDefs['Task Group Page'] = {
 				{
 					attributes: {name: 'Title', type: 'string'},
 					innerText: 'Documents'
+				},
+				{
+					attributes: {name: 'JSLink', type: 'string'},
+					innerText: '~site/SitePages/action-buttons-displayTemplates.js'
 				}
 			],
 			viewName: 'LVWP SOTG.aspx Documents',
 			viewFields: ['LinkFilename', 'DocIcon', 'TypeOfDocument', 'Mission', 'Modified', 'Editor'],
-			viewCAML: '<GroupBy Collapse="TRUE" GroupLimit="30"><FieldRef Name="TypeOfDocument"/></GroupBy><OrderBy><FieldRef Name="FileLeafRef"/></OrderBy><Where><Contains><FieldRef Name="Organization"/><Value Type="Text">{orgQsParam}</Value></Contains></Where>',
+			viewCAML: '<GroupBy Collapse="FALSE" GroupLimit="30"><FieldRef Name="TypeOfDocument"/></GroupBy><OrderBy><FieldRef Name="FileLeafRef"/></OrderBy><Where><Contains><FieldRef Name="Organization"/><Value Type="Text">{orgQsParam}</Value></Contains></Where>',
 			zoneName: 'Right',
 			zoneIndex: 10
 		}

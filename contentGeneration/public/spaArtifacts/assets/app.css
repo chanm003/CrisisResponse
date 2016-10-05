@@ -558,3 +558,20 @@
 .fc-event:visited{
   color: #fff;
 }
+
+.custombtn {
+  background: #3498db;
+  -webkit-border-radius: 14;
+  -moz-border-radius: 14;
+  border-radius:14px;
+  font-family: Arial;
+  color: #ffffff !important;
+  font-size: 12px;
+  padding: 3px 10px 3px 10px;
+  text-decoration: none !important;
+}
+
+.custombtn:hover {
+  background: #3cb0fd;
+  text-decoration: none;
+}

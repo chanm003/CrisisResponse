@@ -1377,6 +1377,40 @@
 
 })();
 
+/* Directive: rfibutton */
+(function () {
+    angular
+        .module('app.core')
+        .directive('rfibutton', rfibutton);
+
+    function rfibutton() {
+        /* 
+        SP2013 display template (~site/SitePages/action-buttons-displayTemplates.js) should rerender calculated column from:
+            rfibutton-Respond
+        to:
+            <a class="custombtn" data-id="86" rfibutton>Respond</a>
+        */
+        var directiveDefinition = {
+            restrict: 'A',
+            scope: {},
+            link: link
+        };
+        return directiveDefinition;
+
+        function link(scope, elem, attrs) {
+            var $elem = $(elem),
+                listItemID = $elem.attr("data-id"),
+                buttonText = $elem.text();
+
+            $elem.on('click', function(){
+                var redirect = _spPageContextInfo.webServerRelativeUrl + "/Lists/RFI/EditForm.aspx?action="+buttonText+"&ID="+listItemID+"&Source="+document.location.href;
+                window.location.href = redirect; 
+            });
+        }
+    }
+
+})();
+
 /* Directive: scrollableCurrentOpsSummary */
 (function () {
     angular
@@ -1475,7 +1509,7 @@
                 {
                     state: 'rfi',
                     config: {
-                        url: '/rfi',
+                        url: '/rfi/:tabIndex',
                         templateUrl: config.baseUrl + '/assets/rfi.html',
                         controller: 'RfiController',
                         controllerAs: 'vm',
@@ -1486,10 +1520,9 @@
         }
     }
 
-    RfiController.$inject = ['$scope', '_', 'logger', 'RFI', 'RfiRepository'];
-    function RfiController($scope, _, logger, RFI, RFIRepository){
+    RfiController.$inject = ['$scope', '$state', '$stateParams', '_', 'logger', 'RFI', 'RfiRepository'];
+    function RfiController($scope, $state, $stateParams, _, logger, RFI, RFIRepository){
         var vm = this;
-
 
         activate();
 
@@ -1501,21 +1534,26 @@
         }
 
         function initTabs() {
+            var pivots = [
+                { title: "Open" },
+                { title: "Closed" },
+                { title: "My RFIs" },
+                { title: "Manage RFIs" }
+            ];
+
+            var selectedIndex = (!$stateParams.tabIndex || $stateParams.tabIndex >= pivots.length) ? 0 : $stateParams.tabIndex;
+        
             vm.tabConfig = {
                 selectedSize: "large",
                 selectedType: "tabs",
-                pivots: [
-                    { title: "Open" },
-                    { title: "Closed" },
-                    { title: "My RFIs" },
-                    { title: "Manage RFIs" }
-                ],
-                selectedPivot: { title: "Open" },
+                pivots: pivots,
+                selectedPivot: pivots[selectedIndex],
                 menuOpened: false
             }
             vm.openMenu = function () {
                 vm.tabConfig.menuOpened = !vm.tabConfig.menuOpened;
             }
+
         }
 
         function fetchData() {
