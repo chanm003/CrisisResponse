@@ -509,11 +509,16 @@
                     url: _spPageContextInfo.webServerRelativeUrl + "/_api/web/siteusers?$filter=substringof('%QUERY', Title)",
                     wildcard: '%QUERY',
                     transform: function(response){
-                        return _.pluck(response.value, "Title");
+                        return response.value;
                     }
                 }
             });
-			return bhSource;
+
+			return {
+				name: 'spuserlist',
+				display: 'Title',
+				source: bhSource
+            };
 		}
 
 		function deleteFiles(opts){

@@ -4,21 +4,20 @@
     angular.module('BlurAdmin.pages')
         .directive('tagInput', tagInput);
 
-    /** @ngInject */
+    /**                                         
+     * <tag-input placeholder='add another...' selected-tags="vm.selectedTagsAsObjects" typeahead-data-source="vm.typeaheadDataSource" display-text="'Title'"></tag-input>
+     * <tag-input placeholder='add another...' selected-tags="['Alpha', 'Bravo']" ></tag-input>
+    */
     function tagInput($parse) {
-        function configureAutoComplete(textBox, bhSource, onSelectCallback) {
+        function configureAutoComplete(textBox, dataSourceConfig, onSelectCallback) {
             textBox.typeahead({
                     hint: true,
                     highlight: true,
                     minLength: 3
                 },
-                {
-                    name: 'states',
-                    source: bhSource
-                });
+                dataSourceConfig);
 
             textBox.bind('typeahead:select', function (ev, suggestion) {
-                suggestion = suggestion.replace("'", "\\'", 'g');
                 onSelectCallback(suggestion);
             });
         }
@@ -26,7 +25,8 @@
         return {
             restrict: 'E',
             scope: {
-                tagArray: '=taglist',
+                displayText: '=displayText',
+                selectedTags: '=selectedTags',
                 typeaheadDataSource: '=typeaheadDataSource'
             },
             link: function ($scope, element, attrs) {
@@ -38,32 +38,58 @@
 
                 if($scope.typeaheadDataSource){
                     configureAutoComplete(textBox, $scope.typeaheadDataSource, function(suggestion){
-                        $scope.$apply('tagText=\'' + suggestion + '\'');
-                        $scope.$apply('addTag()');
+                        $scope.$apply(function(){
+                            $scope.tagText = suggestion[$scope.displayText];
+                            $scope.addTag(suggestion);
+                        });
                     });
                 }
 
-                $scope.addTag = function () {
-                    if ($scope.tagText.length === 0) {
-                        return;
+                function isValidTag(tag){
+                    if(angular.isString(tag) && tag.length === 0){
+                        return false;
                     }
-                    if (!_.contains($scope.tagArray, $scope.tagText)) {
-                        $scope.tagArray.push($scope.tagText);
-                        $scope.tagArray = _.sortBy($scope.tagArray);
+
+                    return !_.find($scope.selectedTags, function(item){
+                        if(angular.isObject(item) && $scope.displayText){
+                            return item[$scope.displayText].toLowerCase() === tag[$scope.displayText].toLowerCase();
+                        } else{
+                            return item.toLowerCase() === tag.toLowerCase();
+                        }
+                    });
+                }
+
+                function sortSelectedTags(){
+                   if($scope.displayText){
+                       $scope.selectedTags = _.sortBy($scope.selectedTags, function(item){ return item[$scope.displayText]; });
+                    } else {
+                       $scope.selectedTags = _.sortBy($scope.selectedTags);
+                    } 
+                }
+
+                $scope.renderDisplayText = function(tag){
+                    return angular.isObject(tag) ? tag[$scope.displayText] : tag.replace("'", "\\'", 'g');
+                }
+
+                $scope.addTag = function (typeaheadSuggestion) {  
+                    if (isValidTag(typeaheadSuggestion || $scope.tagText)) {
+                        $scope.selectedTags.push(typeaheadSuggestion || $scope.tagText);
+                        sortSelectedTags();
                     }
                     $scope.tagText = '';
-
                     textBox.typeahead('val', '');
                     textBox.typeahead('close');
                 };
-                $scope.deleteTag = function (key) {
-                    var tagArray;
-                    tagArray = $scope.tagArray;
-                    if (tagArray.length > 0 && $scope.tagText.length === 0 && key === undefined) {
-                        tagArray.pop();
+                $scope.deleteTag = function (index) {
+                    var selectedTags;
+                    selectedTags = $scope.selectedTags;
+                    if (selectedTags.length > 0 && $scope.tagText.length === 0 && index === undefined) {
+                        //remove last item (should happen when user hits Backspace key i.e. Javascript key code 8)
+                        selectedTags.pop();
                     } else {
-                        if (key !== undefined) {
-                            tagArray.splice(key, 1);
+                        if (index !== undefined) {
+                            //remove tag by it's index position
+                            selectedTags.splice(index, 1);
                         }
                     }
                 };
@@ -97,7 +123,7 @@
                     }
                 });
             },
-            template: '<div class=\'bootstrap-tagsinput\'><span class=\'tag label label-primary\' data-ng-repeat="tag in tagArray">{{tag}}<span data-role="remove" data-ng-click=\'deleteTag($index)\'></span></span><input type=\'text\' class=\'typeahead\' data-ng-style=\'{width: inputWidth}\' data-ng-model=\'tagText\' placeholder=\'{{placeholder}}\'/></div>'
+            template: '<div class=\'bootstrap-tagsinput\'><span class=\'tag label label-primary\' data-ng-repeat="tag in selectedTags">{{ renderDisplayText(tag) }}<span data-role="remove" data-ng-click=\'deleteTag($index)\'></span></span><input type=\'text\' class=\'typeahead\' data-ng-style=\'{width: inputWidth}\' data-ng-model=\'tagText\' placeholder=\'{{placeholder}}\'/></div>'
         };
     }
 })();
