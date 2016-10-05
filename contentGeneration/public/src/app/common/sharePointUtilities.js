@@ -515,10 +515,22 @@
                 }
             });
 
+			var emptyMsg = [
+					'<div class="empty-message">',
+        				'unable to find any users in the SharePoint directory matching your search (Please ensure case-sensitivity e.g. Smith instead of smith)',
+      				'</div>'
+				].join('\n');	  
+			
 			return {
 				name: 'spuserlist',
 				display: 'Title',
-				source: bhSource
+				source: bhSource, 
+				templates:{
+					empty: emptyMsg,
+					suggestion: function(data) {
+						return '<div>' + data.Title + '<br/><small class="text-muted">' + data.Email + '</small></div>';
+					}
+				}
             };
 		}
 

@@ -10,10 +10,9 @@
 		var vm = this;
 
 		var defaults ={
-			staffSectionsForCombatantCommand: ["J1", "J2", "J33", "J35", "J39", "J4", "J6", "Legal", "Medical", "Public Affairs"]
+			staffSectionsForCombatantCommand: ["J1", "J2", "J33", "J35", "J39", "J4", "J6", "Legal", "Medical", "Public Affairs"],
+			staffSectionsForAirComponent: ["A1", "A2", "A3 Director of Operations", "A33 Current Operations", "A35 Plans", "A4", "A5", "A6", "A7", "Airspace", "Command Group", "FAD", "FIRES", "PRCC", "Special Staff"]
 		};
-
-		vm.typeaheadDataSource = sharepointUtilities.createTypeaheadDataSourceForSiteUsersList();
 
 		vm.childWebUrl = "";
 		vm.serverLocation = document.location.protocol + '//' + document.location.host;
@@ -26,14 +25,33 @@
 			description: "This is boilerplate text so I can just click Next, Next, Next..."
 		};
 
-		vm.switcherValues = {
-      		primary: true
+		vm.optionalFeatures = {
+			"Air Component": true,
+			"Communications Component": true,
+			"Exercise Control Group": true,
+			"Help Desk Ticketing System": true
 		}
 
-		countriesSvc.getAll().then(function(data){
-			vm.countries = data;
-			generateDefaults();
-		});
+		/* BEGIN TEMP STUFF for reference*/
+		vm.deleteLists = function () {
+			sharepointUtilities.deleteLists({
+				webUrl: vm.childWebUrl,
+				listTitles: ['Calendar', 'CCIR', "Mission Documents", 'Mission Tracker', 'Message Traffic', 'RFI', 'Watch Log']
+			});
+
+			var serverRelativeFileUrls = _.map(['socc.aspx', 'sotg.aspx'], function (sitepageFile) {
+				return vm.childWebUrl + "/SitePages/" + sitepageFile;
+			})
+
+			sharepointUtilities.deleteFiles({
+				webUrl: vm.childWebUrl,
+				fileUrls: serverRelativeFileUrls
+			});
+
+		}
+		/* END TEMP STUFF for reference */
+
+		vm.typeaheadDataSourceForSelectableUsers = sharepointUtilities.createTypeaheadDataSourceForSiteUsersList();
 
 		vm.onSiteInfoCollected = function(){
 			vm.childWebUrl = vm.siteInfo.parentWeb + "/" + vm.siteInfo.acronym;
@@ -72,107 +90,7 @@
 			vm.taskGroups.splice(index,1);
 		}
 
-
-		function generateDefaults(){
-			vm.componentCommands = [
-				{name: "SOCC", country: _.find(vm.countries, {code: "US"}), staffSections: defaults.staffSectionsForCombatantCommand}
-			];
-
-			vm.taskGroups = [
-				{name: "SOTG 10", country: vm.countries[getRandom(vm.countries.length)], type: "Land"},
-				{name: "SOMTG 20", country: vm.countries[getRandom(vm.countries.length)], type: "Maritime"},
-				{name: "SOLTG 30", country: vm.countries[getRandom(vm.countries.length)], type: "Land"}
-			];
-
-			function getRandom(max){
-				return Math.floor(Math.random() * max);
-			}
-		}
-
-		function provisionAssetsToSitePagesLibrary(){
-			return getAssetsFromArtifactsFolder()
-				.then(copyToSitePagesInChildWeb);
-
-
-			function getAssetsFromArtifactsFolder(){
-				return sharepointUtilities.getFilesFromFolder({
-					webUrl: _spPageContextInfo.webServerRelativeUrl,
-					folderServerRelativeUrl: _spPageContextInfo.webServerRelativeUrl + '/generator/spaArtifacts/assets'
-				});
-			}
-			
-			function copyToSitePagesInChildWeb(files){
-				var promises = [];
-				_.each(files, function(file){
-					promises.push(sharepointUtilities.copyFile({
-						sourceWebUrl: _spPageContextInfo.webServerRelativeUrl,
-						sourceFileUrl: 'generator/spaArtifacts/assets/' + file.name,
-						destinationWebUrl: vm.childWebUrl,
-						destinationWebFolderUrl: 'SitePages',
-						destinationFileUrl: file.name
-					}));
-				})
-				return $q.all(promises);
-			}
-		}
-
-		vm.deleteLists = function () {
-			sharepointUtilities.deleteLists({
-				webUrl: vm.childWebUrl,
-				listTitles: ['Calendar', 'CCIR', "Mission Documents", 'Mission Tracker', 'Message Traffic', 'RFI', 'Watch Log']
-			});
-
-			var serverRelativeFileUrls = _.map(['socc.aspx', 'sotg.aspx'], function (sitepageFile) {
-				return vm.childWebUrl + "/SitePages/" + sitepageFile;
-			})
-
-			sharepointUtilities.deleteFiles({
-				webUrl: vm.childWebUrl,
-				fileUrls: serverRelativeFileUrls
-			});
-
-		}
-
-		function provisionComponentCommandPage() {
-			return provisionWebPartPage({
-				webpartPageDefinitionName: 'Component Command Page'
-			});
-		}
-
-		function provisionTaskGroupPage() {
-			return provisionWebPartPage({
-				webpartPageDefinitionName: 'Task Group Page'
-			});
-		}
-
-		function provisionWebPartPage(opts) {
-			var pageDef = crisisResponseSchema.webpartPageDefs[opts.webpartPageDefinitionName];
-			pageDef.webUrl = vm.childWebUrl;
-			return provisionAspx(pageDef).then(provisionWebpartsOnAspx);
-
-			function provisionAspx(pageDef) {
-				return sharepointUtilities.copyFile({
-					sourceWebUrl: _spPageContextInfo.webServerRelativeUrl,
-					sourceFileUrl: 'generator/spaArtifacts/fourWebpartZones.aspx',
-					destinationWebUrl: vm.childWebUrl,
-					destinationWebFolderUrl: pageDef.folderName,
-					destinationFileUrl: pageDef.aspxFileName
-				})
-					.then(function () {
-						return pageDef;
-					});
-			}
-
-			function provisionWebpartsOnAspx(pageDef) {
-				return $q.all([
-					sharepointUtilities.provisionListViewWebparts(pageDef),
-					sharepointUtilities.provisionScriptEditorWebparts(pageDef)
-				])
-					.then(function () {
-						console.log("all web parts added on " + pageDef.aspxFileName);
-					});
-			}
-		}
+		init();
 
 		function createCoreLists() {
 			return createStandaloneLists().then(createChildLists);
@@ -244,6 +162,108 @@
 			}
 		}
 
+		function generateDefaults(){
+			vm.componentCommands = [
+				{name: "SOCC", country: _.find(vm.countries, {code: "US"}), staffSections: defaults.staffSectionsForCombatantCommand}
+			];
+
+			vm.taskGroups = [
+				{name: "SOTG 10", country: vm.countries[getRandom(vm.countries.length)], type: "Land"},
+				{name: "SOMTG 20", country: vm.countries[getRandom(vm.countries.length)], type: "Maritime"},
+				{name: "SOLTG 30", country: vm.countries[getRandom(vm.countries.length)], type: "Land"}
+			];
+
+			vm.airComponents = [
+				{name: "SOAC", country: _.find(vm.countries, {code: "US"}), staffSections: defaults.staffSectionsForAirComponent}
+			];
+
+			vm.communicationsComponents = [
+				{name: "SIGCEN"}
+			];
+
+			vm.exerciseControlGroups = [
+				{name: "EUCOM", notionals: ['EMBASSY', 'JFC Brunssum'], selectedUsers: []}
+			];
+
+			function getRandom(max){
+				return Math.floor(Math.random() * max);
+			}
+		}
+
+		function init(){
+			countriesSvc.getAll().then(function(data){
+				vm.countries = data;
+				generateDefaults();
+			});
+		}
+
+		function provisionAssetsToSitePagesLibrary(){
+			return getAssetsFromArtifactsFolder()
+				.then(copyToSitePagesInChildWeb);
+
+
+			function getAssetsFromArtifactsFolder(){
+				return sharepointUtilities.getFilesFromFolder({
+					webUrl: _spPageContextInfo.webServerRelativeUrl,
+					folderServerRelativeUrl: _spPageContextInfo.webServerRelativeUrl + '/generator/spaArtifacts/assets'
+				});
+			}
+			
+			function copyToSitePagesInChildWeb(files){
+				var promises = [];
+				_.each(files, function(file){
+					promises.push(sharepointUtilities.copyFile({
+						sourceWebUrl: _spPageContextInfo.webServerRelativeUrl,
+						sourceFileUrl: 'generator/spaArtifacts/assets/' + file.name,
+						destinationWebUrl: vm.childWebUrl,
+						destinationWebFolderUrl: 'SitePages',
+						destinationFileUrl: file.name
+					}));
+				})
+				return $q.all(promises);
+			}
+		}
+
+		function provisionComponentCommandPage() {
+			return provisionWebPartPage({
+				webpartPageDefinitionName: 'Component Command Page'
+			});
+		}
+
+		function provisionTaskGroupPage() {
+			return provisionWebPartPage({
+				webpartPageDefinitionName: 'Task Group Page'
+			});
+		}
+
+		function provisionWebPartPage(opts) {
+			var pageDef = crisisResponseSchema.webpartPageDefs[opts.webpartPageDefinitionName];
+			pageDef.webUrl = vm.childWebUrl;
+			return provisionAspx(pageDef).then(provisionWebpartsOnAspx);
+
+			function provisionAspx(pageDef) {
+				return sharepointUtilities.copyFile({
+					sourceWebUrl: _spPageContextInfo.webServerRelativeUrl,
+					sourceFileUrl: 'generator/spaArtifacts/fourWebpartZones.aspx',
+					destinationWebUrl: vm.childWebUrl,
+					destinationWebFolderUrl: pageDef.folderName,
+					destinationFileUrl: pageDef.aspxFileName
+				})
+					.then(function () {
+						return pageDef;
+					});
+			}
+
+			function provisionWebpartsOnAspx(pageDef) {
+				return $q.all([
+					sharepointUtilities.provisionListViewWebparts(pageDef),
+					sharepointUtilities.provisionScriptEditorWebparts(pageDef)
+				])
+					.then(function () {
+						console.log("all web parts added on " + pageDef.aspxFileName);
+					});
+			}
+		}		
 	}
 
 	function countriesSvc($q){

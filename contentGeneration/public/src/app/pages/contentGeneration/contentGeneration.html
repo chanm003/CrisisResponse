@@ -6,85 +6,87 @@
     button.show-special-title {
         height: 46px;
     }
-
+    
+    .bootstrap-tagsinput .tag {
+        /*ensure wrap nicely when more than one row*/
+        display: inline-block;
+    }
+    
     .bootstrap-tagsinput input {
         /*seems to fix IE*/
         line-height: 17px;
-        padding:5px;
+        padding: 5px;
     }
-
+    
     .typeahead,
-.tt-query,
-.tt-hint {
-  width: 396px;
-  height: 30px;
-  padding: 8px 12px;
-  font-size: 24px;
-  line-height: 30px;
-  border: 2px solid #ccc;
-  -webkit-border-radius: 8px;
-     -moz-border-radius: 8px;
-          border-radius: 8px;
-  outline: none;
-}
-
-.typeahead {
-  background-color: #fff;
-}
-
-.typeahead:focus {
-  border: 2px solid #0097cf;
-}
-
-.tt-query {
-  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
-     -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
-          box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
-}
-
-.tt-hint {
-  color: #999
-}
-
-.tt-menu {
-  text-align: left;
-  width: 422px;
-  margin: 12px 0;
-  padding: 8px 0;
-  background-color: #fff;
-  border: 1px solid #ccc;
-  border: 1px solid rgba(0, 0, 0, 0.2);
-  -webkit-border-radius: 8px;
-     -moz-border-radius: 8px;
-          border-radius: 8px;
-  -webkit-box-shadow: 0 5px 10px rgba(0,0,0,.2);
-     -moz-box-shadow: 0 5px 10px rgba(0,0,0,.2);
-          box-shadow: 0 5px 10px rgba(0,0,0,.2);
-}
-
-.tt-suggestion {
-  padding: 3px 20px;
-  font-size: 18px;
-  line-height: 24px;
-}
-
-.tt-suggestion:hover {
-  cursor: pointer;
-  color: #fff;
-  background-color: #0097cf;
-}
-
-.tt-suggestion.tt-cursor {
-  color: #fff;
-  background-color: #0097cf;
-
-}
-
-.tt-suggestion p {
-  margin: 0;
-}
-
-
+    .tt-query,
+    .tt-hint {
+        width: 396px;
+        height: 30px;
+        padding: 8px 12px;
+        font-size: 24px;
+        line-height: 30px;
+        border: 2px solid #ccc;
+        -webkit-border-radius: 8px;
+        -moz-border-radius: 8px;
+        border-radius: 8px;
+        outline: none;
+    }
+    
+    .typeahead {
+        background-color: #fff;
+    }
+    
+    .typeahead:focus {
+        border: 2px solid #0097cf;
+    }
+    
+    .tt-query {
+        -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+        -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+        box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+    }
+    
+    .tt-hint {
+        color: #999
+    }
+    
+    .tt-menu {
+        text-align: left;
+        width: 422px;
+        margin: 12px 0;
+        padding: 8px 0;
+        background-color: #fff;
+        border: 1px solid #ccc;
+        border: 1px solid rgba(0, 0, 0, 0.2);
+        -webkit-border-radius: 8px;
+        -moz-border-radius: 8px;
+        border-radius: 8px;
+        -webkit-box-shadow: 0 5px 10px rgba(0, 0, 0, .2);
+        -moz-box-shadow: 0 5px 10px rgba(0, 0, 0, .2);
+        box-shadow: 0 5px 10px rgba(0, 0, 0, .2);
+    }
+    
+    .tt-suggestion {
+        padding: 3px 20px;
+        font-size: 18px;
+        line-height: 24px;
+    }
+    
+    .tt-suggestion:hover {
+        cursor: pointer;
+        color: #fff;
+        background-color: #0097cf;
+    }
+    
+    .tt-suggestion.tt-cursor {
+        color: #fff;
+        background-color: #0097cf;
+    }
+    
+    .tt-suggestion p {
+        margin: 0;
+    }
 </style>
 <div class="widgets">
     <div class="row">
@@ -120,7 +122,7 @@
                             </div>
                         </div>
                     </ba-wizard-step>
-                      -->
+
                     <ba-wizard-step title="Commands/Task Groups" on-next-step-clicked="vm.onOrganizationsIdentified()">
 
                         <h3 class="with-line"><i class="gi gi-capitol"></i>Component Commands <small class="text-muted">at least one required</small></h3>
@@ -240,19 +242,95 @@
                             </tfoot>
                         </table>
                     </ba-wizard-step>
-                  
-                    <ba-wizard-step title="Additional Features" >
-                        <h3 class="with-line"><i class="gi gi-airplane"></i> Air Component <small class="text-muted">optional</small></h3>
-                        
+                                          -->
+                    <ba-wizard-step title="Additional Features">
+                        <h3 class="with-line">
+                            <i class="gi gi-airplane"></i> Air Component <small class="text-muted">optional</small>
+                        </h3>
                         <div class="switches clearfix">
-                            <switch color="primary" ng-model="vm.switcherValues.primary" on-text="Required" off-text="Not Required"></switch>
+                            <switch color="primary" ng-model="vm.optionalFeatures['Air Component']" on-text="Required" off-text="Not Required"></switch>
                         </div>
-                        {{vm.switcherValues.primary}}
+                        <table class="table table-bordered" ng-show="vm.optionalFeatures['Air Component']">
+                            <thead>
+                                <tr class="black-muted-bg">
+                                    <th>Name</th>
+                                    <th>Country</th>
+                                    <th>Staff Sections</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="org in vm.airComponents" class="data-entry">
+                                    <td class="col-md-2">
+                                        <input type="text" class="form-control input-lg" ng-model="org.name" />
+                                    </td>
+                                    <td class="col-md-2">
+                                        <ol class="nya-bs-select input-lg" ng-model="org.country" title="Select a Country" data-live-search="true">
+                                            <li nya-bs-option="ctry in vm.countries">
+                                                <a>
+                                                    <div class="f32">
+                                                        <div class="flag" ng-class="ctry.flag"><span style="margin-left:36px;">{{ctry.name}}</span></div>
+                                                    </div>
+                                                </a>
+                                            </li>
+                                        </ol>
+                                    </td>
+                                    <td class="col-md-7">
+                                        <tag-input placeholder='add another...' selected-tags='org.staffSections'></tag-input>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
                         <h3 class="with-line"><i class="gi gi-satellite"></i> Communications Component <small class="text-muted">optional</small></h3>
-
+                        <div class="switches clearfix">
+                            <switch color="primary" ng-model="vm.optionalFeatures['Communications Component']" on-text="Required" off-text="Not Required"></switch>
+                        </div>
+                        <table class="table table-bordered" ng-show="vm.optionalFeatures['Communications Component']">
+                            <thead>
+                                <tr class="black-muted-bg">
+                                    <th>Name</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="org in vm.communicationsComponents" class="data-entry">
+                                    <td class="col-md-2">
+                                        <input type="text" class="form-control input-lg" ng-model="org.name" />
+                                    </td>
+                                    <td class="col-md-10"></td>
+                                </tr>
+                            </tbody>
+                        </table>
                         <h3 class="with-line"><i class="fa fa-random"></i> Exercise Control Group <small class="text-muted">optional</small></h3>
-
+                        <div class="switches clearfix">
+                            <switch color="primary" ng-model="vm.optionalFeatures['Exercise Control Group']" on-text="Required" off-text="Not Required"></switch>
+                        </div>
+                        <table class="table table-bordered" ng-show="vm.optionalFeatures['Exercise Control Group']">
+                            <thead>
+                                <tr class="black-muted-bg">
+                                    <th>Name</th>
+                                    <th>Notionals</th>
+                                    <th>Users with Access to Content</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="org in vm.exerciseControlGroups" class="data-entry">
+                                    <td class="col-md-2">
+                                        <input type="text" class="form-control input-lg" ng-model="org.name" />
+                                    </td>
+                                    <td class="col-md-5">
+                                        <tag-input placeholder='add another...' selected-tags='org.notionals'></tag-input>
+                                    </td>
+                                    <td class="col-md-5">
+                                        <tag-input placeholder='add another...' selected-tags="org.selectedUsers" typeahead-data-source="vm.typeaheadDataSourceForSelectableUsers" display-text="'Title'"></tag-input>
+                                    </td>
+                            </tbody>
+                        </table>
                         <h3 class="with-line"><i class="fa fa-desktop"></i> Help Desk Ticketing System <small class="text-muted">optional</small></h3>
+
+                         <div class="switches clearfix">
+                            <switch color="primary" ng-model="vm.optionalFeatures['Help Desk Ticketing System']" on-text="Required" off-text="Not Required"></switch>
+                        </div>
                     </ba-wizard-step>
                     <ba-wizard-step title="Finish">
 
@@ -261,5 +339,5 @@
             </div>
         </div>
     </div>
-{{vm.componentCommands}}
+    {{vm.componentCommands}}
 </div>
