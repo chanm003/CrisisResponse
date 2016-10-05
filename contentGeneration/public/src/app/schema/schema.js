@@ -851,7 +851,7 @@ crisisResponseSchema.webpartPageDefs['Component Command Page'] = {
 				}
 			],
 			viewName: 'LVWP SOCC.aspx Documents',
-			viewFields: ['DocIcon', 'TypeOfDocument', 'Organization', 'LinkFilename', 'Mission', 'Modified', 'Editor'],
+			viewFields: ['DocIcon', 'LinkFilename', 'Mission', 'Modified', 'Editor'],
 			viewCAML: '<GroupBy Collapse="FALSE" GroupLimit="30"><FieldRef Name="TypeOfDocument"/><FieldRef Name="Organization"/></GroupBy><OrderBy><FieldRef Name="FileLeafRef"/></OrderBy><Where><Contains><FieldRef Name="Organization"/><Value Type="Text">{orgQsParam}</Value></Contains></Where>',
 			zoneName: 'Right',
 			zoneIndex: 10
