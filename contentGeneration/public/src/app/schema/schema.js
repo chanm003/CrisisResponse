@@ -1,4 +1,6 @@
-﻿var crisisResponseSchema = crisisResponseSchema || {};
+﻿//var displayTemplatesUrl = '~site/SitePages/displayTemplates.js';
+var displayTemplatesUrl = "http://localhost:3000/spaArtifacts/assets/displayTemplates.js"
+var crisisResponseSchema = crisisResponseSchema || {};
 crisisResponseSchema.listDefs = {};
 crisisResponseSchema.webpartPageDefs = {};
 
@@ -412,8 +414,9 @@ crisisResponseSchema.listDefs["RFI"] = {
 			Required: 'TRUE',
 			ResultType: 'Text',
 			ReadOnly: 'TRUE',
-			Formula: '="rfibutton-"&amp;IF(Status="Open","Respond","Reopen")',
-			FieldRefs: ['Status']		
+			Formula: '=""',
+			FieldRefs: [],
+			Description: 'This is just a placeholder read-only column.   Below formula serves no actual purpose.  JSLink will rerender as a button or some other control-depending on list title.'		
 		},
 		{
 			//EXAMPLE: Calculated
@@ -825,11 +828,11 @@ crisisResponseSchema.webpartPageDefs['Component Command Page'] = {
 				},
 				{
 					attributes: {name: 'JSLink', type: 'string'},
-					innerText: '~site/SitePages/action-buttons-displayTemplates.js'
+					innerText: displayTemplatesUrl
 				}
 			],
 			viewName: 'LVWP SOCC.aspx RFI',
-			viewFields: ['ActionsHtml', 'ID', 'LinkTitle', 'Priority', 'LTIOV'],
+			viewFields: ['ActionsHtml', 'LinkTitle', 'Priority', 'LTIOV'],
 			viewCAML: '<GroupBy Collapse="FALSE" GroupLimit="30"><FieldRef Name="RecommendedOPR"/></GroupBy><OrderBy><FieldRef Name="LTIOV"/><FieldRef Name="PrioritySort"/></OrderBy><Where><And><Contains><FieldRef Name="RecommendedOPR"/><Value Type="Text">{orgQsParam}</Value></Contains><Eq><FieldRef Name="Status"/><Value Type="Text">Open</Value></Eq></And></Where>',
 			zoneName: 'Left',
 			zoneIndex: 20
@@ -847,7 +850,7 @@ crisisResponseSchema.webpartPageDefs['Component Command Page'] = {
 				},
 				{
 					attributes: {name: 'JSLink', type: 'string'},
-					innerText: '~site/SitePages/action-buttons-displayTemplates.js'
+					innerText: displayTemplatesUrl
 				}
 			],
 			viewName: 'LVWP SOCC.aspx Documents',
@@ -984,11 +987,11 @@ crisisResponseSchema.webpartPageDefs['Task Group Page'] = {
 				},
 				{
 					attributes: {name: 'JSLink', type: 'string'},
-					innerText: '~site/SitePages/action-buttons-displayTemplates.js'
+					innerText: displayTemplatesUrl
 				}
 			],
 			viewName: 'LVWP SOTG.aspx RFI',
-			viewFields: ['ActionsHtml', 'ID', 'LinkTitle', 'Priority', 'LTIOV'],
+			viewFields: ['ActionsHtml', 'LinkTitle', 'Priority', 'LTIOV'],
 			viewCAML: '<OrderBy><FieldRef Name="LTIOV"/></OrderBy><Where><And><Contains><FieldRef Name="RecommendedOPR"/><Value Type="Text">{orgQsParam}</Value></Contains><Eq><FieldRef Name="Status"/><Value Type="Text">Open</Value></Eq></And></Where>',
 			zoneName: 'Left',
 			zoneIndex: 30
@@ -1006,7 +1009,7 @@ crisisResponseSchema.webpartPageDefs['Task Group Page'] = {
 				},
 				{
 					attributes: {name: 'JSLink', type: 'string'},
-					innerText: '~site/SitePages/action-buttons-displayTemplates.js'
+					innerText: displayTemplatesUrl
 				}
 			],
 			viewName: 'LVWP SOTG.aspx Documents',
