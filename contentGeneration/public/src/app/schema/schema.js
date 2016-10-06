@@ -217,6 +217,18 @@ crisisResponseSchema.listDefs["Mission Documents"] = {
 			Formula: '=VALUE(TEXT(DATE(MID(Title,1,4),MID(Title,5,2),MID(Title,7,2)),"mm/dd/yyyy"))',
 			FieldRefs: ['Title'],
 			Description: 'Only applicable to SOAC.   Document Title must start with date: YYYYMMDD e.g. 20160915 AIR DOCTRINE'		
+		},
+		{
+			//EXAMPLE: DateTime
+			Name: "ChopProcess",
+			DisplayName: "Chop Process",
+			Type: "DateTime",
+			Required: "FALSE",
+			Format: "DateTime", 					//please use either 'DateOnly' or 'DateTime'
+			Description: "Time when user initiated the chop",
+			Default: '',						//(optional)
+			ShowInNewForm: 'TRUE',
+			ShowInEditForm: 'FALSE'	
 		}
 	]
 }; 
@@ -854,7 +866,7 @@ crisisResponseSchema.webpartPageDefs['Component Command Page'] = {
 				}
 			],
 			viewName: 'LVWP SOCC.aspx Documents',
-			viewFields: ['DocIcon', 'LinkFilename', 'Mission', 'Modified', 'Editor'],
+			viewFields: ['DocIcon', 'LinkFilename', 'Modified', 'Editor', 'ChopProcess'],
 			viewCAML: '<GroupBy Collapse="FALSE" GroupLimit="30"><FieldRef Name="TypeOfDocument"/><FieldRef Name="Organization"/></GroupBy><OrderBy><FieldRef Name="FileLeafRef"/></OrderBy><Where><Contains><FieldRef Name="Organization"/><Value Type="Text">{orgQsParam}</Value></Contains></Where>',
 			zoneName: 'Right',
 			zoneIndex: 10
@@ -1013,7 +1025,7 @@ crisisResponseSchema.webpartPageDefs['Task Group Page'] = {
 				}
 			],
 			viewName: 'LVWP SOTG.aspx Documents',
-			viewFields: ['LinkFilename', 'DocIcon', 'TypeOfDocument', 'Mission', 'Modified', 'Editor'],
+			viewFields: ['DocIcon', 'LinkFilename', 'Modified', 'Editor', 'ChopProcess'],
 			viewCAML: '<GroupBy Collapse="FALSE" GroupLimit="30"><FieldRef Name="TypeOfDocument"/></GroupBy><OrderBy><FieldRef Name="FileLeafRef"/></OrderBy><Where><Contains><FieldRef Name="Organization"/><Value Type="Text">{orgQsParam}</Value></Contains></Where>',
 			zoneName: 'Right',
 			zoneIndex: 10
