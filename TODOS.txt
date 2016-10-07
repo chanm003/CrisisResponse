@@ -1,0 +1,28 @@
+integrate/research ng-tree (#/editNav)
+- to improve menu-editing UX
+- to create UX for SPWeb selection process
+
+--------------------------------------------------------------------------------------------
+
+integrate/research uifTable
+- render tabular data
+
+integrate/research uifContextualMenu
+- multiselection menu to pick the the "Sort by", "Group By", "Order By" column for tabular data
+- use angular animate to render a hierarchical menu (possible to open sub-menu on hover?)
+
+develop PoC for full page slide show 
+- https://chanm003.sharepoint.com/ngspa/instance/SitePages/projectionScrollable.aspx
+
+Refactor directive initiatechopbutton so that uses a template with replace
+- on click opens up modal, pass Missions list to modal, and the missionDocument object
+- modal contains a Mission dropdown
+------ filtered by organization
+- when user clicks modal's save button
+------ update two list fields (MissionId, ChopProcess)
+------ onsuccess
+------------ close modal
+------------ update scope.chopProcessTimestamp, then write message with SPLogger 
+
+
+

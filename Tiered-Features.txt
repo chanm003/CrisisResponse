@@ -1,0 +1,104 @@
+-------------------------------------------------------------------------------------------------------
+STEP ONE (when user clicks next...following will occur)
+-------------------------------------------------------------------------------------------------------
+Create the site
+- that inherits permissions and top navigation from parent site
+- that uses team site template
+- uses 24-hour clock
+- uses GMT+0 as time zone
+
+Copy assets to SitePages library
+- 30+ files (JS, CSS, ASPX, images, fonts, etc)
+
+Ensure <script> tags will be present on every page in the site using CustomAction
+Ensure <link> tag will be present on every page in the site using AlternateCssUrl
+
+-------------------------------------------------------------------------------------------------------
+STEP TWO (when user clicks next...following will occur)
+-------------------------------------------------------------------------------------------------------
+Lists to create:
+- Calendar
+- CCIR
+- Documents
+- Message Traffic
+- Mission Tracker
+- RFI
+- Watch Log
+- ConopChop*
+- AAR*
+- Roster*
+
+Copy assets to SitePages library:
+- SitePages/socc.aspx 
+- SitePages/sotg.aspx
+
+Create 6 list views, then add 6 webparts, 2 script editor webparts to socc.aspx
+- Watch Log, Message Traffic(2), RFI, Documents
+Create 5 list views, then add 5 webparts, 2 script editor webparts to sotg.aspx
+- CCIR, Watch Log, Message Traffic(2), RFI, Documents
+
+Ensure LVWPs use displayTemplates.js for custom actions buttons (Documents, RFI)
+- Default is <JSLink>clienttemplates.js</JSLink>
+- Need it to be <property name="JSLink" type="string">~site/sitepages/displayTemplates.js</property>
+
+-------------------------------------------------------------------------------------------------------
+STEP THREE (when user clicks next...following will occur)
+-------------------------------------------------------------------------------------------------------
+Lists to create: 
+- ASR*
+- Communications Status*
+- EXCON Documents*
+- EXCON Watch Log*
+- Inject*
+- Help Desk*
+
+Copy assets to SitePages library:
+- SitePages/soatg.aspx*
+- SitePages/comms.aspx* 
+- SitePages/excon.aspx* 
+
+Create 7 list views, then add 7 webparts, 2 script editor webparts to soatg.aspx*
+- Watch Log, Message Traffic(2), RFI, Documents(2), ASR
+Create 1 list view, then add 1 webpart, 1 script editor webpart to comms.aspx*
+- Watch Log
+Create 6 list views, then add 6 webparts to excon.aspx*
+- EXCON Watch Log, Message Traffic(2), RFI, Excon Documents, Inject
+
+Create SharePoint Group*
+- add identified users to that SharePoint Groups*
+
+Configure permissions on these resources:
+- EXCON Documents*
+- EXCON Watch Log*
+- Inject*
+- SitePages/excon.aspx*
+
+Update choice fields:
+- Calendar, Organization
+- CCIR, Organization
+- Message Traffic, Originator/Sender
+- Message Traffic, Receiver
+- Mission Documents, Organization
+- Mission Tracker, Organization
+- Mission Tracker, Participating Organizations
+- RFI, POC Organization
+- RFI, Recommended OPR
+- Watch Log, Organization
+
+Ensure LVWPs use displayTemplates.js for custom actions buttons (EXCON Documents, Inject, RFI)
+- Default is <JSLink>clienttemplates.js</JSLink>
+- Need it to be <property name="JSLink" type="string">~site/sitepages/displayTemplates.js</property>
+
+
+
+
+==========================================================================================
+NOTIONALS (e.g. Embassy, JFC Brunssum):
+- can send Message Traffic (outbound)
+- can receive Message Traffic (inbound)
+- can submit RFIs
+- can answer RFIs
+- do NOT have a dedicated dashboard page
+
+
+

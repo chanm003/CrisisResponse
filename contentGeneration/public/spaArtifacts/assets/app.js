@@ -529,8 +529,13 @@
             }
         }
 
-        MissionDocument.prototype.complete = function () {
-  
+        MissionDocument.prototype.initiateChop = function () {
+            //convert model to DTO that will be used for save...HTTP MERGE should ignore any 'undefined'' props in the request body
+            var dto = new MissionDocument();
+            dto.Id = this.Id;
+            dto.__metadata = this.__metadata;
+            dto.ChopProcess = (new Date()).toISOString();
+            return MissionDocumentRepository.save(dto);
         }
 
         return MissionDocument;
@@ -698,7 +703,9 @@
         }
 
         function save(item) {
-            console.log('Repository method...');
+            var constructParams = angular.extend({}, {item: item}, ngResourceConstructParams);
+            var restResource = spContext.constructNgResourceForRESTResource(constructParams);
+            return restResource.post(item).$promise;
         }
 
         return service;
@@ -1472,25 +1479,51 @@
     function initiatechopbutton(MissionDocument, MissionDocumentRepository) {
          /* 
         SP2013 display template will render ChopProcess column (anytime it appears in LVWP) as:
-            <a class="custombtn" initiatechopbutton="" data-id="1">Chop</a>
+            <a class="custombtn" initiatechopbutton="" data-id="1" data-chop-process='10/7/2016 19:08'>Chop</a>
         */
         var directiveDefinition = {
             restrict: 'A',
             scope: {},
-            link: link
+            link: link,
+            replace: true,
+            template: "<a ng-class='getButtonClass()' title='{{getHoverText()}}' ng-click='initiateChoppingProcess()'>Chop</a>"
         };
         return directiveDefinition;
 
         function link(scope, elem, attrs) {
             var $elem = $(elem);
-            var listItemID = $elem.attr("data-id");
 
-            $elem.on('click', function(){
-                MissionDocumentRepository.getById(listItemID)
+            var tempClass = $elem.attr("class");
+            var tempID = $elem.attr("data-id");
+            var chopProcessTimestamp = $elem.attr("data-chop-process");
+            $elem.removeClass(tempClass);
+            $elem.removeAttr("data-id");
+            $elem.removeAttr("data-chop-process");
+            
+            scope.listItemID = tempID
+            scope.btnClass = tempClass;
+            scope.chopProcessTimestamp = chopProcessTimestamp;
+            scope.getHoverText = function(){
+                return (!!scope.chopProcessTimestamp) ? 'Process initiated on ' + scope.chopProcessTimestamp : 'Click to start chop process now';
+            }
+
+            scope.getButtonClass = function(){
+                return (!!scope.chopProcessTimestamp) ? 'disabled-custombtn' : 'custombtn';
+            }
+
+            scope.initiateChoppingProcess = function(){
+                if(!!scope.chopProcessTimestamp){ return; }
+
+                MissionDocumentRepository.getById(scope.listItemID)
                     .then(function(data){
-                        console.log(new MissionDocument(data));
+                        var missionDoc = new MissionDocument(data);
+                        missionDoc.initiateChop().then(onChopStartedSuccessfully);
                     })
-            });
+                function onChopStartedSuccessfully(item){
+                    scope.chopProcessTimestamp = item.ChopProcess;
+                    //write service for SPLogger, and use it here
+                }
+            }
         }
     }
 

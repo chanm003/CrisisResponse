@@ -33,8 +33,7 @@
                 if(!ctx.CurrentItem.ChopProcess){
                     html = "<a class='custombtn' initiatechopbutton data-id='" + ctx.CurrentItem.ID + "'>Chop</a>";
                 } else {
-                    var onHoverText = "Process was initiated on " + ctx.CurrentItem.ChopProcess;
-                    html = "<a class='disabled-custombtn' title='"+onHoverText+"'>Chop</a>";
+                    html = "<a class='disabled-custombtn' initiatechopbutton data-chop-process='"+ctx.CurrentItem.ChopProcess+"' data-id='" + ctx.CurrentItem.ID + "'>Chop</a>";
                 }
             }
             return STSHtmlDecode(html);
