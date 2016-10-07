@@ -390,7 +390,7 @@
                             'Content-Type': 'application/json;odata=verbose;',
                             'X-RequestDigest': service.securityValidation,
                             'X-HTTP-Method': 'MERGE',
-                            'If-Match': opts.item.__metadata.etag
+                            'If-Match': (!!opts.item.__metadata) ? opts.item.__metadata.etag : ''
                         }
                     },
                     delete: {
@@ -499,6 +499,42 @@
     }
 })();
 
+/* Model: Mission Document */
+(function () {
+    angular.module('app.models')
+        .factory('MissionDocument', MissionDocumentModel);
+
+    MissionDocumentModel.$inject = ['MissionDocumentRepository'];
+    function MissionDocumentModel(MissionDocumentRepository) {
+        var MissionDocument = function (data) {
+            if (!data) {
+                this.Id = undefined; //number
+                this.Title = undefined; //string or null
+                this.Organization = undefined; //string
+                this.TypeOfDocument = undefined; //string
+                this.MissionId = undefined; //integer or null
+                this.FlaggedForSoacDailyUpdate = undefined; //string or null
+                this.ChopProcess  = undefined; //string (ISO) or null "2016-08-01T07:00:00Z"
+                this.__metadata = {
+                    type: "SP.Data.MissionDocumentsItem"
+                };
+            } else {
+                for (var prop in data) {
+                    if (data.hasOwnProperty(prop)) {
+                        this[prop] = data[prop];
+                    }
+                }
+            }
+        }
+
+        MissionDocument.prototype.complete = function () {
+  
+        }
+
+        return MissionDocument;
+    }
+})();
+
 /* Model: Mission Tracker */
 (function () {
     angular.module('app.models')
@@ -582,11 +618,12 @@
             'Mission,PocName,ManageRFI,RespondentName'
         ].join(',');
 
-        var restCollection = spContext.constructNgResourceForRESTCollection({
+        var ngResourceConstructParams = {
             fieldsToSelect: fieldsToSelect,
             fieldsToExpand: fieldsToExpand,
             listName: 'RFI'
-        });
+        };
+        var restCollection = spContext.constructNgResourceForRESTCollection(ngResourceConstructParams);
 
         function getAll() {
             var dfd = $q.defer();
@@ -612,11 +649,12 @@
 /* Data Repository: Mission Documents */
 (function () {
     angular.module('app.data')
-        .service('DocumentRepository', DocumentRepository);
-    DocumentRepository.$inject = ['$http', '$q', '$resource', 'exception', 'logger', 'spContext'];
-    function DocumentRepository($http, $q, $resource, exception, logger, spContext) {
+        .service('MissionDocumentRepository', MissionDocumentRepository);
+    MissionDocumentRepository.$inject = ['$http', '$q', '$resource', 'exception', 'logger', 'spContext'];
+    function MissionDocumentRepository($http, $q, $resource, exception, logger, spContext) {
         var service = {
             getAll: getAll,
+            getById: getById,
             save: save
         };
 
@@ -631,11 +669,12 @@
             'Mission'
         ].join(',');
 
-        var restCollection = spContext.constructNgResourceForRESTCollection({
+        var ngResourceConstructParams = {
             fieldsToSelect: fieldsToSelect,
             fieldsToExpand: fieldsToExpand,
             listName: 'Mission Documents'
-        });
+        };
+        var restCollection = spContext.constructNgResourceForRESTCollection(ngResourceConstructParams);
 
         function getAll() {
             var dfd = $q.defer();
@@ -648,6 +687,12 @@
                     dfd.reject(error);
                 });
             return dfd.promise;
+        }
+
+        function getById(id){
+            var constructParams = angular.extend({}, {item: {Id: id}}, ngResourceConstructParams);
+            var restResource = spContext.constructNgResourceForRESTResource(constructParams);
+            return restResource.get({}).$promise.then(function(response){ return response.d; });
         }
 
         function save(item) {
@@ -679,11 +724,12 @@
             spContext.SP2013REST.expandoForCommonFields
         ].join(',');
 
-        var restCollection = spContext.constructNgResourceForRESTCollection({
+        var ngResourceConstructParams = {
             fieldsToSelect: fieldsToSelect,
             fieldsToExpand: fieldsToExpand,
             listName: 'Mission Tracker'
-        });
+        };
+        var restCollection = spContext.constructNgResourceForRESTCollection(ngResourceConstructParams);
 
         function getByOrganization(orgFilter) {
             var dfd = $q.defer();
@@ -1421,7 +1467,7 @@
         .module('app.core')
         .directive('initiatechopbutton', initiatechopbutton);
 
-    function initiatechopbutton(DocumentRepository) {
+    function initiatechopbutton(MissionDocument, MissionDocumentRepository) {
          /* 
         SP2013 display template will render ChopProcess column (anytime it appears in LVWP) as:
             <a class="custombtn" initiatechopbutton="" data-id="1">Chop</a>
@@ -1438,9 +1484,9 @@
             var listItemID = $elem.attr("data-id");
 
             $elem.on('click', function(){
-                DocumentRepository.getAll()
+                MissionDocumentRepository.getById(listItemID)
                     .then(function(data){
-                        console.log(data);
+                        console.log(new MissionDocument(data));
                     })
             });
         }
