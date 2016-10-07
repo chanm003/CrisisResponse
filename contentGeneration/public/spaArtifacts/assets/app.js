@@ -317,9 +317,11 @@
         var service = this;
 
         service.SP2013REST = {
-            selectForCommonFields: 'Id,Title,Created,Modified,AuthorId,EditorId,Attachments,Author/Title,Editor/Title',
+            selectForCommonFields: 'Id,Title,Created,Modified,AuthorId,EditorId,Author/Title,Editor/Title',
             expandoForCommonFields: 'Author,Editor'
         }
+        service.constructNgResourceForRESTCollection = constructNgResourceForRESTCollection;
+        service.constructNgResourceForRESTResource = constructNgResourceForRESTResource;
         service.htmlHelpers = {};
         service.htmlHelpers.buildHeroButton = function(text, href, ngShowAttrValue){
             var html = 
@@ -341,6 +343,67 @@
         }
 
         init();
+
+        function constructNgResourceForRESTCollection(opts) {
+            return $resource(_spPageContextInfo.webServerRelativeUrl + "/_api/web/lists/getbytitle('"+opts.listName+"')/items",
+                {},
+                {
+                    get: {
+                        method: 'GET',
+                        params: {
+                            '$select': opts.fieldsToSelect,
+                            '$expand': opts.fieldsToExpand
+                        },
+                        headers: {
+                            'Accept': 'application/json;odata=verbose;'
+                        }
+                    },
+                    post: {
+                        method: 'POST',
+                        headers: {
+                            'Accept': 'application/json;odata=verbose',
+                            'Content-Type': 'application/json;odata=verbose;',
+                            'X-RequestDigest': service.securityValidation
+                        }
+                    }
+                });
+        }
+
+        function constructNgResourceForRESTResource(opts) {
+            return $resource(_spPageContextInfo.webServerRelativeUrl + "/_api/web/lists/getbytitle('"+opts.listName+"')/items(:itemId)",
+                { itemId: opts.item.Id },
+                {
+                    get: {
+                        method: 'GET',
+                        params: {
+                            '$select': opts.fieldsToSelect,
+                            '$expand': opts.fieldsToExpand
+                        },
+                        headers: {
+                            'Accept': 'application/json;odata=verbose;'
+                        }
+                    },
+                    post: {
+                        method: 'POST',
+                        headers: {
+                            'Accept': 'application/json;odata=verbose;',
+                            'Content-Type': 'application/json;odata=verbose;',
+                            'X-RequestDigest': service.securityValidation,
+                            'X-HTTP-Method': 'MERGE',
+                            'If-Match': opts.item.__metadata.etag
+                        }
+                    },
+                    delete: {
+                        method: 'DELETE',
+                        headers: {
+                            'Accept': 'application/json;odata=verbose;',
+                            'Content-Type': 'application/json;odata=verbose;',
+                            'X-RequestDigest': service.securityValidation,
+                            'If-Match': '*'
+                        }
+                    }
+                });
+        }
 
         function init() {
             refreshSecurityValidation();
@@ -509,7 +572,7 @@
 
         var fieldsToSelect = [
             spContext.SP2013REST.selectForCommonFields,
-            'Status,RfiTrackingNumber,MissionId,Details,Priority,LTIOV,PocNameId,PocPhone,PocOrganization,RecommendedOPR',
+            'Attachments, Status,RfiTrackingNumber,MissionId,Details,Priority,LTIOV,PocNameId,PocPhone,PocOrganization,RecommendedOPR',
             'ManageRFIId,RespondentNameId,RespondentPhone,ResponseToRequest,DateClosed,ResponseSufficient,InsufficientExplanation',
             'Mission/FullName,PocName/Title,ManageRFI/Title,RespondentName/Title'
         ].join(',');
@@ -519,69 +582,16 @@
             'Mission,PocName,ManageRFI,RespondentName'
         ].join(',');
 
-        function getDataContextForCollection(params) {
-            return $resource(_spPageContextInfo.webServerRelativeUrl + "/_api/web/lists/getbytitle('RFI')/items",
-                {},
-                {
-                    get: {
-                        method: 'GET',
-                        params: {
-                            '$select': fieldsToSelect,
-                            '$expand': fieldsToExpand
-                        },
-                        headers: {
-                            'Accept': 'application/json;odata=verbose;'
-                        }
-                    },
-                    post: {
-                        method: 'POST',
-                        headers: {
-                            'Accept': 'application/json;odata=verbose',
-                            'Content-Type': 'application/json;odata=verbose;',
-                            'X-RequestDigest': spContext.securityValidation
-                        }
-                    }
-                });
-        }
-
-        function getDataContextForResource(item) {
-            return $resource(_spPageContextInfo.webServerRelativeUrl + "/_api/web/lists/getbytitle('RFI')/items(:itemId)",
-                { itemId: item.Id },
-                {
-                    get: {
-                        method: 'GET',
-                        params: {
-                            '$select': 'Id,Title,Comments,Created,Modified'
-                        },
-                        headers: {
-                            'Accept': 'application/json;odata=verbose;'
-                        }
-                    },
-                    post: {
-                        method: 'POST',
-                        headers: {
-                            'Accept': 'application/json;odata=verbose;',
-                            'Content-Type': 'application/json;odata=verbose;',
-                            'X-RequestDigest': spContext.securityValidation,
-                            'X-HTTP-Method': 'MERGE',
-                            'If-Match': item.__metadata.etag
-                        }
-                    },
-                    delete: {
-                        method: 'DELETE',
-                        headers: {
-                            'Accept': 'application/json;odata=verbose;',
-                            'Content-Type': 'application/json;odata=verbose;',
-                            'X-RequestDigest': spContext.securityValidation,
-                            'If-Match': '*'
-                        }
-                    }
-                });
-        }
+        var restCollection = spContext.constructNgResourceForRESTCollection({
+            fieldsToSelect: fieldsToSelect,
+            fieldsToExpand: fieldsToExpand,
+            listName: 'RFI'
+        });
 
         function getAll() {
             var dfd = $q.defer();
-            getDataContextForCollection().get({},
+            var qsParams = {}; //{$filter:"FavoriteNumber eq 8"};
+            restCollection.get(qsParams,
                 function (data) {
                     dfd.resolve(data.d.results);
                 },
@@ -592,6 +602,55 @@
         }
 
         function save(rfi) {
+            console.log('Repository method...');
+        }
+
+        return service;
+    }
+})();
+
+/* Data Repository: Mission Documents */
+(function () {
+    angular.module('app.data')
+        .service('DocumentRepository', DocumentRepository);
+    DocumentRepository.$inject = ['$http', '$q', '$resource', 'exception', 'logger', 'spContext'];
+    function DocumentRepository($http, $q, $resource, exception, logger, spContext) {
+        var service = {
+            getAll: getAll,
+            save: save
+        };
+
+        var fieldsToSelect = [
+            spContext.SP2013REST.selectForCommonFields,
+            'Organization,TypeOfDocument,MissionId,FlaggedForSoacDailyUpdate,DailyProductDate,ChopProcess',
+            'Mission/FullName'
+        ].join(',');
+
+        var fieldsToExpand = [
+            spContext.SP2013REST.expandoForCommonFields,
+            'Mission'
+        ].join(',');
+
+        var restCollection = spContext.constructNgResourceForRESTCollection({
+            fieldsToSelect: fieldsToSelect,
+            fieldsToExpand: fieldsToExpand,
+            listName: 'Mission Documents'
+        });
+
+        function getAll() {
+            var dfd = $q.defer();
+            var qsParams = {}; //{$filter:"FavoriteNumber eq 8"};
+            restCollection.get(qsParams,
+                function (data) {
+                    dfd.resolve(data.d.results);
+                },
+                function (error) {
+                    dfd.reject(error);
+                });
+            return dfd.promise;
+        }
+
+        function save(item) {
             console.log('Repository method...');
         }
 
@@ -612,7 +671,7 @@
 
         var fieldsToSelect = [
             spContext.SP2013REST.selectForCommonFields,
-            "Identifier,FullName,ObjectiveName,Organization,MissionType,ApprovalAuthority,OperationName,Status,MissionApproved",
+            "Attachments, Identifier,FullName,ObjectiveName,Organization,MissionType,ApprovalAuthority,OperationName,Status,MissionApproved",
             "ExpectedExecution,ExpectedTermination,ParticipatingOrganizations,Comments"
         ].join(',');
 
@@ -620,69 +679,16 @@
             spContext.SP2013REST.expandoForCommonFields
         ].join(',');
 
-        function getDataContextForCollection(params) {
-            return $resource(_spPageContextInfo.webServerRelativeUrl + "/_api/web/lists/getbytitle('Mission Tracker')/items",
-                {},
-                {
-                    get: {
-                        method: 'GET',
-                        params: {
-                            '$select': fieldsToSelect,
-                            '$expand': fieldsToExpand
-                        },
-                        headers: {
-                            'Accept': 'application/json;odata=verbose;'
-                        }
-                    },
-                    post: {
-                        method: 'POST',
-                        headers: {
-                            'Accept': 'application/json;odata=verbose',
-                            'Content-Type': 'application/json;odata=verbose;',
-                            'X-RequestDigest': spContext.securityValidation
-                        }
-                    }
-                });
-        }
-
-        function getDataContextForResource(item) {
-            return $resource(_spPageContextInfo.webServerRelativeUrl + "/_api/web/lists/getbytitle('Mission Tracker')/items(:itemId)",
-                { itemId: item.Id },
-                {
-                    get: {
-                        method: 'GET',
-                        params: {
-                            '$select': 'Id,Title,Comments,Created,Modified'
-                        },
-                        headers: {
-                            'Accept': 'application/json;odata=verbose;'
-                        }
-                    },
-                    post: {
-                        method: 'POST',
-                        headers: {
-                            'Accept': 'application/json;odata=verbose;',
-                            'Content-Type': 'application/json;odata=verbose;',
-                            'X-RequestDigest': spContext.securityValidation,
-                            'X-HTTP-Method': 'MERGE',
-                            'If-Match': item.__metadata.etag
-                        }
-                    },
-                    delete: {
-                        method: 'DELETE',
-                        headers: {
-                            'Accept': 'application/json;odata=verbose;',
-                            'Content-Type': 'application/json;odata=verbose;',
-                            'X-RequestDigest': spContext.securityValidation,
-                            'If-Match': '*'
-                        }
-                    }
-                });
-        }
+        var restCollection = spContext.constructNgResourceForRESTCollection({
+            fieldsToSelect: fieldsToSelect,
+            fieldsToExpand: fieldsToExpand,
+            listName: 'Mission Tracker'
+        });
 
         function getByOrganization(orgFilter) {
             var dfd = $q.defer();
-            getDataContextForCollection().get({},
+            var qsParams = {}; //{$filter:"FavoriteNumber eq 8"};
+            restCollection.get(qsParams,
                 function (data) {
                     var queryResults = data.d.results;
                     if(orgFilter){
@@ -1385,10 +1391,8 @@
 
     function rfibutton() {
         /* 
-        SP2013 display template (~site/SitePages/action-buttons-displayTemplates.js) should rerender calculated column from:
-            rfibutton-Respond
-        to:
-            <a class="custombtn" data-id="86" rfibutton>Respond</a>
+        SP2013 display template will render ActionsHtml column (anytime it appears in LVWP) as:
+            <a class="custombtn" rfibutton="" data-id="1">Respond</a>
         */
         var directiveDefinition = {
             restrict: 'A',
@@ -1398,13 +1402,46 @@
         return directiveDefinition;
 
         function link(scope, elem, attrs) {
-            var $elem = $(elem),
-                listItemID = $elem.attr("data-id"),
-                buttonText = $elem.text();
+            var $elem = $(elem);
+            var listItemID = $elem.attr("data-id");
+            var buttonText = $elem.text();
 
             $elem.on('click', function(){
                 var redirect = _spPageContextInfo.webServerRelativeUrl + "/Lists/RFI/EditForm.aspx?action="+buttonText+"&ID="+listItemID+"&Source="+document.location.href;
                 window.location.href = redirect; 
+            });
+        }
+    }
+
+})();
+
+/* Directive: initiatechopbutton */
+(function () {
+    angular
+        .module('app.core')
+        .directive('initiatechopbutton', initiatechopbutton);
+
+    function initiatechopbutton(DocumentRepository) {
+         /* 
+        SP2013 display template will render ChopProcess column (anytime it appears in LVWP) as:
+            <a class="custombtn" initiatechopbutton="" data-id="1">Chop</a>
+        */
+        var directiveDefinition = {
+            restrict: 'A',
+            scope: {},
+            link: link
+        };
+        return directiveDefinition;
+
+        function link(scope, elem, attrs) {
+            var $elem = $(elem);
+            var listItemID = $elem.attr("data-id");
+
+            $elem.on('click', function(){
+                DocumentRepository.getAll()
+                    .then(function(data){
+                        console.log(data);
+                    })
             });
         }
     }
