@@ -317,8 +317,10 @@
         var service = this;
 
         service.SP2013REST = {
-            selectForCommonFields: 'Id,Title,Created,Modified,AuthorId,EditorId,Author/Title,Editor/Title',
-            expandoForCommonFields: 'Author,Editor'
+            selectForCommonDocumentFields: 'Id,Title,Created,Modified,AuthorId,EditorId,Author/Title,Editor/Title,File/CheckOutType,File/MajorVersion,File/Name,File/ServerRelativeUrl,File/TimeCreated,File/TimeLastModified',
+            expandoForCommonDocumentFields: 'Author,Editor,File',
+            selectForCommonListFields: 'Attachments,Id,Title,Created,Modified,AuthorId,EditorId,Author/Title,Editor/Title',
+            expandoForCommonListFields: 'Author,Editor'
         }
         service.constructNgResourceForRESTCollection = constructNgResourceForRESTCollection;
         service.constructNgResourceForRESTResource = constructNgResourceForRESTResource;
@@ -607,14 +609,14 @@
         };
 
         var fieldsToSelect = [
-            spContext.SP2013REST.selectForCommonFields,
-            'Attachments, Status,RfiTrackingNumber,MissionId,Details,Priority,LTIOV,PocNameId,PocPhone,PocOrganization,RecommendedOPR',
+            spContext.SP2013REST.selectForCommonListFields,
+            'Status,RfiTrackingNumber,MissionId,Details,Priority,LTIOV,PocNameId,PocPhone,PocOrganization,RecommendedOPR',
             'ManageRFIId,RespondentNameId,RespondentPhone,ResponseToRequest,DateClosed,ResponseSufficient,InsufficientExplanation',
             'Mission/FullName,PocName/Title,ManageRFI/Title,RespondentName/Title'
         ].join(',');
 
         var fieldsToExpand = [
-            spContext.SP2013REST.expandoForCommonFields,
+            spContext.SP2013REST.expandoForCommonListFields,
             'Mission,PocName,ManageRFI,RespondentName'
         ].join(',');
 
@@ -659,13 +661,13 @@
         };
 
         var fieldsToSelect = [
-            spContext.SP2013REST.selectForCommonFields,
+            spContext.SP2013REST.selectForCommonDocumentFields,
             'Organization,TypeOfDocument,MissionId,FlaggedForSoacDailyUpdate,DailyProductDate,ChopProcess',
             'Mission/FullName'
         ].join(',');
 
         var fieldsToExpand = [
-            spContext.SP2013REST.expandoForCommonFields,
+            spContext.SP2013REST.expandoForCommonDocumentFields,
             'Mission'
         ].join(',');
 
@@ -715,13 +717,13 @@
         };
 
         var fieldsToSelect = [
-            spContext.SP2013REST.selectForCommonFields,
-            "Attachments, Identifier,FullName,ObjectiveName,Organization,MissionType,ApprovalAuthority,OperationName,Status,MissionApproved",
+            spContext.SP2013REST.selectForCommonListFields,
+            "Identifier,FullName,ObjectiveName,Organization,MissionType,ApprovalAuthority,OperationName,Status,MissionApproved",
             "ExpectedExecution,ExpectedTermination,ParticipatingOrganizations,Comments"
         ].join(',');
 
         var fieldsToExpand = [
-            spContext.SP2013REST.expandoForCommonFields
+            spContext.SP2013REST.expandoForCommonListFields
         ].join(',');
 
         var ngResourceConstructParams = {
