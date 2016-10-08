@@ -31,9 +31,9 @@
             var html;
             if (ctx.ListTitle === "Mission Documents") {
                 if(!ctx.CurrentItem.ChopProcess){
-                    html = "<a class='custombtn' initiatechopbutton data-id='" + ctx.CurrentItem.ID + "'>Chop</a>";
+                    html = "<a class='custombtn' initiatechopbutton chop-dialog-ctx='vm.chopDialogCtx' data-id='" + ctx.CurrentItem.ID + "'>Chop</a>";
                 } else {
-                    html = "<a class='disabled-custombtn' initiatechopbutton data-chop-process='"+ctx.CurrentItem.ChopProcess+"' data-id='" + ctx.CurrentItem.ID + "'>Chop</a>";
+                    html = "<a class='disabled-custombtn' initiatechopbutton chop-dialog-ctx='vm.chopDialogCtx' data-chop-process='"+ctx.CurrentItem.ChopProcess+"' data-id='" + ctx.CurrentItem.ID + "'>Chop</a>";
                 }
             }
             return STSHtmlDecode(html);

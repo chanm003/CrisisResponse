@@ -5,7 +5,7 @@
         appTitle: 'Exercise Application',
         baseUrl: 'http://localhost:3000/spaArtifacts'
     };
-    
+
     $(document).ready(bootstrapNgApplication);
 
     angular.module('singlePageApp', [
@@ -54,15 +54,47 @@
     ])
         .controller('ShellController', ShellController);
 
-    function bootstrapNgApplication(){
+    function bootstrapNgApplication() {
         var currentURL = S(window.location.href.toUpperCase());
         var spPage = $("body");
-        if(currentURL.include('/SITEPAGES/SOCC.ASPX')){
+        if (currentURL.include('/SITEPAGES/SOCC.ASPX')) {
             spPage.attr('ng-controller', 'SoccAspxController as vm');
+            spPage.append(generateChopDialogHtml());
         }
-        
+
         //BOOTSTRAP NG-APP
         angular.element(document).ready(function () { angular.bootstrap(document, ['singlePageApp']); });
+
+
+        function generateChopDialogHtml() {
+            var html = [
+                '<uif-dialog uif-close="false" uif-overlay="light" uif-type="multiline" ng-show="vm.chopDialogCtx.show">',
+                '   <uif-dialog-header>',
+                '       <p class="ms-Dialog-title">',
+                '           Initiate Chop Process',
+                '       </p>',
+                '   </uif-dialog-header>',
+                '   <uif-dialog-inner>',
+                '       <uif-dialog-content>',
+                '           <uif-dialog-subtext>',
+                '               <span>Associate this Document to a Mission:</span>',
+                '           </uif-dialog-subtext>',
+                '           <uif-dropdown ng-model="vm.chopDialogCtx.listItem.MissionId">',
+                '               <uif-dropdown-option ng-repeat="mission in vm.chopDialogCtx.missions" value="{{mission.Id}}">{{mission.Identifier}}</uif-dropdown-option>',
+                '           </uif-dropdown>',
+                '       </uif-dialog-content>',
+                '       <uif-dialog-actions uif-position="right">',
+                '           <button class="ms-Dialog-action ms-Button ms-Button--primary" ng-click="vm.chopDialogCtx.submit()">',
+                '               <span class="ms-Button-label">Start Chop</span>',
+                '           </button>',
+                '           <button class="ms-Dialog-action ms-Button" ng-click="vm.chopDialogCtx.show = false">',
+                '               <span class="ms-Button-label">Cancel</span>',
+                '           </button>',
+                '       </uif-dialog-actions>',
+                '   </uif-dialog-inner>',
+                '</uif-dialog>'].join('');
+            return html;
+        }
     }
 
     configureCoreModule.$inject = ['$logProvider', '$sceDelegateProvider', 'exceptionHandlerProvider', 'routerHelperProvider', 'toastr'];
@@ -76,7 +108,7 @@
         toastr.options.positionClass = 'toast-bottom-right';
 
         //override security because our HTML templates violate CORS
-	    $sce.resourceUrlWhitelist(['**']);
+        $sce.resourceUrlWhitelist(['**']);
     }
 
     configureExceptionModule.$inject = ['$provide'];
@@ -132,8 +164,8 @@
         };
     }
 
-    function extendLoDash(_){
-        _.parseQueryString = function(qstr) {
+    function extendLoDash(_) {
+        _.parseQueryString = function (qstr) {
             var query = {};
             var a = qstr.substr(1).split('&');
             for (var i = 0; i < a.length; i++) {
@@ -325,9 +357,9 @@
         service.constructNgResourceForRESTCollection = constructNgResourceForRESTCollection;
         service.constructNgResourceForRESTResource = constructNgResourceForRESTResource;
         service.htmlHelpers = {};
-        service.htmlHelpers.buildHeroButton = function(text, href, ngShowAttrValue){
-            var html = 
-                '<table dir="none" cellpadding="0" cellspacing="0" border="0" ng-show="'+ ngShowAttrValue +'">\
+        service.htmlHelpers.buildHeroButton = function (text, href, ngShowAttrValue) {
+            var html =
+                '<table dir="none" cellpadding="0" cellspacing="0" border="0" ng-show="' + ngShowAttrValue + '">\
                     <tbody>\
                         <tr>\
                             <td class="ms-list-addnew ms-textXLarge ms-list-addnew-aligntop ms-soften">\
@@ -335,7 +367,7 @@
                                     <span class="ms-list-addnew-imgSpan20">\
                                         <img src="/_layouts/15/images/spcommon.png?rev=44" class="ms-list-addnew-img20">\
                                     </span>\
-                                    <span>'+ text +'</span>\
+                                    <span>'+ text + '</span>\
                                 </a>\
                             </td>\
                         </tr>\
@@ -347,7 +379,7 @@
         init();
 
         function constructNgResourceForRESTCollection(opts) {
-            return $resource(_spPageContextInfo.webServerRelativeUrl + "/_api/web/lists/getbytitle('"+opts.listName+"')/items",
+            return $resource(_spPageContextInfo.webServerRelativeUrl + "/_api/web/lists/getbytitle('" + opts.listName + "')/items",
                 {},
                 {
                     get: {
@@ -372,7 +404,7 @@
         }
 
         function constructNgResourceForRESTResource(opts) {
-            return $resource(_spPageContextInfo.webServerRelativeUrl + "/_api/web/lists/getbytitle('"+opts.listName+"')/items(:itemId)",
+            return $resource(_spPageContextInfo.webServerRelativeUrl + "/_api/web/lists/getbytitle('" + opts.listName + "')/items(:itemId)",
                 { itemId: opts.item.Id },
                 {
                     get: {
@@ -516,7 +548,7 @@
                 this.TypeOfDocument = undefined; //string
                 this.MissionId = undefined; //integer or null
                 this.FlaggedForSoacDailyUpdate = undefined; //string or null
-                this.ChopProcess  = undefined; //string (ISO) or null "2016-08-01T07:00:00Z"
+                this.ChopProcess = undefined; //string (ISO) or null "2016-08-01T07:00:00Z"
                 this.__metadata = {
                     type: "SP.Data.MissionDocumentsItem"
                 };
@@ -560,7 +592,7 @@
                 this.ApprovalAuthority = undefined; //string
                 this.OperationName = undefined; //string or null
                 this.Status = undefined; //string
-                this.MissionApproved  = undefined; //string (ISO) or null "2016-08-01T07:00:00Z"
+                this.MissionApproved = undefined; //string (ISO) or null "2016-08-01T07:00:00Z"
                 this.ExpectedExecution = undefined; //string (ISO) "2016-08-01T07:00:00Z"
                 this.ExpectedTermination = undefined; //string (ISO) or null "2016-08-01T07:00:00Z"
                 this.ParticipatingOrganizations = undefined; //object {results: ['SOTG 10', 'SOTG 15', 'SOTG 25']} 
@@ -578,19 +610,19 @@
         }
 
         Mission.prototype.complete = function () {
-  
+
         }
 
-        Mission.prototype.buildOnHoverText = function (){
+        Mission.prototype.buildOnHoverText = function () {
             var hoverTextParts = [];
             hoverTextParts.push(this.Status);
             hoverTextParts.push(this.ObjectiveName);
-            if(this.OperationName){
+            if (this.OperationName) {
                 hoverTextParts.push(this.OperationName);
             }
             hoverTextParts.push(this.ApprovalAuthority);
             var timePortion = moment.utc(this.ExpectedExecution).format("DDHHmm[Z]MMMYY").toUpperCase();
-            if(this.ExpectedTermination){
+            if (this.ExpectedTermination) {
                 timePortion += " - " + moment.utc(this.ExpectedTermination).format("DDHHmm[Z]MMMYY").toUpperCase();
             }
             hoverTextParts.push(timePortion);
@@ -696,14 +728,14 @@
             return dfd.promise;
         }
 
-        function getById(id){
-            var constructParams = angular.extend({}, {item: {Id: id}}, ngResourceConstructParams);
+        function getById(id) {
+            var constructParams = angular.extend({}, { item: { Id: id } }, ngResourceConstructParams);
             var restResource = spContext.constructNgResourceForRESTResource(constructParams);
-            return restResource.get({}).$promise.then(function(response){ return response.d; });
+            return restResource.get({}).$promise.then(function (response) { return response.d; });
         }
 
         function save(item) {
-            var constructParams = angular.extend({}, {item: item}, ngResourceConstructParams);
+            var constructParams = angular.extend({}, { item: item }, ngResourceConstructParams);
             var restResource = spContext.constructNgResourceForRESTResource(constructParams);
             return restResource.post(item).$promise;
         }
@@ -714,7 +746,7 @@
 
 /* Data Repository: Mission Tracker */
 (function () {
-    angular.module('app.data')            
+    angular.module('app.data')
         .service('MissionTrackerRepository', MissionTrackerRepository)
     MissionTrackerRepository.$inject = ['$http', '$q', '$resource', 'exception', 'logger', 'spContext'];
     function MissionTrackerRepository($http, $q, $resource, exception, logger, spContext) {
@@ -746,8 +778,8 @@
             restCollection.get(qsParams,
                 function (data) {
                     var queryResults = data.d.results;
-                    if(orgFilter){
-                        queryResults = _.filter(queryResults, function(item){
+                    if (orgFilter) {
+                        queryResults = _.filter(queryResults, function (item) {
                             return item.Organization === orgFilter || _.includes(item.ParticipatingOrganizations.results, orgFilter);
                         })
                     }
@@ -763,7 +795,7 @@
             console.log('Repository method...');
         }
 
-        function getTestData(orgFilter){
+        function getTestData(orgFilter) {
             var staticData = [
                 {
                     Id: 3,
@@ -821,7 +853,7 @@
                     ExpectedTermination: '',
                     Organization: 'SOMTG 35',
                     ParticipatingOrganizations: {
-                        results: []                
+                        results: []
                     },
                     ObjectiveName: "OBJ_LUKE",
                     ApprovalAuthority: "3A: NRF SOCC",
@@ -829,8 +861,8 @@
                 }
             ];
 
-            if(orgFilter){
-                staticData = _.filter(staticData, function(item){
+            if (orgFilter) {
+                staticData = _.filter(staticData, function (item) {
                     return item.Organization === orgFilter || _.includes(item.ParticipatingOrganizations.results, orgFilter);
                 })
             }
@@ -843,7 +875,7 @@
 
 /* Data Repository: Calendar */
 (function () {
-    angular.module('app.data')            
+    angular.module('app.data')
         .service('CalendarRepository', CalendarRepository)
     CalendarRepository.$inject = ['$http', '$q', '$resource', 'exception', 'logger', 'spContext'];
     function CalendarRepository($http, $q, $resource, exception, logger, spContext) {
@@ -852,23 +884,23 @@
         };
         return service;
 
-        function convertToFullCalendarEvent(xmlNode){
+        function convertToFullCalendarEvent(xmlNode) {
             var itemID = xmlNode.attr('ows_ID');
             return {
                 "start": moment.utc(xmlNode.attr("ows_EventDate")),
                 "end": moment.utc(xmlNode.attr("ows_EndDate")),
                 "title": xmlNode.attr("ows_Title"),
                 "location": xmlNode.attr("ows_Location"),
-                "allDay": xmlNode.attr("ows_fAllDayEvent") == 1 ? true : false,                                   
-                "url" : _spPageContextInfo.webServerRelativeUrl  + "/Lists/Calendar/DispForm.aspx?ID=" + itemID + '&Source=' + window.location,
-                "isRecurrence" : xmlNode.attr("ows_fRecurrence") == 1 ? true : false,
+                "allDay": xmlNode.attr("ows_fAllDayEvent") == 1 ? true : false,
+                "url": _spPageContextInfo.webServerRelativeUrl + "/Lists/Calendar/DispForm.aspx?ID=" + itemID + '&Source=' + window.location,
+                "isRecurrence": xmlNode.attr("ows_fRecurrence") == 1 ? true : false,
                 "organization": xmlNode.attr("ows_Organization")
             }
         }
 
-        function getEvents(start, end, intervalUnit, organizationFilter){
+        function getEvents(start, end, intervalUnit, organizationFilter) {
             var diff = end.diff(start, 'hours');
-            var midPoint = start.clone().add((diff/2), 'hours');
+            var midPoint = start.clone().add((diff / 2), 'hours');
             //using midpoint in CAML query seems to worker
             //http://www.nothingbutsharepoint.com/2012/04/26/use-spservices-to-get-recurring-events-as-distinct-items-aspx/
             var camlCalendarDate = midPoint.format("YYYY-MM-DD[T]HH:mm:ss[Z]");
@@ -892,12 +924,12 @@
             3/12/207	<Week/>	returns events 3/5/2017 to 3/12/2017 (Sunday)
             */
 
-            var getListItemsSoap = 
-                "<soap:Envelope xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xmlns:xsd='http://www.w3.org/2001/XMLSchema' xmlns:soap='http://schemas.xmlsoap.org/soap/envelope/'><soap:Body><GetListItemChangesSinceToken xmlns='http://schemas.microsoft.com/sharepoint/soap/'><listName>Calendar</listName><viewName></viewName><query><Query><Where><DateRangesOverlap><FieldRef Name='EventDate' /><FieldRef Name='EndDate' /><FieldRef Name='RecurrenceID' /><Value Type='DateTime'>"+ camlIntervals[intervalUnit]+"</Value></DateRangesOverlap></Where><OrderBy><FieldRef Name='EventDate' /></OrderBy></Query></query><viewFields><ViewFields><FieldRef Name='ID' /><FieldRef Name='Title' /><FieldRef Name='EventDate' /><FieldRef Name='EndDate' /><FieldRef Name='Location' /><FieldRef Name='Description' /><FieldRef Name='Category' /><FieldRef Name='fRecurrence' /><FieldRef Name='RecurrenceData' /><FieldRef Name='fAllDayEvent' /><FieldRef Name='Organization' /></ViewFields></viewFields><rowLimit>300</rowLimit><queryOptions><QueryOptions><CalendarDate>"
-                +camlCalendarDate+"</CalendarDate><ExpandRecurrence>TRUE</ExpandRecurrence><RecurrenceOrderBy>TRUE</RecurrenceOrderBy><DatesInUtc>True</DatesInUtc><ViewAttributes Scope='RecursiveAll'/></QueryOptions></queryOptions></GetListItemChangesSinceToken></soap:Body></soap:Envelope>";
-            
+            var getListItemsSoap =
+                "<soap:Envelope xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xmlns:xsd='http://www.w3.org/2001/XMLSchema' xmlns:soap='http://schemas.xmlsoap.org/soap/envelope/'><soap:Body><GetListItemChangesSinceToken xmlns='http://schemas.microsoft.com/sharepoint/soap/'><listName>Calendar</listName><viewName></viewName><query><Query><Where><DateRangesOverlap><FieldRef Name='EventDate' /><FieldRef Name='EndDate' /><FieldRef Name='RecurrenceID' /><Value Type='DateTime'>" + camlIntervals[intervalUnit] + "</Value></DateRangesOverlap></Where><OrderBy><FieldRef Name='EventDate' /></OrderBy></Query></query><viewFields><ViewFields><FieldRef Name='ID' /><FieldRef Name='Title' /><FieldRef Name='EventDate' /><FieldRef Name='EndDate' /><FieldRef Name='Location' /><FieldRef Name='Description' /><FieldRef Name='Category' /><FieldRef Name='fRecurrence' /><FieldRef Name='RecurrenceData' /><FieldRef Name='fAllDayEvent' /><FieldRef Name='Organization' /></ViewFields></viewFields><rowLimit>300</rowLimit><queryOptions><QueryOptions><CalendarDate>"
+                + camlCalendarDate + "</CalendarDate><ExpandRecurrence>TRUE</ExpandRecurrence><RecurrenceOrderBy>TRUE</RecurrenceOrderBy><DatesInUtc>True</DatesInUtc><ViewAttributes Scope='RecursiveAll'/></QueryOptions></queryOptions></GetListItemChangesSinceToken></soap:Body></soap:Envelope>";
+
             return $http({
-                url: _spPageContextInfo.webServerRelativeUrl +"/_vti_bin/Lists.asmx",
+                url: _spPageContextInfo.webServerRelativeUrl + "/_vti_bin/Lists.asmx",
                 method: "POST",
                 data: getListItemsSoap,
                 headers: {
@@ -905,18 +937,18 @@
                     "Content-Type": 'text/xml; charset="utf-8"'
                 }
             })
-            .then(function(response){
-                var events = [];
-                $(response.data).find("listitems").find("[ows_ID]").each(function () {    
-                    events.push(convertToFullCalendarEvent($(this)));   
+                .then(function (response) {
+                    var events = [];
+                    $(response.data).find("listitems").find("[ows_ID]").each(function () {
+                        events.push(convertToFullCalendarEvent($(this)));
+                    });
+
+                    if (organizationFilter) {
+                        events = _.filter(events, { organization: organizationFilter });
+                    }
+
+                    return events;
                 });
-
-                if(organizationFilter){
-                    events = _.filter(events, {organization: organizationFilter});
-                }
-
-                return events;
-            });
         }
     }
 })();
@@ -959,9 +991,9 @@
         function activate() {
             initTabs();
             $q.all([
-                    getDataForVerticalTimeline(),
-                    getDataForProcess()
-                ])
+                getDataForVerticalTimeline(),
+                getDataForProcess()
+            ])
                 .then(function (data) {
                     vm.missionLifecycleEvents = data[0];
                     vm.routingSteps = data[1];
@@ -986,8 +1018,8 @@
             }
         }
 
-        
-        function getDataForVerticalTimeline(){
+
+        function getDataForVerticalTimeline() {
             var staticData = [
                 {
                     direction: 'right',
@@ -1000,12 +1032,12 @@
                     subject: 'Got footprint',
                     message: 'When choosing a motion for side panels, consider the origin of the triggering element. Use the motion to create a link between the action and the resulting UI.',
                     moment: moment().add(1, 'days')
-                }       
+                }
             ];
             return $q.when(staticData);
         }
 
-        function getDataForProcess(){
+        function getDataForProcess() {
             var staticData = [
                 {
                     status: 'complete',
@@ -1027,7 +1059,7 @@
             return $q.when(staticData);
         }
 
-        
+
 
 
 
@@ -1162,7 +1194,7 @@
         .module('app.core')
         .directive('exerciseCalendar', exerciseCalendar);
 
-    exerciseCalendar.$inject = ['CalendarRepository','spContext'];
+    exerciseCalendar.$inject = ['CalendarRepository', 'spContext'];
     function exerciseCalendar(CalendarRepository, spContext) {
         /* 
         USAGE: <exercise-calendar list-name=""></exercise-calendar>
@@ -1171,11 +1203,11 @@
             restrict: 'E',
             scope: {
             },
-            link:link
+            link: link
         };
         return directiveDefinition;
 
-        function buildHeroButtonHtml(){
+        function buildHeroButtonHtml() {
             var newFormUrl = _spPageContextInfo.webServerRelativeUrl + "/Lists/Calendar/NewForm.aspx?Source=" + document.location.href;
             return spContext.htmlHelpers.buildHeroButton('new item', newFormUrl, 'showNewItemLink');
         }
@@ -1185,7 +1217,7 @@
             $(elem).fullCalendar({
                 // Assign buttons to the header of the calendar. See FullCalendar documentation for details.
                 header: {
-                    left:'prev,next today',
+                    left: 'prev,next today',
                     center: 'title',
                     right: 'month, agendaWeek'
                 },
@@ -1196,16 +1228,16 @@
                 editable: false, // Set the calendar to read-only; events can't be dragged or resized
 
                 // Add events to the calendar. This is where the "magic" happens!
-                events: function( start, end, timezone, callback ) {
+                events: function (start, end, timezone, callback) {
                     var qsParams = _.parseQueryString(location.search);
                     var calView = $(elem).fullCalendar('getView');
                     CalendarRepository.getEvents(start, end, calView.intervalUnit, (qsParams.org || ""))
-                        .then(function(data){
+                        .then(function (data) {
                             callback(data);
                         })
-                    
+
                 }
-	        });
+            });
 
         }
     }
@@ -1217,7 +1249,7 @@
     angular
         .module('app.core')
         .directive('missionTimeline', missionTimeline);
-    
+
     missionTimeline.$inject = ['Mission', 'MissionTrackerRepository', 'spContext'];
     function missionTimeline(Mission, MissionTrackerRepository, spContext) {
         /* 
@@ -1226,7 +1258,7 @@
         var directiveDefinition = {
             link: link,
             restrict: 'E',
-            scope:{
+            scope: {
                 showNewItemLink: '='
             },
             template: buildHeroButtonHtml() + buildCheckboxHtml() + buildLegendHtml() + '<div class="mission-timeline" ng-show="missions.length"></div>' + buildMessageBarHtml()
@@ -1248,33 +1280,33 @@
             var items = [];
             scope.showPastMissions = false;
             scope.statusColorLegend = [
-			    	{ name: "Initial Targeting", cssStyle : 'background-color:#FFFF00; border-color: #FFFF00; color: #000;'}, //yellow,black
-			        { name: "JPG Assigned", cssStyle: 'background-color:#FFFF00; border-color: #FFFF00; color: #000;'}, //yellow,black
-					{ name: "COA Approved", cssStyle: 'background-color:#FFFF00; border-color: #FFFF00; color: #000;'}, //yellow,black
-					{ name: "CONOP Received - In Chop", cssStyle: 'background-color:#FFFF00; border-color: #FFFF00; color: #000;'}, //yellow,black
-					
-					{ name: "CONOP Disapproved", cssStyle: 'background-color:#ff0000; border-color: #ff0000; color: #fff;'}, //red,white	
-					
-					{ name: "CONOP Approved", cssStyle: 'background-color:#007f00; border-color: #007f00; color: #fff;'}, //green,black
-					{ name: "FRAGO In-Chop", cssStyle: 'background-color:#007f00; border-color: #007f00; color: #fff;'}, //green,black
-					{ name: "FRAGO Released", cssStyle: 'background-color:#007f00; border-color: #007f00; color: #fff;'}, //green,black
-					{ name: "EXORD Released", cssStyle: 'background-color:#007f00; border-color: #007f00; color: #fff;'}, //green,black
+                { name: "Initial Targeting", cssStyle: 'background-color:#FFFF00; border-color: #FFFF00; color: #000;' }, //yellow,black
+                { name: "JPG Assigned", cssStyle: 'background-color:#FFFF00; border-color: #FFFF00; color: #000;' }, //yellow,black
+                { name: "COA Approved", cssStyle: 'background-color:#FFFF00; border-color: #FFFF00; color: #000;' }, //yellow,black
+                { name: "CONOP Received - In Chop", cssStyle: 'background-color:#FFFF00; border-color: #FFFF00; color: #000;' }, //yellow,black
 
-					{ name: "Mission In Progress", cssStyle: 'background-color:#ffa500; border-color: #ffa500; color: #000;'}, //orange, black
-					
-                    { name: "Return to Base", cssStyle: 'background-color:#2C5197; border-color: #2C5197; color: #000;'}, //blue, black		
-					{ name: "QuickLook", cssStyle: 'background-color:#2C5197; border-color: #2C5197; color: #000;'}, //blue, black	
-					{ name: "StoryBoard", cssStyle: 'background-color:#2C5197; border-color: #2C5197; color: #000;'}, //blue, black
-					{ name: "OPSUM", cssStyle: 'background-color:#2C5197; border-color: #2C5197; color: #000;'}, //blue, black
+                { name: "CONOP Disapproved", cssStyle: 'background-color:#ff0000; border-color: #ff0000; color: #fff;' }, //red,white	
 
-					{ name: "Mission Closed", cssStyle: 'background-color:#000; border-color: #000; color: #fff;'} //black, white
-		    ];
+                { name: "CONOP Approved", cssStyle: 'background-color:#007f00; border-color: #007f00; color: #fff;' }, //green,black
+                { name: "FRAGO In-Chop", cssStyle: 'background-color:#007f00; border-color: #007f00; color: #fff;' }, //green,black
+                { name: "FRAGO Released", cssStyle: 'background-color:#007f00; border-color: #007f00; color: #fff;' }, //green,black
+                { name: "EXORD Released", cssStyle: 'background-color:#007f00; border-color: #007f00; color: #fff;' }, //green,black
+
+                { name: "Mission In Progress", cssStyle: 'background-color:#ffa500; border-color: #ffa500; color: #000;' }, //orange, black
+
+                { name: "Return to Base", cssStyle: 'background-color:#2C5197; border-color: #2C5197; color: #000;' }, //blue, black		
+                { name: "QuickLook", cssStyle: 'background-color:#2C5197; border-color: #2C5197; color: #000;' }, //blue, black	
+                { name: "StoryBoard", cssStyle: 'background-color:#2C5197; border-color: #2C5197; color: #000;' }, //blue, black
+                { name: "OPSUM", cssStyle: 'background-color:#2C5197; border-color: #2C5197; color: #000;' }, //blue, black
+
+                { name: "Mission Closed", cssStyle: 'background-color:#000; border-color: #000; color: #fff;' } //black, white
+            ];
 
             var qsParams = _.parseQueryString(location.search);
-            scope.selectedOrg = (qsParams.org || ""); 
+            scope.selectedOrg = (qsParams.org || "");
 
-            MissionTrackerRepository.getByOrganization(qsParams.org).then(function(data){ 
-                items = _.map(data, function(item){ return new Mission(item); });
+            MissionTrackerRepository.getByOrganization(qsParams.org).then(function (data) {
+                items = _.map(data, function (item) { return new Mission(item); });
                 renderTimeline(items)
             })
 
@@ -1284,13 +1316,13 @@
 
             var timeline = null;
             function renderTimeline(items) {
-                if(timeline){
+                if (timeline) {
                     timeline.destroy();
                 }
-                
+
                 var now = moment();
-                scope.missions = _.filter(items, function(item){
-                    return scope.showPastMissions || (!item.ExpectedTermination || moment(item.ExpectedTermination) > now); 
+                scope.missions = _.filter(items, function (item) {
+                    return scope.showPastMissions || (!item.ExpectedTermination || moment(item.ExpectedTermination) > now);
                 });
 
                 var groups = new vis.DataSet(_.map(scope.missions, function (item) { return { id: item.Id, content: item.Identifier }; }));
@@ -1301,7 +1333,7 @@
                             group: item.Id,
                             start: moment(item.ExpectedExecution),
                             end: moment(item.ExpectedTermination),
-                            style: _.find(scope.statusColorLegend, {name: item.Status}).cssStyle,
+                            style: _.find(scope.statusColorLegend, { name: item.Status }).cssStyle,
                             title: item.buildOnHoverText()
                         };
                     })
@@ -1310,27 +1342,27 @@
                 timeline = new vis.Timeline($(elem).find(".mission-timeline").get(0), null, options);
                 timeline.setGroups(groups);
                 timeline.setItems(items);
-                timeline.on('click', function(props){
-                    if(props.what === 'group-label' || props.what === 'item'){
+                timeline.on('click', function (props) {
+                    if (props.what === 'group-label' || props.what === 'item') {
                         var url = _spPageContextInfo.webServerRelativeUrl + '/Lists/MissionTracker/DispForm.aspx?ID=' + props.group + "&Source=" + document.location.href;
                         document.location.href = url;
                         //window.open(url , '_blank');    
                     }
                 })
 
-                
+
             }
         }
 
-        function buildLegendHtml(){
+        function buildLegendHtml() {
             var html = '<div style="position:relative;">';
             html += buildShowLegendHyperlink();
             html += buildCalloutHtml();
             html += "</div>";
             return html;
 
-            function buildCalloutHtml(){
-                var html = 
+            function buildCalloutHtml() {
+                var html =
                     '<div class="ms-Callout ms-Callout--arrowLeft" style="position:absolute;left:80px;top:-56px;" ng-show="showLegend">\
                         <div class="ms-Callout-main">\
                             <div class="ms-Callout-header">\
@@ -1353,22 +1385,22 @@
                 return html;
             }
 
-            function buildShowLegendHyperlink(){
+            function buildShowLegendHyperlink() {
                 return '<a ng-mouseover="showLegend = true" ng-mouseleave="showLegend = false" ng-show="missions.length">Show Legend</a>';
             }
         }
 
-        function buildCheckboxHtml(){
+        function buildCheckboxHtml() {
             var html = '<uif-choicefield-option uif-type="checkbox" value="value1" ng-model="showPastMissions" ng-true-value="true" ng-false-value="false"> Show Past Missions</uif-choicefield-option>';
             return html;
-        }       
+        }
 
-        function buildHeroButtonHtml(){
+        function buildHeroButtonHtml() {
             var newFormUrl = _spPageContextInfo.webServerRelativeUrl + "/Lists/MissionTracker/NewForm.aspx?Source=" + document.location.href;
             return spContext.htmlHelpers.buildHeroButton('new item', newFormUrl, 'showNewItemLink');
         }
 
-        function buildMessageBarHtml(){
+        function buildMessageBarHtml() {
             return '<uif-message-bar ng-show="missions.length === 0"> <uif-content>No {{showPastMissions ? "past/ongoing" : "ongoing" }} {{selectedOrg}} missions</uif-content> </uif-message-bar>';
         }
     }
@@ -1389,8 +1421,8 @@
             scope: {
                 items: "="
             },
-            template: 
-                '<ul class="vertical-timeline">\
+            template:
+            '<ul class="vertical-timeline">\
                     <li ng-repeat="item in items | orderBy: \'moment\': \'desc\'">\
                         <div ng-class="(item.direction === \'right\' ? \'direction-r\' : \'direction-l\' )">\
                             <div class="timeline-flag-wrapper">\
@@ -1422,8 +1454,8 @@
             scope: {
                 steps: "="
             },
-            template: 
-                '<ul class="horizontal-timeline">\
+            template:
+            '<ul class="horizontal-timeline">\
                     <li ng-repeat="step in steps" class="li" ng-class="{\'complete\': step.status===\'complete\', \'incomplete\': step.status===\'incomplete\' }">\
                         <div class="status">\
                             <h4>\
@@ -1461,9 +1493,9 @@
             var listItemID = $elem.attr("data-id");
             var buttonText = $elem.text();
 
-            $elem.on('click', function(){
-                var redirect = _spPageContextInfo.webServerRelativeUrl + "/Lists/RFI/EditForm.aspx?action="+buttonText+"&ID="+listItemID+"&Source="+document.location.href;
-                window.location.href = redirect; 
+            $elem.on('click', function () {
+                var redirect = _spPageContextInfo.webServerRelativeUrl + "/Lists/RFI/EditForm.aspx?action=" + buttonText + "&ID=" + listItemID + "&Source=" + document.location.href;
+                window.location.href = redirect;
             });
         }
     }
@@ -1477,18 +1509,24 @@
         .directive('initiatechopbutton', initiatechopbutton);
 
     function initiatechopbutton(MissionDocument, MissionDocumentRepository) {
-         /* 
-        SP2013 display template will render ChopProcess column (anytime it appears in LVWP) as:
-            <a class="custombtn" initiatechopbutton="" data-id="1" data-chop-process='10/7/2016 19:08'>Chop</a>
-        */
+        /* 
+       SP2013 display template will render ChopProcess column (anytime it appears in LVWP) as:
+           <a class="custombtn" initiatechopbutton="" data-id="1" data-chop-process='10/7/2016 19:08'>Chop</a>
+       */
         var directiveDefinition = {
             restrict: 'A',
-            scope: {},
+            scope: {
+                chopDialogCtx: '='
+            },
             link: link,
             replace: true,
-            template: "<a ng-class='getButtonClass()' title='{{getHoverText()}}' ng-click='initiateChoppingProcess()'>Chop</a>"
+            template: generateChopButtonHtml()
         };
         return directiveDefinition;
+
+        function generateChopButtonHtml() {
+            return "<a ng-class='getButtonClass()' title='{{getHoverText()}}' ng-click='openChopDialog()'>Chop {{chopDialogCtx}}</a>";
+        }
 
         function link(scope, elem, attrs) {
             var $elem = $(elem);
@@ -1499,27 +1537,37 @@
             $elem.removeClass(tempClass);
             $elem.removeAttr("data-id");
             $elem.removeAttr("data-chop-process");
-            
+
             scope.listItemID = tempID
             scope.btnClass = tempClass;
             scope.chopProcessTimestamp = chopProcessTimestamp;
-            scope.getHoverText = function(){
+            scope.getHoverText = function () {
                 return (!!scope.chopProcessTimestamp) ? 'Process initiated on ' + scope.chopProcessTimestamp : 'Click to start chop process now';
             }
 
-            scope.getButtonClass = function(){
+            scope.getButtonClass = function () {
                 return (!!scope.chopProcessTimestamp) ? 'disabled-custombtn' : 'custombtn';
             }
 
-            scope.initiateChoppingProcess = function(){
-                if(!!scope.chopProcessTimestamp){ return; }
+            scope.openChopDialog = function(){
+                //fetch missions, fetch Mission document properties
+                //on success set three properties on chopDialogCtx (show, missions, listItem)
+                scope.chopDialogCtx.show = true;
+            }
+
+            scope.chopDialogCtx.submit = function(){
+                scope.chopDialogCtx.show = false;
+            }
+
+            scope.initiateChoppingProcess = function () {
+                if (!!scope.chopProcessTimestamp) { return; }
 
                 MissionDocumentRepository.getById(scope.listItemID)
-                    .then(function(data){
+                    .then(function (data) {
                         var missionDoc = new MissionDocument(data);
                         missionDoc.initiateChop().then(onChopStartedSuccessfully);
                     })
-                function onChopStartedSuccessfully(item){
+                function onChopStartedSuccessfully(item) {
                     scope.chopProcessTimestamp = item.ChopProcess;
                     //write service for SPLogger, and use it here
                 }
@@ -1535,65 +1583,65 @@
         .module('app.core')
         .directive('scrollableCurrentOpsSummary', scrollableCurrentOpsSummary);
 
-        scrollableCurrentOpsSummary.$inject = ['$timeout', 'config'];
-        function scrollableCurrentOpsSummary($timeout, config) {
-      
-	        function controller() {
-                var vm = this;
-				var slideNames = ['alpha', 'bravo', 'charlie', 'delta'];
-				vm.currentVisibleSlide = 'alpha';				
+    scrollableCurrentOpsSummary.$inject = ['$timeout', 'config'];
+    function scrollableCurrentOpsSummary($timeout, config) {
 
-			
-				vm.nextSlide = function(){
-					var indexOfCurrentSlide = _.indexOf(slideNames, vm.currentVisibleSlide);
-					var indexForNextSlide = (indexOfCurrentSlide === slideNames.length-1) ? 0 :  indexOfCurrentSlide+1;
-					vm.currentVisibleSlide = slideNames[indexForNextSlide];
-					console.log('next slide clicked ' + new Date());
-				};
-				
-				
-				vm.prevSlide = function(){
-					var indexOfCurrentSlide = _.indexOf(slideNames, vm.currentVisibleSlide);
-					var indexForNextSlide = (indexOfCurrentSlide === 0) ? slideNames.length-1 :  indexOfCurrentSlide-1;
-					vm.currentVisibleSlide = slideNames[indexForNextSlide];
-				};
-				
-				
-				vm.slideShowTimer = null;
-				
-				function startSlideShowTimer(){
-					vm.slideShowTimer = $timeout(
-						function(){
-							vm.nextSlide();
-							vm.slideShowTimer = $timeout(startSlideShowTimer, 2000);
-						},
-						2000);
-				};
-				
-				startSlideShowTimer();
-				
-				vm.startShow = function(){
-					startSlideShowTimer();				
-				};
-				
-				vm.stopShow = function(){
-					$timeout.cancel(vm.slideShowTimer);	
-					vm.slideShowTimer = null;			
-				};    
-		    };    
-		       
-            return {
-                restrict: 'EA', //Default for 1.3+
-                scope: {
-                    datasource: '=',
-                    add: '&',
-                },
-                controller: controller,
-                controllerAs: 'vm',
-                bindToController: true, //required in 1.3+ with controllerAs
-                templateUrl: config.baseUrl + '/assets/current-operations-summary.html'
+        function controller() {
+            var vm = this;
+            var slideNames = ['alpha', 'bravo', 'charlie', 'delta'];
+            vm.currentVisibleSlide = 'alpha';
+
+
+            vm.nextSlide = function () {
+                var indexOfCurrentSlide = _.indexOf(slideNames, vm.currentVisibleSlide);
+                var indexForNextSlide = (indexOfCurrentSlide === slideNames.length - 1) ? 0 : indexOfCurrentSlide + 1;
+                vm.currentVisibleSlide = slideNames[indexForNextSlide];
+                console.log('next slide clicked ' + new Date());
             };
-        }
+
+
+            vm.prevSlide = function () {
+                var indexOfCurrentSlide = _.indexOf(slideNames, vm.currentVisibleSlide);
+                var indexForNextSlide = (indexOfCurrentSlide === 0) ? slideNames.length - 1 : indexOfCurrentSlide - 1;
+                vm.currentVisibleSlide = slideNames[indexForNextSlide];
+            };
+
+
+            vm.slideShowTimer = null;
+
+            function startSlideShowTimer() {
+                vm.slideShowTimer = $timeout(
+                    function () {
+                        vm.nextSlide();
+                        vm.slideShowTimer = $timeout(startSlideShowTimer, 2000);
+                    },
+                    2000);
+            };
+
+            startSlideShowTimer();
+
+            vm.startShow = function () {
+                startSlideShowTimer();
+            };
+
+            vm.stopShow = function () {
+                $timeout.cancel(vm.slideShowTimer);
+                vm.slideShowTimer = null;
+            };
+        };
+
+        return {
+            restrict: 'EA', //Default for 1.3+
+            scope: {
+                datasource: '=',
+                add: '&',
+            },
+            controller: controller,
+            controllerAs: 'vm',
+            bindToController: true, //required in 1.3+ with controllerAs
+            templateUrl: config.baseUrl + '/assets/current-operations-summary.html'
+        };
+    }
 })();
 
 /* Controller: SoccAspxController */
@@ -1607,8 +1655,12 @@
     SoccAspxController.$inject = ['_', 'MissionTrackerRepository'];
     function SoccAspxController(_, MissionTrackerRepository) {
         var vm = this;
-        
+        vm.chopDialogCtx = {
+            show: true
+        }
     }
+
+
 })();
 
 /* Controller: RfiController */
@@ -1639,7 +1691,7 @@
     }
 
     RfiController.$inject = ['$scope', '$state', '$stateParams', '_', 'logger', 'RFI', 'RfiRepository'];
-    function RfiController($scope, $state, $stateParams, _, logger, RFI, RFIRepository){
+    function RfiController($scope, $state, $stateParams, _, logger, RFI, RFIRepository) {
         var vm = this;
 
         activate();
@@ -1660,7 +1712,7 @@
             ];
 
             var selectedIndex = (!$stateParams.tabIndex || $stateParams.tabIndex >= pivots.length) ? 0 : $stateParams.tabIndex;
-        
+
             vm.tabConfig = {
                 selectedSize: "large",
                 selectedType: "tabs",
