@@ -1550,18 +1550,18 @@
             }
 
             scope.openChopDialog = function(){
+                if (!!scope.chopProcessTimestamp) { return; }
                 //fetch missions, fetch Mission document properties
                 //on success set three properties on chopDialogCtx (show, missions, listItem)
                 scope.chopDialogCtx.show = true;
             }
 
             scope.chopDialogCtx.submit = function(){
-                scope.chopDialogCtx.show = false;
+                //initiateChoppingProcess()
+                scope.chopDialogCtx.show = false;  //TODO: move this onChopStartedSuccessfully
             }
 
-            scope.initiateChoppingProcess = function () {
-                if (!!scope.chopProcessTimestamp) { return; }
-
+            function initiateChoppingProcess() {
                 MissionDocumentRepository.getById(scope.listItemID)
                     .then(function (data) {
                         var missionDoc = new MissionDocument(data);
