@@ -3,7 +3,8 @@
     var globalConfig = {
         appErrorPrefix: '[Exercise Application Error] ',
         appTitle: 'Exercise Application',
-        baseUrl: 'http://localhost:3000/spaArtifacts'
+        baseUrl: 'http://localhost:3000/spaArtifacts', 
+        showDebugToasts: false
     };
 
     $(document).ready(bootstrapNgApplication);
@@ -82,6 +83,9 @@
                 '           <uif-dropdown ng-model="vm.chopDialogCtx.listItem.Mission.Id">',
                 '               <uif-dropdown-option ng-repeat="mission in vm.chopDialogCtx.missions" value="{{mission.Id}}" title="{{mission.Identifier}}">{{mission.Identifier}}</uif-dropdown-option>',
                 '           </uif-dropdown>',
+                '           <uif-message-bar uif-type="error" ng-show="vm.chopDialogCtx.hasErrors()">',
+                '               <uif-content>This is a required field</uif-content>',
+                '           </uif-message-bar>',
                 '       </uif-dialog-content>',
                 '       <uif-dialog-actions uif-position="right">',
                 '           <button class="ms-Dialog-action ms-Button ms-Button--primary" ng-click="vm.chopDialogCtx.submit()">',
@@ -105,7 +109,7 @@
         exceptionHandlerProvider.configure(globalConfig.appErrorPrefix);
         routerHelperProvider.configure({ docTitle: globalConfig.appTitle + ': ' });
         toastr.options.timeOut = 4000;
-        toastr.options.positionClass = 'toast-bottom-right';
+        toastr.options.positionClass = 'toast-top-right';
 
         //override security because our HTML templates violate CORS
         $sce.resourceUrlWhitelist(['**']);
@@ -177,8 +181,8 @@
         return _;
     }
 
-    loggerService.$inject = ['$log', 'toastr'];
-    function loggerService($log, toastr) {
+    loggerService.$inject = ['$log', 'config', 'toastr'];
+    function loggerService($log, config, toastr) {
         var service = {
             showToasts: true,
 
@@ -194,23 +198,29 @@
         return service;
         /////////////////////
 
-        function error(message, data, title) {
-            toastr.error(message, title);
+        function showToast(message, title, toastType, showToEnduser){
+            if(showToEnduser || config.showDebugToasts){
+                toastr[toastType](message, title);
+            }
+        }
+
+        function error(message, data, title, showToEnduser) {
+            showToast(message, title, 'error', showToEnduser);
             $log.error('Error: ' + message, data);
         }
 
-        function info(message, data, title) {
-            toastr.info(message, title);
+        function info(message, data, title, showToEnduser) {
+            showToast(message, title, 'info', showToEnduser);
             $log.info('Info: ' + message, data);
         }
 
-        function success(message, data, title) {
-            toastr.success(message, title);
+        function success(message, data, title, showToEnduser) {
+            showToast(message, title, 'success', showToEnduser);
             $log.info('Success: ' + message, data);
         }
 
-        function warning(message, data, title) {
-            toastr.warning(message, title);
+        function warning(message, data, title, showToEnduser) {
+            showToast(message, title, 'warning', showToEnduser);
             $log.warn('Warning: ' + message, data);
         }
     }
@@ -1509,7 +1519,7 @@
         .module('app.core')
         .directive('initiatechopbutton', initiatechopbutton);
 
-    function initiatechopbutton($q, Mission, MissionDocument, MissionDocumentRepository, MissionTrackerRepository) {
+    function initiatechopbutton($q, logger, Mission, MissionDocument, MissionDocumentRepository, MissionTrackerRepository) {
         /* 
        SP2013 display template will render ChopProcess column (anytime it appears in LVWP) as:
            <a class="custombtn" initiatechopbutton="" data-id="1" data-chop-process='10/7/2016 19:08'>Chop</a>
@@ -1564,17 +1574,26 @@
                         scope.chopDialogCtx.listItem = new MissionDocument(data[0]);
                         scope.chopDialogCtx.missions = _.map(data[1], function(item){ return new Mission(item); }); 
                         scope.chopDialogCtx.show = true;
+                        scope.chopDialogCtx.submitButtonClicked = false;
                         scope.chopDialogCtx.submit = submit;
+                        scope.chopDialogCtx.hasErrors = hasErrors;
                     });
             }
 
+            function hasErrors(){
+                return !scope.chopDialogCtx.listItem.Mission.Id && scope.chopDialogCtx.submitButtonClicked;
+            }
+
             function submit(){
+                scope.chopDialogCtx.submitButtonClicked = true;
+                if(scope.chopDialogCtx.hasErrors()){ return; } 
                 scope.chopDialogCtx.listItem.initiateChop().then(onChopStartedSuccessfully);
                 function onChopStartedSuccessfully(item) {
                     scope.chopProcessTimestamp = item.ChopProcess;
                     scope.chopDialogCtx.show = false;
-                    //write service for SPLogger, and use it here
+                    logger.success("Chop Process initiated", null, "", true);
                 }
+
             }
         }
     }
