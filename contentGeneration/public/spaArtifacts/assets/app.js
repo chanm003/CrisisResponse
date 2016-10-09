@@ -77,10 +77,10 @@
                 '   <uif-dialog-inner>',
                 '       <uif-dialog-content>',
                 '           <uif-dialog-subtext>',
-                '               <span>Associate this Document to a Mission:</span>',
+                '               <span>Associate this document to a Mission:</span>',
                 '           </uif-dialog-subtext>',
-                '           <uif-dropdown ng-model="vm.chopDialogCtx.listItem.MissionId">',
-                '               <uif-dropdown-option ng-repeat="mission in vm.chopDialogCtx.missions" value="{{mission.Id}}">{{mission.Identifier}}</uif-dropdown-option>',
+                '           <uif-dropdown ng-model="vm.chopDialogCtx.listItem.Mission.Id">',
+                '               <uif-dropdown-option ng-repeat="mission in vm.chopDialogCtx.missions" value="{{mission.Id}}" title="{{mission.Identifier}}">{{mission.Identifier}}</uif-dropdown-option>',
                 '           </uif-dropdown>',
                 '       </uif-dialog-content>',
                 '       <uif-dialog-actions uif-position="right">',
@@ -567,6 +567,7 @@
             dto.Id = this.Id;
             dto.__metadata = this.__metadata;
             dto.ChopProcess = (new Date()).toISOString();
+            dto.MissionId = this.Mission.Id;
             return MissionDocumentRepository.save(dto);
         }
 
@@ -700,7 +701,7 @@
         var fieldsToSelect = [
             spContext.SP2013REST.selectForCommonDocumentFields,
             'Organization,TypeOfDocument,MissionId,FlaggedForSoacDailyUpdate,DailyProductDate,ChopProcess',
-            'Mission/FullName'
+            'Mission/Id,Mission/FullName'
         ].join(',');
 
         var fieldsToExpand = [
@@ -1508,7 +1509,7 @@
         .module('app.core')
         .directive('initiatechopbutton', initiatechopbutton);
 
-    function initiatechopbutton(MissionDocument, MissionDocumentRepository) {
+    function initiatechopbutton($q, Mission, MissionDocument, MissionDocumentRepository, MissionTrackerRepository) {
         /* 
        SP2013 display template will render ChopProcess column (anytime it appears in LVWP) as:
            <a class="custombtn" initiatechopbutton="" data-id="1" data-chop-process='10/7/2016 19:08'>Chop</a>
@@ -1525,7 +1526,7 @@
         return directiveDefinition;
 
         function generateChopButtonHtml() {
-            return "<a ng-class='getButtonClass()' title='{{getHoverText()}}' ng-click='openChopDialog()'>Chop {{chopDialogCtx}}</a>";
+            return "<a ng-class='getButtonClass()' title='{{getHoverText()}}' ng-click='openChopDialog()'>Chop</a>";
         }
 
         function link(scope, elem, attrs) {
@@ -1537,6 +1538,7 @@
             $elem.removeClass(tempClass);
             $elem.removeAttr("data-id");
             $elem.removeAttr("data-chop-process");
+
 
             scope.listItemID = tempID
             scope.btnClass = tempClass;
@@ -1553,22 +1555,24 @@
                 if (!!scope.chopProcessTimestamp) { return; }
                 //fetch missions, fetch Mission document properties
                 //on success set three properties on chopDialogCtx (show, missions, listItem)
-                scope.chopDialogCtx.show = true;
+                var qsParams = _.parseQueryString(location.search);
+                $q.all([
+                        MissionDocumentRepository.getById(scope.listItemID),
+                        MissionTrackerRepository.getByOrganization(qsParams.org)
+                    ])
+                    .then(function(data){
+                        scope.chopDialogCtx.listItem = new MissionDocument(data[0]);
+                        scope.chopDialogCtx.missions = _.map(data[1], function(item){ return new Mission(item); }); 
+                        scope.chopDialogCtx.show = true;
+                        scope.chopDialogCtx.submit = submit;
+                    });
             }
 
-            scope.chopDialogCtx.submit = function(){
-                //initiateChoppingProcess()
-                scope.chopDialogCtx.show = false;  //TODO: move this onChopStartedSuccessfully
-            }
-
-            function initiateChoppingProcess() {
-                MissionDocumentRepository.getById(scope.listItemID)
-                    .then(function (data) {
-                        var missionDoc = new MissionDocument(data);
-                        missionDoc.initiateChop().then(onChopStartedSuccessfully);
-                    })
+            function submit(){
+                scope.chopDialogCtx.listItem.initiateChop().then(onChopStartedSuccessfully);
                 function onChopStartedSuccessfully(item) {
                     scope.chopProcessTimestamp = item.ChopProcess;
+                    scope.chopDialogCtx.show = false;
                     //write service for SPLogger, and use it here
                 }
             }
@@ -1656,8 +1660,10 @@
     function SoccAspxController(_, MissionTrackerRepository) {
         var vm = this;
         vm.chopDialogCtx = {
-            show: true
+            show: false
         }
+
+       
     }
 
 
@@ -1690,8 +1696,8 @@
         }
     }
 
-    RfiController.$inject = ['$scope', '$state', '$stateParams', '_', 'logger', 'RFI', 'RfiRepository'];
-    function RfiController($scope, $state, $stateParams, _, logger, RFI, RFIRepository) {
+    RfiController.$inject = ['$q', '$state', '$stateParams', '_', 'logger', 'RFI', 'RfiRepository', 'Mission','MissionTrackerRepository'];
+    function RfiController($q, $state, $stateParams, _, logger, RFI, RFIRepository, Mission, MissionTrackerRepository) {
         var vm = this;
 
         activate();
