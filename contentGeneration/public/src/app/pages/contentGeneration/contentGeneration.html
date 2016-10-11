@@ -240,9 +240,8 @@
                                 </tr>
                             </tfoot>
                         </table>
-                    </ba-wizard-step>
-                                       
-                    <ba-wizard-step title="Additional Features">
+                    </ba-wizard-step>                             
+                    <ba-wizard-step title="Additional Features" on-next-step-clicked="vm.onAdditionalFeaturesCollected()">
                         <h3 class="with-line">
                             <i class="gi gi-airplane"></i> Air Component <small class="text-muted">optional</small>
                         </h3>
@@ -338,5 +337,21 @@
             </div>
         </div>
     </div>
-    {{vm.componentCommands}}
+    
+    <p>
+        {{vm.componentCommands}}
+    </p>
+    <p>
+        {{vm.taskGroups}}
+    </p>
+    <p>
+        {{vm.airComponents}}
+    </p>
+    <p>
+        {{vm.communicationsComponents}}
+    </p>
+    <p>
+        {{vm.exerciseControlGroups}}
+    </p>
+    
 </div>

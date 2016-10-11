@@ -19,7 +19,8 @@
 	        getLists: getLists,
 			getFilesFromFolder: getFilesFromFolder,
 			provisionListViewWebparts: provisionListViewWebparts,
-			provisionScriptEditorWebparts: provisionScriptEditorWebparts
+			provisionScriptEditorWebparts: provisionScriptEditorWebparts,
+			updateChoiceFields: updateChoiceFields
 	    };
 	    
 		function addListViewWebPart(opts){
@@ -736,6 +737,47 @@
 
 			//returning promise chain that caller can resolve...
 			return scriptEditorWebpartsChain;
+		}
+
+		function updateChoiceField(opts){
+			var dfd = $q.defer();
+			var ctx = new SP.ClientContext(opts.webUrl);
+	    	var spWeb = ctx.get_web();	
+			var list = spWeb.get_lists().getByTitle(opts.listName);
+
+			_.each(opts.fieldsToUpdate, function(change){
+				var choiceField = list.get_fields().getByInternalNameOrTitle(change.fieldName);
+				var spChoiceField = ctx.castTo(choiceField, SP.FieldChoice);
+				spChoiceField.set_choices(change.options);
+            	spChoiceField.updateAndPushChanges();
+			});
+
+			ctx.executeQueryAsync(
+		        Function.createDelegate(this, onQuerySucceeded), 
+		        Function.createDelegate(this, onQueryFailed)
+		    );
+
+			return dfd.promise;
+
+			function onQuerySucceeded(){
+				logger.logSuccess('Choice fields ('+_.pluck(opts.fieldsToUpdate, 'fieldName')+') updated in the lists ' + opts.listName, null, 'sharepointUtilities service, updateChoiceFields()');
+				dfd.resolve();
+			}
+
+			function onQueryFailed(sender, args){
+				logger.logError('Request failed: Updating of choice field(s) failed for the list ' + opts.listName + ': ' + args.get_message(), args.get_stackTrace(), 'sharepointUtilities service, updateChoiceFields()');
+		    	dfd.reject();
+			}
+		}
+
+		function updateChoiceFields(defs){
+			var promiseChain = defs.reduce(function(previousPromise, def){
+				return previousPromise.then(function(){
+					return updateChoiceField(def);
+				});
+			}, $q.when());
+
+			return promiseChain;
 		}
 	}
 

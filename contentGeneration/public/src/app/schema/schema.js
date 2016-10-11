@@ -49,8 +49,7 @@ crisisResponseSchema.listDefs["Mission Tracker"] = {
 				Required: "TRUE",
 				FillInChoice: "FALSE",
 				Description: 'The task group commanding the mission',
-				Choices: ['TODO: MUST BE DYNAMIC'], 
-				//Choices: ["AOB-EE", "CJSOTF-E", "ESTSOF HQ", "SOAC", "SOCC", "SOCC-L", "SOMTG 35", "SOTG 10", "SOTG 15", "SOTG 20", "SOTG 25", "SOTG 30", "SOTG 40"],
+				Choices: [],						//will be generated
 				Default: '',							//(optional)
 				ShowInNewForm: 'TRUE',
 				ShowInEditForm: 'FALSE'
@@ -76,8 +75,7 @@ crisisResponseSchema.listDefs["Mission Tracker"] = {
 				Format:"Dropdown",
 				Required: "TRUE",
 				FillInChoice: "FALSE",
-				Choices: ['TODO: MUST BE DYNAMIC'], 
-				//Choices: ['0: SOTG', '1A: NATL SOCC', '1B: CJSOTF-E', '2A: SOCEUR', '2B: SOCC NRF', '3A: NATL HHQ', '3B: NATO HHQ'],
+				Choices: [], 
 				Default: ''							//(optional)
 			},
 			{
@@ -137,8 +135,7 @@ crisisResponseSchema.listDefs["Mission Tracker"] = {
 				Required: "TRUE",
 				FillInChoice: "FALSE",
 				Description: 'The task group participating in the mission',
-				Choices: ['TODO: MUST BE DYNAMIC'],
-				//Choices: ["AOB EE", "CJSOTF-E", "ESTSOF HQ", "SOAC", "SOCC", "SOCC-L", "SOMTG 35", "SOTG 10", "SOTG 15", "SOTG 20", "SOTG 25", "SOTG 30", "SOTG 40"],
+				Choices: [],						//will be generated
 				Default: ''						//(optional)
 			},
 			{
@@ -169,8 +166,7 @@ crisisResponseSchema.listDefs["Mission Documents"] = {
 			Format:"Dropdown",
 			Required: "TRUE",
 			FillInChoice: "FALSE",
-			Choices: ['TODO: MUST BE DYNAMIC'], 
-			//Choices: ['CJSOTF-E', 'CJSOTF-E - J1', 'CJSOTF-E - J2', 'CJSOTF-E - J33', 'CJSOTF-E - J35', 'CJSOTF-E - J39', 'CJSOTF-E - J4', 'CJSOTF-E - J6', 'CJSOTF-E - Legal', 'CJSOTF-E - Medical', 'CJSOTF-E - Public Affairs', 'SOCC', 'SOCC - J1', 'SOCC - J2', 'SOCC - J33', 'SOCC - J35', 'SOCC - J39', 'SOCC - J4', 'SOCC - J6', 'SOCC - Legal', 'SOCC - Medical', 'SOCC - Public Affairs', 'SOCC-L', 'SOCC-L - J1', 'SOCC-L - J2', 'SOCC-L - J33', 'SOCC-L - J35', 'SOCC-L - J39', 'SOCC-L - J4', 'SOCC-L - J6', 'SOCC-L - Legal', 'SOCC-L - Medical', 'SOCC-L - Public Affairs', 'SOTG 10', 'SOTG 15', 'SOTG 20', 'SOTG 25', 'SOTG 30', 'SOMTG 35', 'SOTG 40', 'ESTSOF HQ', 'AOB EE', 'SOAC', 'SOAC - A1', 'SOAC - A2', 'SOAC - A3 Director of Operations', 'SOAC - A33 Current Operations', 'SOAC - A35 Plans', 'SOAC - A4', 'SOAC - A5', 'SOAC - A6', 'SOAC - A7', 'SOAC - Airspace', 'SOAC - Command Group', 'SOAC - FAD', 'SOAC - FIRES', 'SOAC - PRCC', 'SOAC - Special Staff'],,
+			Choices: [],						//will be generated 
 			Default: ''							//(optional)
 		},
 		{
@@ -229,6 +225,82 @@ crisisResponseSchema.listDefs["Mission Documents"] = {
 			Default: '',						//(optional)
 			ShowInNewForm: 'TRUE',
 			ShowInEditForm: 'FALSE'	
+		},
+		{
+			//EXAMPLE: Yes/No 
+			Name: "SendAsMessage",
+			DisplayName: "Send As Message",
+			Description: "Check here to send the document via a Message",
+			Type: "Boolean",
+			Default: 0								//(optional) Use 0 if you want default to be 'No', 1 if for 'Yes'
+		},
+		{
+			//EXAMPLE: SINGLE LINE OF TEXT
+			Name: "MessageTitle",
+			DisplayName: "Message Title",
+			Description: "Provide a title for the message",
+			Type: "Text",
+			Required: "FALSE",
+			MaxLength: 255,
+			Default: ""							//(optional)
+		
+		},
+		{
+			//EXAMPLE: MULTIPLE LINE OF TEXT
+			Name: "MessageDetails",
+			DisplayName: "Message Details",
+			Description: "If necessary provide additional message details",
+			Type: "Note",
+			Required: "FALSE",
+			NumLines: 6,
+			RichText: "FALSE",						//RECOMMENDED
+			AppendOnly: "FALSE"						//VERSIONING MUST BE TURNED ON, otherwise specifie "FALSE"
+			
+		},
+		{
+			//EXAMPLE: DateTime
+			Name: "MessageDTG",
+			DisplayName: "Message DTG",
+			Type: "DateTime",
+			Required: "FALSE",
+			Format: "DateTime", 					//please use either 'DateOnly' or 'DateTime'
+			Description: "ZULU.  The Date and Time to be applied to the message",
+			Default: ''						//(optional)
+		},
+		{
+			//EXAMPLE: Dropdown
+			Name: "MessageOriginatorSender",
+			DisplayName: "Message Originator/Sender",
+			Description: "Identify the message &quot;sender&quot;",
+			Type: "Choice",
+			Format:"Dropdown",
+			Required: "FALSE",
+			FillInChoice: "FALSE",
+			Choices: [],						//will be generated 
+			Default: ''							//(optional)
+		},
+		{
+			//EXAMPLE: Checkboxes
+			Name: "MessageRecipients",
+			DisplayName: "Message Recipients",
+			Description: "Identify the message recipients",
+			Type: "MultiChoice",
+			Required: "FALSE",
+			FillInChoice: "FALSE",
+			Choices: [],
+			Default: ''						//(optional)
+		},
+		{
+			//EXAMPLE: Dropdown
+			Name: "SignificantMessage",
+			DisplayName: "Significant Message",
+			Description: "Select &quot;Yes&quot; to include the message in the Current Operations Summary",
+			Type: "Choice",
+			Format:"Dropdown",
+			Required: "FALSE",
+			FillInChoice: "FALSE",
+			Choices: ['No', 'Yes'],						//will be generated 
+			Default: ''							//(optional)
 		}
 	]
 }; 
@@ -329,8 +401,7 @@ crisisResponseSchema.listDefs["RFI"] = {
 			Required: "TRUE",
 			Description: "Select the organization associated with the POC",
 			FillInChoice: "FALSE",
-			Choices: ['TODO: MUST BE DYNAMIC'],
-			//Choices: ['CJSOTF-E', 'CJSOTF-E - J1', 'CJSOTF-E - J2', 'CJSOTF-E - J33', 'CJSOTF-E - J35', 'CJSOTF-E - J39', 'CJSOTF-E - J4', 'CJSOTF-E - J6', 'CJSOTF-E - Legal', 'CJSOTF-E - Medical', 'CJSOTF-E - Public Affairs', 'SOCC', 'SOCC - J1', 'SOCC - J2', 'SOCC - J33', 'SOCC - J35', 'SOCC - J39', 'SOCC - J4', 'SOCC - J6', 'SOCC - Legal', 'SOCC - Medical', 'SOCC - Public Affairs', 'SOCC-L', 'SOCC-L - J1', 'SOCC-L - J2', 'SOCC-L - J33', 'SOCC-L - J35', 'SOCC-L - J39', 'SOCC-L - J4', 'SOCC-L - J6', 'SOCC-L - Legal', 'SOCC-L - Medical', 'SOCC-L - Public Affairs', 'SOTG 10', 'SOTG 15', 'SOTG 20', 'SOTG 25', 'SOTG 30', 'SOMTG 35', 'SOTG 40', 'ESTSOF HQ', 'AOB EE', 'SOAC', 'SOAC - A1', 'SOAC - A2', 'SOAC - A3 Director of Operations', 'SOAC - A33 Current Operations', 'SOAC - A35 Plans', 'SOAC - A4', 'SOAC - A5', 'SOAC- A6', 'SOAC - A7', 'SOAC - Airspace', 'SOAC - Command Group', 'SOAC - FAD', 'SOAC - FIRES', 'SOAC - PRCC', 'SOAC - Special Staff', 'EUCOM', 'EMBASSY'], 
+			Choices: [],						//will be generated 
 			Default: ''							//(optional)
 		},
 		{
@@ -342,8 +413,7 @@ crisisResponseSchema.listDefs["RFI"] = {
 			Required: "TRUE",
 			Description: "Recommended (Office of Primary Responsibility) The team responsible for responding to the request. The Recommended OPR may be reassigned.",
 			FillInChoice: "FALSE",
-			Choices: ['TODO: MUST BE DYNAMIC'],
-			//Choices: ['CJSOTF-E', 'CJSOTF-E - J1', 'CJSOTF-E - J2', 'CJSOTF-E - J33', 'CJSOTF-E - J35', 'CJSOTF-E - J39', 'CJSOTF-E - J4', 'CJSOTF-E - J6', 'CJSOTF-E - Legal', 'CJSOTF-E - Medical', 'CJSOTF-E - Public Affairs', 'SOCC', 'SOCC - J1', 'SOCC - J2', 'SOCC - J33', 'SOCC - J35', 'SOCC - J39', 'SOCC - J4', 'SOCC - J6', 'SOCC - Legal', 'SOCC - Medical', 'SOCC - Public Affairs', 'SOCC-L', 'SOCC-L - J1', 'SOCC-L - J2', 'SOCC-L - J33', 'SOCC-L - J35', 'SOCC-L - J39', 'SOCC-L - J4', 'SOCC-L - J6', 'SOCC-L - Legal', 'SOCC-L - Medical', 'SOCC-L - Public Affairs', 'SOTG 10', 'SOTG 15', 'SOTG 20', 'SOTG 25', 'SOTG 30', 'SOMTG 35', 'SOTG 40', 'ESTSOF HQ', 'AOB EE', 'SOAC', 'SOAC - A1', 'SOAC - A2', 'SOAC - A3 Director of Operations', 'SOAC - A33 Current Operations', 'SOAC - A35 Plans', 'SOAC - A4', 'SOAC - A5', 'SOAC- A6', 'SOAC - A7', 'SOAC - Airspace', 'SOAC - Command Group', 'SOAC - FAD', 'SOAC - FIRES', 'SOAC - PRCC', 'SOAC - Special Staff', 'EUCOM', 'LTU JHQ', 'LVA JHQ', 'EST JHQ', 'EMBASSY', 'JFC Brunssum'], 
+			Choices: [],						//will be generated 
 			Default: ''							//(optional)
 		},
 		{
@@ -458,8 +528,7 @@ crisisResponseSchema.listDefs["Watch Log"] = {
 			Format:"Dropdown",
 			Required: "TRUE",
 			FillInChoice: "FALSE",
-			Choices: ['TODO: MUST BE DYNAMIC'],
-			//Choices: ["AOB EE", "CJSOTF-E", "ESTSOF HQ", "SOAC", "SOCC", "SOCC-L", "SOMTG 35", "SOTG 10", "SOTG 15", "SOTG 20", "SOTG 25", "SOTG 30", "SOTG 40"],
+			Choices: [],						//will be generated 
 			Default: ''							//(optional)
 		},
 		{
@@ -538,8 +607,7 @@ crisisResponseSchema.listDefs["Message Traffic"] = {
 			Format:"Dropdown",
 			Required: "TRUE",
 			FillInChoice: "FALSE",
-			Choices: ['TODO: MUST BE DYNAMIC'],
-			//Choices: ["AOB EE", "CJSOTF-E", "EMBASSY", "EST JHQ", "ESTSOF HQ", "EUCOM", "JFC Brunssum", "LTU JHQ", "LVA JHQ", "SOAC", "SOCC", "SOCC-L", "SOMTG 35", "SOTG 10", "SOTG 15", "SOTG 20", "SOTG 25", "SOTG 30", "SOTG 40"],
+			Choices: [],						//will be generated
 			Description: 'The organization that sent the message',
 			Default: ''							//(optional)
 		},
@@ -551,8 +619,7 @@ crisisResponseSchema.listDefs["Message Traffic"] = {
 			Required: "TRUE",
 			Description: "The message recipient(s)",
 			FillInChoice: "FALSE",
-			Choices: ['TODO: MUST BE DYNAMIC'],
-			//Choices: ["AOB EE", "CJSOTF-E", "EMBASSY", "EST JHQ", "ESTSOF HQ", "EUCOM", "JFC Brunssum", "LTU JHQ", "LVA JHQ", "SOAC", "SOCC", "SOCC-L", "SOMTG 35", "SOTG 10", "SOTG 15", "SOTG 20", "SOTG 25", "SOTG 30", "SOTG 40"],
+			Choices: [],						//will be generated
 			Default: ''						//(optional)
 		},
 		{
@@ -670,8 +737,7 @@ crisisResponseSchema.listDefs["CCIR"] = {
 			Format:"Dropdown",
 			Required: "TRUE",
 			FillInChoice: "FALSE",
-			Choices: ['TODO: MUST BE DYNAMIC'],
-			//Choices: ['SOCC', 'CJSOTF-E', 'SOCC-L'],
+			Choices: [],						//will be generated
 			Default: ''							//(optional)
 		},
 		{
@@ -749,7 +815,7 @@ crisisResponseSchema.listDefs["Calendar"] = {
 			Format: "Dropdown",
 			Required: "TRUE",
 			FillInChoice: "FALSE",
-			Choices: ['TODO: MUST BE DYNAMIC'],
+			Choices: [],						//will be generated
 			Default: ''						//(optional)
 		},
 		{
@@ -1082,7 +1148,7 @@ crisisResponseSchema.organizationalChoiceFields = [
 			includeTaskGroups: true,
 			includeStaffSections: true,
 			includeNotionals: false,
-			includeExerciseControlGroup: true,
+			includeExerciseControlGroup: false,
 			includeAirComponent: true,
 			includeCommunicationsComponent: false
 		}
@@ -1133,8 +1199,8 @@ crisisResponseSchema.organizationalChoiceFields = [
 			includeComponentCommands: true,
 			includeTaskGroups: true,
 			includeStaffSections: false,
-			includeNotionals: false,
-			includeExerciseControlGroup: false,
+			includeNotionals: true,
+			includeExerciseControlGroup: true,
 			includeAirComponent: true,
 			includeCommunicationsComponent: false
 		}
@@ -1146,8 +1212,8 @@ crisisResponseSchema.organizationalChoiceFields = [
 			includeComponentCommands: true,
 			includeTaskGroups: true,
 			includeStaffSections: false,
-			includeNotionals: false,
-			includeExerciseControlGroup: false,
+			includeNotionals: true,
+			includeExerciseControlGroup: true,
 			includeAirComponent: true,
 			includeCommunicationsComponent: false
 		}
@@ -1232,10 +1298,11 @@ crisisResponseSchema.organizationalChoiceFields = [
 	}
 ];
 
+
 /*
 var listDefinitionExample = [
 	{
-		Title: 'Missions',						//TODO:  Can you create list, and edit the title within one network request?
+		Title: 'Missions',						
 		BaseTemplate: 'genericList'				//events,genericList
 	}
 ];
