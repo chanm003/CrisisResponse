@@ -11,6 +11,7 @@
 
 	    return {
 			copyFile: copyFile,
+			createOrUpdateFile: createOrUpdateFile, 
 	    	createList: createList,
 			createSite: createSite,
 			createTypeaheadDataSourceForSiteUsersList: createTypeaheadDataSourceForSiteUsersList,
@@ -208,7 +209,7 @@
 	    function copyFile(opts){
 			var sourceExecutor = new SP.RequestExecutor(opts.sourceWebUrl);
 			var targetExecutor = new SP.RequestExecutor(opts.destinationWebUrl);
-			return getFormDigestForTargetSite(opts.destinationWebUrl)
+			return getFormDigestForTargetSite(opts)
 				.then(getFile)
 				.then(copyToDestination)
 				.then(function(){
@@ -270,23 +271,46 @@
 				return dfd.promise;
 			}
 
-			function getFormDigestForTargetSite(url){
+			
+		}
+
+		function createOrUpdateFile(opts){
+			var targetExecutor = new SP.RequestExecutor(opts.destinationWebUrl);
+			return getFormDigestForTargetSite(opts)	
+				.then(writeToFile);
+			
+			function writeToFile(opts){
 				var dfd = $q.defer();
-				$.ajax({
-					url: url + "/_api/contextinfo",
-        			type: "POST",
-					withCredentials: true,
+
+				var folderUrl = opts.destinationWebUrl + "/" + opts.destinationWebFolderUrl,
+					fileUrl = opts.destinationWebUrl + "/" + opts.destinationWebFolderUrl + '/' +opts.destinationFileUrl;
+
+				var byteArray = new SP.Base64EncodedByteArray();
+				for (var i = 0; i < opts.fileContent.length; i++) {
+        			byteArray.append(opts.fileContent.charCodeAt(i));
+    			}
+				var binaryForRequestBody = byteArray.toBase64String();			
+
+				var writeFileAction = {
+					url: opts.destinationWebUrl + "/_api/web/GetFolderByServerRelativeUrl('" + folderUrl  + "')/Files/Add(url='" + fileUrl + "', overwrite=true)",
+					method: "POST",
 					headers: {
-						"Accept": "application/json;odata=verbose"
+						"Accept": "application/json; odata=verbose",
+						"X-RequestDigest": opts.formDigestForTargetWeb
+					},
+					contentType: "application/json;odata=verbose",
+					binaryStringRequestBody: false,
+					body: opts.fileContent,
+					success: function(data) {
+						dfd.resolve();
+					},
+					error: function(ex) {
+						dfd.reject("Error creating file: " + ex);
 					}
-				})
-				.then(function(data){
-					opts.formDigestForTargetWeb = data.d.GetContextWebInformation.FormDigestValue;
-					dfd.resolve(opts);
-				})
-				.fail(function(ex){
-					dfd.reject("Error retrieving form digest:" + ex);
-				});
+				};
+				
+				targetExecutor.executeAsync(writeFileAction);
+
 				return dfd.promise;
 			}
 		}
@@ -445,6 +469,13 @@
 			childWeb.set_alternateCssUrl(alternateCssUrl);
 			childWeb.update();
 
+			var userCustomActions = childWeb.get_userCustomActions();
+			var action = userCustomActions.add();
+			action.set_location("ScriptLink");
+			action.set_title('orgConfig.js');
+			action.set_scriptSrc('~site/SitePages/orgConfig.js');				
+			action.set_sequence(1000);
+			action.update();
 			var vendorFiles = [
 				'jquery.min.js',
 				'lodash.min.js',
@@ -464,22 +495,22 @@
 				'jstree.min.js',
 				'ngJsTree.min.js'
 			];
-			var userCustomActions = childWeb.get_userCustomActions();
-			var numFilesAdded = 0;
+			var sequenceCounter = 0;
 			_.each(vendorFiles, function(fileName){
 				var action = userCustomActions.add();
 				action.set_location("ScriptLink");
 				action.set_title(fileName);
 				//action.set_scriptSrc(opts.cdn + '/' + fileName);	
-				action.set_scriptSrc('~site/SitePages/' + fileName);			
-				action.set_sequence(1000+(numFilesAdded++));
+				action.set_scriptSrc('~site/SitePages/' + fileName);
+				sequenceCounter = sequenceCounter+10;			
+				action.set_sequence(1000+sequenceCounter);
 				action.update();
 			});
 			var action = userCustomActions.add();
 			action.set_location("ScriptLink");
 			action.set_title('app.js');
 			action.set_scriptSrc(opts.cdn + "/app.js");				
-			action.set_sequence(1000+numFilesAdded);
+			action.set_sequence(1000+sequenceCounter);
 			action.update();
 
 			ctx.executeQueryAsync(
@@ -607,6 +638,26 @@
 			
 			});
 			return xml;
+		}
+
+		function getFormDigestForTargetSite(opts){
+			var dfd = $q.defer();
+			$.ajax({
+				url: opts.destinationWebUrl + "/_api/contextinfo",
+				type: "POST",
+				withCredentials: true,
+				headers: {
+					"Accept": "application/json;odata=verbose"
+				}
+			})
+			.then(function(data){
+				opts.formDigestForTargetWeb = data.d.GetContextWebInformation.FormDigestValue;
+				dfd.resolve(opts);
+			})
+			.fail(function(ex){
+				dfd.reject("Error retrieving form digest:" + ex);
+			});
+			return dfd.promise;
 		}
 
 		function getFilesFromFolder(opts){

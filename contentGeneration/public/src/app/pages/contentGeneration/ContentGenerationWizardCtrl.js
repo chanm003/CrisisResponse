@@ -65,7 +65,8 @@
 		}
 
 		vm.onAdditionalFeaturesCollected = function(){
-			return modifyChoiceFields();
+			return modifyChoiceFields()
+				.then(updateOrgConfigFile);
 		}
 
 		vm.addComponentCommand = function () {
@@ -198,6 +199,12 @@
 			countriesSvc.getAll().then(function (data) {
 				vm.countries = data;
 				generateDefaults();
+			});
+		}
+
+		function generateChoiceOptionsForStaffSection(prefix, sections) {
+			return _.map(sections, function (section) {
+				return prefix + " - " + section;
 			});
 		}
 
@@ -336,12 +343,49 @@
 
 				return _.sortBy(choices);
 
-				function generateChoiceOptionsForStaffSection(prefix, sections) {
-					return _.map(sections, function (section) {
-						return prefix + " - " + section;
-					});
-				}
+				
 			}
+		}
+
+		function updateOrgConfigFile(){
+			var dashboards = {};
+			_.each(vm.componentCommands, function(org){
+				dashboards[org.name] = {
+					optionsForChoiceField: [org.name].concat(generateChoiceOptionsForStaffSection(org.name, org.staffSections))
+				};
+			});
+
+			_.each(vm.taskGroups, function(org){
+				dashboards[org.name] = {
+					optionsForChoiceField: [org.name]
+				};
+			});
+
+			_.each(vm.communicationsComponents, function(org){
+				dashboards[org.name] = {
+					optionsForChoiceField: [org.name]
+				};
+			});
+
+			_.each(vm.airComponents, function(org){
+				dashboards[org.name] = {
+					optionsForChoiceField: [org.name].concat(generateChoiceOptionsForStaffSection(org.name, org.staffSections))
+				};
+			});
+
+			_.each(vm.exerciseControlGroups, function(org){
+				dashboards[org.name] = {
+					optionsForChoiceField: [org.name].concat(org.notionals.slice())
+				};
+			});
+
+			return sharepointUtilities.createOrUpdateFile({
+				destinationWebUrl: '/ngspa/tf16',
+				destinationWebFolderUrl: 'SitePages',
+				destinationFileUrl: 'orgConfig.js',
+				fileContent: 'var jocInBoxConfig = jocInBoxConfig || {}; jocInBoxConfig.dashboards = ' + JSON.stringify(dashboards)
+			})
+
 		}
 	}
 
