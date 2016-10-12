@@ -43,12 +43,25 @@
         }
     };
 
+    /* Organization COLUMN*/
+    fieldCustomizations["Organization"] = {};
+    fieldCustomizations["Organization"]["NewForm"] = fieldCustomizations["Organization"]["EditForm"] = function (ctx) {
+        try {
+            ctx.CurrentFieldSchema.Choices.push("Mike")
+            return SPFieldChoice_Edit(ctx);
+        }
+        catch (err) {
+            return 'Error parsing column "ChopProcess"';
+        }
+    };
+
     // Register the rendering template
     SPClientTemplates.TemplateManager.RegisterTemplateOverrides({
         Templates: {
             Fields: {
                 'ActionsHtml': { 'View': fieldCustomizations["ActionsHtml"]["View"] },
-                'ChopProcess': { 'View': fieldCustomizations["ChopProcess"]["View"] }
+                'ChopProcess': { 'View': fieldCustomizations["ChopProcess"]["View"] },
+                'Organization': { 'EditForm': fieldCustomizations["Organization"]["EditForm"], 'NewForm': fieldCustomizations["Organization"]["NewForm"]  }
             },
             OnPostRender: function(ctx){
                 

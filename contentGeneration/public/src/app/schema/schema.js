@@ -1,6 +1,4 @@
-﻿//var displayTemplatesUrl = '~site/SitePages/displayTemplates.js';
-var displayTemplatesUrl = "http://localhost:3000/spaArtifacts/assets/displayTemplates.js"
-var crisisResponseSchema = crisisResponseSchema || {};
+﻿var crisisResponseSchema = crisisResponseSchema || {};
 crisisResponseSchema.listDefs = {};
 crisisResponseSchema.webpartPageDefs = {};
 
@@ -903,10 +901,6 @@ crisisResponseSchema.webpartPageDefs['Component Command Page'] = {
 				{
 					attributes: {name: 'Title', type: 'string'},
 					innerText: 'Request for Information'
-				},
-				{
-					attributes: {name: 'JSLink', type: 'string'},
-					innerText: displayTemplatesUrl
 				}
 			],
 			viewName: 'LVWP SOCC.aspx RFI',
@@ -925,10 +919,6 @@ crisisResponseSchema.webpartPageDefs['Component Command Page'] = {
 				{
 					attributes: {name: 'Title', type: 'string'},
 					innerText: 'Documents'
-				},
-				{
-					attributes: {name: 'JSLink', type: 'string'},
-					innerText: displayTemplatesUrl
 				}
 			],
 			viewName: 'LVWP SOCC.aspx Documents',
@@ -1062,10 +1052,6 @@ crisisResponseSchema.webpartPageDefs['Task Group Page'] = {
 				{
 					attributes: {name: 'Title', type: 'string'},
 					innerText: 'Request for Information'
-				},
-				{
-					attributes: {name: 'JSLink', type: 'string'},
-					innerText: displayTemplatesUrl
 				}
 			],
 			viewName: 'LVWP SOTG.aspx RFI',
@@ -1084,10 +1070,6 @@ crisisResponseSchema.webpartPageDefs['Task Group Page'] = {
 				{
 					attributes: {name: 'Title', type: 'string'},
 					innerText: 'Documents'
-				},
-				{
-					attributes: {name: 'JSLink', type: 'string'},
-					innerText: displayTemplatesUrl
 				}
 			],
 			viewName: 'LVWP SOTG.aspx Documents',
