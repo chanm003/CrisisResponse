@@ -380,6 +380,10 @@
 				};
 			});
 
+			_.each(dashboards, function(config, orgName){
+				dashboards[orgName].routes = [];
+			});
+
 			return sharepointUtilities.createOrUpdateFile({
 				destinationWebUrl: _spPageContextInfo.webServerRelativeUrl,
 				destinationWebFolderUrl: 'generator/spaArtifacts/assets',

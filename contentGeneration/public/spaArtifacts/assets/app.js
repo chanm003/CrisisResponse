@@ -56,11 +56,15 @@
         .controller('ShellController', ShellController);
 
     function bootstrapNgApplication() {
-        var currentURL = S(window.location.href.toUpperCase());
+        var currentURL = S(window.location.pathname.toUpperCase());
         var spPage = $("body");
         if (currentURL.include('/SITEPAGES/SOCC.ASPX')) {
             spPage.attr('ng-controller', 'SoccAspxController as vm');
             spPage.append(generateChopDialogHtml());
+        }
+
+        if (currentURL.include('/LISTS/MISSIONTRACKER/NEWFORM.ASPX') || currentURL.include('/LISTS/MISSIONTRACKER/EDITFORM.ASPX')) {
+            spPage.attr('ng-controller', 'MissionTrackerDataEntryAspxController as vm');
         }
 
         //BOOTSTRAP NG-APP
@@ -169,14 +173,17 @@
     }
 
     function extendLoDash(_) {
-        _.parseQueryString = function (qstr) {
-            var query = {};
-            var a = qstr.substr(1).split('&');
-            for (var i = 0; i < a.length; i++) {
-                var b = a[i].split('=');
-                query[decodeURIComponent(b[0])] = decodeURIComponent(b[1] || '');
+        _.getQueryStringParam = function (name, url) {
+            if (!url){
+                url = window.location.href;
             }
-            return query;
+            url = decodeURIComponent(url);
+            name = name.replace(/[\[\]]/g, "\\$&");
+            var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+                results = regex.exec(url);
+            if (!results) return null;
+            if (!results[2]) return '';
+            return decodeURIComponent(results[2].replace(/\+/g, " "));
         }
         return _;
     }
@@ -366,6 +373,7 @@
         }
         service.constructNgResourceForRESTCollection = constructNgResourceForRESTCollection;
         service.constructNgResourceForRESTResource = constructNgResourceForRESTResource;
+        service.makeMultiChoiceRESTCompliant = makeMultiChoiceRESTCompliant;
         service.htmlHelpers = {};
         service.htmlHelpers.buildHeroButton = function (text, href, ngShowAttrValue) {
             var html =
@@ -451,6 +459,17 @@
 
         function init() {
             refreshSecurityValidation();
+        }
+
+        function makeMultiChoiceRESTCompliant(model, propName){
+            if(angular.isArray(model[propName])){
+                model[propName] = {
+                    "__metadata":{
+                        "type":"Collection(Edm.String)"
+                    },
+                    "results": model[propName]
+                }
+            }
         }
 
         function refreshSecurityValidation() {
@@ -620,8 +639,10 @@
             }
         }
 
-        Mission.prototype.complete = function () {
+        Mission.prototype.save = function () {
+            
 
+            return MissionTrackerRepository.save(this);
         }
 
         Mission.prototype.buildOnHoverText = function () {
@@ -673,12 +694,11 @@
             fieldsToExpand: fieldsToExpand,
             listName: 'RFI'
         };
-        var restCollection = spContext.constructNgResourceForRESTCollection(ngResourceConstructParams);
 
         function getAll() {
             var dfd = $q.defer();
             var qsParams = {}; //{$filter:"FavoriteNumber eq 8"};
-            restCollection.get(qsParams,
+            spContext.constructNgResourceForRESTCollection(ngResourceConstructParams).get(qsParams,
                 function (data) {
                     dfd.resolve(data.d.results);
                 },
@@ -724,12 +744,11 @@
             fieldsToExpand: fieldsToExpand,
             listName: 'Mission Documents'
         };
-        var restCollection = spContext.constructNgResourceForRESTCollection(ngResourceConstructParams);
 
         function getAll() {
             var dfd = $q.defer();
             var qsParams = {}; //{$filter:"FavoriteNumber eq 8"};
-            restCollection.get(qsParams,
+            spContext.constructNgResourceForRESTCollection(ngResourceConstructParams).get(qsParams,
                 function (data) {
                     dfd.resolve(data.d.results);
                 },
@@ -781,12 +800,11 @@
             fieldsToExpand: fieldsToExpand,
             listName: 'Mission Tracker'
         };
-        var restCollection = spContext.constructNgResourceForRESTCollection(ngResourceConstructParams);
 
         function getByOrganization(orgFilter) {
             var dfd = $q.defer();
             var qsParams = {}; //{$filter:"FavoriteNumber eq 8"};
-            restCollection.get(qsParams,
+            spContext.constructNgResourceForRESTCollection(ngResourceConstructParams).get(qsParams,
                 function (data) {
                     var queryResults = data.d.results;
                     if (orgFilter) {
@@ -802,8 +820,11 @@
             return dfd.promise;
         }
 
-        function save(rfi) {
-            console.log('Repository method...');
+        function save(item) {
+            spContext.makeMultiChoiceRESTCompliant(item, "ParticipatingOrganizations");
+            if(!item.Id){
+                spContext.constructNgResourceForRESTCollection(ngResourceConstructParams).post(item);
+            }
         }
 
         function getTestData(orgFilter) {
@@ -1240,9 +1261,8 @@
 
                 // Add events to the calendar. This is where the "magic" happens!
                 events: function (start, end, timezone, callback) {
-                    var qsParams = _.parseQueryString(location.search);
                     var calView = $(elem).fullCalendar('getView');
-                    CalendarRepository.getEvents(start, end, calView.intervalUnit, (qsParams.org || ""))
+                    CalendarRepository.getEvents(start, end, calView.intervalUnit, (_.getQueryStringParam("org") || ""))
                         .then(function (data) {
                             callback(data);
                         })
@@ -1313,10 +1333,9 @@
                 { name: "Mission Closed", cssStyle: 'background-color:#000; border-color: #000; color: #fff;' } //black, white
             ];
 
-            var qsParams = _.parseQueryString(location.search);
-            scope.selectedOrg = (qsParams.org || "");
+            scope.selectedOrg = (_.getQueryStringParam("org") || "");
 
-            MissionTrackerRepository.getByOrganization(qsParams.org).then(function (data) {
+            MissionTrackerRepository.getByOrganization(scope.selectedOrg).then(function (data) {
                 items = _.map(data, function (item) { return new Mission(item); });
                 renderTimeline(items)
             })
@@ -1565,10 +1584,9 @@
                 if (!!scope.chopProcessTimestamp) { return; }
                 //fetch missions, fetch Mission document properties
                 //on success set three properties on chopDialogCtx (show, missions, listItem)
-                var qsParams = _.parseQueryString(location.search);
                 $q.all([
                         MissionDocumentRepository.getById(scope.listItemID),
-                        MissionTrackerRepository.getByOrganization(qsParams.org)
+                        MissionTrackerRepository.getByOrganization(_.getQueryStringParam("org") || '')
                     ])
                     .then(function(data){
                         scope.chopDialogCtx.listItem = new MissionDocument(data[0]);
@@ -1667,27 +1685,6 @@
     }
 })();
 
-/* Controller: SoccAspxController */
-(function () {
-    angular
-        .module('app.core')
-        .controller('SoccAspxController', SoccAspxController);
-
-
-
-    SoccAspxController.$inject = ['_', 'MissionTrackerRepository'];
-    function SoccAspxController(_, MissionTrackerRepository) {
-        var vm = this;
-        vm.chopDialogCtx = {
-            show: false
-        }
-
-       
-    }
-
-
-})();
-
 /* Controller: RfiController */
 (function () {
     angular
@@ -1762,4 +1759,67 @@
                 })
         }
     }
+})();
+
+/* Controller: SoccAspxController */
+(function () {
+    angular
+        .module('app.core')
+        .controller('SoccAspxController', SoccAspxController);
+
+
+
+    SoccAspxController.$inject = ['_', 'MissionTrackerRepository'];
+    function SoccAspxController(_, MissionTrackerRepository) {
+        var vm = this;
+        vm.chopDialogCtx = {
+            show: false
+        }
+
+       
+    }
+
+
+})();
+
+
+/* Controller: MissionTrackerDataEntryAspxController*/
+(function () {
+    angular
+        .module('app.core')
+        .controller('MissionTrackerDataEntryAspxController', controller);
+
+    controller.$inject = ['_', 'Mission'];
+    function controller(_, Mission) {
+        
+        window.PreSaveAction = function(){
+            var msn = new Mission();
+            msn.ApprovalAuthority = SPUtility.GetSPFieldByInternalName("ApprovalAuthority").GetValue();
+            msn.Comments = SPUtility.GetSPFieldByInternalName("Comments").GetValue();
+            msn.ExpectedExecution = SPUtility.GetSPFieldByInternalName("ExpectedExecution").GetValue();
+            msn.ExpectedTermination = SPUtility.GetSPFieldByInternalName("ExpectedTermination").GetValue();
+            msn.MissionApproved = SPUtility.GetSPFieldByInternalName("MissionApproved").GetValue();
+            msn.ObjectiveName = SPUtility.GetSPFieldByInternalName("ObjectiveName").GetValue();
+            msn.OperationName = SPUtility.GetSPFieldByInternalName("OperationName").GetValue();   
+            msn.ParticipatingOrganizations = SPUtility.GetSPFieldByInternalName("ParticipatingOrganizations").GetValue();
+            msn.Status = SPUtility.GetSPFieldByInternalName("Status").GetValue();
+        
+            var currentURL = document.location.pathname.toUpperCase();
+            if(_.includes(currentURL, "/NEWFORM.ASPX")){
+                msn.Organization = SPUtility.GetSPFieldByInternalName("Organization").GetValue();
+                msn.MissionType = SPUtility.GetSPFieldByInternalName("MissionType").GetValue();
+            } else if(_.includes(currentURL, "/EDITFORM.ASPX")){
+                msn.Id = _.getQueryStringParam("ID");
+            }
+            
+            console.log(msn);
+            msn.save();
+
+            return false;
+        }
+        
+       
+    }
+
+
 })();

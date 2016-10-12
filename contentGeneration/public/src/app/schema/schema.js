@@ -14,8 +14,10 @@ crisisResponseSchema.listDefs["Mission Tracker"] = {
 				Type: "Text",
 				Required: "False",
 				MaxLength: 255,
-				Description: "This field should be hidden from data entry forms using CSS.  Generated on save using following format: Organization_XXX_MissionType, ex. SOTG10_003_KS",
-				Default: ""							//(optional)
+				Description: "This field should be hidden from data entry forms.  Generated on save using following format: Organization_XXX_MissionType, ex. SOTG10_003_KS",
+				Default: "",							//(optional)
+				ShowInNewForm: 'FALSE',
+				ShowInEditForm: 'FALSE'
 			},
 			{
 				//EXAMPLE: SINGLE LINE OF TEXT
@@ -24,8 +26,10 @@ crisisResponseSchema.listDefs["Mission Tracker"] = {
 				Type: "Text",
 				Required: "False",
 				MaxLength: 255,
-				Description: "This field should be hidden from data entry forms using CSS.  Generated on save using following format: Organization_XXX_MissionType (ObjectiveName, OperationName), ex. SOTG10_003_KS (OBJ_HAN, OBJ, SOLO)",
-				Default: ""							//(optional)
+				Description: "This field should be hidden from data entry forms.  Generated on save using following format: Organization_XXX_MissionType (ObjectiveName, OperationName), ex. SOTG10_003_KS (OBJ_HAN, OBJ, SOLO)",
+				Default: "",							//(optional)
+				ShowInNewForm: 'FALSE',
+				ShowInEditForm: 'FALSE'
 			},
 			{
 				//EXAMPLE: SINGLE LINE OF TEXT
@@ -48,9 +52,7 @@ crisisResponseSchema.listDefs["Mission Tracker"] = {
 				FillInChoice: "FALSE",
 				Description: 'The task group commanding the mission',
 				Choices: [],						//will be generated
-				Default: '',							//(optional)
-				ShowInNewForm: 'TRUE',
-				ShowInEditForm: 'FALSE'
+				Default: ''							//(optional)
 			},
 			{
 				//EXAMPLE: Dropdown
@@ -61,9 +63,7 @@ crisisResponseSchema.listDefs["Mission Tracker"] = {
 				Required: "TRUE",
 				FillInChoice: "FALSE",
 				Choices: ["AO: Airfield Operation", "CR: Cache Recovery", "CS: Cordon and Search", "DA: Direct Action", "HRO: Hostage Rescue Operation", "KLE: Key Leader Engagement", "KS: Kinetic Strike", "MA: Military Assistance", "PR: Personnel Recovery", "SR: Special Reconnaissance", "SUP: Support Patrol (log, etc)"],
-				Default: '',							//(optional)
-				ShowInNewForm: 'TRUE',
-				ShowInEditForm: 'FALSE'
+				Default: ''							//(optional)
 			},
 			{
 				//EXAMPLE: Dropdown

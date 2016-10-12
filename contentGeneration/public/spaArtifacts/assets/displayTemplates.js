@@ -24,6 +24,27 @@
         }
     };
 
+    /* ApprovalAuthority COLUMN*/
+    fieldCustomizations["ApprovalAuthority"] = {};
+    fieldCustomizations["ApprovalAuthority"]["NewForm"] = fieldCustomizations["ApprovalAuthority"]["EditForm"] = function (ctx) {
+        try {
+            var org = extractOrgFromQueryString();
+            if(org){
+                ctx.CurrentFieldSchema.Choices = _.map(jocInBoxConfig.dashboards[org].routes, 'name');
+            }
+
+            if(ctx.BaseViewID === "NewForm" && ctx.CurrentFieldSchema.Choices.length === 1){
+                //only one choice so preset for the user
+                ctx.CurrentFieldValue = ctx.CurrentFieldSchema.Choices[0];
+            }
+
+            return SPFieldChoice_Edit(ctx);
+        }
+        catch (err) {
+            return 'Error parsing column "ApprovalAuthority"';
+        }
+    };
+
     /* ChopProcess COLUMN*/
     fieldCustomizations["ChopProcess"] = {};
     fieldCustomizations["ChopProcess"]["View"] = function (ctx) {
@@ -43,15 +64,43 @@
         }
     };
 
+    /* MissionType COLUMN*/
+    fieldCustomizations["MissionType"] = {};
+    fieldCustomizations["MissionType"]["EditForm"] = function (ctx) {
+        try {
+            if(_.includes(document.location.pathname, "/Lists/MissionTracker/") && ctx.BaseViewID === "EditForm"){
+                return SPField_FormDisplay_Default(ctx)  + "<br/>";
+            } else{
+                return SPFieldChoice_Edit(ctx);
+            }
+        }
+        catch (err) {
+            return 'Error parsing column "MissionType"';
+        }
+    };
+
     /* Organization COLUMN*/
     fieldCustomizations["Organization"] = {};
     fieldCustomizations["Organization"]["NewForm"] = fieldCustomizations["Organization"]["EditForm"] = function (ctx) {
         try {
-            ctx.CurrentFieldSchema.Choices.push("Mike")
+            if(_.includes(document.location.pathname, "/Lists/MissionTracker/") && ctx.BaseViewID === "EditForm"){
+                return SPField_FormDisplay_Default(ctx)  + "<br/>";
+            }
+            
+            var org = extractOrgFromQueryString();
+            if(org){
+                ctx.CurrentFieldSchema.Choices = _.intersection(ctx.CurrentFieldSchema.Choices, jocInBoxConfig.dashboards[org].optionsForChoiceField);
+            }
+
+            if(ctx.BaseViewID === "NewForm" && ctx.CurrentFieldSchema.Choices.length === 1){
+                //only one choice so preset for the user
+                ctx.CurrentFieldValue = ctx.CurrentFieldSchema.Choices[0];
+            }
+
             return SPFieldChoice_Edit(ctx);
         }
         catch (err) {
-            return 'Error parsing column "ChopProcess"';
+            return 'Error parsing column "Organization"';
         }
     };
 
@@ -60,7 +109,9 @@
         Templates: {
             Fields: {
                 'ActionsHtml': { 'View': fieldCustomizations["ActionsHtml"]["View"] },
+                'ApprovalAuthority': { 'EditForm': fieldCustomizations["ApprovalAuthority"]["EditForm"], 'NewForm': fieldCustomizations["ApprovalAuthority"]["NewForm"]  },
                 'ChopProcess': { 'View': fieldCustomizations["ChopProcess"]["View"] },
+                'MissionType': { 'EditForm': fieldCustomizations["MissionType"]["EditForm"] },
                 'Organization': { 'EditForm': fieldCustomizations["Organization"]["EditForm"], 'NewForm': fieldCustomizations["Organization"]["NewForm"]  }
             },
             OnPostRender: function(ctx){
@@ -143,6 +194,13 @@
      * Needs to run AFTER all the RegisterSod() invocations that SP2013 master puts near the closing </head> tag
      */
     $(document).ready(registerCustomCalloutCustomizationsForDocumentLibrary);
+
+    function extractOrgFromQueryString(){
+        // /TF16/Lists/MissionTracker/NewForm.aspx?Source=/TF16/SitePages/socc.aspx?org=SOCC
+        var isChildWindow = window.parent.location.href !== window.location.href;
+        var selectedOrg = (isChildWindow) ? _.getQueryStringParam("org", window.parent.location.href) : _.getQueryStringParam("org", window.location.href);
+        return selectedOrg;
+    }
 
     function getDefaultHtmlOutput(ctx, field, listItem, listSchema) {
         /**
