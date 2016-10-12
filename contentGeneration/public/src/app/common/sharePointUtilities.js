@@ -513,13 +513,6 @@
 			action.set_sequence(1000+sequenceCounter);
 			action.update();
 
-			var action = userCustomActions.add();
-			action.set_location("ScriptLink");
-			action.set_title('displayTemplates.js');
-			action.set_scriptSrc(opts.cdn + "/displayTemplates.js");				
-			action.set_sequence(1000+sequenceCounter);
-			action.update();
-
 			ctx.executeQueryAsync(
 		        Function.createDelegate(this, onQuerySucceeded), 
 		        Function.createDelegate(this, onQueryFailed)
