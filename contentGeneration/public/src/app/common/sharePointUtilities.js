@@ -462,11 +462,19 @@
 				action.set_sequence(1000 + sequenceCounter);
 				action.update();
 			});
+
+			var action = userCustomActions.add();
+			action.set_location("ScriptLink");
+			action.set_title('/displayTemplates.js');
+			action.set_scriptSrc(opts.cdn + "/displayTemplates.js");
+			action.set_sequence(1000 + sequenceCounter + 10);
+			action.update();
+
 			var action = userCustomActions.add();
 			action.set_location("ScriptLink");
 			action.set_title('app.js');
 			action.set_scriptSrc(opts.cdn + "/app.js");
-			action.set_sequence(1000 + sequenceCounter + 10);
+			action.set_sequence(1000 + sequenceCounter + 100);
 			action.update();
 
 			ctx.executeQueryAsync(
