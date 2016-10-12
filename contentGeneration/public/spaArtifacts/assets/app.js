@@ -29,6 +29,7 @@
         'ngplus'
     ])
         .constant('_', extendLoDash(_))
+        .constant('SPUtility', configSPUtility())
         .constant('toastr', toastr)
         .constant('moment', moment)
         .value('config', globalConfig)
@@ -103,6 +104,13 @@
                 '</uif-dialog>'].join('');
             return html;
         }
+    }
+
+    function configSPUtility(){
+        SPUtility.Setup({
+            'timeFormat': '24HR'
+        });
+        return SPUtility;
     }
 
     configureCoreModule.$inject = ['$logProvider', '$sceDelegateProvider', 'exceptionHandlerProvider', 'routerHelperProvider', 'toastr'];
@@ -640,8 +648,9 @@
         }
 
         Mission.prototype.save = function () {
-            
-
+            this.MissionApproved = moment.utc(this.MissionApproved.toString()).toISOString();
+            this.ExpectedExecution = moment.utc(this.ExpectedExecution.toString()).toISOString();
+            this.ExpectedTermination = moment.utc(this.ExpectedTermination.toString()).toISOString();
             return MissionTrackerRepository.save(this);
         }
 
@@ -1782,15 +1791,14 @@
 
 })();
 
-
 /* Controller: MissionTrackerDataEntryAspxController*/
 (function () {
     angular
         .module('app.core')
         .controller('MissionTrackerDataEntryAspxController', controller);
 
-    controller.$inject = ['_', 'Mission'];
-    function controller(_, Mission) {
+    controller.$inject = ['_', 'Mission', 'SPUtility'];
+    function controller(_, Mission, SPUtility) {
         
         window.PreSaveAction = function(){
             var msn = new Mission();

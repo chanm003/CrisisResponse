@@ -24,7 +24,8 @@ Refactor directive initiatechopbutton so that uses a template with replace
 ------------ close modal
 ------------ update scope.chopProcessTimestamp, then write message with SPLogger 
 
-
+Need to change regional time settings to UTC
+- Dublin not good enough
 
 Getting Web Part Properties:
 /ngspa/tf16/_api/web/getfilebyserverrelativeurl('/ngspa/tf16/lists/MissionTracker/NewForm.aspx')/getlimitedwebpartmanager(1)/WebParts?$expand=WebPart/Properties
