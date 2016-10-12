@@ -55,7 +55,7 @@
 
 		vm.onSiteInfoCollected = function () {
 			vm.childWebUrl = vm.siteInfo.parentWeb + "/" + vm.siteInfo.acronym;
-			return sharepointUtilities.createSite(vm.siteInfo).then(provisionAssetsToSitePagesLibrary);
+			return sharepointUtilities.createSite(vm.siteInfo);
 		}
 
 		vm.onOrganizationsIdentified = function () {
@@ -66,7 +66,8 @@
 
 		vm.onAdditionalFeaturesCollected = function(){
 			return modifyChoiceFields()
-				.then(updateOrgConfigFile);
+				.then(updateOrgConfigFile)
+				.then(provisionAssetsToSitePagesLibrary);
 		}
 
 		vm.addComponentCommand = function () {
@@ -380,8 +381,8 @@
 			});
 
 			return sharepointUtilities.createOrUpdateFile({
-				destinationWebUrl: '/ngspa/tf16',
-				destinationWebFolderUrl: 'SitePages',
+				destinationWebUrl: _spPageContextInfo.webServerRelativeUrl,
+				destinationWebFolderUrl: 'generator/spaArtifacts/assets',
 				destinationFileUrl: 'orgConfig.js',
 				fileContent: 'var jocInBoxConfig = jocInBoxConfig || {}; jocInBoxConfig.dashboards = ' + JSON.stringify(dashboards)
 			})

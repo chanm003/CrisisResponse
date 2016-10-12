@@ -1,39 +1,39 @@
 ﻿(function () {
 	'use strict';
 
-  	angular.module('SharePoint.common', [])
-  		.factory('sharepointUtilities', dataservice)
-  		.factory('fieldAttributeValuesValidation', fieldAttributeValuesValidation)
-  		.factory('fieldXmlGeneration', fieldXmlGeneration);
+	angular.module('SharePoint.common', [])
+		.factory('sharepointUtilities', dataservice)
+		.factory('fieldAttributeValuesValidation', fieldAttributeValuesValidation)
+		.factory('fieldXmlGeneration', fieldXmlGeneration);
 
-	dataservice.$inject = ['$http', '$location', '$q', 'fieldXmlGeneration', 'logger'];	
+	dataservice.$inject = ['$http', '$location', '$q', 'fieldXmlGeneration', 'logger'];
 	function dataservice($http, $location, $q, fieldXmlGeneration, logger) {
 
-	    return {
+		return {
 			copyFile: copyFile,
-			createOrUpdateFile: createOrUpdateFile, 
-	    	createList: createList,
+			createOrUpdateFile: createOrUpdateFile,
+			createList: createList,
 			createSite: createSite,
 			createTypeaheadDataSourceForSiteUsersList: createTypeaheadDataSourceForSiteUsersList,
 			deleteFiles: deleteFiles,
 			deleteLists: deleteLists,
-	        getLists: getLists,
+			getLists: getLists,
 			getFilesFromFolder: getFilesFromFolder,
 			provisionListViewWebparts: provisionListViewWebparts,
 			provisionScriptEditorWebparts: provisionScriptEditorWebparts,
 			updateChoiceFields: updateChoiceFields
-	    };
-	    
-		function addListViewWebPart(opts){
+		};
+
+		function addListViewWebPart(opts) {
 			return addWebPartToPage(opts);
 
-			function addWebPartToPage(opts){
+			function addWebPartToPage(opts) {
 				var dfd = $q.defer();
 
 				var xmlToImport = generateXmlDef(opts);
-				
+
 				var ctx = new SP.ClientContext(opts.webUrl);
-	    		var spWeb = ctx.get_web();
+				var spWeb = ctx.get_web();
 				var aspxFile = spWeb.getFileByServerRelativeUrl(opts.aspxFileUrl);
 				var wpManager = aspxFile.getLimitedWebPartManager(SP.WebParts.PersonalizationScope.shared);
 				var wpDefinition = wpManager.importWebPart(xmlToImport);
@@ -44,24 +44,24 @@
 				var list = spWeb.get_lists().getByTitle(opts.listTitle);
 				list.update();
 				var listViews = list.get_views();
-				
+
 				ctx.load(wp);
 				ctx.load(list);
 				ctx.load(listViews);
 
-				
+
 				ctx.executeQueryAsync(
-			        Function.createDelegate(this, onWebpartAdded), 
-			        Function.createDelegate(this, onQueryFailed)
-			    );
+					Function.createDelegate(this, onWebpartAdded),
+					Function.createDelegate(this, onQueryFailed)
+				);
 
 				return dfd.promise;
 
-				function generateXmlDef(opts){
+				function generateXmlDef(opts) {
 					//required property:  <property name="ListUrl" type="string">Lists/WatchLog</property>\
 					addParameterBindingsProperty(opts.webPartProperties);
 
-					var baseWebPartXmlString = 
+					var baseWebPartXmlString =
 						'<webParts>\
 							<webPart xmlns="http://schemas.microsoft.com/WebPart/v3">\
 								<metaData>\
@@ -70,39 +70,39 @@
 								</metaData>\
 								<data>\
 									<properties>' +
-									generateWebpartPropertyTags(opts.webPartProperties) +
-									'</properties>\
+						generateWebpartPropertyTags(opts.webPartProperties) +
+						'</properties>\
 								</data>\
 							</webPart>\
 						</webParts>';
-				
-					
-					
+
+
+
 					return baseWebPartXmlString;
 
-					function addParameterBindingsProperty(webPartProperties){
+					function addParameterBindingsProperty(webPartProperties) {
 						//makes it possible to use {{orgQsParam}} in our CAML queries (maps to value for the 'org' querystring parameter)
-						var innerText = '&lt;ParameterBinding Name="dvt_sortdir" Location="Postback;Connection"/&gt;'+
-										'&lt;ParameterBinding Name="dvt_sortfield" Location="Postback;Connection"/&gt;'+
-										'&lt;ParameterBinding Name="dvt_startposition" Location="Postback" DefaultValue=""/&gt;'+
-										'&lt;ParameterBinding Name="dvt_firstrow" Location="Postback;Connection"/&gt;'+
-										'&lt;ParameterBinding Name="OpenMenuKeyAccessible" Location="Resource(wss,OpenMenuKeyAccessible)" /&gt;'+
-										'&lt;ParameterBinding Name="open_menu" Location="Resource(wss,open_menu)" /&gt;'+
-										'&lt;ParameterBinding Name="select_deselect_all" Location="Resource(wss,select_deselect_all)" /&gt;'+
-										'&lt;ParameterBinding Name="idPresEnabled" Location="Resource(wss,idPresEnabled)" /&gt;'+
-										'&lt;ParameterBinding Name="NoAnnouncements" Location="Resource(wss,noXinviewofY_LIST)" /&gt;'+
-										'&lt;ParameterBinding Name="NoAnnouncementsHowTo" Location="Resource(wss,noXinviewofY_DEFAULT)" /&gt;'+
-										'&lt;ParameterBinding Name="orgQsParam" Location="QueryString(org)" /&gt;';
+						var innerText = '&lt;ParameterBinding Name="dvt_sortdir" Location="Postback;Connection"/&gt;' +
+							'&lt;ParameterBinding Name="dvt_sortfield" Location="Postback;Connection"/&gt;' +
+							'&lt;ParameterBinding Name="dvt_startposition" Location="Postback" DefaultValue=""/&gt;' +
+							'&lt;ParameterBinding Name="dvt_firstrow" Location="Postback;Connection"/&gt;' +
+							'&lt;ParameterBinding Name="OpenMenuKeyAccessible" Location="Resource(wss,OpenMenuKeyAccessible)" /&gt;' +
+							'&lt;ParameterBinding Name="open_menu" Location="Resource(wss,open_menu)" /&gt;' +
+							'&lt;ParameterBinding Name="select_deselect_all" Location="Resource(wss,select_deselect_all)" /&gt;' +
+							'&lt;ParameterBinding Name="idPresEnabled" Location="Resource(wss,idPresEnabled)" /&gt;' +
+							'&lt;ParameterBinding Name="NoAnnouncements" Location="Resource(wss,noXinviewofY_LIST)" /&gt;' +
+							'&lt;ParameterBinding Name="NoAnnouncementsHowTo" Location="Resource(wss,noXinviewofY_DEFAULT)" /&gt;' +
+							'&lt;ParameterBinding Name="orgQsParam" Location="QueryString(org)" /&gt;';
 						webPartProperties.push({
-							attributes: {name: 'ParameterBindings', type: 'string'},
+							attributes: { name: 'ParameterBindings', type: 'string' },
 							innerText: innerText
 						});
 					}
 
-					
+
 				}
 
-				function onWebpartAdded(){
+				function onWebpartAdded() {
 					var enumerator = listViews.getEnumerator();
 					var webPartView;
 
@@ -116,13 +116,13 @@
 						}
 					}
 
-					if(!webPartView){
+					if (!webPartView) {
 						//hidden view not found
 						dfd.resolve();
 					}
 
 					webPartView.get_viewFields().removeAll();
-					_.each(opts.viewFields, function(internalFieldName){
+					_.each(opts.viewFields, function (internalFieldName) {
 						webPartView.get_viewFields().add(internalFieldName);
 					});
 					webPartView.set_title(opts.viewName);
@@ -131,52 +131,51 @@
 					webPartView.update();
 					ctx.load(webPartView);
 					ctx.executeQueryAsync(
-						Function.createDelegate(this, onWebpartViewUpdated), 
+						Function.createDelegate(this, onWebpartViewUpdated),
 						Function.createDelegate(this, onQueryFailed)
 					);
-					function onWebpartViewUpdated(){
-						logger.logSuccess('Web part added: ('+opts.viewName+') on '+opts.aspxFileUrl, null, 'sharepointUtilities service, addListViewWebpart()');
+					function onWebpartViewUpdated() {
+						logger.logSuccess('Web part added: (' + opts.viewName + ') on ' + opts.aspxFileUrl, null, 'sharepointUtilities service, addListViewWebpart()');
 						dfd.resolve();
 					}
 				}
 
-				function onQueryFailed(sender, args){
-					logger.logError('Request to create webpart ('+opts.listTitle+ ') failed on '+opts.aspxFileUrl+': ' + args.get_message(), args.get_stackTrace(), 'sharepointUtilities service, addListViewWebpart()');
+				function onQueryFailed(sender, args) {
+					logger.logError('Request to create webpart (' + opts.listTitle + ') failed on ' + opts.aspxFileUrl + ': ' + args.get_message(), args.get_stackTrace(), 'sharepointUtilities service, addListViewWebpart()');
 					dfd.reject();
 				}
-			}			
+			}
 		}
 
-		function addScriptEditorWebPart(opts){
+		function addScriptEditorWebPart(opts) {
 			return addWebPartToPage(opts);
 
-			function addWebPartToPage(opts){
+			function addWebPartToPage(opts) {
 				var dfd = $q.defer();
 
 				var xmlToImport = generateXmlDef(opts);
-				
-				
+
 				var ctx = new SP.ClientContext(opts.webUrl);
-	    		var spWeb = ctx.get_web();
+				var spWeb = ctx.get_web();
 				var aspxFile = spWeb.getFileByServerRelativeUrl(opts.aspxFileUrl);
 				var wpManager = aspxFile.getLimitedWebPartManager(SP.WebParts.PersonalizationScope.shared);
 				var wpDefinition = wpManager.importWebPart(xmlToImport);
 				var wp = wpDefinition.get_webPart();
 				wpManager.addWebPart(wp, opts.zoneName, opts.zoneIndex);
-				
+
 				ctx.load(wp);
-				
+
 				ctx.executeQueryAsync(
-			        Function.createDelegate(this, onWebpartAdded), 
-			        Function.createDelegate(this, onQueryFailed)
-			    );
+					Function.createDelegate(this, onWebpartAdded),
+					Function.createDelegate(this, onQueryFailed)
+				);
 
 				return dfd.promise;
 
-				function generateXmlDef(opts){
+				function generateXmlDef(opts) {
 					//required property:  <property name="Content" type="string"></property>\
 
-					var baseWebPartXmlString = 
+					var baseWebPartXmlString =
 						'<webParts>\
 							<webPart xmlns="http://schemas.microsoft.com/WebPart/v3">\
 								<metaData>\
@@ -185,48 +184,48 @@
 								</metaData>\
 								<data>\
 									<properties>' +
-									generateWebpartPropertyTags(opts.webPartProperties) +
-									'</properties>\
+						generateWebpartPropertyTags(opts.webPartProperties) +
+						'</properties>\
 								</data>\
 							</webPart>\
 						</webParts>';
 
-					return baseWebPartXmlString;	
+					return baseWebPartXmlString;
 				}
 
-				function onWebpartAdded(){
-					logger.logSuccess('Web part added: ('+opts.name+') on '+opts.aspxFileUrl, null, 'sharepointUtilities service, addScriptEditorWebpart()');
+				function onWebpartAdded() {
+					logger.logSuccess('Web part added: (' + opts.name + ') on ' + opts.aspxFileUrl, null, 'sharepointUtilities service, addScriptEditorWebpart()');
 					dfd.resolve();
 				}
 
-				function onQueryFailed(sender, args){
-					logger.logError('Request to create webpart ('+opts.name+') failed on '+opts.aspxFileUrl+': ' + args.get_message(), args.get_stackTrace(), 'sharepointUtilities service, addScriptEditorWebpart()');
+				function onQueryFailed(sender, args) {
+					logger.logError('Request to create webpart (' + opts.name + ') failed on ' + opts.aspxFileUrl + ': ' + args.get_message(), args.get_stackTrace(), 'sharepointUtilities service, addScriptEditorWebpart()');
 					dfd.reject();
 				}
-			}			
+			}
 		}
 
-	    function copyFile(opts){
+		function copyFile(opts) {
 			var sourceExecutor = new SP.RequestExecutor(opts.sourceWebUrl);
 			var targetExecutor = new SP.RequestExecutor(opts.destinationWebUrl);
 			return getFormDigestForTargetSite(opts)
 				.then(getFile)
 				.then(copyToDestination)
-				.then(function(){
+				.then(function () {
 					logger.logSuccess('File copied: ' + opts.destinationFileUrl, null, 'sharepointUtilities service, copyFile()');
 				})
-				.catch(function(ex){
+				.catch(function (ex) {
 					logger.logError('Request failed: ' + ex, null, 'sharepointUtilities service, copyFile()');
 				});
-			
-			function copyToDestination(opts){
+
+			function copyToDestination(opts) {
 				var dfd = $q.defer();
 
 				var folderUrl = opts.destinationWebUrl + "/" + opts.destinationWebFolderUrl,
-					fileUrl = opts.destinationWebUrl + "/" + opts.destinationWebFolderUrl + '/' +opts.destinationFileUrl;
+					fileUrl = opts.destinationWebUrl + "/" + opts.destinationWebFolderUrl + '/' + opts.destinationFileUrl;
 
 				var copyFileAction = {
-					url: opts.destinationWebUrl + "/_api/web/GetFolderByServerRelativeUrl('" + folderUrl  + "')/Files/Add(url='" + fileUrl + "', overwrite=true)",
+					url: opts.destinationWebUrl + "/_api/web/GetFolderByServerRelativeUrl('" + folderUrl + "')/Files/Add(url='" + fileUrl + "', overwrite=true)",
 					method: "POST",
 					headers: {
 						"Accept": "application/json; odata=verbose",
@@ -235,34 +234,34 @@
 					contentType: "application/json;odata=verbose",
 					binaryStringRequestBody: true,
 					body: opts.fileBinary,
-					success: function(copyFileData) {
+					success: function (copyFileData) {
 						dfd.resolve();
 					},
-					error: function(ex) {
+					error: function (ex) {
 						dfd.reject("Error retrieving file to copy: " + ex);
 					}
 				};
-				
+
 				targetExecutor.executeAsync(copyFileAction);
 
 				return dfd.promise;
 			}
 
-			function getFile(opts){
+			function getFile(opts) {
 				var dfd = $q.defer();
 
 				var locationOfSourceFile = opts.sourceWebUrl + '/' + opts.sourceFileUrl;
 
 				var getFileAction = {
-			    	url: opts.sourceWebUrl + "/_api/web/GetFileByServerRelativeUrl('" + locationOfSourceFile + "')/$value",
-			    	method: "GET",
-			    	binaryStringResponseBody: true,
-			    	success: function (data) {
-			    		// Get the binary data.
-			    		opts.fileBinary = data.body;
+					url: opts.sourceWebUrl + "/_api/web/GetFileByServerRelativeUrl('" + locationOfSourceFile + "')/$value",
+					method: "GET",
+					binaryStringResponseBody: true,
+					success: function (data) {
+						// Get the binary data.
+						opts.fileBinary = data.body;
 						dfd.resolve(opts);
-			    	},
-					error: function(ex) {
+					},
+					error: function (ex) {
 						dfd.reject("Error retrieving file to copy: " + ex);
 					}
 				};
@@ -270,165 +269,122 @@
 
 				return dfd.promise;
 			}
-
-			
 		}
 
-		function createOrUpdateFile(opts){
-			var targetExecutor = new SP.RequestExecutor(opts.destinationWebUrl);
-			return getFormDigestForTargetSite(opts)	
-				.then(writeToFile);
-			
-			function writeToFile(opts){
-				var dfd = $q.defer();
+		function createList(opts) {
+			return getDependencies()
+				.then(_createList);
 
-				var folderUrl = opts.destinationWebUrl + "/" + opts.destinationWebFolderUrl,
-					fileUrl = opts.destinationWebUrl + "/" + opts.destinationWebFolderUrl + '/' +opts.destinationFileUrl;
+			function getDependencies() {
+				var dependentLists = [];
 
-				var byteArray = new SP.Base64EncodedByteArray();
-				for (var i = 0; i < opts.fileContent.length; i++) {
-        			byteArray.append(opts.fileContent.charCodeAt(i));
-    			}
-				var binaryForRequestBody = byteArray.toBase64String();			
+				var containsLookupFields = _.some(opts.fieldsToCreate, function (fieldDef) { return _.contains(["Lookup", "LookupMulti"], fieldDef.Type); });
 
-				var writeFileAction = {
-					url: opts.destinationWebUrl + "/_api/web/GetFolderByServerRelativeUrl('" + folderUrl  + "')/Files/Add(url='" + fileUrl + "', overwrite=true)",
-					method: "POST",
-					headers: {
-						"Accept": "application/json; odata=verbose",
-						"X-RequestDigest": opts.formDigestForTargetWeb
-					},
-					contentType: "application/json;odata=verbose",
-					binaryStringRequestBody: false,
-					body: opts.fileContent,
-					success: function(data) {
-						dfd.resolve();
-					},
-					error: function(ex) {
-						dfd.reject("Error creating file: " + ex);
-					}
-				};
-				
-				targetExecutor.executeAsync(writeFileAction);
-
-				return dfd.promise;
+				if (containsLookupFields) {
+					console.log('extra network call to get dependent lists');
+					return getLists(opts.webUrl);
+				} else {
+					console.log('no dependencies');
+					return $q.when(dependentLists);
+				}
 			}
-		}
-	    
-	    function createList(opts){
-	    	return getDependencies()
-	    		.then(_createList);
-	    	
-	    	function getDependencies(){
-	    		var dependentLists = [];
-	    		
-	    		var containsLookupFields = _.some(opts.fieldsToCreate, function(fieldDef){ return _.contains(["Lookup", "LookupMulti"], fieldDef.Type);});
-	    		
-	    		if(containsLookupFields){
-	    			console.log('extra network call to get dependent lists');
-	    			return getLists(opts.webUrl);
-	    		} else {
-	    			console.log('no dependencies');
-	    			return $q.when(dependentLists);
-	    		}
-	    	}
-	    	
-	    	function _createList(dependentLists){
-	    		var dfd = $q.defer();
+
+			function _createList(dependentLists) {
+				var dfd = $q.defer();
 				var ctx = new SP.ClientContext(opts.webUrl);
-	    		var spWeb = ctx.get_web();
-	    		var createdList = null;
-	    		var createdFields = [];
-	    		
-	    		//create list
-	    		var listCreationInfo = new SP.ListCreationInformation();
-	    		var uglyListName = S(opts.Title).camelize().toString()
+				var spWeb = ctx.get_web();
+				var createdList = null;
+				var createdFields = [];
+
+				//create list
+				var listCreationInfo = new SP.ListCreationInformation();
+				var uglyListName = S(opts.Title).camelize().toString()
 				listCreationInfo.set_title(uglyListName);
 				listCreationInfo.set_templateType(SP.ListTemplateType[opts.BaseTemplate]);
 				createdList = spWeb.get_lists().add(listCreationInfo);
-				
+
 				//update list: make the name of list pretty, turn-on versioning if necessary
 				createdList.set_title(opts.Title);
-				if(opts.enableVersioning){
+				if (opts.enableVersioning) {
 					createdList.set_enableVersioning(true);
 				}
 				createdList.update();
-				
+
 				//delete fields
-				_.each(opts.fieldsToModify, function(fieldDef){
+				_.each(opts.fieldsToModify, function (fieldDef) {
 					var existingField = createdList.get_fields().getByInternalNameOrTitle(fieldDef.Name);
 					existingField.set_schemaXml(fieldXmlGeneration.generate(fieldDef));
 					existingField.update();
 				});
 
 				//add fields
-				_.each(opts.fieldsToCreate, function(fieldDef){
-					if(fieldDef.Type === 'Lookup' || fieldDef.Type === 'LookupMulti'){
+				_.each(opts.fieldsToCreate, function (fieldDef) {
+					if (fieldDef.Type === 'Lookup' || fieldDef.Type === 'LookupMulti') {
 						//obtain list GUID
-						var sourceList = _.findWhere(dependentLists, {name: fieldDef.List})
-						if(sourceList){
+						var sourceList = _.findWhere(dependentLists, { name: fieldDef.List })
+						if (sourceList) {
 							fieldDef.List = sourceList.guid;
 						}
 					}
-				
-					var newField = createdList.get_fields().addFieldAsXml(fieldXmlGeneration.generate(fieldDef), true, SP.AddFieldOptions.addFieldInternalNameHint);	
+
+					var newField = createdList.get_fields().addFieldAsXml(fieldXmlGeneration.generate(fieldDef), true, SP.AddFieldOptions.addFieldInternalNameHint);
 					createdFields.push(newField);
 				});
-				
+
 				//update to Title field (if necessary)
-				if(opts.shouldHideTitleField){
+				if (opts.shouldHideTitleField) {
 					var titleField = createdList.get_fields().getByTitle("Title");
 					titleField.setShowInDisplayForm(false);
 					titleField.setShowInNewForm(false);
 					titleField.setShowInEditForm(false);
 					titleField.set_hidden(true);
 					titleField.set_required(false);
-					titleField.update();	
+					titleField.update();
 				}
-				
+
 				//update to default view
 				var defaultViews = {
-	    			documentLibrary: 'All Documents',
+					documentLibrary: 'All Documents',
 					events: 'All Events'
-	    		};
+				};
 				var viewName = defaultViews[opts.BaseTemplate] || "All Items";
 				var defaultView = createdList.get_views().getByTitle(viewName);
-				if(opts.shouldHideTitleField){
+				if (opts.shouldHideTitleField) {
 					defaultView.get_viewFields().remove("LinkTitle");
 				}
-				var internalFieldNamesForHiddenFields = _.pluck(_.where(opts.fieldsToCreate, {Hidden: 'TRUE'}), "Name"); 
-				_.each(internalFieldNamesForHiddenFields, function(internalFieldName){
+				var internalFieldNamesForHiddenFields = _.pluck(_.where(opts.fieldsToCreate, { Hidden: 'TRUE' }), "Name");
+				_.each(internalFieldNamesForHiddenFields, function (internalFieldName) {
 					defaultView.get_viewFields().remove(internalFieldName);
 				});
-				defaultView.update();				
-			
+				defaultView.update();
+
 				//batch, setup, and send the request
 				ctx.load(createdList);
-				_.each(createdFields, function(createdField){
+				_.each(createdFields, function (createdField) {
 					ctx.load(createdField);
 				});
 				ctx.executeQueryAsync(
-			        Function.createDelegate(this, onQuerySucceeded), 
-			        Function.createDelegate(this, onQueryFailed)
-			    );
-			    
-			    return dfd.promise;
-			    
-			    function onQuerySucceeded(){
-			    	logger.logSuccess('Created list: ('+opts.Title+')', null, 'sharepointUtilities service, createList()');
-			    	dfd.resolve();
-			    }
-			    function onQueryFailed(sender, args){
-			    	logger.logError('Request to create list ('+opts.Title+') failed: ' + args.get_message(), args.get_stackTrace(), 'sharepointUtilities service, createList()');
-			    	dfd.reject();
-			    }	    	
-	    	}
-	    }
+					Function.createDelegate(this, onQuerySucceeded),
+					Function.createDelegate(this, onQueryFailed)
+				);
 
-		function createSite(opts){
+				return dfd.promise;
+
+				function onQuerySucceeded() {
+					logger.logSuccess('Created list: (' + opts.Title + ')', null, 'sharepointUtilities service, createList()');
+					dfd.resolve();
+				}
+				function onQueryFailed(sender, args) {
+					logger.logError('Request to create list (' + opts.Title + ') failed: ' + args.get_message(), args.get_stackTrace(), 'sharepointUtilities service, createList()');
+					dfd.reject();
+				}
+			}
+		}
+
+		function createSite(opts) {
 			var dfd = $q.defer();
 			var ctx = new SP.ClientContext(opts.parentWeb);
-	    	var parentWeb = ctx.get_web();	
+			var parentWeb = ctx.get_web();
 
 			var webCreationInfo = new SP.WebCreationInformation();
 			webCreationInfo.set_title(opts.name);
@@ -444,10 +400,10 @@
         	/*
 			Ensure child navigation inherits from parent web
 			inheritFromParentWeb: 3 */
-        	var webNavSettings = new SP.Publishing.Navigation.WebNavigationSettings(ctx, childWeb);
-        	var navigation = webNavSettings.get_globalNavigation();
-        	navigation.set_source(3);
-        	webNavSettings.update();
+			var webNavSettings = new SP.Publishing.Navigation.WebNavigationSettings(ctx, childWeb);
+			var navigation = webNavSettings.get_globalNavigation();
+			navigation.set_source(3);
+			webNavSettings.update();
 
 			/*
 			Ensure child web has proper regional settings
@@ -456,16 +412,16 @@
 			var regionalSettings = childWeb.get_regionalSettings();
 			regionalSettings.set_time24(true); //24 hour clock
 			//Full list here: https://msdn.microsoft.com/library/microsoft.sharepoint.spregionalsettings.timezones.aspx
-    		var timeZone = regionalSettings.get_timeZones().getById(2); //(GMT)
-        	regionalSettings.set_timeZone(timeZone);
+			var timeZone = regionalSettings.get_timeZones().getById(2); //(GMT)
+			regionalSettings.set_timeZone(timeZone);
 			regionalSettings.update();
 
 			/*
 			Change Alternate CSS Url
 			configured in /_layouts/15/ChangeSiteMasterPage.aspx (available only when publishing is activated)
 			*/
-			var serverRelativeURL = (opts.parentWeb + "/" + opts.acronym).replace(document.location.protocol+"//", "").replace(document.location.host, "");
-			var alternateCssUrl = serverRelativeURL + "/SitePages/app.css"; 
+			var serverRelativeURL = (opts.parentWeb + "/" + opts.acronym).replace(document.location.protocol + "//", "").replace(document.location.host, "");
+			var alternateCssUrl = serverRelativeURL + "/SitePages/app.css";
 			childWeb.set_alternateCssUrl(alternateCssUrl);
 			childWeb.update();
 
@@ -473,15 +429,15 @@
 			var action = userCustomActions.add();
 			action.set_location("ScriptLink");
 			action.set_title('orgConfig.js');
-			action.set_scriptSrc('~site/SitePages/orgConfig.js');				
+			action.set_scriptSrc('~site/SitePages/orgConfig.js');
 			action.set_sequence(1000);
 			action.update();
 			var vendorFiles = [
 				'jquery.min.js',
 				'lodash.min.js',
-				'string.min.js',		
+				'string.min.js',
 				'sputility.min.js',
-				'vis.min.js',	
+				'vis.min.js',
 				'angular.min.js',
 				'angular-resource.min.js',
 				'angular-sanitize.min.js',
@@ -496,42 +452,74 @@
 				'ngJsTree.min.js'
 			];
 			var sequenceCounter = 0;
-			_.each(vendorFiles, function(fileName){
+			_.each(vendorFiles, function (fileName) {
 				var action = userCustomActions.add();
 				action.set_location("ScriptLink");
 				action.set_title(fileName);
 				//action.set_scriptSrc(opts.cdn + '/' + fileName);	
 				action.set_scriptSrc('~site/SitePages/' + fileName);
-				sequenceCounter = sequenceCounter+10;			
-				action.set_sequence(1000+sequenceCounter);
+				sequenceCounter = sequenceCounter + 10;
+				action.set_sequence(1000 + sequenceCounter);
 				action.update();
 			});
 			var action = userCustomActions.add();
 			action.set_location("ScriptLink");
 			action.set_title('app.js');
-			action.set_scriptSrc(opts.cdn + "/app.js");				
-			action.set_sequence(1000+sequenceCounter);
+			action.set_scriptSrc(opts.cdn + "/app.js");
+			action.set_sequence(1000 + sequenceCounter + 10);
 			action.update();
 
 			ctx.executeQueryAsync(
-		        Function.createDelegate(this, onQuerySucceeded), 
-		        Function.createDelegate(this, onQueryFailed)
-		    );
+				Function.createDelegate(this, onQuerySucceeded),
+				Function.createDelegate(this, onQueryFailed)
+			);
 
 			return dfd.promise;
 
-			function onQuerySucceeded(){
+			function onQuerySucceeded() {
 				logger.logSuccess('Following site created: ' + opts.name, null, 'sharepointUtilities service, createSite()');
 				dfd.resolve();
 			}
 
-			function onQueryFailed(sender, args){
+			function onQueryFailed(sender, args) {
 				logger.logError('Request failed: ' + args.get_message(), args.get_stackTrace(), 'sharepointUtilities service, createSite()');
-		    	dfd.reject();
+				dfd.reject();
 			}
 		}
 
-		function createTypeaheadDataSourceForSiteUsersList(){
+		function createOrUpdateFile(opts) {
+			var dfd = $q.defer();
+
+			var folderUrl = opts.destinationWebUrl + "/" + opts.destinationWebFolderUrl;
+			var fileUrl = opts.destinationWebUrl + "/" + opts.destinationWebFolderUrl + '/' + opts.destinationFileUrl;
+			var restURI = opts.destinationWebUrl + "/_api/web/GetFolderByServerRelativeUrl('" + folderUrl + "')/Files/Add(url='" + fileUrl + "', overwrite=true)";
+
+			var byteArray = new SP.Base64EncodedByteArray();
+			for (var i = 0; i < opts.fileContent.length; i++) {
+				byteArray.append(opts.fileContent.charCodeAt(i));
+			}
+			var binaryForRequestBody = byteArray.toBase64String();
+
+			$.ajax({
+				url: restURI,
+				type: "POST",
+				data: opts.fileContent,
+				headers: {
+					"X-RequestDigest": $("#__REQUESTDIGEST").val()
+				}
+			})
+				.then(function () {
+					logger.logSuccess('Updated file: (' + fileUrl + ')', null, 'sharepointUtilities service, createOrUpdateFile()');
+					dfd.resolve();
+				})
+				.fail(function (args) {
+					logger.logError('Request failed: ' + args.get_message(), args.get_stackTrace(), 'sharepointUtilities service, createOrUpdateFile()');
+					dfd.reject();
+				})
+			return dfd.promise;
+		}
+
+		function createTypeaheadDataSourceForSiteUsersList() {
 			// constructs the suggestion engine
             var bhSource = new Bloodhound({
                 datumTokenizer: Bloodhound.tokenizers.obj.whitespace('value'),
@@ -541,92 +529,92 @@
 					// tolower is in OData spec, but not SP2013 REST https://msdn.microsoft.com/en-us/library/office/fp142385(v=office.15).aspx#bk_supported
                     url: _spPageContextInfo.webServerRelativeUrl + "/_api/web/siteusers?$filter=substringof('%QUERY', Title)",
                     wildcard: '%QUERY',
-                    transform: function(response){
+                    transform: function (response) {
                         return response.value;
                     }
                 }
             });
 
 			var emptyMsg = [
-					'<div class="empty-message">',
-        				'unable to find any users in the SharePoint directory matching your search (Please ensure case-sensitivity e.g. Smith instead of smith)',
-      				'</div>'
-				].join('\n');	  
-			
+				'<div class="empty-message">',
+				'unable to find any users in the SharePoint directory matching your search (Please ensure case-sensitivity e.g. Smith instead of smith)',
+				'</div>'
+			].join('\n');
+
 			return {
 				name: 'spuserlist',
 				display: 'Title',
-				source: bhSource, 
-				templates:{
+				source: bhSource,
+				templates: {
 					empty: emptyMsg,
-					suggestion: function(data) {
+					suggestion: function (data) {
 						return '<div>' + data.Title + '<br/><small class="text-muted">' + data.Email + '</small></div>';
 					}
 				}
             };
 		}
 
-		function deleteFiles(opts){
+		function deleteFiles(opts) {
 			var dfd = $q.defer();
 			var ctx = new SP.ClientContext(opts.webUrl);
-	    	var spWeb = ctx.get_web();	
+			var spWeb = ctx.get_web();
 
-			_.each(opts.fileUrls, function(fileUrl){
+			_.each(opts.fileUrls, function (fileUrl) {
 				var file = spWeb.getFileByServerRelativeUrl(fileUrl);
-        		file.deleteObject();
+				file.deleteObject();
 			});
-			
-			ctx.executeQueryAsync(
-		        Function.createDelegate(this, onQuerySucceeded), 
-		        Function.createDelegate(this, onQueryFailed)
-		    );
 
-			function onQuerySucceeded(){
+			ctx.executeQueryAsync(
+				Function.createDelegate(this, onQuerySucceeded),
+				Function.createDelegate(this, onQueryFailed)
+			);
+
+			function onQuerySucceeded() {
 				logger.logSuccess('Following file(s) deleted: ' + opts.fileUrls.join(', '), null, 'sharepointUtilities service, deleteFiles()');
 				dfd.resolve();
 			}
 
-			function onQueryFailed(sender, args){
+			function onQueryFailed(sender, args) {
 				logger.logError('Request failed: ' + args.get_message(), args.get_stackTrace(), 'sharepointUtilities service, deleteFiles()');
-		    	dfd.reject();
+				dfd.reject();
 			}
 		}
 
-		function deleteLists(opts){
+		function deleteLists(opts) {
 			var dfd = $q.defer();
 			var ctx = new SP.ClientContext(opts.webUrl);
-	    	var spWeb = ctx.get_web();	
+			var spWeb = ctx.get_web();
 
-			_.each(opts.listTitles, function(listTitle){
+			_.each(opts.listTitles, function (listTitle) {
 				var list = spWeb.get_lists().getByTitle(listTitle);
-    			list.deleteObject();
+				list.deleteObject();
 			});
-			
-			ctx.executeQueryAsync(
-		        Function.createDelegate(this, onQuerySucceeded), 
-		        Function.createDelegate(this, onQueryFailed)
-		    );
 
-			function onQuerySucceeded(){
+			ctx.executeQueryAsync(
+				Function.createDelegate(this, onQuerySucceeded),
+				Function.createDelegate(this, onQueryFailed)
+			);
+
+			function onQuerySucceeded() {
 				logger.logSuccess('Following list(s) deleted: ' + opts.listTitles.join(', '), null, 'sharepointUtilities service, deleteLists()');
 				dfd.resolve();
 			}
 
-			function onQueryFailed(sender, args){
+			function onQueryFailed(sender, args) {
 				logger.logError('Request failed: ' + args.get_message(), args.get_stackTrace(), 'sharepointUtilities service, deleteLists()');
-		    	dfd.reject();
+				dfd.reject();
 			}
 		}
 
-		function generateWebpartPropertyTags(webPartProperties){
+		function generateWebpartPropertyTags(webPartProperties) {
 			var xml = '';
-			_.each(webPartProperties, function(prop){
+			_.each(webPartProperties, function (prop) {
 
 				var attributes = '';
-				_.each(prop.attributes, function(val, key){
-					attributes += key +'="' + val + '" ';
+				_.each(prop.attributes, function (val, key) {
+					attributes += key + '="' + val + '" ';
 				});
-				
+
 				xml +=
 					[
 						"<property ",
@@ -635,12 +623,47 @@
 						(prop.innerText || ''),
 						"</property>"
 					].join('');
-			
+
 			});
 			return xml;
 		}
 
-		function getFormDigestForTargetSite(opts){
+		function getFilesFromFolder(opts) {
+			var dfd = $q.defer();
+			var ctx = new SP.ClientContext(opts.webUrl);
+			var spWeb = ctx.get_web();
+
+			// do not need subfolders, so no need to use SP.CamlQuery.createAllItemsQuery
+			var folder = spWeb.getFolderByServerRelativeUrl(opts.folderServerRelativeUrl);
+			var spFiles = folder.get_files();
+			ctx.load(spFiles);
+
+			ctx.executeQueryAsync(
+				Function.createDelegate(this, onQuerySucceeded),
+				Function.createDelegate(this, onQueryFailed)
+			);
+
+			return dfd.promise;
+
+			function onQuerySucceeded() {
+				var files = [];
+				var listItemEnumerator = spFiles.getEnumerator();
+				while (listItemEnumerator.moveNext()) {
+					var spFile = listItemEnumerator.get_current();
+					files.push({
+						name: spFile.get_name()
+					})
+				}
+				dfd.resolve(files);
+			}
+
+			function onQueryFailed(sender, args) {
+				logger.logError('Request failed: ' + args.get_message(), args.get_stackTrace(), 'sharepointUtilities service, getFilesFromFolder()');
+				dfd.reject();
+			}
+		}
+
+		function getFormDigestForTargetSite(opts) {
 			var dfd = $q.defer();
 			$.ajax({
 				url: opts.destinationWebUrl + "/_api/contextinfo",
@@ -650,121 +673,86 @@
 					"Accept": "application/json;odata=verbose"
 				}
 			})
-			.then(function(data){
-				opts.formDigestForTargetWeb = data.d.GetContextWebInformation.FormDigestValue;
-				dfd.resolve(opts);
-			})
-			.fail(function(ex){
-				dfd.reject("Error retrieving form digest:" + ex);
-			});
+				.then(function (data) {
+					opts.formDigestForTargetWeb = data.d.GetContextWebInformation.FormDigestValue;
+					dfd.resolve(opts);
+				})
+				.fail(function (ex) {
+					dfd.reject("Error retrieving form digest:" + ex);
+				});
 			return dfd.promise;
 		}
 
-		function getFilesFromFolder(opts){
-			var dfd = $q.defer();
-			var ctx = new SP.ClientContext(opts.webUrl);
-    		var spWeb = ctx.get_web();
-		    
-			// do not need subfolders, so no need to use SP.CamlQuery.createAllItemsQuery
-			var folder = spWeb.getFolderByServerRelativeUrl(opts.folderServerRelativeUrl);
-        	var spFiles = folder.get_files();
-        	ctx.load(spFiles);
-
-			ctx.executeQueryAsync(
-		        Function.createDelegate(this, onQuerySucceeded), 
-		        Function.createDelegate(this, onQueryFailed)
-		    );
-		    
-		    return dfd.promise;
-		    
-		    function onQuerySucceeded(){
-				var files = [];
-				var listItemEnumerator = spFiles.getEnumerator();
-           	 	while (listItemEnumerator.moveNext()) {
-					var spFile = listItemEnumerator.get_current();
-					files.push({
-						name: spFile.get_name()
-					})             
-            	}
-				dfd.resolve(files);                          
-			}
-
-			function onQueryFailed(sender, args){
-		    	logger.logError('Request failed: ' + args.get_message(), args.get_stackTrace(), 'sharepointUtilities service, getFilesFromFolder()');
-		    	dfd.reject();
-		    }
-		}
-	    
-		function getLists(webUrl){
+		function getLists(webUrl) {
 			var dfd = $q.defer();
 			var ctx = new SP.ClientContext(webUrl);
-    		var spWeb = ctx.get_web();
-    		var listCollection = spWeb.get_lists();
+			var spWeb = ctx.get_web();
+			var listCollection = spWeb.get_lists();
 
-			
-   			var queryResult = ctx.loadQuery(listCollection, 'Include(Id,Title,BaseTemplate,Fields.Include(Title,InternalName,TypeDisplayName,Hidden,TypeAsString),Views.Include(Title,Hidden))');
-		    ctx.executeQueryAsync(
-		        Function.createDelegate(this, onQuerySucceeded), 
-		        Function.createDelegate(this, onQueryFailed)
-		    );
-		    
-		    return dfd.promise;
-		    
-		    function onQuerySucceeded(){
-		    	
-		    	var lists = [];
-		    	for (var i = 0; i < queryResult.length; i++) {
-			        var currList = queryResult[i];
-			        var list = {guid: currList.get_id().toString(), name: currList.get_title(), baseTemplateType: currList.get_baseTemplate(), fields:[], views:[]}; 
-			        
-			        //REST EQUIVALENT FOR NON-HIDDEN FIELDS: /_api/web/lists/getbytitle('Documents')/fields?$filter=Hidden eq false
-			        var fieldsForCurrentList = currList.get_fields();
-			        var fieldEnumerator = fieldsForCurrentList.getEnumerator();   
-			        while (fieldEnumerator.moveNext()) {
-			            var currentField = fieldEnumerator.get_current();
-			            if(!currentField.get_hidden()){
-			            	list.fields.push({
-			            		displayName: currentField.get_title(), 
-			            		internalName: currentField.get_internalName(),
-			            		typeForSchemaDefinition: currentField.get_typeAsString(), 
-			            		type: currentField.get_typeDisplayName()
-			            	});
-			            }
-			        }
-					
+
+			var queryResult = ctx.loadQuery(listCollection, 'Include(Id,Title,BaseTemplate,Fields.Include(Title,InternalName,TypeDisplayName,Hidden,TypeAsString),Views.Include(Title,Hidden))');
+			ctx.executeQueryAsync(
+				Function.createDelegate(this, onQuerySucceeded),
+				Function.createDelegate(this, onQueryFailed)
+			);
+
+			return dfd.promise;
+
+			function onQuerySucceeded() {
+
+				var lists = [];
+				for (var i = 0; i < queryResult.length; i++) {
+					var currList = queryResult[i];
+					var list = { guid: currList.get_id().toString(), name: currList.get_title(), baseTemplateType: currList.get_baseTemplate(), fields: [], views: [] };
+
+					//REST EQUIVALENT FOR NON-HIDDEN FIELDS: /_api/web/lists/getbytitle('Documents')/fields?$filter=Hidden eq false
+					var fieldsForCurrentList = currList.get_fields();
+					var fieldEnumerator = fieldsForCurrentList.getEnumerator();
+					while (fieldEnumerator.moveNext()) {
+						var currentField = fieldEnumerator.get_current();
+						if (!currentField.get_hidden()) {
+							list.fields.push({
+								displayName: currentField.get_title(),
+								internalName: currentField.get_internalName(),
+								typeForSchemaDefinition: currentField.get_typeAsString(),
+								type: currentField.get_typeDisplayName()
+							});
+						}
+					}
+
 					//REST EQUIVALENT FOR NON-HIDDEN VIEWS: /_api/web/lists/getbytitle('Documents')/views?$filter=Hidden eq false
-			        var viewsForCurrentList = currList.get_views();
-			        var viewsEnumerator = viewsForCurrentList.getEnumerator();   
-			        while (viewsEnumerator.moveNext()) {
-			            var currentView = viewsEnumerator.get_current();
-			            if(!currentView.get_hidden()){
-			            	list.views.push({
-			            		title: currentView.get_title()			            	
-			            	});
-			  	          }
-			        }
-		        
-			        
-			        lists.push(list);
-			    }
+					var viewsForCurrentList = currList.get_views();
+					var viewsEnumerator = viewsForCurrentList.getEnumerator();
+					while (viewsEnumerator.moveNext()) {
+						var currentView = viewsEnumerator.get_current();
+						if (!currentView.get_hidden()) {
+							list.views.push({
+								title: currentView.get_title()
+							});
+						}
+					}
 
-		    	dfd.resolve(lists);
-		    }
-		    function onQueryFailed(sender, args){
-		    	logger.logError('Request failed: ' + args.get_message(), args.get_stackTrace(), 'sharepointUtilities service, getLists()');
-		    	dfd.reject();
-		    }
+
+					lists.push(list);
+				}
+
+				dfd.resolve(lists);
+			}
+			function onQueryFailed(sender, args) {
+				logger.logError('Request failed: ' + args.get_message(), args.get_stackTrace(), 'sharepointUtilities service, getLists()');
+				dfd.reject();
+			}
 		}
 
-		function provisionListViewWebparts(webpartPageDef){
-			var webpartDefs = _.map(webpartPageDef.listviewWebparts, function(def){
+		function provisionListViewWebparts(webpartPageDef) {
+			var webpartDefs = _.map(webpartPageDef.listviewWebparts, function (def) {
 				def.webUrl = webpartPageDef.webUrl;
-				def.aspxFileUrl = webpartPageDef.webUrl + "/" + webpartPageDef.folderName + '/' +webpartPageDef.aspxFileName;
+				def.aspxFileUrl = webpartPageDef.webUrl + "/" + webpartPageDef.folderName + '/' + webpartPageDef.aspxFileName;
 				return def;
 			});
 
-			var listviewWebpartsChain = webpartDefs.reduce(function(previousPromise, webPartDef){
-				return previousPromise.then(function(){
+			var listviewWebpartsChain = webpartDefs.reduce(function (previousPromise, webPartDef) {
+				return previousPromise.then(function () {
 					return addListViewWebPart(webPartDef);
 				});
 			}, $q.when());
@@ -773,15 +761,15 @@
 			return listviewWebpartsChain;
 		}
 
-		function provisionScriptEditorWebparts(webpartPageDef){
-			var webpartDefs = _.map(webpartPageDef.scriptEditorWebparts, function(def){
+		function provisionScriptEditorWebparts(webpartPageDef) {
+			var webpartDefs = _.map(webpartPageDef.scriptEditorWebparts, function (def) {
 				def.webUrl = webpartPageDef.webUrl;
-				def.aspxFileUrl = webpartPageDef.webUrl + "/" + webpartPageDef.folderName + '/' +webpartPageDef.aspxFileName;
+				def.aspxFileUrl = webpartPageDef.webUrl + "/" + webpartPageDef.folderName + '/' + webpartPageDef.aspxFileName;
 				return def;
 			});
 
-			var scriptEditorWebpartsChain = webpartDefs.reduce(function(previousPromise, webPartDef){
-				return previousPromise.then(function(){
+			var scriptEditorWebpartsChain = webpartDefs.reduce(function (previousPromise, webPartDef) {
+				return previousPromise.then(function () {
 					return addScriptEditorWebPart(webPartDef);
 				});
 			}, $q.when());
@@ -790,140 +778,140 @@
 			return scriptEditorWebpartsChain;
 		}
 
-		function updateChoiceField(opts){
+		function updateChoiceField(opts) {
 			var dfd = $q.defer();
 			var ctx = new SP.ClientContext(opts.webUrl);
-	    	var spWeb = ctx.get_web();	
+			var spWeb = ctx.get_web();
 			var list = spWeb.get_lists().getByTitle(opts.listName);
 
-			_.each(opts.fieldsToUpdate, function(change){
+			_.each(opts.fieldsToUpdate, function (change) {
 				var choiceField = list.get_fields().getByInternalNameOrTitle(change.fieldName);
 				var spChoiceField = ctx.castTo(choiceField, SP.FieldChoice);
 				spChoiceField.set_choices(change.options);
-            	spChoiceField.updateAndPushChanges();
+				spChoiceField.updateAndPushChanges();
 			});
 
 			ctx.executeQueryAsync(
-		        Function.createDelegate(this, onQuerySucceeded), 
-		        Function.createDelegate(this, onQueryFailed)
-		    );
+				Function.createDelegate(this, onQuerySucceeded),
+				Function.createDelegate(this, onQueryFailed)
+			);
 
 			return dfd.promise;
 
-			function onQuerySucceeded(){
-				logger.logSuccess('Choice fields ('+_.pluck(opts.fieldsToUpdate, 'fieldName')+') updated in the lists ' + opts.listName, null, 'sharepointUtilities service, updateChoiceFields()');
+			function onQuerySucceeded() {
+				logger.logSuccess('Choice fields (' + _.pluck(opts.fieldsToUpdate, 'fieldName') + ') updated in the lists ' + opts.listName, null, 'sharepointUtilities service, updateChoiceFields()');
 				dfd.resolve();
 			}
 
-			function onQueryFailed(sender, args){
+			function onQueryFailed(sender, args) {
 				logger.logError('Request failed: Updating of choice field(s) failed for the list ' + opts.listName + ': ' + args.get_message(), args.get_stackTrace(), 'sharepointUtilities service, updateChoiceFields()');
-		    	dfd.reject();
+				dfd.reject();
 			}
 		}
 
-		function updateChoiceFields(defs){
-			var promiseChain = defs.reduce(function(previousPromise, def){
-				return previousPromise.then(function(){
+		function updateChoiceFields(defs) {
+			var promiseChain = defs.reduce(function (previousPromise, def) {
+				return previousPromise.then(function () {
 					return updateChoiceField(def);
 				});
 			}, $q.when());
 
-			return promiseChain.then(function(){
+			return promiseChain.then(function () {
 				console.log("All Choice fields updated")
 			});
 		}
 	}
 
 	fieldAttributeValuesValidation.$inject = ['logger'];
-	function fieldAttributeValuesValidation(logger){
+	function fieldAttributeValuesValidation(logger) {
 		return {
-				AppendOnly: function(val){
-					return _.isString(val) && _.contains(['TRUE', 'FALSE'], val.toUpperCase());			
-				},	
-				Decimals: function(val){
-					return _.isNumber(val);				
-				},
-				Description: function(val){
-					return _.isString(val);				
-				},				
-				DisplayName: function(val){
-					return _.isString(val);				
-				},
-				FillInChoice: function(val){
-					return _.isString(val) && _.contains(['TRUE', 'FALSE'], val.toUpperCase());			
-				},
-				Format: function(val){
-					return _.isString(val) && _.contains(['Calculated', 'DateOnly', 'DateTime', 'Dropdown', 'Hyperlink', 'Image', 'RadioButtons'], val);			
-				},
-				Hidden: function(val){
-					return _.isString(val) && _.contains(['TRUE', 'FALSE'], val.toUpperCase());			
-				},
-				List: function(val){
-					return _.isString(val);				
-				},
-				Max: function(val){
-					return _.isNumber(val);				
-				},	
-				MaxLength: function(val){
-					return _.isNumber(val);				
-				},	
-				Min: function(val){
-					return _.isNumber(val);				
-				},
-				Mult: function(val){
-					return _.isString(val) && _.contains(['TRUE', 'FALSE'], val.toUpperCase());			
-				},			
-				Name: function(val){
-					return _.isString(val);				
-				},
-				NumLines: function(val){
-					return _.isNumber(val);				
-				},	
-				ReadOnly: function(val){
-					return _.isString(val) && _.contains(['TRUE', 'FALSE'], val.toUpperCase());			
-				},	
-				Required: function(val){
-					return _.isString(val) && _.contains(['TRUE', 'FALSE'], val.toUpperCase());			
-				},
-				ResultType: function(val){
-					return _.isString(val);				
-				},
-				RichText: function(val){
-					return _.isString(val) && _.contains(['TRUE', 'FALSE'], val.toUpperCase());			
-				},
-				ShowField: function(val){
-					return _.isString(val);				
-				},
-				ShowInEditForm: function(val){
-					return _.isString(val) && _.contains(['TRUE', 'FALSE'], val.toUpperCase());			
-				},
-				ShowInNewForm: function(val){
-					return _.isString(val) && _.contains(['TRUE', 'FALSE'], val.toUpperCase());			
-				},
-				Type: function(val){
-					return _.isString(val) && _.contains(['Boolean', 'Calculated', 'Choice', 'DateTime', 'Lookup', 'LookupMulti', 'MultiChoice','Note', 'Number', 'Text', 'URL', 'User', 'UserMulti'], val);			
-				},
-				UserSelectionMode: function(val){
-					return _.isString(val) && _.contains(['PeopleAndGroups', 'PeopleOnly'], val);			
-				}		
-			};
+			AppendOnly: function (val) {
+				return _.isString(val) && _.contains(['TRUE', 'FALSE'], val.toUpperCase());
+			},
+			Decimals: function (val) {
+				return _.isNumber(val);
+			},
+			Description: function (val) {
+				return _.isString(val);
+			},
+			DisplayName: function (val) {
+				return _.isString(val);
+			},
+			FillInChoice: function (val) {
+				return _.isString(val) && _.contains(['TRUE', 'FALSE'], val.toUpperCase());
+			},
+			Format: function (val) {
+				return _.isString(val) && _.contains(['Calculated', 'DateOnly', 'DateTime', 'Dropdown', 'Hyperlink', 'Image', 'RadioButtons'], val);
+			},
+			Hidden: function (val) {
+				return _.isString(val) && _.contains(['TRUE', 'FALSE'], val.toUpperCase());
+			},
+			List: function (val) {
+				return _.isString(val);
+			},
+			Max: function (val) {
+				return _.isNumber(val);
+			},
+			MaxLength: function (val) {
+				return _.isNumber(val);
+			},
+			Min: function (val) {
+				return _.isNumber(val);
+			},
+			Mult: function (val) {
+				return _.isString(val) && _.contains(['TRUE', 'FALSE'], val.toUpperCase());
+			},
+			Name: function (val) {
+				return _.isString(val);
+			},
+			NumLines: function (val) {
+				return _.isNumber(val);
+			},
+			ReadOnly: function (val) {
+				return _.isString(val) && _.contains(['TRUE', 'FALSE'], val.toUpperCase());
+			},
+			Required: function (val) {
+				return _.isString(val) && _.contains(['TRUE', 'FALSE'], val.toUpperCase());
+			},
+			ResultType: function (val) {
+				return _.isString(val);
+			},
+			RichText: function (val) {
+				return _.isString(val) && _.contains(['TRUE', 'FALSE'], val.toUpperCase());
+			},
+			ShowField: function (val) {
+				return _.isString(val);
+			},
+			ShowInEditForm: function (val) {
+				return _.isString(val) && _.contains(['TRUE', 'FALSE'], val.toUpperCase());
+			},
+			ShowInNewForm: function (val) {
+				return _.isString(val) && _.contains(['TRUE', 'FALSE'], val.toUpperCase());
+			},
+			Type: function (val) {
+				return _.isString(val) && _.contains(['Boolean', 'Calculated', 'Choice', 'DateTime', 'Lookup', 'LookupMulti', 'MultiChoice', 'Note', 'Number', 'Text', 'URL', 'User', 'UserMulti'], val);
+			},
+			UserSelectionMode: function (val) {
+				return _.isString(val) && _.contains(['PeopleAndGroups', 'PeopleOnly'], val);
+			}
+		};
 	}
-	
+
 	fieldXmlGeneration.$inject = ['fieldAttributeValuesValidation', 'logger'];
-	function fieldXmlGeneration(fieldAttributeValuesValidation, logger){
+	function fieldXmlGeneration(fieldAttributeValuesValidation, logger) {
 		var svc = {
-			generate: generate		
+			generate: generate
 		};
 		return svc;
-		
-		
-		
-		function generate(mapping){
-			if( !mapping.Type || !mapping.Name || !mapping.DisplayName){
+
+
+
+		function generate(mapping) {
+			if (!mapping.Type || !mapping.Name || !mapping.DisplayName) {
 				logger.logWarning("Type, Name and Display Name are always required anytime you create a SharePoint field");
-				return "";			
+				return "";
 			}
-			
+
 			var funcs = {
 				"Boolean": generateCamlForBooleanField,
 				"Calculated": generateCamlForCalculatedField,
@@ -931,65 +919,65 @@
 				"DateTime": generateCamlForDateTimeField,
 				"Lookup": generateCamlForLookupField,
 				"LookupMulti": generateCamlForLookupMultiField,
-				"MultiChoice": generateCamlForMultiChoiceField,		
+				"MultiChoice": generateCamlForMultiChoiceField,
 				"Note": generateCamlForNoteField,
 				"Number": generateCamlForNumberField,
 				"Text": generateCamlForTextField,
 				"URL": generateCamlForUrlField,
 				"User": generateCamlForUserField,
-				"UserMulti": generateCamlForUserMultiField		
-			};	
-						
-			return funcs[mapping.Type](mapping);				
+				"UserMulti": generateCamlForUserMultiField
+			};
+
+			return funcs[mapping.Type](mapping);
 		}
-		
-		
-				
-		function generateCaml(mapping, supportedAttrs){
+
+
+
+		function generateCaml(mapping, supportedAttrs) {
 			var validSettings = {};
 			var choicesCaml = "";
 			var defaultCaml = "";
 			var formulaCaml = "";
 			var fieldRefsCaml = "";
-						
-			_.each(supportedAttrs, function(attr){
+
+			_.each(supportedAttrs, function (attr) {
 				var attrVal = mapping[attr];
-				
-				if(attrVal === 0 || !!attrVal){
-					if(attr === "Default"){
-						defaultCaml = "<Default>" + attrVal + '</Default>';				
-					} else if(attr === "Formula"){
-						formulaCaml = "<Formula>" + attrVal + '</Formula>';	
-					} else if(attr === "Choices" && _.isArray(attrVal)){
-						choicesCaml = _.map(attrVal, function(option){
-							return "<CHOICE>" + option + "</CHOICE>";				
+
+				if (attrVal === 0 || !!attrVal) {
+					if (attr === "Default") {
+						defaultCaml = "<Default>" + attrVal + '</Default>';
+					} else if (attr === "Formula") {
+						formulaCaml = "<Formula>" + attrVal + '</Formula>';
+					} else if (attr === "Choices" && _.isArray(attrVal)) {
+						choicesCaml = _.map(attrVal, function (option) {
+							return "<CHOICE>" + option + "</CHOICE>";
 						})
-						.join('');
+							.join('');
 						choicesCaml = "<CHOICES>" + choicesCaml + "</CHOICES>";
-					} else if(attr === "FieldRefs" && _.isArray(attrVal)){
-						fieldRefsCaml = _.map(attrVal, function(internalFieldName){
-							return  "<FieldRef Name='" + internalFieldName +"' />";				
+					} else if (attr === "FieldRefs" && _.isArray(attrVal)) {
+						fieldRefsCaml = _.map(attrVal, function (internalFieldName) {
+							return "<FieldRef Name='" + internalFieldName + "' />";
 						})
-						.join('');
+							.join('');
 						fieldRefsCaml = "<FieldRefs>" + fieldRefsCaml + "</FieldRefs>";
-					} else{
-						if( fieldAttributeValuesValidation[attr] && fieldAttributeValuesValidation[attr](attrVal)){				
-							validSettings[attr] = attrVal;				
+					} else {
+						if (fieldAttributeValuesValidation[attr] && fieldAttributeValuesValidation[attr](attrVal)) {
+							validSettings[attr] = attrVal;
 						}
 					}
 				}
 			});
-			
-			if(!validSettings["StaticName"]){
-				validSettings["StaticName"] = validSettings["Name"]	
+
+			if (!validSettings["StaticName"]) {
+				validSettings["StaticName"] = validSettings["Name"]
 			}
-			
+
 			var strAttrs = '';
-			
-			 _.each(validSettings, function(val, attr){
-				strAttrs += ' ' + attr + "='" + val + "'"; 			
-			});			
-			
+
+			_.each(validSettings, function (val, attr) {
+				strAttrs += ' ' + attr + "='" + val + "'";
+			});
+
 			return [
 				'<Field',
 				strAttrs,
@@ -999,77 +987,77 @@
 				formulaCaml,
 				fieldRefsCaml,
 				'</Field>'
-				].join('');	
-				
-				
+			].join('');
+
+
 		}
-			
-		function generateCamlForBooleanField(mapping){
+
+		function generateCamlForBooleanField(mapping) {
 			var supported = ["Name", "DisplayName", "Type", "Default", "Description", "ShowInNewForm", "ShowInEditForm", "Hidden"];
-			return generateCaml(mapping, supported);		
-		}
-		
-		function generateCamlForCalculatedField(mapping){
-   			var supported = ["Name", "DisplayName", "Type", "Required", "ResultType", "ReadOnly", "Formula", "FieldRefs", "Description", "Format"];			
 			return generateCaml(mapping, supported);
 		}
-		
-		function generateCamlForDateTimeField(mapping){
-			var supported = ["Name", "DisplayName", "Type", "Required", "Format", "Default", "Description", "ShowInNewForm", "ShowInEditForm", "Hidden"];			
-			return generateCaml(mapping, supported);
-		}		
-		
-		function generateCamlForChoiceField(mapping){			
-			var supported = ["Name", "DisplayName", "Type", "Format", "Required", "Choices", "FillInChoice", "Default", "Description", "ShowInNewForm", "ShowInEditForm", "Hidden"];			
+
+		function generateCamlForCalculatedField(mapping) {
+			var supported = ["Name", "DisplayName", "Type", "Required", "ResultType", "ReadOnly", "Formula", "FieldRefs", "Description", "Format"];
 			return generateCaml(mapping, supported);
 		}
-		
-		function generateCamlForLookupField(mapping){
-			var supported = ["Name", "DisplayName", "Type", "Required", "List", "ShowField", "Description", "ShowInNewForm", "ShowInEditForm", "Hidden"];			
+
+		function generateCamlForDateTimeField(mapping) {
+			var supported = ["Name", "DisplayName", "Type", "Required", "Format", "Default", "Description", "ShowInNewForm", "ShowInEditForm", "Hidden"];
 			return generateCaml(mapping, supported);
-		}	
-		
-		function generateCamlForLookupMultiField(mapping){
-			var supported = ["Name", "DisplayName", "Type", "Required", "List", "ShowField", "Mult", "Description", "ShowInNewForm", "ShowInEditForm", "Hidden"];			
+		}
+
+		function generateCamlForChoiceField(mapping) {
+			var supported = ["Name", "DisplayName", "Type", "Format", "Required", "Choices", "FillInChoice", "Default", "Description", "ShowInNewForm", "ShowInEditForm", "Hidden"];
 			return generateCaml(mapping, supported);
-		}		
-	
-		function generateCamlForMultiChoiceField(mapping){
-			var supported = ["Name", "DisplayName", "Type", "Format", "Required", "Choices", "FillInChoice", "Default", "Description", "ShowInNewForm", "ShowInEditForm", "Hidden"];	
-			return generateCaml(mapping, supported);		
-		}	
-		
-		function generateCamlForNoteField(mapping){
+		}
+
+		function generateCamlForLookupField(mapping) {
+			var supported = ["Name", "DisplayName", "Type", "Required", "List", "ShowField", "Description", "ShowInNewForm", "ShowInEditForm", "Hidden"];
+			return generateCaml(mapping, supported);
+		}
+
+		function generateCamlForLookupMultiField(mapping) {
+			var supported = ["Name", "DisplayName", "Type", "Required", "List", "ShowField", "Mult", "Description", "ShowInNewForm", "ShowInEditForm", "Hidden"];
+			return generateCaml(mapping, supported);
+		}
+
+		function generateCamlForMultiChoiceField(mapping) {
+			var supported = ["Name", "DisplayName", "Type", "Format", "Required", "Choices", "FillInChoice", "Default", "Description", "ShowInNewForm", "ShowInEditForm", "Hidden"];
+			return generateCaml(mapping, supported);
+		}
+
+		function generateCamlForNoteField(mapping) {
 			var supported = ["Name", "DisplayName", "Type", "Required", "NumLines", "RichText", "AppendOnly", "Description", "ShowInNewForm", "ShowInEditForm", "Hidden"];
-			return generateCaml(mapping, supported);		
-		}	
-		
-		function generateCamlForNumberField(mapping){			
-			var supported = ["Name", "DisplayName", "Type", "Required", "Decimals", "Min", "Max", "Default", "Description", "ShowInNewForm", "ShowInEditForm", "Hidden"];			
 			return generateCaml(mapping, supported);
-
-		}	
-		
-		function generateCamlForTextField(mapping){
-			var supported = ["Name", "DisplayName", "Type", "Required", "MaxLength", "Default", "Description", "ShowInNewForm", "ShowInEditForm", "Hidden"];
-			return generateCaml(mapping, supported);		
 		}
-		
-		function generateCamlForUrlField(mapping){
-			var supported = ["Name", "DisplayName", "Type", "Required", "Format", "Description", "ShowInNewForm", "ShowInEditForm", "Hidden"];			
-			return generateCaml(mapping, supported);
-		}		
 
-		function generateCamlForUserField(mapping){
-			var supported = ["Name", "DisplayName", "Type", "Required", "UserSelectionMode", "ShowField", "Description", "ShowInNewForm", "ShowInEditForm", "Hidden"];			
+		function generateCamlForNumberField(mapping) {
+			var supported = ["Name", "DisplayName", "Type", "Required", "Decimals", "Min", "Max", "Default", "Description", "ShowInNewForm", "ShowInEditForm", "Hidden"];
 			return generateCaml(mapping, supported);
-		}		
-	
-		function generateCamlForUserMultiField(mapping){
-			var supported = ["Name", "DisplayName", "Type", "Required", "UserSelectionMode", "ShowField", "Mult", "Description", "ShowInNewForm", "ShowInEditForm", "Hidden"];			
+
+		}
+
+		function generateCamlForTextField(mapping) {
+			var supported = ["Name", "DisplayName", "Type", "Required", "MaxLength", "Default", "Description", "ShowInNewForm", "ShowInEditForm", "Hidden"];
 			return generateCaml(mapping, supported);
-		}	
-				
+		}
+
+		function generateCamlForUrlField(mapping) {
+			var supported = ["Name", "DisplayName", "Type", "Required", "Format", "Description", "ShowInNewForm", "ShowInEditForm", "Hidden"];
+			return generateCaml(mapping, supported);
+		}
+
+		function generateCamlForUserField(mapping) {
+			var supported = ["Name", "DisplayName", "Type", "Required", "UserSelectionMode", "ShowField", "Description", "ShowInNewForm", "ShowInEditForm", "Hidden"];
+			return generateCaml(mapping, supported);
+		}
+
+		function generateCamlForUserMultiField(mapping) {
+			var supported = ["Name", "DisplayName", "Type", "Required", "UserSelectionMode", "ShowField", "Mult", "Description", "ShowInNewForm", "ShowInEditForm", "Hidden"];
+			return generateCaml(mapping, supported);
+		}
+
 	}
 })();
 
