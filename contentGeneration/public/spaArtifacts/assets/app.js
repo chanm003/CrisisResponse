@@ -613,6 +613,7 @@
                 this.FlaggedForSoacDailyUpdate = undefined; //string or null
                 this.ChopProcess = undefined; //string (ISO) or null "2016-08-01T07:00:00Z"
                 this.VersionBeingChopped = undefined; //integer or null
+                this.SelectedRouteSequence = undefined; //string or null
                 this.__metadata = {
                     type: "SP.Data.MissionDocumentsItem"
                 };
@@ -632,6 +633,7 @@
             dto.__metadata = this.__metadata;
             dto.ChopProcess = (new Date()).toISOString();
             dto.MissionId = this.Mission.Id;
+            dto.SelectedRouteSequence = this.SelectedRouteSequence;
             dto.VersionBeingChopped = (this.File.MajorVersion + 1);  //initiating the chop process itself should bump the version up by one
             return MissionDocumentRepository.save(dto);
         }
@@ -821,6 +823,7 @@
         var fieldsToSelect = [
             spContext.SP2013REST.selectForCommonDocumentFields,
             'Organization,TypeOfDocument,MissionId,FlaggedForSoacDailyUpdate,DailyProductDate,ChopProcess',
+            'SelectedRouteSequence,VersionBeingChopped',
             'Mission/Id,Mission/FullName'
         ].join(',');
 
@@ -1662,13 +1665,32 @@
             function submit(){
                 scope.chopDialogCtx.submitButtonClicked = true;
                 if(scope.chopDialogCtx.hasErrors()){ return; } 
-                scope.chopDialogCtx.listItem.initiateChop().then(onChopStartedSuccessfully);
+                var selectedMission = _.find(scope.chopDialogCtx.missions, {Id: parseInt(scope.chopDialogCtx.listItem.Mission.Id, 10)});
+                scope.chopDialogCtx.listItem.SelectedRouteSequence = determineRouteSequence(selectedMission);
+
+                if(scope.chopDialogCtx.listItem.SelectedRouteSequence){
+                    scope.chopDialogCtx.listItem.initiateChop().then(onChopStartedSuccessfully);
+                }
+                
                 function onChopStartedSuccessfully(item) {
                     scope.chopProcessTimestamp = item.ChopProcess;
                     scope.chopDialogCtx.show = false;
                     logger.success("Chop Process initiated", null, "", true);
                 }
-
+                function determineRouteSequence(mission){
+                    var sequence = "";
+                    var orgConfig = jocInBoxConfig.dashboards[mission.Organization];
+                    if(orgConfig){
+                        var route = _.find(orgConfig.routes, {name: mission.ApprovalAuthority});
+                        if(route && route.sequence && route.sequence.length){
+                            sequence = route.sequence.join(';');
+                        }
+                    }
+                    if(!sequence){
+                        alert(mission.Organization + 'does not have a configured route sequence for "'+ mission.ApprovalAuthority + '"');
+                    }
+                    return sequence;
+                }
             }
         }
     }

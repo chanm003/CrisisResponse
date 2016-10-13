@@ -412,7 +412,9 @@
 			var regionalSettings = childWeb.get_regionalSettings();
 			regionalSettings.set_time24(true); //24 hour clock
 			//Full list here: https://msdn.microsoft.com/library/microsoft.sharepoint.spregionalsettings.timezones.aspx
-			var timeZone = regionalSettings.get_timeZones().getById(2); //(GMT)
+			var timeZone = regionalSettings.get_timeZones().getById(93); 
+			// 2 is (UTC) Dublin, Edinburgh, Lisbon, London (daylight bias of -60)
+			// 93 is ((UTC) Coordinated Universal Time)
 			regionalSettings.set_timeZone(timeZone);
 			regionalSettings.update();
 

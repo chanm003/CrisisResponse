@@ -326,6 +326,17 @@ crisisResponseSchema.listDefs["Mission Documents"] = {
 			FillInChoice: "FALSE",
 			Choices: ['No', 'Yes'],						//will be generated 
 			Default: ''							//(optional)
+		},
+		{
+			//EXAMPLE: SINGLE LINE OF TEXT
+			Name: "SelectedRouteSequence",
+			DisplayName: "Selected Route Sequence",
+			Description: "Set when user initiates chop process",
+			Type: "Text",
+			Required: "FALSE",
+			MaxLength: 255,
+			Default: "",							//(optional)
+			Hidden: "TRUE"
 		}
 	]
 }; 

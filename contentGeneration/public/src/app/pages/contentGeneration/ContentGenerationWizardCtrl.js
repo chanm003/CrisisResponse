@@ -354,13 +354,16 @@
 			var dashboards = {};
 			_.each(vm.componentCommands, function(org){
 				dashboards[org.name] = {
-					optionsForChoiceField: [org.name].concat(generateChoiceOptionsForStaffSection(org.name, org.staffSections))
+					optionsForChoiceField: [org.name].concat(generateChoiceOptionsForStaffSection(org.name, org.staffSections)),
+					country: org.country
 				};
 			});
 
 			_.each(vm.taskGroups, function(org){
 				dashboards[org.name] = {
-					optionsForChoiceField: [org.name]
+					optionsForChoiceField: [org.name],
+					country: org.country,
+					type: org.type
 				};
 			});
 
@@ -372,7 +375,8 @@
 
 			_.each(vm.airComponents, function(org){
 				dashboards[org.name] = {
-					optionsForChoiceField: [org.name].concat(generateChoiceOptionsForStaffSection(org.name, org.staffSections))
+					optionsForChoiceField: [org.name].concat(generateChoiceOptionsForStaffSection(org.name, org.staffSections)),
+					country: org.country
 				};
 			});
 
