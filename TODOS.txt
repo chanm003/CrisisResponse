@@ -14,15 +14,10 @@ integrate/research uifContextualMenu
 develop PoC for full page slide show 
 - https://chanm003.sharepoint.com/ngspa/instance/SitePages/projectionScrollable.aspx
 
-Refactor directive initiatechopbutton so that uses a template with replace
-- on click opens up modal, pass Missions list to modal, and the missionDocument object
-- modal contains a Mission dropdown
------- filtered by organization
-- when user clicks modal's save button
------- update two list fields (MissionId, ChopProcess)
------- onsuccess
------------- close modal
------------- update scope.chopProcessTimestamp, then write message with SPLogger 
+When user selects Mission and clicks Initiate Chop button:
+- ensure VersionBeingChopped is updated
+- find sequence of approvers in JocInBoxConfig based on selected Mission's Organization, Approval Authority
+- add field to MissionDocuments "Selected Route Sequence" of type string
 
 Need to change regional time settings to UTC
 - Dublin not good enough
