@@ -612,6 +612,7 @@
                 this.MissionId = undefined; //integer or null
                 this.FlaggedForSoacDailyUpdate = undefined; //string or null
                 this.ChopProcess = undefined; //string (ISO) or null "2016-08-01T07:00:00Z"
+                this.VersionBeingChopped = undefined; //integer or null
                 this.__metadata = {
                     type: "SP.Data.MissionDocumentsItem"
                 };
@@ -631,6 +632,7 @@
             dto.__metadata = this.__metadata;
             dto.ChopProcess = (new Date()).toISOString();
             dto.MissionId = this.Mission.Id;
+            dto.VersionBeingChopped = (this.File.MajorVersion + 1);  //initiating the chop process itself should bump the version up by one
             return MissionDocumentRepository.save(dto);
         }
 

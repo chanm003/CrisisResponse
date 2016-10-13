@@ -237,7 +237,18 @@ crisisResponseSchema.listDefs["Mission Documents"] = {
 			Format: "DateTime", 					//please use either 'DateOnly' or 'DateTime'
 			Description: "Time when user initiated the chop",
 			Default: '',						//(optional)
-			ShowInNewForm: 'TRUE',
+			ShowInNewForm: 'FALSE',
+			ShowInEditForm: 'FALSE'	
+		},
+		{
+			//EXAMPLE: DateTime
+			Name: "VersionBeingChopped",
+			DisplayName: "Version Being Chopped",
+			Type: "Number",
+			Required: "FALSE",
+			Description: "User would have initiated the chop on a specific version of the document",
+			Decimals: 0,						
+			ShowInNewForm: 'FALSE',
 			ShowInEditForm: 'FALSE'	
 		},
 		{
