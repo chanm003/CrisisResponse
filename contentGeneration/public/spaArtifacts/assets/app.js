@@ -382,6 +382,8 @@
         service.constructNgResourceForRESTCollection = constructNgResourceForRESTCollection;
         service.constructNgResourceForRESTResource = constructNgResourceForRESTResource;
         service.makeMultiChoiceRESTCompliant = makeMultiChoiceRESTCompliant;
+        service.makeMomentRESTCompliant = makeMomentRESTCompliant;
+
         service.htmlHelpers = {};
         service.htmlHelpers.buildHeroButton = function (text, href, ngShowAttrValue) {
             var html =
@@ -467,6 +469,13 @@
 
         function init() {
             refreshSecurityValidation();
+        }
+
+        function makeMomentRESTCompliant(model, propName){
+            if(model[propName] === undefined){ return; }
+            if(model[propName].isValid()){
+                model[propName] = model[propName].toISOString();
+            }
         }
 
         function makeMultiChoiceRESTCompliant(model, propName){
@@ -647,10 +656,55 @@
             }
         }
 
+        Mission.prototype.deriveFullName = function(){
+            var parts = [this.Identifier, " (", this.ObjectiveName];
+            if(this.OperationName){
+                parts.push(", ");
+                parts.push(this.OperationName);
+            }
+            parts.push(")");
+            this.FullName = parts.join("");
+        }
+
+        Mission.prototype.validate = function(){
+            var errors = [];
+            if(!this.ObjectiveName){
+                errors.push("Objective Name is a required field");
+            }
+            if(!this.Id && !this.Organization){
+                //only required on NewForm, is read-only label on EditForm
+                errors.push("Organization is a required field");
+            }
+            if(!this.Id && !this.MissionType){
+                //only required on NewForm, is read-only label on EditForm
+                errors.push("Mission Type is a required field");
+            }
+            if(!this.ApprovalAuthority){
+                errors.push("Approval Authority is a required field");
+            }
+            if(!this.Status){
+                errors.push("Status is a required field");
+            }
+            if(!this.ExpectedExecution || !this.ExpectedExecution.isValid()){
+                errors.push("Expected Execution is a required field");
+            }
+            if(!this.ParticipatingOrganizations || !this.ParticipatingOrganizations.length){
+                errors.push("Participating Organizations is a required field");
+            }
+            if(this.ExpectedTermination && this.ExpectedTermination.isValid() && (this.ExpectedExecution >= this.ExpectedTermination)){
+                errors.push("Expected Execution must preceded Expected Termination");
+            }
+
+            if(errors.length === 0){
+                //sanitize user input
+                this.ObjectiveName = _.words(this.ObjectiveName, /[a-zA-Z0-9-_]+/g).join("").toUpperCase();
+                this.OperationName = _.words(this.OperationName, /[a-zA-Z0-9-_]+/g).join("").toUpperCase();
+            }
+
+            return errors;
+        }
+
         Mission.prototype.save = function () {
-            this.MissionApproved = moment.utc(this.MissionApproved.toString()).toISOString();
-            this.ExpectedExecution = moment.utc(this.ExpectedExecution.toString()).toISOString();
-            this.ExpectedTermination = moment.utc(this.ExpectedTermination.toString()).toISOString();
             return MissionTrackerRepository.save(this);
         }
 
@@ -810,6 +864,27 @@
             listName: 'Mission Tracker'
         };
 
+        function generateMissionIdentifier(item){
+            if(item.Id && item.Identifier){
+                //do nothing, since this only should occur on NewForm save
+                item.deriveFullName();
+                return $q.when(item);
+            }
+
+            var qsParams = {$filter:"Organization eq '"+item.Organization+"'"};
+            var restCollection = spContext.constructNgResourceForRESTCollection(ngResourceConstructParams);
+            return restCollection.get(qsParams).$promise
+                .then(function(response){
+                    var orgAsOneWord = _.words(item.Organization, /[a-zA-Z0-9-_]+/g).join("").toUpperCase(); //from "SOTG 10" to "SOTG10"
+                    var numMissionsCommanded = response.d.results.length+1;
+                    var threeDigitKey = _.padStart(numMissionsCommanded, 3, 0);  //from "8" to "008"
+                    var missionTypeAcronym = item.MissionType.split(":")[0]; //from "MA: Military Assistance" to "MA"
+                    item.Identifier = [orgAsOneWord, threeDigitKey, missionTypeAcronym].join("_");
+                    item.deriveFullName();
+                    return item;
+                });
+        }
+
         function getByOrganization(orgFilter) {
             var dfd = $q.defer();
             var qsParams = {}; //{$filter:"FavoriteNumber eq 8"};
@@ -830,84 +905,32 @@
         }
 
         function save(item) {
-            spContext.makeMultiChoiceRESTCompliant(item, "ParticipatingOrganizations");
-            if(!item.Id){
-                spContext.constructNgResourceForRESTCollection(ngResourceConstructParams).post(item);
-            }
-        }
-
-        function getTestData(orgFilter) {
-            var staticData = [
-                {
-                    Id: 3,
-                    Identifier: "SOTG10_003_KS",
-                    Status: 'COA Approved',
-                    ExpectedExecution: moment(),
-                    ExpectedTermination: moment().add(3, 'days'),
-                    Organization: 'SOTG 10',
-                    ParticipatingOrganizations: {
-                        results: [
-                            'SOAC', 'SOTG 20'
-                        ]
-                    },
-                    ObjectiveName: "OBJ_HAN",
-                    ApprovalAuthority: "2B: SOCC NRF",
-                    OperationName: "OP_SOLO"
-                },
-                {
-                    Id: 8,
-                    Identifier: "SOTG10_004_DA",
-                    Status: 'Mission Closed',
-                    ExpectedExecution: moment().add(-3, 'days'),
-                    ExpectedTermination: moment().add(1, 'days'),
-                    Organization: 'SOTG 10',
-                    ParticipatingOrganizations: {
-                        results: [
-                            'SOTG 20', 'SOTG 30'
-                        ]
-                    },
-                    ObjectiveName: "OBJ_DARTH",
-                    ApprovalAuthority: "3A: NRF SOCC",
-                    OperationName: "OP_VADER"
-                },
-                {
-                    Id: 9,
-                    Identifier: "SOTG15_004_DA",
-                    Status: 'Mission Closed',
-                    ExpectedExecution: moment().add(-9, 'days'),
-                    ExpectedTermination: moment().add(-2, 'days'),
-                    Organization: 'SOTG 15',
-                    ParticipatingOrganizations: {
-                        results: [
-                            'SOLTG 35', 'SOAC'
-                        ]
-                    },
-                    ObjectiveName: "OBJ_YODA",
-                    ApprovalAuthority: "3A: NRF SOCC",
-                    OperationName: "OP_SITHLORD"
-                },
-                {
-                    Id: 11,
-                    Identifier: "SOMTG35_001_DA",
-                    Status: 'EXORD Released',
-                    ExpectedExecution: moment().add(2, 'days'),
-                    ExpectedTermination: '',
-                    Organization: 'SOMTG 35',
-                    ParticipatingOrganizations: {
-                        results: []
-                    },
-                    ObjectiveName: "OBJ_LUKE",
-                    ApprovalAuthority: "3A: NRF SOCC",
-                    OperationName: "OP_SKYWALKER"
+            return validate(item)
+                .then(generateMissionIdentifier)
+                .then(performHttpPost);
+            
+            function performHttpPost(item){
+                spContext.makeMomentRESTCompliant(item, "MissionApproved");
+                spContext.makeMomentRESTCompliant(item, "ExpectedExecution");
+                spContext.makeMomentRESTCompliant(item, "ExpectedTermination");
+                spContext.makeMultiChoiceRESTCompliant(item, "ParticipatingOrganizations");
+                if(!item.Id){
+                    var restCollection = spContext.constructNgResourceForRESTCollection(ngResourceConstructParams)
+                    return restCollection.post(item);
+                } else {
+                    var constructParams = angular.extend({}, { item: { Id: id } }, ngResourceConstructParams);
+                    var restResource = spContext.constructNgResourceForRESTResource(constructParams);
                 }
-            ];
-
-            if (orgFilter) {
-                staticData = _.filter(staticData, function (item) {
-                    return item.Organization === orgFilter || _.includes(item.ParticipatingOrganizations.results, orgFilter);
-                })
             }
-            return $q.when(staticData);
+
+            function validate(item){
+                var errors = item.validate();
+                if(errors.length){
+                    return $q.reject("\n\t-" + errors.join("\n\t-"));
+                } else {
+                    return $q.when(item);
+                }
+            }
         }
 
         return service;
@@ -1804,9 +1827,9 @@
             var msn = new Mission();
             msn.ApprovalAuthority = SPUtility.GetSPFieldByInternalName("ApprovalAuthority").GetValue();
             msn.Comments = SPUtility.GetSPFieldByInternalName("Comments").GetValue();
-            msn.ExpectedExecution = SPUtility.GetSPFieldByInternalName("ExpectedExecution").GetValue();
-            msn.ExpectedTermination = SPUtility.GetSPFieldByInternalName("ExpectedTermination").GetValue();
-            msn.MissionApproved = SPUtility.GetSPFieldByInternalName("MissionApproved").GetValue();
+            msn.ExpectedExecution = moment.utc(SPUtility.GetSPFieldByInternalName("ExpectedExecution").GetValue().toString());
+            msn.ExpectedTermination = moment.utc(SPUtility.GetSPFieldByInternalName("ExpectedTermination").GetValue().toString());
+            msn.MissionApproved = moment.utc(SPUtility.GetSPFieldByInternalName("MissionApproved").GetValue().toString());
             msn.ObjectiveName = SPUtility.GetSPFieldByInternalName("ObjectiveName").GetValue();
             msn.OperationName = SPUtility.GetSPFieldByInternalName("OperationName").GetValue();   
             msn.ParticipatingOrganizations = SPUtility.GetSPFieldByInternalName("ParticipatingOrganizations").GetValue();
@@ -1820,8 +1843,13 @@
                 msn.Id = _.getQueryStringParam("ID");
             }
             
-            console.log(msn);
-            msn.save();
+            msn.save()
+                .then(function(){
+
+                })
+                .catch(function(error){
+                    alert(error);
+                })
 
             return false;
         }
