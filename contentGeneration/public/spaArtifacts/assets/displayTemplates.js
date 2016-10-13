@@ -113,6 +113,38 @@
             }
         };
 
+        /* Identifier COLUMN*/
+        fieldCustomizations["Identifier"] = {};
+        fieldCustomizations["Identifier"]["EditForm"] = function (ctx) {
+            try {
+                if(isDataEntryFormFor(ctx, "MissionTracker", "EditForm")){
+                    //render as read-only
+                    return SPField_FormDisplay_Default(ctx) + "<br/>";
+                }
+
+                return SPFieldChoice_Edit(ctx);
+            }
+            catch (err) {
+                return 'Error parsing column "Identifier"';
+            }
+        };
+
+        /* FullName COLUMN*/
+        fieldCustomizations["FullName"] = {};
+        fieldCustomizations["FullName"]["EditForm"] = function (ctx) {
+            try {
+                if(isDataEntryFormFor(ctx, "MissionTracker", "EditForm")){
+                     //render as read-only
+                    return SPField_FormDisplay_Default(ctx) + "<br/>";
+                }
+
+                return SPFieldChoice_Edit(ctx);
+            }
+            catch (err) {
+                return 'Error parsing column "FullName"';
+            }
+        };
+
         /* MissionType COLUMN*/
         fieldCustomizations["MissionType"] = {};
         fieldCustomizations["MissionType"]["EditForm"] = function (ctx) {
@@ -154,6 +186,8 @@
                     'ActionsHtml': { 'View': fieldCustomizations["ActionsHtml"]["View"] },
                     'ApprovalAuthority': { 'EditForm': fieldCustomizations["ApprovalAuthority"]["EditForm"], 'NewForm': fieldCustomizations["ApprovalAuthority"]["NewForm"] },
                     'ChopProcess': { 'View': fieldCustomizations["ChopProcess"]["View"] },
+                    'Identifier': { 'EditForm': fieldCustomizations["Identifier"]["EditForm"] },
+                    'FullName': { 'EditForm': fieldCustomizations["FullName"]["EditForm"] },
                     'MissionType': { 'EditForm': fieldCustomizations["MissionType"]["EditForm"] },
                     'Organization': { 'EditForm': fieldCustomizations["Organization"]["EditForm"], 'NewForm': fieldCustomizations["Organization"]["NewForm"] }
                 }

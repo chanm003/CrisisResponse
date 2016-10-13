@@ -23,27 +23,29 @@ crisisResponseSchema.listDefs["Mission Tracker"] = {
 		fieldsToCreate:[
 			{
 				//EXAMPLE: SINGLE LINE OF TEXT
+				//This field should be hidden one new form and read only on edit.  
+				//Generated on save using following format: Organization_XXX_MissionType, ex. SOTG10_003_KS
 				Name: "Identifier",
 				DisplayName: "Identifier",
 				Type: "Text",
 				Required: "False",
 				MaxLength: 255,
-				Description: "This field should be hidden from data entry forms.  Generated on save using following format: Organization_XXX_MissionType, ex. SOTG10_003_KS",
 				Default: "",							//(optional)
 				ShowInNewForm: 'FALSE',
-				ShowInEditForm: 'FALSE'
+				ShowInEditForm: 'TRUE'
 			},
 			{
 				//EXAMPLE: SINGLE LINE OF TEXT
+				//This field should be hidden one new form and read only on edit
+				//Generated on save using following format: Organization_XXX_MissionType (ObjectiveName, OperationName), ex. SOTG10_003_KS (OBJ_HAN, OBJ, SOLO)
 				Name: "FullName",
 				DisplayName: "Full Name",
 				Type: "Text",
 				Required: "False",
 				MaxLength: 255,
-				Description: "This field should be hidden from data entry forms.  Generated on save using following format: Organization_XXX_MissionType (ObjectiveName, OperationName), ex. SOTG10_003_KS (OBJ_HAN, OBJ, SOLO)",
 				Default: "",							//(optional)
 				ShowInNewForm: 'FALSE',
-				ShowInEditForm: 'FALSE'
+				ShowInEditForm: 'TRUE'
 			},
 			{
 				//EXAMPLE: SINGLE LINE OF TEXT

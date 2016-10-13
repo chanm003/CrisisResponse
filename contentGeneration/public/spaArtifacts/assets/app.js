@@ -383,6 +383,7 @@
         service.constructNgResourceForRESTResource = constructNgResourceForRESTResource;
         service.makeMultiChoiceRESTCompliant = makeMultiChoiceRESTCompliant;
         service.makeMomentRESTCompliant = makeMomentRESTCompliant;
+        service.getContextFromEditFormASPX = getContextFromEditFormASPX;
 
         service.htmlHelpers = {};
         service.htmlHelpers.buildHeroButton = function (text, href, ngShowAttrValue) {
@@ -452,7 +453,7 @@
                             'Content-Type': 'application/json;odata=verbose;',
                             'X-RequestDigest': service.securityValidation,
                             'X-HTTP-Method': 'MERGE',
-                            'If-Match': (!!opts.item.__metadata) ? opts.item.__metadata.etag : ''
+                            'If-Match': (!!opts.item.__metadata) ? opts.item.__metadata.etag : "*"
                         }
                     },
                     delete: {
@@ -465,6 +466,22 @@
                         }
                     }
                 });
+        }
+
+        function getContextFromEditFormASPX(){
+            /**
+             * on EditForm.aspx "Organization" should be rendered as read-only label, so no dropdown
+             * Assumptions about what SP2013 would included inside EditForm.aspx: 
+             * - there exists a e.g. <div id="WebPartWPQ1"></div>
+             * - there exists a global variable e.g. var WPQ1FormCtx = {ListData: {}};
+            */
+            var listItem = null;
+            var listFormDiv = $("table.ms-formtable").closest("[id^=WebPartWPQ]");
+            var globalVarOnEditFormAspx = listFormDiv.attr("id").replace("WebPart", "") + "FormCtx";
+            if(window[globalVarOnEditFormAspx]){
+                listItem = window[globalVarOnEditFormAspx].ListData;
+            }
+            return listItem;
         }
 
         function init() {
@@ -666,6 +683,14 @@
             this.FullName = parts.join("");
         }
 
+        Mission.prototype.deriveIdentifier = function(numMissionsCommanded){
+            var orgAsOneWord = _.words(this.Organization, /[a-zA-Z0-9-_]+/g).join("").toUpperCase(); //from "SOTG 10" to "SOTG10"
+            numMissionsCommanded = numMissionsCommanded + 1;
+            var threeDigitKey = _.padStart(numMissionsCommanded, 3, 0);  //from "8" to "008"
+            var missionTypeAcronym = this.MissionType.split(":")[0]; //from "MA: Military Assistance" to "MA"
+            this.Identifier = [orgAsOneWord, threeDigitKey, missionTypeAcronym].join("_");
+        }
+
         Mission.prototype.validate = function(){
             var errors = [];
             if(!this.ObjectiveName){
@@ -865,8 +890,8 @@
         };
 
         function generateMissionIdentifier(item){
-            if(item.Id && item.Identifier){
-                //do nothing, since this only should occur on NewForm save
+            if(item.Id){
+                //do nothing, since Identifer column only gets generated on new item created
                 item.deriveFullName();
                 return $q.when(item);
             }
@@ -875,11 +900,8 @@
             var restCollection = spContext.constructNgResourceForRESTCollection(ngResourceConstructParams);
             return restCollection.get(qsParams).$promise
                 .then(function(response){
-                    var orgAsOneWord = _.words(item.Organization, /[a-zA-Z0-9-_]+/g).join("").toUpperCase(); //from "SOTG 10" to "SOTG10"
-                    var numMissionsCommanded = response.d.results.length+1;
-                    var threeDigitKey = _.padStart(numMissionsCommanded, 3, 0);  //from "8" to "008"
-                    var missionTypeAcronym = item.MissionType.split(":")[0]; //from "MA: Military Assistance" to "MA"
-                    item.Identifier = [orgAsOneWord, threeDigitKey, missionTypeAcronym].join("_");
+                    var numberOfMissionsCommandedByOrganizaton = response.d.results.length;
+                    item.deriveIdentifier(numberOfMissionsCommandedByOrganizaton);
                     item.deriveFullName();
                     return item;
                 });
@@ -918,8 +940,9 @@
                     var restCollection = spContext.constructNgResourceForRESTCollection(ngResourceConstructParams)
                     return restCollection.post(item);
                 } else {
-                    var constructParams = angular.extend({}, { item: { Id: id } }, ngResourceConstructParams);
+                    var constructParams = angular.extend({}, { item: { Id: item.Id } }, ngResourceConstructParams);
                     var restResource = spContext.constructNgResourceForRESTResource(constructParams);
+                    return restResource.post(item);
                 }
             }
 
@@ -1820,9 +1843,10 @@
         .module('app.core')
         .controller('MissionTrackerDataEntryAspxController', controller);
 
-    controller.$inject = ['$scope','_', 'Mission', 'SPUtility'];
-    function controller($scope, _, Mission, SPUtility) {
+    controller.$inject = ['$scope','_', 'Mission', 'spContext', 'SPUtility'];
+    function controller($scope, _, Mission, spContext, SPUtility) {
         var vm = this;
+        var itemOnEditFormAspxLoad = null;
 
         $scope.routeMessage = "";
 
@@ -1839,6 +1863,7 @@
             msn.OperationName = SPUtility.GetSPFieldByInternalName("OperationName").GetValue();   
             msn.ParticipatingOrganizations = SPUtility.GetSPFieldByInternalName("ParticipatingOrganizations").GetValue();
             msn.Status = SPUtility.GetSPFieldByInternalName("Status").GetValue();
+            msn.Identifier = (itemOnEditFormAspxLoad) ? itemOnEditFormAspxLoad.Identifier : "";
         
             var currentURL = document.location.pathname.toUpperCase();
             if(_.includes(currentURL, "/NEWFORM.ASPX")){
@@ -1860,6 +1885,7 @@
         }
         
         function init(){
+            itemOnEditFormAspxLoad = spContext.getContextFromEditFormASPX();
             wireUpEventHandlers();
         }
 
@@ -1909,26 +1935,11 @@
                         return selectedDropdownOption;
                     }
                     
-                    return getOrganizationFromReadOnlyField();
+                    return getOrganizationFromReadOnlyLabel();
 
-                    function getOrganizationFromReadOnlyField(){
-                        /**
-                         * on EditForm.aspx "Organization" should be rendered as read-only label, so no dropdown
-                         * Assumptions about what SP2013 would included inside EditForm.aspx: 
-                         * - there exists a e.g. <div id="WebPartWPQ1"></div>
-                         * - there exists a global variable e.g. var WPQ1FormCtx = {ListData: {}};
-                        */
-                        var listFormDiv = $("table.ms-formtable").closest("[id^=WebPartWPQ]");
-                        var globalVarOnEditFormAspx = listFormDiv.attr("id").replace("WebPart", "") + "FormCtx";
-                        if(window[globalVarOnEditFormAspx]){
-                            var listItem = window[globalVarOnEditFormAspx].ListData;
-                            if(listItem){
-                                //this would have been the value for 'Organization' on page load
-                                return listItem.Organization;
-                            }
-                        }
-                        return "";
-                        }
+                    function getOrganizationFromReadOnlyLabel(){
+                        return (itemOnEditFormAspxLoad) ? itemOnEditFormAspxLoad.Organization : "";
+                    }
                 }
             }
         }
