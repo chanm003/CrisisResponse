@@ -2,6 +2,20 @@
 crisisResponseSchema.listDefs = {};
 crisisResponseSchema.webpartPageDefs = {};
 
+crisisResponseSchema.missionTypesMappedToDefaultApprovalAuthority = {
+	"AO: Airfield Operation": "", 
+	"CR: Cache Recovery": "", 
+	"CS: Cordon and Search": "", 
+	"DA: Direct Action": "", 
+	"HRO: Hostage Rescue Operation": "", 
+	"KLE: Key Leader Engagement": "", 
+	"KS: Kinetic Strike": "", 
+	"MA: Military Assistance": "", 
+	"PR: Personnel Recovery": "", 
+	"SR: Special Reconnaissance": "", 
+	"SUP: Support Patrol (log, etc)": ""
+}
+
 crisisResponseSchema.listDefs["Mission Tracker"] = {
 	Title: "Mission Tracker",
 		BaseTemplate: 'genericList',
@@ -62,7 +76,7 @@ crisisResponseSchema.listDefs["Mission Tracker"] = {
 				Format:"Dropdown",
 				Required: "TRUE",
 				FillInChoice: "FALSE",
-				Choices: ["AO: Airfield Operation", "CR: Cache Recovery", "CS: Cordon and Search", "DA: Direct Action", "HRO: Hostage Rescue Operation", "KLE: Key Leader Engagement", "KS: Kinetic Strike", "MA: Military Assistance", "PR: Personnel Recovery", "SR: Special Reconnaissance", "SUP: Support Patrol (log, etc)"],
+				Choices: _.keys(crisisResponseSchema.missionTypesMappedToDefaultApprovalAuthority),
 				Default: ''							//(optional)
 			},
 			{

@@ -66,7 +66,7 @@
 
 		vm.onAdditionalFeaturesCollected = function(){
 			return modifyChoiceFields()
-				.then(updateOrgConfigFile)
+				.then(generateJocInBoxConfigFile)
 				.then(provisionAssetsToSitePagesLibrary);
 		}
 
@@ -201,6 +201,8 @@
 				vm.countries = data;
 				generateDefaults();
 			});
+
+			
 		}
 
 		function generateChoiceOptionsForStaffSection(prefix, sections) {
@@ -348,7 +350,7 @@
 			}
 		}
 
-		function updateOrgConfigFile(){
+		function generateJocInBoxConfigFile(){
 			var dashboards = {};
 			_.each(vm.componentCommands, function(org){
 				dashboards[org.name] = {
@@ -384,12 +386,18 @@
 				dashboards[orgName].routes = [];
 			});
 
+			var content = [
+				'var jocInBoxConfig = jocInBoxConfig || {};', 
+				'jocInBoxConfig.dashboards = ' + JSON.stringify(dashboards) + ";",
+				'jocInBoxConfig.missionTypes = ' + JSON.stringify(crisisResponseSchema.missionTypesMappedToDefaultApprovalAuthority) + ";"
+			].join('\n\n');
+
 			return sharepointUtilities.createOrUpdateFile({
 				destinationWebUrl: _spPageContextInfo.webServerRelativeUrl,
 				destinationWebFolderUrl: 'generator/spaArtifacts/assets',
-				destinationFileUrl: 'orgConfig.js',
-				fileContent: 'var jocInBoxConfig = jocInBoxConfig || {}; jocInBoxConfig.dashboards = ' + JSON.stringify(dashboards)
-			})
+				destinationFileUrl: 'jocInBoxConfig.js',
+				fileContent: content
+			});
 
 		}
 	}

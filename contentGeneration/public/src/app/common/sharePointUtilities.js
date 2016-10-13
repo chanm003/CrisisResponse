@@ -428,8 +428,8 @@
 			var userCustomActions = childWeb.get_userCustomActions();
 			var action = userCustomActions.add();
 			action.set_location("ScriptLink");
-			action.set_title('orgConfig.js');
-			action.set_scriptSrc('~site/SitePages/orgConfig.js');
+			action.set_title('jocInBoxConfig.js');
+			action.set_scriptSrc('~site/SitePages/jocInBoxConfig.js');
 			action.set_sequence(1000);
 			action.update();
 			var vendorFiles = [
