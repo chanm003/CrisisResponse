@@ -29,3 +29,8 @@ Need to change regional time settings to UTC
 
 Getting Web Part Properties:
 /ngspa/tf16/_api/web/getfilebyserverrelativeurl('/ngspa/tf16/lists/MissionTracker/NewForm.aspx')/getlimitedwebpartmanager(1)/WebParts?$expand=WebPart/Properties
+
+routes array should contain objects:
+        {name: "0: Task Group", sequence: ['SOTG 10']},
+		{name: "1: Joint Task Force", sequence: ['SOTG 10', 'CJSOTF-RO']},
+		{name: "2: Combatant Command", sequence: ['SOTG 10', 'CJSOTF-RO', 'SOCC']}

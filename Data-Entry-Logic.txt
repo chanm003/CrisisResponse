@@ -1,0 +1,49 @@
+----------------------------------------------------------------------------------
+Mission Documents Library
+----------------------------------------------------------------------------------
+ChopProcess (hidden)
+- can be included as a column in any web part
+------ blue "Chop" button gets rendered in ChopProcess is null
+------ gray "Chop" disabled button gets rendered in ChopProcess is a valid datetime
+------ when blue button is clicked, modal is presented to the user
+------------ modal render Mission dropdown, user selects mission and clicks Save
+------------------------ on Save modify three fields (Mission, ChopProcess, VersionBeingChopped)
+
+----------------------------------------------------------------------------------
+MissionTracker List
+----------------------------------------------------------------------------------
+Objective Name textbox
+- on save, value gets truncated into single word and capitalized (e.g. from "Big Bear" to BIGBEAR")
+
+Organization dropdown
+- on NewForm.aspx trimmed based on query string
+- on EditForm.aspx rendered as read-only-label 
+
+MissionType dropdown
+- on EditForm.aspx rendered as read-only-label  
+- on NewForm.aspx
+------ on change, try to set the value for "ApprovalAuthority" dropdown based on config file
+
+ApprovalAuthority dropdown
+- options are built based on config file, each organization has an array of "named" routes
+- on change, show visual depiction of the "nodes" on the selected route
+
+Operation Name texbox
+- on save, value gets truncated into single word and capitalized (e.g. from "Big Bear" to BIGBEAR")
+
+Identifier (hidden)
+- on save this is generated using formula OrganizationAsOneWord_ThreeDigitNumber_MissionTypeAbbreviation
+------ if "SOTG 10" commands their first mission and it is a "KS: Kinetic Strike", then "SOTG10_001_KS"
+
+FullName (hidden)
+- on save this is generated using formula Identifier (ObjectiveName, OperationName) i.e. "SOTG10_001_KS (OBJ_HAN, OBJ_SOLO)"
+
+
+----------------------------------------------------------------------------------
+RFI List
+----------------------------------------------------------------------------------
+ActionsHtml (calculated field)
+- does not actually have a formula, just a placeholder
+- can be included as a column in any web part
+------ blue "Respond" button gets rendered in Status field is "Open"
+------ blue "Reopen" button gets rendered in Status field is "Closed"

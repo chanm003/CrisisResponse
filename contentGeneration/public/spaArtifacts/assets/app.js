@@ -1820,9 +1820,14 @@
         .module('app.core')
         .controller('MissionTrackerDataEntryAspxController', controller);
 
-    controller.$inject = ['_', 'Mission', 'SPUtility'];
-    function controller(_, Mission, SPUtility) {
-        
+    controller.$inject = ['$scope','_', 'Mission', 'SPUtility'];
+    function controller($scope, _, Mission, SPUtility) {
+        var vm = this;
+
+        $scope.routeMessage = "";
+
+        init();
+
         window.PreSaveAction = function(){
             var msn = new Mission();
             msn.ApprovalAuthority = SPUtility.GetSPFieldByInternalName("ApprovalAuthority").GetValue();
@@ -1845,7 +1850,7 @@
             
             msn.save()
                 .then(function(){
-
+                    window.location.href = _.getQueryStringParam("Source");
                 })
                 .catch(function(error){
                     alert(error);
@@ -1854,8 +1859,78 @@
             return false;
         }
         
-       
+        function init(){
+            wireUpEventHandlers();
+        }
+
+        function wireUpEventHandlers(){
+            var ddlMissionType = $(SPUtility.GetSPFieldByInternalName("MissionType").Dropdown);
+            var ddlApprovalAuthority = $(SPUtility.GetSPFieldByInternalName("ApprovalAuthority").Dropdown);
+
+            //run handler initially on load and any time the Mission Type dropdown changes
+            setApprovalAuthorityBasedOnSelectedMissionType();
+            ddlMissionType.on("change", setApprovalAuthorityBasedOnSelectedMissionType);
+            function setApprovalAuthorityBasedOnSelectedMissionType(){
+                var selectedMissionType = ddlMissionType.val();
+                if(selectedMissionType){
+                    //should never hit this line on EditForm.aspx (since "Mission Type" is read only and not rendered as dropdown)
+                    var defaultLevel = jocInBoxConfig.missionTypes[selectedMissionType];
+                    ddlApprovalAuthority.val(defaultLevel || "");
+                    showRouteBasedOnSelectedApprovalAuthority();
+                }
+            }
+
+            //run handler initially on load and any time the Mission Type dropdown changes
+            showRouteBasedOnSelectedApprovalAuthority()
+            ddlApprovalAuthority.on("change", showRouteBasedOnSelectedApprovalAuthority);
+            function showRouteBasedOnSelectedApprovalAuthority(){
+                var msg = "";
+                var selectedOrganization = getSelectedOrganization();
+                var selectedApprovalAuthority = ddlApprovalAuthority.val();
+                if(selectedOrganization && selectedApprovalAuthority){
+                    var orgConfig = jocInBoxConfig.dashboards[selectedOrganization];
+                    if(orgConfig){
+                        var route = _.find(orgConfig.routes, {name: selectedApprovalAuthority});
+                        if(route && route.sequence && route.sequence.length){
+                            msg = route.sequence.join(' --> ');
+                        }
+                    }
+                }
+
+                 $scope.$evalAsync(
+                    function( $scope ) {
+                        $scope.routeMessage = msg;
+                    }
+                );
+
+                function getSelectedOrganization(){
+                    var selectedDropdownOption = SPUtility.GetSPFieldByInternalName("Organization").GetValue();
+                    if(selectedDropdownOption){
+                        return selectedDropdownOption;
+                    }
+                    
+                    return getOrganizationFromReadOnlyField();
+
+                    function getOrganizationFromReadOnlyField(){
+                        /**
+                         * on EditForm.aspx "Organization" should be rendered as read-only label, so no dropdown
+                         * Assumptions about what SP2013 would included inside EditForm.aspx: 
+                         * - there exists a e.g. <div id="WebPartWPQ1"></div>
+                         * - there exists a global variable e.g. var WPQ1FormCtx = {ListData: {}};
+                        */
+                        var listFormDiv = $("table.ms-formtable").closest("[id^=WebPartWPQ]");
+                        var globalVarOnEditFormAspx = listFormDiv.attr("id").replace("WebPart", "") + "FormCtx";
+                        if(window[globalVarOnEditFormAspx]){
+                            var listItem = window[globalVarOnEditFormAspx].ListData;
+                            if(listItem){
+                                //this would have been the value for 'Organization' on page load
+                                return listItem.Organization;
+                            }
+                        }
+                        return "";
+                        }
+                }
+            }
+        }
     }
-
-
 })();
