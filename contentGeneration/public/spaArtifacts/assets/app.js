@@ -2005,7 +2005,7 @@
             //if querystring action is respond, then "RespondentName, RespondentPhone and ResponseToRequest" is required
 
             //if DateClosed was null on load, and DateClosed is valid date time on save, set Status to "Closed"
-            //if ResponseSufficient was 'yes' on load, but 'no'on save, set status to "Open"
+            //if ResponseSufficient was 'yes' on load, but 'no'on save, set status to "Open" and DateClosed to blank
             alert("Under construction...");
             return false;
         }
