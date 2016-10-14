@@ -8,11 +8,11 @@
 (function () {
     RegisterModuleInit("SitePages/displayTemplates.js", registerCustomizations); // CSR-override for MDS enabled site
     registerCustomizations(); //CSR-override for MDS disabled site (because we need to call the entry point function in this case whereas it is not needed for anonymous functions)
- 
+
     function registerCustomizations() {
         SP.SOD.executeFunc("clienttemplates.js", "SPClientTemplates", function () {
             customizeFieldRendering();
-            customizeListViewWebparts();
+            registerPostRenderEvent();
             $(document).ready(customizeCalloutsForDocumentLibrary);
         });
 
@@ -172,6 +172,23 @@
                 }
             };
 
+             /* PocName COLUMN*/
+            fieldCustomizations["PocName"] = {};
+            fieldCustomizations["PocName"]["EditForm"] = function (ctx) {
+                try {
+                    if (isDataEntryFormFor(ctx, "RFI", "EditForm") && _.includes(['respond', 'reopen'], getStateForRfiForm(ctx))) {
+                        //render as read-only
+                        prepareUserFieldValue(ctx);
+                        return SPFieldUser_Display(ctx);
+                    }
+
+                    return SPClientPeoplePickerCSRTemplate(ctx);
+                }
+                catch (err) {
+                    return 'Error parsing column "PocName"';
+                }
+            };
+
             /* OriginatorSender COLUMN*/
             fieldCustomizations["OriginatorSender"] = {};
             fieldCustomizations["OriginatorSender"]["NewForm"] = fieldCustomizations["OriginatorSender"]["EditForm"] = function (ctx) {
@@ -182,6 +199,23 @@
                 }
                 catch (err) {
                     return 'Error parsing column "OriginatorSender"';
+                }
+            };
+
+             /* RespondentName COLUMN*/
+            fieldCustomizations["RespondentName"] = {};
+            fieldCustomizations["RespondentName"]["EditForm"] = function (ctx) {
+                try {
+                    if (isDataEntryFormFor(ctx, "RFI", "EditForm") && _.includes(['reopen'], getStateForRfiForm(ctx))) {
+                        //render as read-only
+                        prepareUserFieldValue(ctx);
+                        return SPFieldUser_Display(ctx);
+                    }
+
+                    return SPClientPeoplePickerCSRTemplate(ctx);
+                }
+                catch (err) {
+                    return 'Error parsing column "RespondentName"';
                 }
             };
 
@@ -196,7 +230,9 @@
                         'FullName': { 'EditForm': fieldCustomizations["FullName"]["EditForm"] },
                         'MissionType': { 'EditForm': fieldCustomizations["MissionType"]["EditForm"] },
                         'Organization': { 'EditForm': fieldCustomizations["Organization"]["EditForm"], 'NewForm': fieldCustomizations["Organization"]["NewForm"] },
-                        'OriginatorSender': { 'EditForm': fieldCustomizations["OriginatorSender"]["EditForm"], 'NewForm': fieldCustomizations["OriginatorSender"]["NewForm"] }
+                        'OriginatorSender': { 'EditForm': fieldCustomizations["OriginatorSender"]["EditForm"], 'NewForm': fieldCustomizations["OriginatorSender"]["NewForm"] },
+                        'PocName': { 'EditForm': fieldCustomizations["PocName"]["EditForm"] },
+                        'RespondentName': { 'EditForm': fieldCustomizations["RespondentName"]["EditForm"] }
                     }
 
                 }
@@ -280,92 +316,160 @@
             }
         }
 
-        function customizeListViewWebparts() {
+        function customizeListViewWebparts(ctx) {
+            var webPartDiv = getWebPartDiv(ctx);
+
+            if(webPartDiv){
+                addExpandCollapseButtons(ctx, webPartDiv);
+                disableNavigationToSharepointLists(ctx, webPartDiv);
+                hideToolbarForInboundMessages(ctx, webPartDiv);
+            }
+            function addExpandCollapseButtons(ctx, webPartDiv) {
+                /**
+                 * ISSUES with LVWP that Group By Collapsed=TRUE are well documented:
+                 * https://social.technet.microsoft.com/Forums/en-US/cf86ffbc-14e9-4310-8925-76bea6d9e314/sharepoint-list-when-grouped-and-default-view-is-collapsed-will-not-expand?forum=sharepointgeneralprevious
+                 * https://prasadpathak.wordpress.com/2014/07/10/sharepoint-2013-item-template-not-called-in-jslink-with-group-rendering/
+                 * https://ybbest.wordpress.com/2011/07/05/fix-the-ajax-javascript-issues-with-group-by-for-listview-and-listviewbyquery/
+                 */
+                var isGroupByView = !!ctx.ListSchema.group1;
+                if (isGroupByView) {
+                    addButton('Expand All');
+                    addButton('Collapse All');
+                }
+
+                function addButton(text) {
+                    var chromeTitle = webPartDiv.find(".ms-webpart-titleText");
+                    var faClass, clickFunc;
+                    if (text === "Expand All") {
+                        faClass = 'fa-plus-square-o';
+                        clickFunc = expandAll;
+                    } else if (text === "Collapse All") {
+                        faClass = 'fa-minus-square-o';
+                        clickFunc = collapseAll;
+                    }
+                    if (chromeTitle.find("a[title='" + text + "']").size() === 0) {
+                        var button = $('<a style="cursor:pointer;margin-left:3px;" title="' + text + '"><i class="fa ' + faClass + '" aria-hidden="true"></i></a>');
+                        chromeTitle.append(button);
+                        button.on('click', clickFunc);
+                    }
+                }
+
+                function collapseAll() {
+                    webPartDiv.find("img.ms-commentcollapse-icon").click();
+                }
+
+                function expandAll() {
+                    webPartDiv.find("img.ms-commentexpand-icon").click();
+                }
+            }
+
+            function disableNavigationToSharepointLists(ctx, webPartDiv) {
+                var wpPages = [
+                    '/sitepages/comms.aspx',
+                    '/sitepages/excon.aspx',
+                    '/sitepages/soatg.aspx',
+                    '/sitepages/socc.aspx',
+                    '/sitepages/sotg.aspx'
+                ];
+                var shouldDisableLinks = _.some(wpPages, function (item) {
+                    return _.includes(document.location.pathname.toLowerCase(), item);
+                });
+
+                if (shouldDisableLinks) {
+                    //prevents users from navigating to backend lists
+                    webPartDiv.find(".ms-webpart-titleText>a").removeAttr("href");
+                }
+            }
+
+            function hideToolbarForInboundMessages(ctx, webPartDiv) {
+                //ASSUMPTION: List Views for web part looks like "LVWP SOCC.aspx Inbound Messages"
+                if (_.includes(ctx.viewTitle, 'Inbound Messages')) {
+                    webPartDiv.find("table[id^='Hero-']").remove();
+                }
+            }
+
+            function getWebPartDiv(ctx) {
+                /**
+                 * Webparts are automatically assigned id attributes, so if eight webparts on the screen:
+                 * <div id="MSOZoneCell_WebPartWPQ8"></div>
+                 */
+                return $("div[id='MSOZoneCell_WebPart" + ctx.wpq + "']");
+            }
+        }
+
+        function customizeListForms(ctx){
+            customizeRfiForm(ctx);
+            
+
+            function customizeRfiForm(ctx){
+                var formState = getStateForRfiForm(ctx);
+
+                if(formState){
+                    var fieldName = ctx.ListSchema.Field[0].Name;
+                    hideRow(fieldName, formState);
+                    makeFieldReadOnly(fieldName, formState);
+                    setFieldThenMakeReadOnly(fieldName, formState);
+                }
+
+                function hideRow(fieldName, formState){
+                    var fieldsToHide = {
+                        "Status": ['new'],
+                        "ManageRFI": ['respond', 'reopen'],
+                        "RespondentName": ['new', 'edit'],
+                        "RespondentPhone": ['new', 'edit'],
+                        "ResponseToRequest": ['new', 'edit'],
+                        "DateClosed": ['new', 'edit'],
+                        "ResponseSufficient": ['new', 'edit', 'respond'],
+                        "InsufficientExplanation": ['new', 'edit', 'respond']
+                    };
+                    
+                    var fieldCustomization = fieldsToHide[fieldName];
+                    if(_.includes(fieldCustomization, formState)){
+                        SPUtility.GetSPFieldByInternalName(fieldName).Hide();
+                    }
+                }
+
+                function makeFieldReadOnly(fieldName, formState){
+                    var readOnlyFields = {
+                        "Title": ['respond', 'reopen'],
+                        "Status": ['edit', 'respond', 'reopen'],
+                        "RfiTrackingNumber": ['respond', 'reopen'],
+                        "Details": ['respond', 'reopen'],
+                        "Priority": ['respond', 'reopen'],
+                        "LTIOV": ['respond', 'reopen'],
+                        "PocPhone": ['respond', 'reopen'],
+                        "PocOrganization": ['respond', 'reopen'],
+                        "RecommendedOPR": ['reopen'],
+                        "RespondentPhone": ['reopen'],
+                        "ResponseToRequest": ['reopen'],
+                        "DateClosed": ['reopen']
+                    };
+                    
+                    var fieldCustomization = readOnlyFields[fieldName];
+                    if(_.includes(fieldCustomization, formState)){
+                        SPUtility.GetSPFieldByInternalName(fieldName).MakeReadOnly();
+                    }
+                }
+
+                function setFieldThenMakeReadOnly(fieldName, formState){
+                    if(fieldName === "ResponseSufficient" && formState === "reopen"){
+                        SPUtility.GetSPFieldByInternalName(fieldName).SetValue('No').MakeReadOnly();
+                    }
+                }
+            }
+        }
+
+        function registerPostRenderEvent() {
             SPClientTemplates.TemplateManager.RegisterTemplateOverrides({
                 Templates: {
                     OnPostRender: function (ctx) {
-                        var webPartDiv = getWebPartDiv(ctx);
-
-                        addExpandCollapseButtons(ctx, webPartDiv);
-                        disableNavigationToSharepointLists(ctx, webPartDiv);
-                        hideToolbarForInboundMessages(ctx, webPartDiv);
-
-                        function addExpandCollapseButtons(ctx, webPartDiv) {
-                            /**
-                             * ISSUES with LVWP that Group By Collapsed=TRUE are well documented:
-                             * https://social.technet.microsoft.com/Forums/en-US/cf86ffbc-14e9-4310-8925-76bea6d9e314/sharepoint-list-when-grouped-and-default-view-is-collapsed-will-not-expand?forum=sharepointgeneralprevious
-                             * https://prasadpathak.wordpress.com/2014/07/10/sharepoint-2013-item-template-not-called-in-jslink-with-group-rendering/
-                             * https://ybbest.wordpress.com/2011/07/05/fix-the-ajax-javascript-issues-with-group-by-for-listview-and-listviewbyquery/
-                             */
-                            var isGroupByView = !!ctx.ListSchema.group1;
-                            if (isGroupByView) {
-                                addButton('Expand All');
-                                addButton('Collapse All');
-                            }
-
-                            function addButton(text) {
-                                var chromeTitle = webPartDiv.find(".ms-webpart-titleText");
-                                var faClass, clickFunc;
-                                if (text === "Expand All") {
-                                    faClass = 'fa-plus-square-o';
-                                    clickFunc = expandAll;
-                                } else if (text === "Collapse All") {
-                                    faClass = 'fa-minus-square-o';
-                                    clickFunc = collapseAll;
-                                }
-                                if (chromeTitle.find("a[title='" + text + "']").size() === 0) {
-                                    var button = $('<a style="cursor:pointer;margin-left:3px;" title="' + text + '"><i class="fa ' + faClass + '" aria-hidden="true"></i></a>');
-                                    chromeTitle.append(button);
-                                    button.on('click', clickFunc);
-                                }
-                            }
-
-                            function collapseAll() {
-                                webPartDiv.find("img.ms-commentcollapse-icon").click();
-                            }
-
-                            function expandAll() {
-                                webPartDiv.find("img.ms-commentexpand-icon").click();
-                            }
-                        }
-
-                        function disableNavigationToSharepointLists(ctx, webPartDiv) {
-                            var wpPages = [
-                                '/sitepages/comms.aspx',
-                                '/sitepages/excon.aspx',
-                                '/sitepages/soatg.aspx',
-                                '/sitepages/socc.aspx',
-                                '/sitepages/sotg.aspx'
-                            ];
-                            var shouldDisableLinks = _.some(wpPages, function (item) {
-                                return _.includes(document.location.pathname.toLowerCase(), item);
-                            });
-
-                            if (shouldDisableLinks) {
-                                //prevents users from navigating to backend lists
-                                webPartDiv.find(".ms-webpart-titleText>a").removeAttr("href");
-                            }
-                        }
-
-                        function hideToolbarForInboundMessages(ctx, webPartDiv) {
-                            //ASSUMPTION: List Views for web part looks like "LVWP SOCC.aspx Inbound Messages"
-                            if (_.includes(ctx.viewTitle, 'Inbound Messages')) {
-                                webPartDiv.find("table[id^='Hero-']").remove();
-                            }
-                        }
-
-                        function getWebPartDiv(ctx) {
-                            /**
-                             * Webparts are automatically assigned id attributes, so if eight webparts on the screen:
-                             * <div id="MSOZoneCell_WebPartWPQ8"></div>
-                             */
-                            return $("div[id='MSOZoneCell_WebPart" + ctx.wpq + "']");
-                        }
+                        customizeListViewWebparts(ctx);
+                        customizeListForms(ctx);
                     }
                 }
             });
 
-        }
+        }   
     }
 
     function extractOrgFromQueryString() {
@@ -373,6 +477,36 @@
         var isChildWindow = window.parent.location.href !== window.location.href;
         var selectedOrg = (isChildWindow) ? _.getQueryStringParam("org", window.parent.location.href) : _.getQueryStringParam("org", window.location.href);
         return selectedOrg;
+    }
+
+    function getStateForRfiForm(ctx){
+        if(!_.includes(document.location.pathname.toUpperCase(), "/LISTS/RFI/") ){ return ""; }
+        var qsParamAction = _.getQueryStringParam("action");
+        if(ctx.BaseViewID === "NewForm"){
+            return "new";
+        } else if(ctx.BaseViewID === "EditForm" && !qsParamAction){
+            return "edit";
+        } else if(ctx.BaseViewID === "EditForm" && qsParamAction === "Respond"){
+            return "respond";
+        } else if(ctx.BaseViewID === "EditForm" && qsParamAction === "Reopen"){
+            return "reopen";
+        }
+    }
+
+    function prepareUserFieldValue(ctx) { 
+        var item = ctx['CurrentItem']; 
+        var userField = item[ctx.CurrentFieldSchema.Name]; 
+        var fieldValue = ""; 
+
+        for (var i = 0; i < userField.length; i++) { 
+            fieldValue += userField[i].EntityData.SPUserID + SPClientTemplates.Utility.UserLookupDelimitString + userField[i].DisplayText; 
+
+            if ((i + 1) != userField.length) { 
+                fieldValue += SPClientTemplates.Utility.UserLookupDelimitString 
+            } 
+        } 
+
+        ctx["CurrentFieldValue"] = fieldValue; 
     }
 })();
 
