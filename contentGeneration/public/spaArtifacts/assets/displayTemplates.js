@@ -144,7 +144,7 @@
                 try {
                     if (isDataEntryFormFor(ctx, "MissionTracker", "EditForm")) {
                         //render as read-only
-                        return SPField_FormDisplay_Default(ctx) + "<br/>";
+                        return SPField_FormDisplay_Default(ctx);
                     }
 
                     return SPFieldChoice_Edit(ctx);
@@ -160,7 +160,7 @@
                 try {
                     if (isDataEntryFormFor(ctx, "MissionTracker", "EditForm")) {
                         //render as read-only
-                        return SPField_FormDisplay_Default(ctx) + "<br/>";
+                        return SPField_FormDisplay_Default(ctx);
                     }
 
                     ctx.CurrentFieldSchema.Choices = trimOrganizationChoicesBasedOnQueryString(ctx.CurrentFieldSchema.Choices);
@@ -316,7 +316,7 @@
             }
         }
 
-        function customizeListViewWebparts(ctx) {
+        function modifyListViewWebpartsPostRender(ctx) {
             var webPartDiv = getWebPartDiv(ctx);
 
             if(webPartDiv){
@@ -397,10 +397,15 @@
             }
         }
 
-        function customizeListForms(ctx){
+        function modifyListFormsPostRender(ctx){
             customizeRfiForm(ctx);
-            
+            customizeMissionTrackerForm(ctx);
 
+            function customizeMissionTrackerForm(ctx){
+                if(!_.includes(document.location.pathname.toUpperCase(), "/LISTS/MISSIONTRACKER/") ){ return ""; }
+                var fieldName = ctx.ListSchema.Field[0].Name;
+                removeHelpTextWhenReadOnlyField(fieldName);
+            }
             function customizeRfiForm(ctx){
                 var formState = getStateForRfiForm(ctx);
 
@@ -409,6 +414,7 @@
                     hideRow(fieldName, formState);
                     makeFieldReadOnly(fieldName, formState);
                     setFieldThenMakeReadOnly(fieldName, formState);
+                    removeHelpTextWhenReadOnlyField(fieldName);
                 }
 
                 function hideRow(fieldName, formState){
@@ -463,8 +469,8 @@
             SPClientTemplates.TemplateManager.RegisterTemplateOverrides({
                 Templates: {
                     OnPostRender: function (ctx) {
-                        customizeListViewWebparts(ctx);
-                        customizeListForms(ctx);
+                        modifyListViewWebpartsPostRender(ctx);
+                        modifyListFormsPostRender(ctx);
                     }
                 }
             });
@@ -507,6 +513,23 @@
         } 
 
         ctx["CurrentFieldValue"] = fieldValue; 
+    }
+
+    function removeHelpTextWhenReadOnlyField(fieldName){
+        /**
+         * <td class="ms-formbody">
+         *      user input control here
+         *      <span class="ms-metadata">Some contextual help for end user </span>
+         * </td>
+         */
+        var spUtilityField = SPUtility.GetSPFieldByInternalName(fieldName);
+        var formbodyCell = $(spUtilityField.ControlsRow.cells[1]);  
+        var hiddenUsingSpUtility = (formbodyCell.children("span.ms-metadata").length === 1 && formbodyCell.children(".sputility-readonly").length !==0);
+        var isHelpTextOnlyChildElement = (formbodyCell.children().not("br").length === 1 && formbodyCell.children("span.ms-metadata").length === 1);
+        if(hiddenUsingSpUtility || isHelpTextOnlyChildElement){
+            //if only one child, and that child is help text then hide the help text
+            formbodyCell.children("span.ms-metadata").hide();
+        }
     }
 })();
 
