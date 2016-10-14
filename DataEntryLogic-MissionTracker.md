@@ -6,7 +6,9 @@
 
 * Organization dropdown
     * on NewForm.aspx options are trimmed based on query string and jocInBoxConfig.js 
-    * on EditForm.aspx rendered as read-only-label 
+    * on EditForm.aspx rendered as read-only-label
+    * this dropdown has an onchange event (although many times this dropdown gets trimmed to only one option)
+        * uses same event handling logic as the *ApprovalAuthority* dropdown
 
 * MissionType dropdown
     * on EditForm.aspx rendered as read-only-label  

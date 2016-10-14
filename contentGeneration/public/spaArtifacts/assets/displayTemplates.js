@@ -179,6 +179,19 @@
             }
         };
 
+        /* OriginatorSender COLUMN*/
+        fieldCustomizations["OriginatorSender"] = {};
+        fieldCustomizations["OriginatorSender"]["NewForm"] = fieldCustomizations["OriginatorSender"]["EditForm"] = function (ctx) {
+            try {
+                ctx.CurrentFieldSchema.Choices = trimOrganizationChoicesBasedOnQueryString(ctx.CurrentFieldSchema.Choices);
+                setDropdownOnNewFormWhenOnlyOneOption(ctx);
+                return SPFieldChoice_Edit(ctx);
+            }
+            catch (err) {
+                return 'Error parsing column "OriginatorSender"';
+            }
+        };
+
         // Register the rendering template
         SPClientTemplates.TemplateManager.RegisterTemplateOverrides({
             Templates: {
@@ -189,7 +202,8 @@
                     'Identifier': { 'EditForm': fieldCustomizations["Identifier"]["EditForm"] },
                     'FullName': { 'EditForm': fieldCustomizations["FullName"]["EditForm"] },
                     'MissionType': { 'EditForm': fieldCustomizations["MissionType"]["EditForm"] },
-                    'Organization': { 'EditForm': fieldCustomizations["Organization"]["EditForm"], 'NewForm': fieldCustomizations["Organization"]["NewForm"] }
+                    'Organization': { 'EditForm': fieldCustomizations["Organization"]["EditForm"], 'NewForm': fieldCustomizations["Organization"]["NewForm"] },
+                    'OriginatorSender': { 'EditForm': fieldCustomizations["OriginatorSender"]["EditForm"], 'NewForm': fieldCustomizations["OriginatorSender"]["NewForm"] }
                 }
                 
             }

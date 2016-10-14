@@ -713,16 +713,6 @@ crisisResponseSchema.listDefs["Message Traffic"] = {
 			Description: ""	
 		},
 		{
-			//EXAMPLE: SINGLE LINE OF TEXT
-			Name: "Org",
-			DisplayName: "Org",
-			Type: "Text",
-			Required: "FALSE",
-			Description: "This field should be hidden from data entry forms using CSS.  When user saves, take selected &quot;Originator/Sender&quot; (Choice) and since this field is used to feed a calculated column &quot;DTG//ORG//Title&quot;",
-			MaxLength: 255,
-			Default: ""							//(optional)		
-		},
-		{
 			//EXAMPLE: URL field
 			Name: "LinkToMissionDocument",
 			DisplayName: "Document Link",
@@ -742,20 +732,7 @@ crisisResponseSchema.listDefs["Message Traffic"] = {
 			ReadOnly: 'TRUE',
 			Formula: '=UPPER(TEXT([Date Time Group],"ddHHmm")&amp;"Z"&amp;(TEXT([Date Time Group],"MMMyy")))',
 			FieldRefs: ['DateTimeGroup']		
-		},
-		{
-			//EXAMPLE: Calculated
-			Name: 'DtgOrgTitle',
-			DisplayName: 'DTG//ORG//Title',
-			Type: "Calculated",
-			Required: 'TRUE',
-			ResultType: 'Text',
-			ReadOnly: 'TRUE',
-			Formula: '=CONCATENATE(DTG,"//",Org,"//",Title)',
-			FieldRefs: ['DTG', 'Org', 'Title']		
 		}
-
-
 	]
 };
 

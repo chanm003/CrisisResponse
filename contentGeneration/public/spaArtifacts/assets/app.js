@@ -1925,6 +1925,7 @@
 
         function wireUpEventHandlers(){
             var ddlMissionType = $(SPUtility.GetSPFieldByInternalName("MissionType").Dropdown);
+            var ddlOrganization = $(SPUtility.GetSPFieldByInternalName("Organization").Dropdown);
             var ddlApprovalAuthority = $(SPUtility.GetSPFieldByInternalName("ApprovalAuthority").Dropdown);
 
             //run handler initially on load and any time the Mission Type dropdown changes
@@ -1936,14 +1937,15 @@
                     //should never hit this line on EditForm.aspx (since "Mission Type" is read only and not rendered as dropdown)
                     var defaultLevel = jocInBoxConfig.missionTypes[selectedMissionType];
                     ddlApprovalAuthority.val(defaultLevel || "");
-                    showRouteBasedOnSelectedApprovalAuthority();
+                    showRouteBasedOnSelectedApprovalAuthorityAndOrganization();
                 }
             }
 
             //run handler initially on load and any time the Mission Type dropdown changes
-            showRouteBasedOnSelectedApprovalAuthority()
-            ddlApprovalAuthority.on("change", showRouteBasedOnSelectedApprovalAuthority);
-            function showRouteBasedOnSelectedApprovalAuthority(){
+            showRouteBasedOnSelectedApprovalAuthorityAndOrganization()
+            ddlOrganization.on("change", showRouteBasedOnSelectedApprovalAuthorityAndOrganization);
+            ddlApprovalAuthority.on("change", showRouteBasedOnSelectedApprovalAuthorityAndOrganization);
+            function showRouteBasedOnSelectedApprovalAuthorityAndOrganization(){
                 var msg = "";
                 var selectedOrganization = getSelectedOrganization();
                 var selectedApprovalAuthority = ddlApprovalAuthority.val();
