@@ -14,13 +14,11 @@ integrate/research uifContextualMenu
 develop PoC for full page slide show 
 - https://chanm003.sharepoint.com/ngspa/instance/SitePages/projectionScrollable.aspx
 
-When user selects Mission and clicks Initiate Chop button:
-- ensure VersionBeingChopped is updated
-- find sequence of approvers in JocInBoxConfig based on selected Mission's Organization, Approval Authority
-- add field to MissionDocuments "Selected Route Sequence" of type string
+Window.PreSaveAction for RFI List
 
-Need to change regional time settings to UTC
-- Dublin not good enough
+Calendar data entry form (no CSR so we may have to security trim old school)
+
+Documents data entry form (can we force it to always open up in full page and not modal)
 
 Getting Web Part Properties:
 /ngspa/tf16/_api/web/getfilebyserverrelativeurl('/ngspa/tf16/lists/MissionTracker/NewForm.aspx')/getlimitedwebpartmanager(1)/WebParts?$expand=WebPart/Properties

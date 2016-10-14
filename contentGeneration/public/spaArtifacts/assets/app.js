@@ -68,6 +68,10 @@
             spPage.attr('ng-controller', 'MissionTrackerDataEntryAspxController as vm');
         }
 
+        if (currentURL.include('/LISTS/RFI/EDITFORM.ASPX')) {
+            spPage.attr('ng-controller', 'RfiDataEntryAspxController as vm');
+        }
+
         //BOOTSTRAP NG-APP
         angular.element(document).ready(function () { angular.bootstrap(document, ['singlePageApp']); });
 
@@ -1978,6 +1982,36 @@
                     }
                 }
             }
+        }
+    }
+})();
+
+
+/* Controller: RfiDataEntryAspxController*/
+(function () {
+    angular
+        .module('app.core')
+        .controller('RfiDataEntryAspxController', controller);
+
+    controller.$inject = ['$scope','_', 'Mission', 'spContext', 'SPUtility'];
+    function controller($scope, _, Mission, spContext, SPUtility) {
+        var vm = this;
+        var itemOnEditFormAspxLoad = null;
+
+        init();
+
+        window.PreSaveAction = function(){
+            //if querystring action is reopen, then "InsufficientExplanation" is required
+            //if querystring action is respond, then "RespondentName, RespondentPhone and ResponseToRequest" is required
+
+            //if DateClosed was null on load, and DateClosed is valid date time on save, set Status to "Closed"
+            //if ResponseSufficient was 'yes' on load, but 'no'on save, set status to "Open"
+            alert("Under construction...");
+            return false;
+        }
+
+        function init(){
+            itemOnEditFormAspxLoad = spContext.getContextFromEditFormASPX();
         }
     }
 })();
