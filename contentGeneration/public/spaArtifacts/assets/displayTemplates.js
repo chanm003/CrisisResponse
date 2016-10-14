@@ -281,6 +281,7 @@
 
                     addExpandCollapseButtons(ctx, webPartDiv);
                     disableNavigationToSharepointLists(ctx, webPartDiv);
+                    hideToolbarForInboundMessages(ctx, webPartDiv);
 
                     function addExpandCollapseButtons(ctx, webPartDiv) {
                         /**
@@ -336,6 +337,13 @@
                         if (shouldDisableLinks) {
                             //prevents users from navigating to backend lists
                             webPartDiv.find(".ms-webpart-titleText>a").removeAttr("href");
+                        }
+                    }
+
+                    function hideToolbarForInboundMessages(ctx, webPartDiv){
+                        //ASSUMPTION: List Views for web part looks like "LVWP SOCC.aspx Inbound Messages"
+                        if(_.includes(ctx.viewTitle, 'Inbound Messages')){
+                            webPartDiv.find("table[id^='Hero-']").remove();       
                         }
                     }
 
