@@ -329,7 +329,7 @@ crisisResponseSchema.listDefs["Mission Documents"] = {
 		},
 		{
 			//EXAMPLE: SINGLE LINE OF TEXT
-			Name: "SelectedRouteSequence",
+			Name: "ChopRouteSequence",
 			DisplayName: "Selected Route Sequence",
 			Description: "Set when user initiates chop process",
 			Type: "Text",

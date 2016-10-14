@@ -88,7 +88,7 @@
                 '           <uif-dropdown ng-model="vm.chopDialogCtx.listItem.Mission.Id">',
                 '               <uif-dropdown-option ng-repeat="mission in vm.chopDialogCtx.missions" value="{{mission.Id}}" title="{{mission.Identifier}}">{{mission.Identifier}}</uif-dropdown-option>',
                 '           </uif-dropdown>',
-                '           <uif-message-bar uif-type="error" ng-show="vm.chopDialogCtx.hasErrors()">',
+                '           <uif-message-bar uif-type="error" ng-show="vm.chopDialogCtx.isFormValid()">',
                 '               <uif-content>This is a required field</uif-content>',
                 '           </uif-message-bar>',
                 '       </uif-dialog-content>',
@@ -613,7 +613,7 @@
                 this.FlaggedForSoacDailyUpdate = undefined; //string or null
                 this.ChopProcess = undefined; //string (ISO) or null "2016-08-01T07:00:00Z"
                 this.VersionBeingChopped = undefined; //integer or null
-                this.SelectedRouteSequence = undefined; //string or null
+                this.ChopRouteSequence = undefined; //string or null
                 this.__metadata = {
                     type: "SP.Data.MissionDocumentsItem"
                 };
@@ -626,14 +626,25 @@
             }
         }
 
+        MissionDocument.prototype.deriveRouteSequence = function(mission, orgConfig){
+            var sequence = "";
+            if(mission && orgConfig){
+                var route = _.find(orgConfig.routes, {name: mission.ApprovalAuthority});
+                if(route && route.sequence && route.sequence.length){
+                    this.ChopRouteSequence = route.sequence.join(';');
+                }
+            }
+        }
+
         MissionDocument.prototype.initiateChop = function () {
             //convert model to DTO that will be used for save...HTTP MERGE should ignore any 'undefined'' props in the request body
             var dto = new MissionDocument();
             dto.Id = this.Id;
             dto.__metadata = this.__metadata;
+            //_api/web/lists/getByTitle('Mission Documents')/items?$select=Id,MissionId,ChopProcess,VersionBeingChopped,ChopRouteSequence,File/MajorVersion&$expand=File
             dto.ChopProcess = (new Date()).toISOString();
             dto.MissionId = this.Mission.Id;
-            dto.SelectedRouteSequence = this.SelectedRouteSequence;
+            dto.ChopRouteSequence = this.ChopRouteSequence;
             dto.VersionBeingChopped = (this.File.MajorVersion + 1);  //initiating the chop process itself should bump the version up by one
             return MissionDocumentRepository.save(dto);
         }
@@ -822,8 +833,8 @@
 
         var fieldsToSelect = [
             spContext.SP2013REST.selectForCommonDocumentFields,
-            'Organization,TypeOfDocument,MissionId,FlaggedForSoacDailyUpdate,DailyProductDate,ChopProcess',
-            'SelectedRouteSequence,VersionBeingChopped',
+            'Organization,TypeOfDocument,MissionId,FlaggedForSoacDailyUpdate,DailyProductDate',
+            'ChopRouteSequence,VersionBeingChopped,ChopProcess',
             'Mission/Id,Mission/FullName'
         ].join(',');
 
@@ -1654,22 +1665,34 @@
                         scope.chopDialogCtx.show = true;
                         scope.chopDialogCtx.submitButtonClicked = false;
                         scope.chopDialogCtx.submit = submit;
-                        scope.chopDialogCtx.hasErrors = hasErrors;
+                        scope.chopDialogCtx.isFormValid = isFormValid;
+                        scope.chopDialogCtx.getSelectedMission = getSelectedMission;
                     });
             }
 
-            function hasErrors(){
+            function isFormValid(){
                 return !scope.chopDialogCtx.listItem.Mission.Id && scope.chopDialogCtx.submitButtonClicked;
+            }
+
+            function getSelectedMission(){
+                //two-way binding from ng-office UI dropdown binds the mission.Id dropdownOption to the Mission Document's Mission.Id  
+                var selectedMission = _.find(scope.chopDialogCtx.missions, {Id: parseInt(scope.chopDialogCtx.listItem.Mission.Id, 10)});
+                return selectedMission;
             }
 
             function submit(){
                 scope.chopDialogCtx.submitButtonClicked = true;
-                if(scope.chopDialogCtx.hasErrors()){ return; } 
-                var selectedMission = _.find(scope.chopDialogCtx.missions, {Id: parseInt(scope.chopDialogCtx.listItem.Mission.Id, 10)});
-                scope.chopDialogCtx.listItem.SelectedRouteSequence = determineRouteSequence(selectedMission);
+                if(scope.chopDialogCtx.isFormValid()){ return; } 
+                
+                var selectedMission = scope.chopDialogCtx.getSelectedMission();
+                var orgConfig = jocInBoxConfig.dashboards[selectedMission.Organization];
+               
+                scope.chopDialogCtx.listItem.deriveRouteSequence(selectedMission, orgConfig);
 
-                if(scope.chopDialogCtx.listItem.SelectedRouteSequence){
+                if(scope.chopDialogCtx.listItem.ChopRouteSequence){
                     scope.chopDialogCtx.listItem.initiateChop().then(onChopStartedSuccessfully);
+                } else {
+                    alert(selectedMission.Organization + 'does not have a configured route sequence for "'+ selectedMission.ApprovalAuthority + '"');
                 }
                 
                 function onChopStartedSuccessfully(item) {
@@ -1677,20 +1700,7 @@
                     scope.chopDialogCtx.show = false;
                     logger.success("Chop Process initiated", null, "", true);
                 }
-                function determineRouteSequence(mission){
-                    var sequence = "";
-                    var orgConfig = jocInBoxConfig.dashboards[mission.Organization];
-                    if(orgConfig){
-                        var route = _.find(orgConfig.routes, {name: mission.ApprovalAuthority});
-                        if(route && route.sequence && route.sequence.length){
-                            sequence = route.sequence.join(';');
-                        }
-                    }
-                    if(!sequence){
-                        alert(mission.Organization + 'does not have a configured route sequence for "'+ mission.ApprovalAuthority + '"');
-                    }
-                    return sequence;
-                }
+                
             }
         }
     }
