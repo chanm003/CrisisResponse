@@ -68,7 +68,7 @@
             spPage.attr('ng-controller', 'MissionTrackerDataEntryAspxController as vm');
         }
 
-        if (currentURL.include('/LISTS/RFI/EDITFORM.ASPX')) {
+        if (currentURL.include('/LISTS/RFI/NEWFORM.ASPX') || currentURL.include('/LISTS/RFI/EDITFORM.ASPX')) {
             spPage.attr('ng-controller', 'RfiDataEntryAspxController as vm');
         }
 
@@ -388,6 +388,7 @@
         service.makeMultiChoiceRESTCompliant = makeMultiChoiceRESTCompliant;
         service.makeMomentRESTCompliant = makeMomentRESTCompliant;
         service.getContextFromEditFormASPX = getContextFromEditFormASPX;
+        service.getSelectedUsersFromPeoplePicker = getSelectedUsersFromPeoplePicker;
 
         service.htmlHelpers = {};
         service.htmlHelpers.buildHeroButton = function (text, href, ngShowAttrValue) {
@@ -486,6 +487,20 @@
                 listItem = window[globalVarOnEditFormAspx].ListData;
             }
             return listItem;
+        }
+
+        function getPeoplePickerInstance(internalName){
+            var containerDiv = $("[id^='"+internalName+"_'][spclientpeoplepicker]");
+            var editor = containerDiv.find("[data-sp-peoplepickereditor]");
+            var picker = SPClientPeoplePicker.SPClientPeoplePickerDict[containerDiv[0].id];			      
+            return {
+                picker: picker,
+                editor: editor
+            };
+        }
+
+        function getSelectedUsersFromPeoplePicker(internalName){
+            return getPeoplePickerInstance(internalName).picker.GetAllUserInfo();
         }
 
         function init() {
@@ -1993,25 +2008,184 @@
         .module('app.core')
         .controller('RfiDataEntryAspxController', controller);
 
-    controller.$inject = ['$scope','_', 'Mission', 'spContext', 'SPUtility'];
-    function controller($scope, _, Mission, spContext, SPUtility) {
+    controller.$inject = ['$scope','_', 'RFI', 'spContext', 'SPUtility'];
+    function controller($scope, _, RFI, spContext, SPUtility) {
         var vm = this;
-        var itemOnEditFormAspxLoad = null;
 
         init();
 
         window.PreSaveAction = function(){
-            //if querystring action is reopen, then "InsufficientExplanation" is required
-            //if querystring action is respond, then "RespondentName, RespondentPhone and ResponseToRequest" is required
+            var formState = getStateForRfiForm();
 
-            //if DateClosed was null on load, and DateClosed is valid date time on save, set Status to "Closed"
-            //if ResponseSufficient was 'yes' on load, but 'no'on save, set status to "Open" and DateClosed to blank
-            alert("Under construction...");
+            var rfi = generateModelFromSpListForm(formState);
+            var rfiForms = {
+                "new": {
+                    setHiddenFields: function(){},
+                    validate: function(){ return ""; }
+                },
+                "edit": {
+                    setHiddenFields: function(){},
+                    validate: function(){ return ""; }
+                },
+                "respond": {
+                    setHiddenFields: checkIfRfiShouldBeClosed,
+                    validate: validateAttemptToRespond
+                },
+                "reopen": {
+                    setHiddenFields: checkIfRfiNeedsToBeReopened,
+                    validate: validateAttemptToReopen
+                }
+            }
+
+            var rfiFormActions = rfiForms[formState];
+            if(rfiFormActions){
+                var errors = rfiFormActions.validate();
+                if(errors){
+                    alert(errors);
+                } else{
+                    rfiFormActions.setHiddenFields();
+                    //return true;
+                }
+            }
+
             return false;
         }
 
-        function init(){
-            itemOnEditFormAspxLoad = spContext.getContextFromEditFormASPX();
+        function checkIfRfiNeedsToBeReopened(){
+            var itemOnAspxLoad = spContext.getContextFromEditFormASPX();
+            if(itemOnAspxLoad.ResponseSufficient === "Yes"){
+                //on load Response Sufficient was "Yes"
+                //but since they navigated to this page we should set it to "No" for them
+                SPUtility.GetSPFieldByInternalName("ResponseSufficient").SetValue("No");                
+                SPUtility.GetSPFieldByInternalName("DateClosed").SetValue("");
+                SPUtility.GetSPFieldByInternalName("Status").SetValue("Open");
+            }
+        }
+
+        function checkIfRfiShouldBeClosed(){
+            var itemOnAspxLoad = spContext.getContextFromEditFormASPX();
+            var isCloseDateValid = !!SPUtility.GetSPFieldByInternalName("DateClosed").GetValue().toString();
+            if(!itemOnAspxLoad.DateClosed && isCloseDateValid){
+                //on load Date Closed was blank, now it is populated with valid date
+                SPUtility.GetSPFieldByInternalName("Status").SetValue("Closed");
+            }
+        }
+
+        function generateModelFromSpListForm(formState){
+            var rfi = new RFI();
+            //set Mission since it is editable in all states
+            rfi.MissionId = getIdFromLookupField("Mission");
+
+            if(_.includes(['new', 'edit'], formState)){
+                rfi.Title = SPUtility.GetSPFieldByInternalName("Title").GetValue();
+                rfi.Details = SPUtility.GetSPFieldByInternalName("Details").GetValue();
+                rfi.LTIOV = moment.utc(SPUtility.GetSPFieldByInternalName("LTIOV").GetValue().toString());
+                rfi.ManageRFIId = getIdFromUserMultiField("ManageRFI"); // object or null {results: [8, 16, 23]}  
+                rfi.PocNameId = getIdFromUserField("PocName"); //integer
+                rfi.PocOrganization = SPUtility.GetSPFieldByInternalName("PocOrganization").GetValue();
+                rfi.PocPhone = SPUtility.GetSPFieldByInternalName("PocPhone").GetValue();
+                rfi.Priority = SPUtility.GetSPFieldByInternalName("Priority").GetValue();
+                rfi.RecommendedOPR = SPUtility.GetSPFieldByInternalName("RecommendedOPR").GetValue();
+                rfi.RfiTrackingNumber = SPUtility.GetSPFieldByInternalName("RfiTrackingNumber").GetValue();
+            }
+
+            if(formState === 'respond'){
+                rfi.RecommendedOPR = SPUtility.GetSPFieldByInternalName("RecommendedOPR").GetValue();
+                rfi.RespondentNameId = getIdFromUserField("RespondentName");
+			    rfi.RespondentPhone = SPUtility.GetSPFieldByInternalName("RespondentPhone").GetValue()
+          	    rfi.ResponseToRequest = SPUtility.GetSPFieldByInternalName("ResponseToRequest").GetValue()
+			    rfi.DateClosed = moment.utc(SPUtility.GetSPFieldByInternalName("DateClosed").GetValue().toString());
+                rfi.Status = SPUtility.GetSPFieldByInternalName("Status").GetValue();
+            }
+
+            if(formState === 'reopen'){
+                rfi.InsufficientExplanation = SPUtility.GetSPFieldByInternalName("InsufficientExplanation").GetValue();
+                rfi.ResponseSufficient = SPUtility.GetSPFieldByInternalName("ResponseSufficient").GetValue();
+                rfi.DateClosed = moment.utc(SPUtility.GetSPFieldByInternalName("DateClosed").GetValue().toString());
+                rfi.Status = SPUtility.GetSPFieldByInternalName("Status").GetValue();
+            }
+
+            if(_.includes(['edit', 'respond', 'reopen'], formState)){
+                rfi.Id = _.getQueryStringParam("ID");
+            }
+
+            return rfi;
+        }
+
+        function getIdFromLookupField(internalName){
+            var selectedId = null;
+            var spUtilityField = SPUtility.GetSPFieldByInternalName(internalName);
+            
+            if(spUtilityField.Textbox){
+
+            } else {
+                var val = $(spUtilityField.ControlsRow.cells[1]).find("option:selected").val()
+                if(val !== "0"){
+                    selectedId = parseInt(val, 10);
+                }
+            }
+            return selectedId;
+        }
+
+        function getIdFromUserField(internalName){
+            var users = spContext.getSelectedUsersFromPeoplePicker(internalName);
+            if(users.length === 0) return null;
+            return parseInt(users[0].EntityData.SPUserID,10);
+        }
+
+        function getIdFromUserMultiField(internalName){
+            var users = spContext.getSelectedUsersFromPeoplePicker(internalName);
+            if(users.length === 0) return null;
+            return _.map(users, function(user){
+                return parseInt(user.EntityData.SPUserID,10);
+            })
+        }
+
+        function getStateForRfiForm(){
+            var currentPath = document.location.pathname.toUpperCase();
+            if(!_.includes(currentPath, "/LISTS/RFI/") ){ return ""; }
+            var qsParamAction = _.getQueryStringParam("action");
+            if(_.includes(currentPath, "/LISTS/RFI/NEWFORM.ASPX")){
+                return "new";
+            } else if(_.includes(currentPath, "/LISTS/RFI/EDITFORM.ASPX")){
+                if(!qsParamAction){
+                    return "edit";
+                } else if(qsParamAction === "Respond"){
+                    return "respond";
+                } else if(qsParamAction === "Reopen"){
+                    return "reopen";
+                }
+            } 
+        }
+
+        function init(){    
+        }
+
+        function validateAttemptToReopen(){
+            //if querystring action is reopen, then "InsufficientExplanation" is required
+            var errors = [];
+            if(!SPUtility.GetSPFieldByInternalName("InsufficientExplanation").GetValue()){
+                errors.push("Insufficient Explanation is a required field");
+            }
+            
+            return (errors.length) ? "\n\t-" + errors.join("\n\t-") : "";
+        }
+
+        function validateAttemptToRespond(){
+            //if querystring action is respond, then "RespondentName, RespondentPhone and ResponseToRequest" is required
+            var errors = [];
+            
+            if(!spContext.getSelectedUsersFromPeoplePicker("RespondentName").length){
+                errors.push("Respondent Name is a required field");
+            }
+            if(!SPUtility.GetSPFieldByInternalName("RespondentPhone").GetValue()){
+                errors.push("Respondent Phone is a required field")
+            }
+            if(!SPUtility.GetSPFieldByInternalName("ResponseToRequest").GetValue()){
+                errors.push("Response to Request is a required field");
+            }
+
+            return (errors.length) ? "\n\t-" + errors.join("\n\t-") : "";
         }
     }
 })();
