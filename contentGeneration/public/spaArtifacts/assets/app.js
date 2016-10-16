@@ -647,6 +647,33 @@
 
         RFI.prototype.validate = function (formState){
             var errors = [];
+
+            if(formState === 'new' || formState === 'edit'){
+                if(!this.Title){
+                    errors.push("Title is a required field");
+                }
+
+                if(!this.Priority){
+                    errors.push("Priority is a required field");
+                }
+
+                if(this.PocNameSelectedKeys.length === 0){
+                    errors.push("POC Name is a required field");
+                }
+
+                if(!this.PocPhone){
+                    errors.push("POC Phone is a required field");
+                }
+
+                if(!this.PocOrganization){
+                    errors.push("POC Organization is a required field");
+                }
+
+                if(!this.RecommendedOPR){
+                    errors.push("Recommended OPR is a required field");
+                }
+            }
+
             if(formState === "reopen"){
                 if(!this.InsufficientExplanation){
                     errors.push("Insufficient Explanation is a required field");
@@ -889,6 +916,7 @@
         }
 
         function convertToFieldLookupValue(lookupID){
+            if(!lookupID){ return null; }
             var flv = new SP.FieldLookupValue();  
             flv.set_lookupId(lookupID);
             return flv;
@@ -912,11 +940,11 @@
 
             if(_.includes(['new', 'edit'], formState)){
                 listItem.set_item('Title', rfi.Title);
-                listItem.set_item('RfiTrackingNumber', rfi.RfiTrackingNumber);
+                listItem.set_item('RfiTrackingNumber', (rfi.RfiTrackingNumber || null)) ;
                 listItem.set_item('Mission',convertToFieldLookupValue(rfi.MissionId));
                 listItem.set_item('Details', rfi.Details);
                 listItem.set_item('Priority', rfi.Priority);
-                listItem.set_item('LTIOV', rfi.LTIOV.isValid() ? rfi.LTIOV.toISOString() : "");
+                listItem.set_item('LTIOV', rfi.LTIOV.isValid() ? rfi.LTIOV.toISOString() : null);
                 listItem.set_item('PocName', SP.FieldUserValue.fromUser(rfi.PocNameSelectedKeys[0]));
                 listItem.set_item('PocPhone', rfi.PocPhone);
                 listItem.set_item('PocOrganization', rfi.PocOrganization);
