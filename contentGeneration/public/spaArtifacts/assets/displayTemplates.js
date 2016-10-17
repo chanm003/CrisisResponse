@@ -74,7 +74,7 @@
                     return SPFieldChoice_Edit(ctx) + '<uif-message-bar ng-show="routeMessage"> <uif-content><strong>Documents associated to this mission will be routed as follows: </strong><div>{{routeMessage}}</div></uif-content> </uif-message-bar>';
 
                     function getApprovalAuthorityOptionsBasedOnQueryString() {
-                        var org = extractOrgFromQueryString();
+                        var org = _.extractOrgFromQueryString();
                         if (org) {
                             return _.map(jocInBoxConfig.dashboards[org].routes, 'name');
                         } else {
@@ -307,7 +307,7 @@
             }
 
             function trimOrganizationChoicesBasedOnQueryString(existingOptions) {
-                var org = extractOrgFromQueryString();
+                var org = _.extractOrgFromQueryString();
                 if (org) {
                     return _.intersection(existingOptions, jocInBoxConfig.dashboards[org].optionsForChoiceField);
                 } else {
@@ -476,13 +476,6 @@
             });
 
         }   
-    }
-
-    function extractOrgFromQueryString() {
-        // /TF16/Lists/MissionTracker/NewForm.aspx?Source=/TF16/SitePages/socc.aspx?org=SOCC
-        var isChildWindow = window.parent.location.href !== window.location.href;
-        var selectedOrg = (isChildWindow) ? _.getQueryStringParam("org", window.parent.location.href) : _.getQueryStringParam("org", window.location.href);
-        return selectedOrg;
     }
 
     function getStateForRfiForm(ctx){

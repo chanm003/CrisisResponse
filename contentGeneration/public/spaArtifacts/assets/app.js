@@ -202,6 +202,14 @@
             if (!results[2]) return '';
             return decodeURIComponent(results[2].replace(/\+/g, " "));
         }
+
+        _.extractOrgFromQueryString = function(){
+            // /TF16/Lists/MissionTracker/NewForm.aspx?Source=/TF16/SitePages/socc.aspx?org=SOCC
+            var isChildWindow = window.parent.location.href !== window.location.href;
+            var selectedOrg = (isChildWindow) ? _.getQueryStringParam("org", window.parent.location.href) : _.getQueryStringParam("org", window.location.href);
+            return selectedOrg;
+        }
+
         return _;
     }
 
