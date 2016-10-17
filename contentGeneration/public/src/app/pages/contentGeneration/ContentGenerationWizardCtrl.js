@@ -354,6 +354,7 @@
 			var dashboards = {};
 			_.each(vm.componentCommands, function(org){
 				dashboards[org.name] = {
+					orgType: 'Component Command',
 					optionsForChoiceField: [org.name].concat(generateChoiceOptionsForStaffSection(org.name, org.staffSections)),
 					flagCode: org.country.flag
 				};
@@ -361,6 +362,7 @@
 
 			_.each(vm.taskGroups, function(org){
 				dashboards[org.name] = {
+					orgType: 'Task Group',
 					optionsForChoiceField: [org.name],
 					flagCode: org.country.flag,
 					type: org.type
@@ -369,12 +371,14 @@
 
 			_.each(vm.communicationsComponents, function(org){
 				dashboards[org.name] = {
+					orgType: 'Communications',
 					optionsForChoiceField: [org.name]
 				};
 			});
 
 			_.each(vm.airComponents, function(org){
 				dashboards[org.name] = {
+					orgType: 'Air Component',
 					optionsForChoiceField: [org.name].concat(generateChoiceOptionsForStaffSection(org.name, org.staffSections)),
 					flagCode: org.country.flag
 				};
@@ -382,6 +386,7 @@
 
 			_.each(vm.exerciseControlGroups, function(org){
 				dashboards[org.name] = {
+					orgType: 'Exercise Control Group',
 					optionsForChoiceField: [org.name].concat(org.notionals.slice())
 				};
 			});

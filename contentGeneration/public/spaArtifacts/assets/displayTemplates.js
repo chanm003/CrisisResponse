@@ -400,6 +400,7 @@
         function modifyListFormsPostRender(ctx){
             customizeRfiForm(ctx);
             customizeMissionTrackerForm(ctx);
+            customizeMissionDocumentsForm(ctx);
 
             function customizeMissionTrackerForm(ctx){
                 if(!_.includes(document.location.pathname.toUpperCase(), "/LISTS/MISSIONTRACKER/") ){ return ""; }
@@ -460,6 +461,60 @@
                 function setFieldThenMakeReadOnly(fieldName, formState){
                     if(fieldName === "ResponseSufficient" && formState === "reopen"){
                         SPUtility.GetSPFieldByInternalName(fieldName).SetValue('No').MakeReadOnly();
+                    }
+                }
+            }
+
+            function customizeMissionDocumentsForm(ctx){
+                if(!_.includes(document.location.pathname.toUpperCase(), "/MISSIONDOCUMENTS/FORMS/EDITFORM.ASPX") ){ return ""; }
+                var field = ctx.ListSchema.Field[0];
+                hideRow(field.Name);
+                setToBlank(ctx, field);
+
+                function hideRow(fieldName){
+                    var fieldsToHide = ['MessageTitle', 'MessageDetails', 'MessageDTG', 'MessageOriginatorSender', 'MessageRecipients', 'SignificantMessage']
+
+                    if(_.includes(fieldsToHide, fieldName)){
+                        SPUtility.GetSPFieldByInternalName(fieldName).Hide();
+                    }
+                    hideSoacRelatedRows(fieldName);
+
+                    function hideSoacRelatedRows(fieldName){
+                        if(fieldName !== "FlaggedForSoacDailyUpdate"){ return; }
+                        //logic for hiding  is based on querystring
+                        var hideColumnsPertinentToSOAC = true
+                        var org = _.extractOrgFromQueryString();
+                        if(org){
+                            var orgConfig = jocInBoxConfig.dashboards[org];
+                            if(orgConfig){
+                                if(orgConfig.orgType === "Air Component"){
+                                    hideColumnsPertinentToSOAC = false;
+                                }
+                            }
+                        }
+                        if(hideColumnsPertinentToSOAC){
+                            SPUtility.GetSPFieldByInternalName(fieldName).Hide();
+                        }
+                    }
+                }
+
+                function setToBlank(ctx, field){
+                    //FlaggedForSoacDailyUpdate, SendAsMessage
+                    var fieldsToBlankout = ['SendAsMessage','MessageTitle', 'MessageDetails', 'MessageDTG', 'MessageOriginatorSender', 'MessageRecipients', 'SignificantMessage']
+
+                    if(_.includes(fieldsToBlankout, field.Name)){
+                        if(field.FieldType === "Choice" && field.FormatType === 0){
+                            //blank out dropdown
+                            setTimeout(function(){
+                                    //not sure why artificial delay must be introduced
+                                    $(SPUtility.GetSPFieldByInternalName(field.Name).ControlsRow.cells[1]).find("select").val('');
+                                }, 500);
+                        } else if(field.FieldType === 'MultiChoice'){
+                            //blank out checkboxes
+                            $(SPUtility.GetSPFieldByInternalName(field.Name).ControlsRow.cells[1]).find("input:checkbox").prop('checked', false);
+                        } else {
+                            SPUtility.GetSPFieldByInternalName(field.Name).SetValue('');
+                        }
                     }
                 }
             }

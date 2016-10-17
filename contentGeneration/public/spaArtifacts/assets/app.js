@@ -72,9 +72,12 @@
             spPage.attr('ng-controller', 'RfiDataEntryAspxController as vm');
         }
 
+        if (currentURL.include('/MISSIONDOCUMENTS/FORMS/EDITFORM.ASPX')) {
+            spPage.attr('ng-controller', 'MissionProductsDataEntryAspxController as vm');
+        }
+        
         //BOOTSTRAP NG-APP
         angular.element(document).ready(function () { angular.bootstrap(document, ['singlePageApp']); });
-
 
         function generateChopDialogHtml() {
             var html = [
@@ -405,6 +408,7 @@
         service.makeMomentRESTCompliant = makeMomentRESTCompliant;
         service.getContextFromEditFormASPX = getContextFromEditFormASPX;
         service.getSelectedUsersFromPeoplePicker = getSelectedUsersFromPeoplePicker;
+        service.getIdFromLookupField = getIdFromLookupField;
 
         service.htmlHelpers = {};
         service.htmlHelpers.buildHeroButton = function (text, href, ngShowAttrValue) {
@@ -454,6 +458,7 @@
         }
 
         function constructNgResourceForRESTResource(opts) {
+            var ifMatchHeaderVal = (!!opts.item.__metadata && !!opts.item.__metadata.etag) ? opts.item.__metadata.etag : "*";
             return $resource(_spPageContextInfo.webServerRelativeUrl + "/_api/web/lists/getbytitle('" + opts.listName + "')/items(:itemId)",
                 { itemId: opts.item.Id },
                 {
@@ -474,7 +479,7 @@
                             'Content-Type': 'application/json;odata=verbose;',
                             'X-RequestDigest': service.securityValidation,
                             'X-HTTP-Method': 'MERGE',
-                            'If-Match': (!!opts.item.__metadata) ? opts.item.__metadata.etag : "*"
+                            'If-Match': ifMatchHeaderVal
                         }
                     },
                     delete: {
@@ -503,6 +508,22 @@
                 listItem = window[globalVarOnEditFormAspx].ListData;
             }
             return listItem;
+        }
+
+        function getIdFromLookupField(internalName){
+            var selectedId = null;
+            var spUtilityField = SPUtility.GetSPFieldByInternalName(internalName);
+            
+            if(spUtilityField.Textbox){
+                //could be a relic of SP2010
+                //rendering of control in NewForm.aspx/EditForm.aspx depended on how many items lookup list have
+            } else {
+                var val = $(spUtilityField.ControlsRow.cells[1]).find("option:selected").val()
+                if(val !== "0"){
+                    selectedId = parseInt(val, 10);
+                }
+            }
+            return selectedId;
         }
 
         function getPeoplePickerInstance(internalName){
@@ -767,6 +788,10 @@
             dto.ChopRouteSequence = this.ChopRouteSequence;
             dto.VersionBeingChopped = (this.File.MajorVersion + 1);  //initiating the chop process itself should bump the version up by one
             return MissionDocumentRepository.save(dto);
+        }
+
+        MissionDocument.prototype.save = function () {
+            return MissionDocumentRepository.save(this);    
         }
 
         return MissionDocument;
@@ -2168,7 +2193,6 @@
     }
 })();
 
-
 /* Controller: RfiDataEntryAspxController*/
 (function () {
     angular
@@ -2211,7 +2235,7 @@
             rfi.Title = SPUtility.GetSPFieldByInternalName("Title").GetValue();
             rfi.Status = SPUtility.GetSPFieldByInternalName("Status").GetValue();
             rfi.RfiTrackingNumber = SPUtility.GetSPFieldByInternalName("RfiTrackingNumber").GetValue();
-            rfi.MissionId = getIdFromLookupField("Mission");
+            rfi.MissionId = spContext.getIdFromLookupField("Mission");
             rfi.Details = SPUtility.GetSPFieldByInternalName("Details").GetValue();
             rfi.Priority = SPUtility.GetSPFieldByInternalName("Priority").GetValue();
             rfi.LTIOV = moment.utc(SPUtility.GetSPFieldByInternalName("LTIOV").GetValue().toString()); 
@@ -2227,21 +2251,6 @@
             rfi.InsufficientExplanation = SPUtility.GetSPFieldByInternalName("InsufficientExplanation").GetValue();
             rfi.ResponseSufficient = SPUtility.GetSPFieldByInternalName("ResponseSufficient").GetValue();
             return rfi;
-        }
-
-        function getIdFromLookupField(internalName){
-            var selectedId = null;
-            var spUtilityField = SPUtility.GetSPFieldByInternalName(internalName);
-            
-            if(spUtilityField.Textbox){
-
-            } else {
-                var val = $(spUtilityField.ControlsRow.cells[1]).find("option:selected").val()
-                if(val !== "0"){
-                    selectedId = parseInt(val, 10);
-                }
-            }
-            return selectedId;
         }
 
         function getSelectedUserKeys(internalName){
@@ -2269,5 +2278,74 @@
         }
 
         
+    }
+})();
+
+/* Controller: MissionProductsDataEntryAspxController*/
+(function () {
+    angular
+        .module('app.core')
+        .controller('MissionProductsDataEntryAspxController', controller);
+
+    controller.$inject = ['$q','_', 'MissionDocument', 'spContext', 'SPUtility'];
+    function controller($q, _, MissionDocument, spContext, SPUtility) {
+        var vm = this;
+        var itemOnEditFormAspxLoad = null;
+
+        init();
+
+        window.PreSaveAction = function(){
+            var doc = generateMissionDocumentModelFromSpListForm();
+            
+            doc.save()
+                .then(generateMessage)
+                .then(redirectToSource)
+                .catch(function(error){
+                    alert(error);
+                });
+            
+            function generateMessage(doc){
+                var linkToDoc = _spPageContextInfo.webServerRelativeUrl + "/MissionDocuments/" + doc.FileLeafRef;
+                return $q.when();
+            }
+
+            function redirectToSource(){
+                window.location.href = _.getQueryStringParam("Source");
+            }
+
+            return false;
+        }
+       
+        function generateMissionDocumentModelFromSpListForm(){
+            var doc = new MissionDocument();
+            doc.FileLeafRef = SPUtility.GetSPFieldByInternalName("FileLeafRef").GetValue();
+            doc.Title = SPUtility.GetSPFieldByInternalName("Title").GetValue();
+            doc.Organization = SPUtility.GetSPFieldByInternalName("Organization").GetValue();
+            doc.TypeOfDocument = SPUtility.GetSPFieldByInternalName("TypeOfDocument").GetValue();
+            doc.MissionId = spContext.getIdFromLookupField("Mission");
+            doc.FlaggedForSoacDailyUpdate = SPUtility.GetSPFieldByInternalName("FlaggedForSoacDailyUpdate").GetValue();
+            doc.Id = _.getQueryStringParam("ID");
+            return doc;
+        }
+        
+        function init(){
+            itemOnEditFormAspxLoad = spContext.getContextFromEditFormASPX();
+            console.log(itemOnEditFormAspxLoad);
+            wireUpEventHandlers();
+        }
+
+        function wireUpEventHandlers(){
+            var spUtilityField = SPUtility.GetSPFieldByInternalName("SendAsMessage");
+            var spUtilityFieldParentTableRow = $(spUtilityField.ControlsRow);
+            var nextSixRows = spUtilityFieldParentTableRow.nextAll().slice(0,6);
+            $(spUtilityField.Checkbox).on('change', function(){
+                var isChecked = this.checked;
+                if(isChecked){
+                    nextSixRows.show();
+                } else {
+                    nextSixRows.hide();
+                }
+            })
+        }
     }
 })();
