@@ -446,7 +446,7 @@
 				'ngplus-overlay.js',
 				'moment.min.js',
 				'angular-ui-router.min.js',
-				'toastr.min.js',
+				'notifications.min.js',
 				'angular-animate.min.js',
 				'ngOfficeUiFabric.min.js',
 				'fullCalendar.min.js',

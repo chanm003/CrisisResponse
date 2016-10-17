@@ -4,7 +4,7 @@
         appErrorPrefix: '[Exercise Application Error] ',
         appTitle: 'Exercise Application',
         baseUrl: 'http://localhost:3000/spaArtifacts', 
-        showDebugToasts: false
+        showDebugToasts: true
     };
 
     $(document).ready(bootstrapNgApplication);
@@ -30,7 +30,7 @@
     ])
         .constant('_', extendLoDash(_))
         .constant('SPUtility', configSPUtility())
-        .constant('toastr', toastr)
+        .constant('Lobibox', Lobibox)
         .constant('moment', moment)
         .value('config', globalConfig)
         .config(configureCoreModule);
@@ -117,15 +117,20 @@
         return SPUtility;
     }
 
-    configureCoreModule.$inject = ['$logProvider', '$sceDelegateProvider', 'exceptionHandlerProvider', 'routerHelperProvider', 'toastr'];
-    function configureCoreModule($logProvider, $sce, exceptionHandlerProvider, routerHelperProvider, toastr) {
+    configureCoreModule.$inject = ['$logProvider', '$sceDelegateProvider', 'exceptionHandlerProvider', 'routerHelperProvider', 'Lobibox'];
+    function configureCoreModule($logProvider, $sce, exceptionHandlerProvider, routerHelperProvider, Lobibox) {
         if ($logProvider.debugEnabled) {
             $logProvider.debugEnabled(true);
         }
         exceptionHandlerProvider.configure(globalConfig.appErrorPrefix);
         routerHelperProvider.configure({ docTitle: globalConfig.appTitle + ': ' });
-        toastr.options.timeOut = 4000;
-        toastr.options.positionClass = 'toast-top-right';
+        Lobibox.notify.DEFAULTS = $.extend({}, Lobibox.notify.DEFAULTS, {
+            iconSource: 'fontAwesome',
+            sound: false,
+            size: 'mini',
+	        rounded: true,
+	        delayIndicator: false
+        });
 
         //override security because our HTML templates violate CORS
         $sce.resourceUrlWhitelist(['**']);
@@ -200,8 +205,8 @@
         return _;
     }
 
-    loggerService.$inject = ['$log', 'config', 'toastr'];
-    function loggerService($log, config, toastr) {
+    loggerService.$inject = ['$log', 'config', 'Lobibox'];
+    function loggerService($log, config, Lobibox) {
         var service = {
             showToasts: true,
 
@@ -210,7 +215,7 @@
             success: success,
             warning: warning,
 
-            // straight to console; bypass toastr
+            // straight to console; bypass Lobibox
             log: $log.log
         };
 
@@ -219,7 +224,10 @@
 
         function showToast(message, title, toastType, showToEnduser){
             if(showToEnduser || config.showDebugToasts){
-                toastr[toastType](message, title);
+                Lobibox.notify(toastType, {
+                    title: title,
+                    msg: message
+                });
             }
         }
 
