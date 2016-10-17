@@ -406,6 +406,7 @@
         service.constructNgResourceForRESTResource = constructNgResourceForRESTResource;
         service.makeMultiChoiceRESTCompliant = makeMultiChoiceRESTCompliant;
         service.makeMomentRESTCompliant = makeMomentRESTCompliant;
+        service.makeHyperlinkFieldRESTCompliant = makeHyperlinkFieldRESTCompliant;
         service.getContextFromEditFormASPX = getContextFromEditFormASPX;
         service.getSelectedUsersFromPeoplePicker = getSelectedUsersFromPeoplePicker;
         service.getIdFromLookupField = getIdFromLookupField;
@@ -549,6 +550,18 @@
 
         function init() {
             refreshSecurityValidation();
+        }
+
+        function makeHyperlinkFieldRESTCompliant(model, propName){
+            if(angular.isString(model[propName])){
+                model[propName] = {
+                    __metadata: {
+                        type: "SP.FieldUrlValue"
+                    },
+                    Description: "Document",
+                    Url: model[propName]
+                }
+            }
         }
 
         function makeMomentRESTCompliant(model, propName){
@@ -737,6 +750,86 @@
     }
 })();
 
+/* Model: Message Traffic */
+(function () {
+    angular.module('app.models')
+        .factory('MessageTraffic', MessageTrafficModel);
+
+    MessageTrafficModel.$inject = ['MessageTrafficRepository'];
+    function MessageTrafficModel(MessageTrafficRepository) {
+        var MessageTraffic = function (data) {
+            if (!data) {
+                this.Id = undefined; //number
+                this.Title = undefined; //string
+                this.OriginatorSender = undefined; //string
+                this.Receiver = undefined; //object {results: ['SOTG 10', 'SOTG 15', 'SOTG 25']} 
+                this.DateTimeGroup = undefined; //string (ISO) or null "2016-08-01T07:00:00Z"
+                this.TaskInfo = undefined; //string
+                this.Initials = undefined; //string or null
+                this.Significant = undefined; //string
+                this.Comments = undefined; //string or null
+                this.LinkToMissionDocument = undefined; //object or null  (see notes below for object graph)
+                this.__metadata = {
+                    type: "SP.Data.MessageTrafficListItem"
+                };
+            } else {
+                for (var prop in data) {
+                    if (data.hasOwnProperty(prop)) {
+                        this[prop] = data[prop];
+                    }
+                }
+            }
+
+            /**
+             * URL Link 
+             * {
+                    __metadata: {
+                        type: "SP.FieldUrlValue"
+                    },
+                    Description: "Google Search Engine",
+                    Url: "http://www.google.com"
+                }
+             */
+        }
+
+        MessageTraffic.prototype.save = function () {
+            return MessageTrafficRepository.save(this);    
+        }
+
+        MessageTraffic.prototype.validate = function(){
+            var errors = [];
+
+            if(!this.Title){
+                errors.push("Title is a required field");
+            }
+
+            if(!this.OriginatorSender){
+                errors.push("Originator/Sender is a required field");
+            }
+
+            if(!this.Receiver || !this.Receiver.length){
+                errors.push("Receiver is a required field");
+            }
+
+            if(!this.DateTimeGroup || !this.DateTimeGroup.isValid()){
+                errors.push("Date Time Group is a required field");
+            }
+            
+            if(!this.TaskInfo){
+                errors.push("Task/Info is a required field");
+            }
+
+            if(!this.Significant){
+                errors.push("Significant is a required field");
+            }
+
+            return (errors.length) ? "\n\t-" + errors.join("\n\t-") : "";
+        }
+
+        return MessageTraffic;
+    }
+})();
+
 /* Model: Mission Document */
 (function () {
     angular.module('app.models')
@@ -792,6 +885,25 @@
 
         MissionDocument.prototype.save = function () {
             return MissionDocumentRepository.save(this);    
+        }
+
+        MissionDocument.prototype.validate = function (){
+            var errors = [];
+
+            var fileNameWithoutExtension = this.FileLeafRef.includes('.') ? this.FileLeafRef.split('.')[0] : this.FileLeafRef;
+            if(!fileNameWithoutExtension){
+                errors.push("Name is a required field");
+            }
+
+            if(!this.Organization){
+                errors.push("Organization is a required field");
+            }
+
+            if(!this.TypeOfDocument){
+                errors.push("Type of Document is a required field");
+            }
+
+            return (errors.length) ? "\n\t-" + errors.join("\n\t-") : "";
         }
 
         return MissionDocument;
@@ -1083,6 +1195,58 @@
             var constructParams = angular.extend({}, { item: item }, ngResourceConstructParams);
             var restResource = spContext.constructNgResourceForRESTResource(constructParams);
             return restResource.post(item).$promise;
+        }
+
+        return service;
+    }
+})();
+
+/* Data Repository: Message Traffic */
+(function () {
+    angular.module('app.data')
+        .service('MessageTrafficRepository', MessageTrafficRepository);
+    MessageTrafficRepository.$inject = ['$http', '$q', '$resource', 'exception', 'logger', 'spContext'];
+    function MessageTrafficRepository($http, $q, $resource, exception, logger, spContext) {
+        var service = {
+            getAll: getAll,
+            save: save
+        };
+
+        var fieldsToSelect = [
+            spContext.SP2013REST.selectForCommonListFields,
+            'OriginatorSender,Receiver,DateTimeGroup,TaskInfo,Initials, Significant,Comments,LinkToMissionDocument,DTG'
+        ].join(',');
+
+        var fieldsToExpand = [
+            spContext.SP2013REST.expandoForCommonListFields
+        ].join(',');
+
+        var ngResourceConstructParams = {
+            fieldsToSelect: fieldsToSelect,
+            fieldsToExpand: fieldsToExpand,
+            listName: 'Message Traffic'
+        };
+
+        function getAll() {
+            var qsParams = {}; //{$filter:"FavoriteNumber eq 8"};
+            return spContext.constructNgResourceForRESTCollection(ngResourceConstructParams).get(qsParams).$promise
+                 .then(function(response){
+                    return response.d.results;
+                });
+        }
+
+        function save(item){
+            spContext.makeMomentRESTCompliant(item, "DateTimeGroup");
+            spContext.makeMultiChoiceRESTCompliant(item, "Receiver");
+            spContext.makeHyperlinkFieldRESTCompliant(item, "LinkToMissionDocument");
+            if(!item.Id){
+                var restCollection = spContext.constructNgResourceForRESTCollection(ngResourceConstructParams)
+                return restCollection.post(item).$promise;
+            } else {
+                var constructParams = angular.extend({}, { item: { Id: item.Id } }, ngResourceConstructParams);
+                var restResource = spContext.constructNgResourceForRESTResource(constructParams);
+                return restResource.post(item).$promise;
+            }
         }
 
         return service;
@@ -1703,7 +1867,7 @@
         }
 
         function buildCheckboxHtml() {
-            var html = '<uif-choicefield-option uif-type="checkbox" value="value1" ng-model="showPastMissions" ng-true-value="true" ng-false-value="false"> Show Past Missions</uif-choicefield-option>';
+            var html = '<input type="checkbox" ng-model="showPastMissions"> <label>Show Past Missions</label>';
             return html;
         }
 
@@ -2015,7 +2179,6 @@
     RfiController.$inject = ['$q', '$state', '$stateParams', '_', 'logger', 'RFI', 'RfiRepository', 'Mission','MissionTrackerRepository'];
     function RfiController($q, $state, $stateParams, _, logger, RFI, RFIRepository, Mission, MissionTrackerRepository) {
         var vm = this;
-
         activate();
 
         function activate() {
@@ -2287,26 +2450,41 @@
         .module('app.core')
         .controller('MissionProductsDataEntryAspxController', controller);
 
-    controller.$inject = ['$q','_', 'MissionDocument', 'spContext', 'SPUtility'];
-    function controller($q, _, MissionDocument, spContext, SPUtility) {
+    controller.$inject = ['$q','_', 'MessageTraffic','MissionDocument', 'spContext', 'SPUtility'];
+    function controller($q, _, MessageTraffic, MissionDocument, spContext, SPUtility) {
         var vm = this;
         var itemOnEditFormAspxLoad = null;
+
 
         init();
 
         window.PreSaveAction = function(){
             var doc = generateMissionDocumentModelFromSpListForm();
+            var message = generateMessageTrafficModelFromSpListForm();
             
-            doc.save()
-                .then(generateMessage)
-                .then(redirectToSource)
-                .catch(function(error){
-                    alert(error);
-                });
+            var errors = doc.validate();
+            if(message){
+                var msgTrafficErrors = message.validate();
+                if(msgTrafficErrors){
+                    errors += "\n\t- When 'Send as Message' box is checked, the next six fields are also required";
+                }
+            }
+
+            if(errors){
+                alert(errors);
+            } else {
+                doc.save()
+                    .then(generateMessage)
+                    .then(redirectToSource)
+                    .catch(function(error){
+                        alert(error);
+                    });
+            }
             
-            function generateMessage(doc){
-                var linkToDoc = _spPageContextInfo.webServerRelativeUrl + "/MissionDocuments/" + doc.FileLeafRef;
-                return $q.when();
+            function generateMessage(){
+                if(!message) { return $q.when(); }
+                message.LinkToMissionDocument = _spPageContextInfo.webServerRelativeUrl + "/MissionDocuments/" + doc.FileLeafRef;
+                return message.save();
             }
 
             function redirectToSource(){
@@ -2316,6 +2494,25 @@
             return false;
         }
        
+        function generateMessageTrafficModelFromSpListForm(){
+            if(!SPUtility.GetSPFieldByInternalName("SendAsMessage").GetValue()){
+                //user did not check 'Send as Message' box
+                return null;
+            }
+            var item = new MessageTraffic();
+
+                //item.LinkToMissionDocument
+            
+            item.Title = SPUtility.GetSPFieldByInternalName("MessageTitle").GetValue();
+            item.TaskInfo = SPUtility.GetSPFieldByInternalName("MessageDetails").GetValue();
+            item.OriginatorSender = SPUtility.GetSPFieldByInternalName("MessageOriginatorSender").GetValue();
+            item.Receiver = SPUtility.GetSPFieldByInternalName("MessageRecipients").GetValue(); //object {results: ['SOTG 10', 'SOTG 15', 'SOTG 25']} 
+            item.DateTimeGroup = moment.utc(SPUtility.GetSPFieldByInternalName("MessageDTG").GetValue().toString());
+            item.Significant = SPUtility.GetSPFieldByInternalName("SignificantMessage").GetValue();
+
+            return item;
+        }
+
         function generateMissionDocumentModelFromSpListForm(){
             var doc = new MissionDocument();
             doc.FileLeafRef = SPUtility.GetSPFieldByInternalName("FileLeafRef").GetValue();
