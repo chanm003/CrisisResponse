@@ -3,7 +3,7 @@
     var globalConfig = {
         appErrorPrefix: '[Exercise Application Error] ',
         appTitle: 'Exercise Application',
-        baseUrl: 'http://localhost:3000/spaArtifacts', 
+        baseUrl: 'http://localhost:3000/spaArtifacts',
         showDebugToasts: true
     };
 
@@ -75,7 +75,7 @@
         if (currentURL.include('/MISSIONDOCUMENTS/FORMS/EDITFORM.ASPX')) {
             spPage.attr('ng-controller', 'MissionProductsDataEntryAspxController as vm');
         }
-        
+
         //BOOTSTRAP NG-APP
         angular.element(document).ready(function () { angular.bootstrap(document, ['singlePageApp']); });
 
@@ -113,7 +113,7 @@
         }
     }
 
-    function configSPUtility(){
+    function configSPUtility() {
         SPUtility.Setup({
             'timeFormat': '24HR'
         });
@@ -131,9 +131,9 @@
             iconSource: 'fontAwesome',
             sound: false,
             size: 'mini',
-	        rounded: true,
+            rounded: true,
             //position: 'right top',
-	        delayIndicator: false
+            delayIndicator: false
         });
 
         //override security because our HTML templates violate CORS
@@ -189,13 +189,13 @@
             var errorData = { exception: exception, cause: cause };
             exception.message = appErrorPrefix + exception.message;
             $delegate(exception, cause);
-            logger.error(exception.message, {data: errorData});
+            logger.error(exception.message, { data: errorData });
         };
     }
 
     function extendLoDash(_) {
         _.getQueryStringParam = function (name, url) {
-            if (!url){
+            if (!url) {
                 url = window.location.href;
             }
             url = decodeURIComponent(url);
@@ -207,7 +207,7 @@
             return decodeURIComponent(results[2].replace(/\+/g, " "));
         }
 
-        _.extractOrgFromQueryString = function(){
+        _.extractOrgFromQueryString = function () {
             // /TF16/Lists/MissionTracker/NewForm.aspx?Source=/TF16/SitePages/socc.aspx?org=SOCC
             var isChildWindow = window.parent.location.href !== window.location.href;
             var selectedOrg = (isChildWindow) ? _.getQueryStringParam("org", window.parent.location.href) : _.getQueryStringParam("org", window.location.href);
@@ -234,9 +234,9 @@
         return service;
         /////////////////////
 
-        function showToast(message, toastType, opts){
-            if(config.showDebugToasts || (opts && opts.alwaysShowToEnduser)){
-                opts = angular.extend({}, {msg: message}, opts);
+        function showToast(message, toastType, opts) {
+            if (config.showDebugToasts || (opts && opts.alwaysShowToEnduser)) {
+                opts = angular.extend({}, { msg: message }, opts);
                 Lobibox.notify(toastType, opts);
             }
         }
@@ -336,7 +336,7 @@
                         var msg = 'Error routing to ' + destination + '. ' +
                             (error.data || '') + '. <br/>' + (error.statusText || '') +
                             ': ' + (error.status || '');
-                        logger.warning(msg, {data: [toState]});
+                        logger.warning(msg, { data: [toState] });
                         $location.path('/');
                     }
                 );
@@ -498,7 +498,7 @@
                 });
         }
 
-        function getContextFromEditFormASPX(){
+        function getContextFromEditFormASPX() {
             /**
              * on EditForm.aspx "Organization" should be rendered as read-only label, so no dropdown
              * Assumptions about what SP2013 would included inside EditForm.aspx: 
@@ -508,43 +508,43 @@
             var listItem = null;
             var listFormDiv = $("table.ms-formtable").closest("[id^=WebPartWPQ]");
             var globalVarOnEditFormAspx = listFormDiv.attr("id").replace("WebPart", "") + "FormCtx";
-            if(window[globalVarOnEditFormAspx]){
+            if (window[globalVarOnEditFormAspx]) {
                 listItem = window[globalVarOnEditFormAspx].ListData;
             }
             return listItem;
         }
 
-        function getIdFromLookupField(internalName){
+        function getIdFromLookupField(internalName) {
             var selectedId = null;
             var spUtilityField = SPUtility.GetSPFieldByInternalName(internalName);
-            
-            if(spUtilityField.Textbox){
+
+            if (spUtilityField.Textbox) {
                 //could be a relic of SP2010
                 //rendering of control in NewForm.aspx/EditForm.aspx depended on how many items lookup list have
             } else {
                 var val = $(spUtilityField.ControlsRow.cells[1]).find("option:selected").val()
-                if(val !== "0"){
+                if (val !== "0") {
                     selectedId = parseInt(val, 10);
                 }
             }
             return selectedId;
         }
 
-        function getPeoplePickerInstance(internalName){
-            var containerDiv = $("[id^='"+internalName+"_'][spclientpeoplepicker]");
-            if(containerDiv.length){
+        function getPeoplePickerInstance(internalName) {
+            var containerDiv = $("[id^='" + internalName + "_'][spclientpeoplepicker]");
+            if (containerDiv.length) {
                 var editor = containerDiv.find("[data-sp-peoplepickereditor]");
-                var picker = SPClientPeoplePicker.SPClientPeoplePickerDict[containerDiv[0].id];			      
+                var picker = SPClientPeoplePicker.SPClientPeoplePickerDict[containerDiv[0].id];
                 return {
                     picker: picker,
                     editor: editor
                 };
-            } 
+            }
         }
 
-        function getSelectedUsersFromPeoplePicker(internalName){
+        function getSelectedUsersFromPeoplePicker(internalName) {
             var pickerInstance = getPeoplePickerInstance(internalName);
-            if(pickerInstance){
+            if (pickerInstance) {
                 return pickerInstance.picker.GetAllUserInfo();
             } else {
                 return [];
@@ -555,8 +555,8 @@
             refreshSecurityValidation();
         }
 
-        function makeHyperlinkFieldRESTCompliant(model, propName){
-            if(angular.isString(model[propName])){
+        function makeHyperlinkFieldRESTCompliant(model, propName) {
+            if (angular.isString(model[propName])) {
                 model[propName] = {
                     __metadata: {
                         type: "SP.FieldUrlValue"
@@ -567,18 +567,18 @@
             }
         }
 
-        function makeMomentRESTCompliant(model, propName){
-            if(model[propName] === undefined){ return; }
-            if(model[propName].isValid()){
+        function makeMomentRESTCompliant(model, propName) {
+            if (model[propName] === undefined) { return; }
+            if (model[propName].isValid()) {
                 model[propName] = model[propName].toISOString();
             }
         }
 
-        function makeMultiChoiceRESTCompliant(model, propName){
-            if(angular.isArray(model[propName])){
+        function makeMultiChoiceRESTCompliant(model, propName) {
+            if (angular.isArray(model[propName])) {
                 model[propName] = {
-                    "__metadata":{
-                        "type":"Collection(Edm.String)"
+                    "__metadata": {
+                        "type": "Collection(Edm.String)"
                     },
                     "results": model[propName]
                 }
@@ -666,27 +666,27 @@
             return RfiRepository.save(this, formState);
         }
 
-        RFI.prototype.setHiddenFieldsPriorToSave = function(formState, rfiOnAspxLoad){
-            if(formState === "reopen"){
+        RFI.prototype.setHiddenFieldsPriorToSave = function (formState, rfiOnAspxLoad) {
+            if (formState === "reopen") {
                 checkIfRfiNeedsToBeReopened(this, rfiOnAspxLoad);
             }
 
-            if(formState === 'respond'){
+            if (formState === 'respond') {
                 checkIfRfiShouldBeClosed(this, rfiOnAspxLoad);
             }
 
-            function checkIfRfiNeedsToBeReopened(rfi, rfiOnAspxLoad){
-                if(rfiOnAspxLoad.ResponseSufficient === "Yes"){
+            function checkIfRfiNeedsToBeReopened(rfi, rfiOnAspxLoad) {
+                if (rfiOnAspxLoad.ResponseSufficient === "Yes") {
                     //on load Response Sufficient was "Yes"
                     //but since they navigated to this page we should set it to "No" for them
-                    rfi.ResponseSufficient = "No";                
+                    rfi.ResponseSufficient = "No";
                     rfi.DateClosed = null;
                     rfi.Status = "Open";
                 }
             }
 
-            function checkIfRfiShouldBeClosed(rfi, rfiOnAspxLoad){
-                if(!rfiOnAspxLoad.DateClosed && rfi.DateClosed.isValid()){
+            function checkIfRfiShouldBeClosed(rfi, rfiOnAspxLoad) {
+                if (!rfiOnAspxLoad.DateClosed && rfi.DateClosed.isValid()) {
                     //on load Date Closed was blank, now it is populated with valid date
                     rfi.Status = "Closed";
                     rfi.ResponseSufficient = "Yes";
@@ -694,49 +694,49 @@
             }
         }
 
-        RFI.prototype.validate = function (formState){
+        RFI.prototype.validate = function (formState) {
             var errors = [];
 
-            if(formState === 'new' || formState === 'edit'){
-                if(!this.Title){
+            if (formState === 'new' || formState === 'edit') {
+                if (!this.Title) {
                     errors.push("Title is a required field");
                 }
 
-                if(!this.Priority){
+                if (!this.Priority) {
                     errors.push("Priority is a required field");
                 }
 
-                if(this.PocNameSelectedKeys.length === 0){
+                if (this.PocNameSelectedKeys.length === 0) {
                     errors.push("POC Name is a required field");
                 }
 
-                if(!this.PocPhone){
+                if (!this.PocPhone) {
                     errors.push("POC Phone is a required field");
                 }
 
-                if(!this.PocOrganization){
+                if (!this.PocOrganization) {
                     errors.push("POC Organization is a required field");
                 }
 
-                if(!this.RecommendedOPR){
+                if (!this.RecommendedOPR) {
                     errors.push("Recommended OPR is a required field");
                 }
             }
 
-            if(formState === "reopen"){
-                if(!this.InsufficientExplanation){
+            if (formState === "reopen") {
+                if (!this.InsufficientExplanation) {
                     errors.push("Insufficient Explanation is a required field");
                 }
             }
 
-            if(formState === 'respond'){
-                if(this.RespondentNameSelectedKeys.length === 0){
+            if (formState === 'respond') {
+                if (this.RespondentNameSelectedKeys.length === 0) {
                     errors.push("Respondent Name is a required field");
                 }
-                if(!this.RespondentPhone){
+                if (!this.RespondentPhone) {
                     errors.push("Respondent Phone is a required field")
                 }
-                if(!this.ResponseToRequest){
+                if (!this.ResponseToRequest) {
                     errors.push("Response to Request is a required field");
                 }
             }
@@ -792,33 +792,33 @@
         }
 
         MessageTraffic.prototype.save = function () {
-            return MessageTrafficRepository.save(this);    
+            return MessageTrafficRepository.save(this);
         }
 
-        MessageTraffic.prototype.validate = function(){
+        MessageTraffic.prototype.validate = function () {
             var errors = [];
 
-            if(!this.Title){
+            if (!this.Title) {
                 errors.push("Title is a required field");
             }
 
-            if(!this.OriginatorSender){
+            if (!this.OriginatorSender) {
                 errors.push("Originator/Sender is a required field");
             }
 
-            if(!this.Receiver || !this.Receiver.length){
+            if (!this.Receiver || !this.Receiver.length) {
                 errors.push("Receiver is a required field");
             }
 
-            if(!this.DateTimeGroup || !this.DateTimeGroup.isValid()){
+            if (!this.DateTimeGroup || !this.DateTimeGroup.isValid()) {
                 errors.push("Date Time Group is a required field");
             }
-            
-            if(!this.TaskInfo){
+
+            if (!this.TaskInfo) {
                 errors.push("Task/Info is a required field");
             }
 
-            if(!this.Significant){
+            if (!this.Significant) {
                 errors.push("Significant is a required field");
             }
 
@@ -859,15 +859,15 @@
             }
         }
 
-        MissionDocument.prototype.checkIn = function(){
+        MissionDocument.prototype.checkIn = function () {
             return MissionDocumentRepository.checkInFile(this);
         }
 
-        MissionDocument.prototype.deriveRouteSequence = function(mission, orgConfig){
+        MissionDocument.prototype.deriveRouteSequence = function (mission, orgConfig) {
             var sequence = "";
-            if(mission && orgConfig){
-                var route = _.find(orgConfig.routes, {name: mission.ApprovalAuthority});
-                if(route && route.sequence && route.sequence.length){
+            if (mission && orgConfig) {
+                var route = _.find(orgConfig.routes, { name: mission.ApprovalAuthority });
+                if (route && route.sequence && route.sequence.length) {
                     this.ChopRouteSequence = route.sequence.join(';');
                 }
             }
@@ -887,22 +887,22 @@
         }
 
         MissionDocument.prototype.save = function () {
-            return MissionDocumentRepository.save(this);    
+            return MissionDocumentRepository.save(this);
         }
 
-        MissionDocument.prototype.validate = function (){
+        MissionDocument.prototype.validate = function () {
             var errors = [];
 
             var fileNameWithoutExtension = this.FileLeafRef.includes('.') ? this.FileLeafRef.split('.')[0] : this.FileLeafRef;
-            if(!fileNameWithoutExtension){
+            if (!fileNameWithoutExtension) {
                 errors.push("Name is a required field");
             }
 
-            if(!this.Organization){
+            if (!this.Organization) {
                 errors.push("Organization is a required field");
             }
 
-            if(!this.TypeOfDocument){
+            if (!this.TypeOfDocument) {
                 errors.push("Type of Document is a required field");
             }
 
@@ -948,9 +948,9 @@
             }
         }
 
-        Mission.prototype.deriveFullName = function(){
+        Mission.prototype.deriveFullName = function () {
             var parts = [this.Identifier, " (", this.ObjectiveName];
-            if(this.OperationName){
+            if (this.OperationName) {
                 parts.push(", ");
                 parts.push(this.OperationName);
             }
@@ -958,7 +958,7 @@
             this.FullName = parts.join("");
         }
 
-        Mission.prototype.deriveIdentifier = function(numMissionsCommanded){
+        Mission.prototype.deriveIdentifier = function (numMissionsCommanded) {
             var orgAsOneWord = _.words(this.Organization, /[a-zA-Z0-9-_]+/g).join("").toUpperCase(); //from "SOTG 10" to "SOTG10"
             numMissionsCommanded = numMissionsCommanded + 1;
             var threeDigitKey = _.padStart(numMissionsCommanded, 3, 0);  //from "8" to "008"
@@ -966,36 +966,36 @@
             this.Identifier = [orgAsOneWord, threeDigitKey, missionTypeAcronym].join("_");
         }
 
-        Mission.prototype.validate = function(){
+        Mission.prototype.validate = function () {
             var errors = [];
-            if(!this.ObjectiveName){
+            if (!this.ObjectiveName) {
                 errors.push("Objective Name is a required field");
             }
-            if(!this.Id && !this.Organization){
+            if (!this.Id && !this.Organization) {
                 //only required on NewForm, is read-only label on EditForm
                 errors.push("Organization is a required field");
             }
-            if(!this.Id && !this.MissionType){
+            if (!this.Id && !this.MissionType) {
                 //only required on NewForm, is read-only label on EditForm
                 errors.push("Mission Type is a required field");
             }
-            if(!this.ApprovalAuthority){
+            if (!this.ApprovalAuthority) {
                 errors.push("Approval Authority is a required field");
             }
-            if(!this.Status){
+            if (!this.Status) {
                 errors.push("Status is a required field");
             }
-            if(!this.ExpectedExecution || !this.ExpectedExecution.isValid()){
+            if (!this.ExpectedExecution || !this.ExpectedExecution.isValid()) {
                 errors.push("Expected Execution is a required field");
             }
-            if(!this.ParticipatingOrganizations || !this.ParticipatingOrganizations.length){
+            if (!this.ParticipatingOrganizations || !this.ParticipatingOrganizations.length) {
                 errors.push("Participating Organizations is a required field");
             }
-            if(this.ExpectedTermination && this.ExpectedTermination.isValid() && (this.ExpectedExecution >= this.ExpectedTermination)){
+            if (this.ExpectedTermination && this.ExpectedTermination.isValid() && (this.ExpectedExecution >= this.ExpectedTermination)) {
                 errors.push("Expected Execution must preceded Expected Termination");
             }
 
-            if(errors.length === 0){
+            if (errors.length === 0) {
                 //sanitize user input
                 this.ObjectiveName = _.words(this.ObjectiveName, /[a-zA-Z0-9-_]+/g).join("").toUpperCase();
                 this.OperationName = _.words(this.OperationName, /[a-zA-Z0-9-_]+/g).join("").toUpperCase();
@@ -1071,9 +1071,9 @@
             return dfd.promise;
         }
 
-        function convertToFieldLookupValue(lookupID){
-            if(!lookupID){ return null; }
-            var flv = new SP.FieldLookupValue();  
+        function convertToFieldLookupValue(lookupID) {
+            if (!lookupID) { return null; }
+            var flv = new SP.FieldLookupValue();
             flv.set_lookupId(lookupID);
             return flv;
         }
@@ -1081,23 +1081,23 @@
         function save(rfi, formState) {
             var dfd = $q.defer();
 
-            var ctx = new SP.ClientContext(_spPageContextInfo.webServerRelativeUrl);  
-            var list = ctx.get_web().get_lists().getByTitle('RFI');   
+            var ctx = new SP.ClientContext(_spPageContextInfo.webServerRelativeUrl);
+            var list = ctx.get_web().get_lists().getByTitle('RFI');
             var listItem;
 
-            if(_.includes(['edit', 'respond', 'reopen'], formState)){
+            if (_.includes(['edit', 'respond', 'reopen'], formState)) {
                 listItem = list.getItemById(rfi.Id);
             }
 
-            if(_.includes(['new'], formState)){
-                var itemCreateInfo = new SP.ListItemCreationInformation(); 
+            if (_.includes(['new'], formState)) {
+                var itemCreateInfo = new SP.ListItemCreationInformation();
                 listItem = list.addItem(itemCreateInfo);
             }
 
-            if(_.includes(['new', 'edit'], formState)){
+            if (_.includes(['new', 'edit'], formState)) {
                 listItem.set_item('Title', rfi.Title);
-                listItem.set_item('RfiTrackingNumber', (rfi.RfiTrackingNumber || null)) ;
-                listItem.set_item('Mission',convertToFieldLookupValue(rfi.MissionId));
+                listItem.set_item('RfiTrackingNumber', (rfi.RfiTrackingNumber || null));
+                listItem.set_item('Mission', convertToFieldLookupValue(rfi.MissionId));
                 listItem.set_item('Details', rfi.Details);
                 listItem.set_item('Priority', rfi.Priority);
                 listItem.set_item('LTIOV', rfi.LTIOV.isValid() ? rfi.LTIOV.toISOString() : null);
@@ -1105,11 +1105,11 @@
                 listItem.set_item('PocPhone', rfi.PocPhone);
                 listItem.set_item('PocOrganization', rfi.PocOrganization);
                 listItem.set_item('RecommendedOPR', rfi.RecommendedOPR);
-                listItem.set_item('ManageRFI',_.map(rfi.ManageRFISelectedKeys, function(key){ return SP.FieldUserValue.fromUser(key);}));
+                listItem.set_item('ManageRFI', _.map(rfi.ManageRFISelectedKeys, function (key) { return SP.FieldUserValue.fromUser(key); }));
             }
 
-            if(formState === 'respond'){
-                listItem.set_item('Mission',convertToFieldLookupValue(rfi.MissionId));
+            if (formState === 'respond') {
+                listItem.set_item('Mission', convertToFieldLookupValue(rfi.MissionId));
                 listItem.set_item('RecommendedOPR', rfi.RecommendedOPR);
                 listItem.set_item('RespondentName', SP.FieldUserValue.fromUser(rfi.RespondentNameSelectedKeys[0]));
                 listItem.set_item('RespondentPhone', rfi.RespondentPhone);
@@ -1119,8 +1119,8 @@
                 listItem.set_item('Status', rfi.Status);
             }
 
-            if(formState === 'reopen'){
-                listItem.set_item('Mission',convertToFieldLookupValue(rfi.MissionId));
+            if (formState === 'reopen') {
+                listItem.set_item('Mission', convertToFieldLookupValue(rfi.MissionId));
                 listItem.set_item('ResponseSufficient', rfi.ResponseSufficient);
                 listItem.set_item('InsufficientExplanation', rfi.InsufficientExplanation);
                 listItem.set_item('DateClosed', (rfi.DateClosed && rfi.DateClosed.isValid()) ? rfi.DateClosed.toISOString() : null);
@@ -1129,14 +1129,14 @@
 
             listItem.update();
 
-            ctx.load(listItem);  
+            ctx.load(listItem);
             ctx.executeQueryAsync(
-                Function.createDelegate(this, function(){
+                Function.createDelegate(this, function () {
                     dfd.resolve(listItem.get_id());
-                }), 
-                Function.createDelegate(this, function(sender, args){
+                }),
+                Function.createDelegate(this, function (sender, args) {
                     dfd.reject('Request failed. ' + args.get_message() + '\n' + args.get_stackTrace());
-                }));            
+                }));
 
             return dfd.promise;
         }
@@ -1176,25 +1176,25 @@
             listName: 'Mission Documents'
         };
 
-        function checkInFile(opts){
+        function checkInFile(opts) {
             var webUrl = _spPageContextInfo.webServerRelativeUrl;
             var fileUrl = webUrl + "/MissionDocuments/" + opts.FileLeafRef;
-            var url = webUrl + "/_api/web/GetFileByServerRelativeUrl('"+fileUrl+"')/CheckIn(comment='',checkintype=2)";
+            var url = webUrl + "/_api/web/GetFileByServerRelativeUrl('" + fileUrl + "')/CheckIn(comment='',checkintype=2)";
 
             return $http({
-                    method: "post",
-                    url: url,
-                    headers: {
-                        'Accept': 'application/json;odata=verbose;',
-                        'Content-Type': 'application/json;odata=verbose;',
-                        'X-RequestDigest': spContext.securityValidation,
-                        'X-HTTP-Method': 'MERGE',
-                        'If-Match': '*'
-                    }
-                })
-                .catch(function(response){
-                    if(!_.endsWith(response.data.error.message.value, "is not checked out.")){
-                       return $q.reject(response); 
+                method: "post",
+                url: url,
+                headers: {
+                    'Accept': 'application/json;odata=verbose;',
+                    'Content-Type': 'application/json;odata=verbose;',
+                    'X-RequestDigest': spContext.securityValidation,
+                    'X-HTTP-Method': 'MERGE',
+                    'If-Match': '*'
+                }
+            })
+                .catch(function (response) {
+                    if (!_.endsWith(response.data.error.message.value, "is not checked out.")) {
+                        return $q.reject(response);
                     }
                 });
         }
@@ -1257,16 +1257,16 @@
         function getAll() {
             var qsParams = {}; //{$filter:"FavoriteNumber eq 8"};
             return spContext.constructNgResourceForRESTCollection(ngResourceConstructParams).get(qsParams).$promise
-                 .then(function(response){
+                .then(function (response) {
                     return response.d.results;
                 });
         }
 
-        function save(item){
+        function save(item) {
             spContext.makeMomentRESTCompliant(item, "DateTimeGroup");
             spContext.makeMultiChoiceRESTCompliant(item, "Receiver");
             spContext.makeHyperlinkFieldRESTCompliant(item, "LinkToMissionDocument");
-            if(!item.Id){
+            if (!item.Id) {
                 var restCollection = spContext.constructNgResourceForRESTCollection(ngResourceConstructParams)
                 return restCollection.post(item).$promise;
             } else {
@@ -1307,17 +1307,17 @@
             listName: 'Mission Tracker'
         };
 
-        function generateMissionIdentifier(item){
-            if(item.Id){
+        function generateMissionIdentifier(item) {
+            if (item.Id) {
                 //do nothing, since Identifer column only gets generated on new item created
                 item.deriveFullName();
                 return $q.when(item);
             }
 
-            var qsParams = {$filter:"Organization eq '"+item.Organization+"'"};
+            var qsParams = { $filter: "Organization eq '" + item.Organization + "'" };
             var restCollection = spContext.constructNgResourceForRESTCollection(ngResourceConstructParams);
             return restCollection.get(qsParams).$promise
-                .then(function(response){
+                .then(function (response) {
                     var numberOfMissionsCommandedByOrganizaton = response.d.results.length;
                     item.deriveIdentifier(numberOfMissionsCommandedByOrganizaton);
                     item.deriveFullName();
@@ -1348,13 +1348,13 @@
             return validate(item)
                 .then(generateMissionIdentifier)
                 .then(performHttpPost);
-            
-            function performHttpPost(item){
+
+            function performHttpPost(item) {
                 spContext.makeMomentRESTCompliant(item, "MissionApproved");
                 spContext.makeMomentRESTCompliant(item, "ExpectedExecution");
                 spContext.makeMomentRESTCompliant(item, "ExpectedTermination");
                 spContext.makeMultiChoiceRESTCompliant(item, "ParticipatingOrganizations");
-                if(!item.Id){
+                if (!item.Id) {
                     var restCollection = spContext.constructNgResourceForRESTCollection(ngResourceConstructParams)
                     return restCollection.post(item);
                 } else {
@@ -1364,9 +1364,9 @@
                 }
             }
 
-            function validate(item){
+            function validate(item) {
                 var errors = item.validate();
-                if(errors.length){
+                if (errors.length) {
                     return $q.reject("\n\t-" + errors.join("\n\t-"));
                 } else {
                     return $q.when(item);
@@ -1449,7 +1449,7 @@
                     });
 
                     if (organizationFilter) {
-                        events = _.filter(events, function(evt){
+                        events = _.filter(events, function (evt) {
                             return _.includes(evt.organization, organizationFilter);
                         });
                     }
@@ -1604,78 +1604,87 @@
     function EditNavController($q, $timeout, _, logger) {
         var vm = this;
 
-        var newId = 1;
-        vm.ignoreChanges = false;
-        vm.newNode = {};
-        vm.originalData = [
-            { id: 'ajson1', parent: '#', text: 'Simple root node', state: { opened: true } },
-            { id: 'ajson2', parent: '#', text: 'Root node 2', state: { opened: true } },
-            { id: 'ajson3', parent: 'ajson2', text: 'Child 1', state: { opened: true } },
-            { id: 'ajson4', parent: 'ajson2', text: 'Child 2', state: { opened: true } }
+        vm.treeData = [
+            { id: 'rootNode', parent: '#', text: 'Trojan Footprint 16 Navigation', li_attr: { id: 'rootNode' }, state: { opened: true } }
         ];
-        vm.treeData = [];
-        angular.copy(vm.originalData, vm.treeData);
+
         vm.treeConfig = {
             core: {
                 multiple: false,
                 animation: true,
                 error: function (error) {
-                    $log.error('treeCtrl: error from js tree - ' + angular.toJson(error));
                 },
-                check_callback: true,
+                check_callback: function (op, node, par, pos, more) {
+                    if (op === "delete_node" || op === "rename_node") {
+                        if (node.parent === '#') {
+                            alert('Cannot delete or rename root menu item');
+                            return false;
+                        }
+                    }
+                },
                 worker: true
             },
-            types: {
-                default: {
-                    icon: 'glyphicon glyphicon-flash'
-                },
-                star: {
-                    icon: 'glyphicon glyphicon-star'
-                },
-                cloud: {
-                    icon: 'glyphicon glyphicon-cloud'
-                }
-            },
             version: 1,
-            plugins: ['dnd', 'contextmenu']
+            plugins: ['dnd', 'contextmenu'],
+            contextmenu: {
+                items: function (node) {
+                    var tree = vm.treeInstance.jstree(true);
+                    return {
+                        "Create": {
+                            "separator_before": false,
+                            "separator_after": false,
+                            "label": "Create",
+                            "action": function (obj) {
+                                var $node = tree.create_node(node);
+                                tree.edit($node);
+                            }
+                        },
+                        "Rename": {
+                            "separator_before": false,
+                            "separator_after": false,
+                            "label": "Rename",
+                            "action": function (obj) {
+                                tree.edit(node);
+                            }
+                        },
+                        "Remove": {
+                            "separator_before": true,
+                            "separator_after": false,
+                            "label": "Delete",
+                            "action": function (obj) {
+                                if (confirm('Are you sure to remove this menu item?')) {
+                                    tree.delete_node(node);
+                                }
+                            }
+                        }
+                    };
+                }
+            }
         };
 
+        vm.onSaveClicked = function () {
+            console.log(vm.treeData);
+        }
 
-        vm.reCreateTree = function () {
-            vm.ignoreChanges = true;
-            angular.copy(this.originalData, this.treeData);
-            vm.treeConfig.version++;
-        };
-
-        vm.simulateAsyncData = function () {
-            vm.promise = $timeout(function () {
-                vm.treeData.push({ id: (newId++).toString(), parent: vm.treeData[0].id, text: 'Async Loaded' })
-            }, 3000);
-        };
-
-        vm.addNewNode = function () {
-            vm.treeData.push({ id: (newId++).toString(), parent: vm.newNode.parent, text: vm.newNode.text });
-        };
-
-        this.setNodeType = function () {
-            var item = _.findWhere(this.treeData, { id: this.selectedNode });
-            item.type = this.newType;
-            console.log('Changed the type of node ' + this.selectedNode);
-        };
-
-        this.readyCB = function () {
+        vm.readyCB = function () {
             $timeout(function () {
-                vm.ignoreChanges = false;
                 console.log('Js Tree issued the ready event');
             });
         };
 
-        this.createCB = function (e, item) {
-            $timeout(function () { console.log('Added new node with the text ' + item.node.text) });
+        vm.createCB = function (e, item) {
+            vm.treeData.push(item.node);
         };
 
-        this.applyModelChanges = function () {
-            return !vm.ignoreChanges;
+        vm.deleteCB = function (e, item) {
+            vm.treeData = _.remove(vm.treeData, function (node) {
+                return item.node.id !== node.id;
+            });
+        };
+
+        vm.selectCB = function (e, item) {
+            vm.selectedNode = _.find(vm.treeData, { id: item.node.id });
+            console.log(vm.selectedNode);
         };
 
         activate();
@@ -2056,21 +2065,21 @@
                 return (!!scope.chopProcessTimestamp) ? 'disabled-custombtn' : 'custombtn';
             }
 
-            scope.openChopDialog = function(){
+            scope.openChopDialog = function () {
                 if (!!scope.chopProcessTimestamp) { return; }
-                if(!scope.chopDialogCtx){
+                if (!scope.chopDialogCtx) {
                     alert("Chopping process should be initiated from Component Command or Task Group pages")
                     return;
                 }
                 //fetch missions, fetch Mission document properties
                 //on success set three properties on chopDialogCtx (show, missions, listItem)
                 $q.all([
-                        MissionDocumentRepository.getById(scope.listItemID),
-                        MissionTrackerRepository.getByOrganization(_.getQueryStringParam("org") || '')
-                    ])
-                    .then(function(data){
+                    MissionDocumentRepository.getById(scope.listItemID),
+                    MissionTrackerRepository.getByOrganization(_.getQueryStringParam("org") || '')
+                ])
+                    .then(function (data) {
                         scope.chopDialogCtx.listItem = new MissionDocument(data[0]);
-                        scope.chopDialogCtx.missions = _.map(data[1], function(item){ return new Mission(item); }); 
+                        scope.chopDialogCtx.missions = _.map(data[1], function (item) { return new Mission(item); });
                         scope.chopDialogCtx.show = true;
                         scope.chopDialogCtx.submitButtonClicked = false;
                         scope.chopDialogCtx.submit = submit;
@@ -2079,42 +2088,42 @@
                     });
             }
 
-            function isFormValid(){
+            function isFormValid() {
                 return !scope.chopDialogCtx.listItem.Mission.Id && scope.chopDialogCtx.submitButtonClicked;
             }
 
-            function getSelectedMission(){
+            function getSelectedMission() {
                 //two-way binding from ng-office UI dropdown binds the mission.Id dropdownOption to the Mission Document's Mission.Id  
-                var selectedMission = _.find(scope.chopDialogCtx.missions, {Id: parseInt(scope.chopDialogCtx.listItem.Mission.Id, 10)});
+                var selectedMission = _.find(scope.chopDialogCtx.missions, { Id: parseInt(scope.chopDialogCtx.listItem.Mission.Id, 10) });
                 return selectedMission;
             }
 
-            function submit(){
+            function submit() {
                 scope.chopDialogCtx.submitButtonClicked = true;
-                if(scope.chopDialogCtx.isFormValid()){ return; } 
-                
+                if (scope.chopDialogCtx.isFormValid()) { return; }
+
                 var selectedMission = scope.chopDialogCtx.getSelectedMission();
                 var orgConfig = jocInBoxConfig.dashboards[selectedMission.Organization];
-               
+
                 scope.chopDialogCtx.listItem.deriveRouteSequence(selectedMission, orgConfig);
 
-                if(scope.chopDialogCtx.listItem.ChopRouteSequence){
+                if (scope.chopDialogCtx.listItem.ChopRouteSequence) {
                     scope.chopDialogCtx.listItem.initiateChop().then(onChopStartedSuccessfully);
                 } else {
-                    alert(selectedMission.Organization + 'does not have a configured route sequence for "'+ selectedMission.ApprovalAuthority + '"');
+                    alert(selectedMission.Organization + 'does not have a configured route sequence for "' + selectedMission.ApprovalAuthority + '"');
                 }
-                
+
                 function onChopStartedSuccessfully(item) {
                     scope.chopProcessTimestamp = item.ChopProcess;
                     scope.chopDialogCtx.show = false;
                     var missionTrackerUrl = _spPageContextInfo.webServerRelativeUrl + "/SitePages/app.aspx/#/missionTracker";
-                    logger.success('Track the process using the <a href="'+missionTrackerUrl+'" style="text-decoration:underline;color:white;">Mission Tracker</a>', {
+                    logger.success('Track the process using the <a href="' + missionTrackerUrl + '" style="text-decoration:underline;color:white;">Mission Tracker</a>', {
                         title: "Chop Process initiated",
                         alwaysShowToEnduser: true,
                         delay: false
                     });
                 }
-                
+
             }
         }
     }
@@ -2215,7 +2224,7 @@
         }
     }
 
-    RfiController.$inject = ['$q', '$state', '$stateParams', '_', 'logger', 'RFI', 'RfiRepository', 'Mission','MissionTrackerRepository'];
+    RfiController.$inject = ['$q', '$state', '$stateParams', '_', 'logger', 'RFI', 'RfiRepository', 'Mission', 'MissionTrackerRepository'];
     function RfiController($q, $state, $stateParams, _, logger, RFI, RFIRepository, Mission, MissionTrackerRepository) {
         var vm = this;
         activate();
@@ -2278,7 +2287,7 @@
             show: false
         }
 
-       
+
     }
 
 
@@ -2290,7 +2299,7 @@
         .module('app.core')
         .controller('MissionTrackerDataEntryAspxController', controller);
 
-    controller.$inject = ['$scope','_', 'Mission', 'spContext', 'SPUtility'];
+    controller.$inject = ['$scope', '_', 'Mission', 'spContext', 'SPUtility'];
     function controller($scope, _, Mission, spContext, SPUtility) {
         var vm = this;
         var itemOnEditFormAspxLoad = null;
@@ -2299,7 +2308,7 @@
 
         init();
 
-        window.PreSaveAction = function(){
+        window.PreSaveAction = function () {
             var msn = new Mission();
             msn.ApprovalAuthority = SPUtility.GetSPFieldByInternalName("ApprovalAuthority").GetValue();
             msn.Comments = SPUtility.GetSPFieldByInternalName("Comments").GetValue();
@@ -2307,36 +2316,36 @@
             msn.ExpectedTermination = moment.utc(SPUtility.GetSPFieldByInternalName("ExpectedTermination").GetValue().toString());
             msn.MissionApproved = moment.utc(SPUtility.GetSPFieldByInternalName("MissionApproved").GetValue().toString());
             msn.ObjectiveName = SPUtility.GetSPFieldByInternalName("ObjectiveName").GetValue();
-            msn.OperationName = SPUtility.GetSPFieldByInternalName("OperationName").GetValue();   
+            msn.OperationName = SPUtility.GetSPFieldByInternalName("OperationName").GetValue();
             msn.ParticipatingOrganizations = SPUtility.GetSPFieldByInternalName("ParticipatingOrganizations").GetValue();
             msn.Status = SPUtility.GetSPFieldByInternalName("Status").GetValue();
             msn.Identifier = (itemOnEditFormAspxLoad) ? itemOnEditFormAspxLoad.Identifier : "";
-        
+
             var currentURL = document.location.pathname.toUpperCase();
-            if(_.includes(currentURL, "/NEWFORM.ASPX")){
+            if (_.includes(currentURL, "/NEWFORM.ASPX")) {
                 msn.Organization = SPUtility.GetSPFieldByInternalName("Organization").GetValue();
                 msn.MissionType = SPUtility.GetSPFieldByInternalName("MissionType").GetValue();
-            } else if(_.includes(currentURL, "/EDITFORM.ASPX")){
+            } else if (_.includes(currentURL, "/EDITFORM.ASPX")) {
                 msn.Id = _.getQueryStringParam("ID");
             }
-            
+
             msn.save()
-                .then(function(){
+                .then(function () {
                     window.location.href = _.getQueryStringParam("Source");
                 })
-                .catch(function(error){
+                .catch(function (error) {
                     alert(error);
                 })
 
             return false;
         }
-        
-        function init(){
+
+        function init() {
             itemOnEditFormAspxLoad = spContext.getContextFromEditFormASPX();
             wireUpEventHandlers();
         }
 
-        function wireUpEventHandlers(){
+        function wireUpEventHandlers() {
             var ddlMissionType = $(SPUtility.GetSPFieldByInternalName("MissionType").Dropdown);
             var ddlOrganization = $(SPUtility.GetSPFieldByInternalName("Organization").Dropdown);
             var ddlApprovalAuthority = $(SPUtility.GetSPFieldByInternalName("ApprovalAuthority").Dropdown);
@@ -2344,9 +2353,9 @@
             //run handler initially on load and any time the Mission Type dropdown changes
             setApprovalAuthorityBasedOnSelectedMissionType();
             ddlMissionType.on("change", setApprovalAuthorityBasedOnSelectedMissionType);
-            function setApprovalAuthorityBasedOnSelectedMissionType(){
+            function setApprovalAuthorityBasedOnSelectedMissionType() {
                 var selectedMissionType = ddlMissionType.val();
-                if(selectedMissionType){
+                if (selectedMissionType) {
                     //should never hit this line on EditForm.aspx (since "Mission Type" is read only and not rendered as dropdown)
                     var defaultLevel = jocInBoxConfig.missionTypes[selectedMissionType];
                     ddlApprovalAuthority.val(defaultLevel || "");
@@ -2358,35 +2367,35 @@
             showRouteBasedOnSelectedApprovalAuthorityAndOrganization()
             ddlOrganization.on("change", showRouteBasedOnSelectedApprovalAuthorityAndOrganization);
             ddlApprovalAuthority.on("change", showRouteBasedOnSelectedApprovalAuthorityAndOrganization);
-            function showRouteBasedOnSelectedApprovalAuthorityAndOrganization(){
+            function showRouteBasedOnSelectedApprovalAuthorityAndOrganization() {
                 var msg = "";
                 var selectedOrganization = getSelectedOrganization();
                 var selectedApprovalAuthority = ddlApprovalAuthority.val();
-                if(selectedOrganization && selectedApprovalAuthority){
+                if (selectedOrganization && selectedApprovalAuthority) {
                     var orgConfig = jocInBoxConfig.dashboards[selectedOrganization];
-                    if(orgConfig){
-                        var route = _.find(orgConfig.routes, {name: selectedApprovalAuthority});
-                        if(route && route.sequence && route.sequence.length){
+                    if (orgConfig) {
+                        var route = _.find(orgConfig.routes, { name: selectedApprovalAuthority });
+                        if (route && route.sequence && route.sequence.length) {
                             msg = route.sequence.join(' --> ');
                         }
                     }
                 }
 
-                 $scope.$evalAsync(
-                    function( $scope ) {
+                $scope.$evalAsync(
+                    function ($scope) {
                         $scope.routeMessage = msg;
                     }
                 );
 
-                function getSelectedOrganization(){
+                function getSelectedOrganization() {
                     var selectedDropdownOption = SPUtility.GetSPFieldByInternalName("Organization").GetValue();
-                    if(selectedDropdownOption){
+                    if (selectedDropdownOption) {
                         return selectedDropdownOption;
                     }
-                    
+
                     return getOrganizationFromReadOnlyLabel();
 
-                    function getOrganizationFromReadOnlyLabel(){
+                    function getOrganizationFromReadOnlyLabel() {
                         return (itemOnEditFormAspxLoad) ? itemOnEditFormAspxLoad.Organization : "";
                     }
                 }
@@ -2401,28 +2410,28 @@
         .module('app.core')
         .controller('RfiDataEntryAspxController', controller);
 
-    controller.$inject = ['$scope','_', 'RFI', 'spContext', 'SPUtility'];
+    controller.$inject = ['$scope', '_', 'RFI', 'spContext', 'SPUtility'];
     function controller($scope, _, RFI, spContext, SPUtility) {
         var vm = this;
 
         init();
 
-        window.PreSaveAction = function(){
+        window.PreSaveAction = function () {
             var formState = getStateForRfiForm();
 
             var rfi = generateModelFromSpListForm();
 
             var errors = rfi.validate(formState);
-            if(errors){
+            if (errors) {
                 alert(errors);
             } else {
                 var itemOnAspxLoad = spContext.getContextFromEditFormASPX();
                 rfi.setHiddenFieldsPriorToSave(formState, itemOnAspxLoad);
                 rfi.save(formState)
-                    .then(function(){
+                    .then(function () {
                         window.location.href = _.getQueryStringParam("Source");
                     })
-                    .catch(function(error){
+                    .catch(function (error) {
                         alert(error);
                     })
             }
@@ -2431,7 +2440,7 @@
             return false;
         }
 
-        function generateModelFromSpListForm(formState){
+        function generateModelFromSpListForm(formState) {
             var rfi = new RFI();
             rfi.Id = _.getQueryStringParam("ID");
             rfi.Title = SPUtility.GetSPFieldByInternalName("Title").GetValue();
@@ -2440,7 +2449,7 @@
             rfi.MissionId = spContext.getIdFromLookupField("Mission");
             rfi.Details = SPUtility.GetSPFieldByInternalName("Details").GetValue();
             rfi.Priority = SPUtility.GetSPFieldByInternalName("Priority").GetValue();
-            rfi.LTIOV = moment.utc(SPUtility.GetSPFieldByInternalName("LTIOV").GetValue().toString()); 
+            rfi.LTIOV = moment.utc(SPUtility.GetSPFieldByInternalName("LTIOV").GetValue().toString());
             rfi.PocNameSelectedKeys = getSelectedUserKeys("PocName");
             rfi.PocPhone = SPUtility.GetSPFieldByInternalName("PocPhone").GetValue();
             rfi.PocOrganization = SPUtility.GetSPFieldByInternalName("PocOrganization").GetValue();
@@ -2455,31 +2464,31 @@
             return rfi;
         }
 
-        function getSelectedUserKeys(internalName){
-            return _.map(spContext.getSelectedUsersFromPeoplePicker(internalName), function(user){ return user.Key });
+        function getSelectedUserKeys(internalName) {
+            return _.map(spContext.getSelectedUsersFromPeoplePicker(internalName), function (user) { return user.Key });
         }
 
-        function getStateForRfiForm(){
+        function getStateForRfiForm() {
             var currentPath = document.location.pathname.toUpperCase();
-            if(!_.includes(currentPath, "/LISTS/RFI/") ){ return ""; }
+            if (!_.includes(currentPath, "/LISTS/RFI/")) { return ""; }
             var qsParamAction = _.getQueryStringParam("action");
-            if(_.includes(currentPath, "/LISTS/RFI/NEWFORM.ASPX")){
+            if (_.includes(currentPath, "/LISTS/RFI/NEWFORM.ASPX")) {
                 return "new";
-            } else if(_.includes(currentPath, "/LISTS/RFI/EDITFORM.ASPX")){
-                if(!qsParamAction){
+            } else if (_.includes(currentPath, "/LISTS/RFI/EDITFORM.ASPX")) {
+                if (!qsParamAction) {
                     return "edit";
-                } else if(qsParamAction === "Respond"){
+                } else if (qsParamAction === "Respond") {
                     return "respond";
-                } else if(qsParamAction === "Reopen"){
+                } else if (qsParamAction === "Reopen") {
                     return "reopen";
                 }
-            } 
+            }
         }
 
-        function init(){    
+        function init() {
         }
 
-        
+
     }
 })();
 
@@ -2489,7 +2498,7 @@
         .module('app.core')
         .controller('MissionProductsDataEntryAspxController', controller);
 
-    controller.$inject = ['$q','_', 'MessageTraffic','MissionDocument', 'spContext', 'SPUtility'];
+    controller.$inject = ['$q', '_', 'MessageTraffic', 'MissionDocument', 'spContext', 'SPUtility'];
     function controller($q, _, MessageTraffic, MissionDocument, spContext, SPUtility) {
         var vm = this;
         var itemOnEditFormAspxLoad = null;
@@ -2497,56 +2506,56 @@
 
         init();
 
-        window.PreSaveAction = function(){
+        window.PreSaveAction = function () {
             var doc = generateMissionDocumentModelFromSpListForm();
             var message = generateMessageTrafficModelFromSpListForm();
-            
+
             var errors = doc.validate();
-            if(message){
+            if (message) {
                 var msgTrafficErrors = message.validate();
-                if(msgTrafficErrors){
+                if (msgTrafficErrors) {
                     errors += "\n\t- When 'Send as Message' box is checked, the next six fields are also required";
                 }
             }
 
-            if(errors){
+            if (errors) {
                 alert(errors);
             } else {
                 doc.save()
                     .then(checkInFile)
                     .then(generateMessage)
                     .then(redirectToSource)
-                    .catch(function(error){
+                    .catch(function (error) {
                         alert(error);
                     });
             }
 
-            function checkInFile(){
+            function checkInFile() {
                 return doc.checkIn();
             }
-            
-            function generateMessage(){
-                if(!message) { return $q.when(); }
+
+            function generateMessage() {
+                if (!message) { return $q.when(); }
                 message.LinkToMissionDocument = _spPageContextInfo.webServerRelativeUrl + "/MissionDocuments/" + doc.FileLeafRef;
                 return message.save();
             }
 
-            function redirectToSource(){
+            function redirectToSource() {
                 window.location.href = _.getQueryStringParam("Source");
             }
 
             return false;
         }
-       
-        function generateMessageTrafficModelFromSpListForm(){
-            if(!SPUtility.GetSPFieldByInternalName("SendAsMessage").GetValue()){
+
+        function generateMessageTrafficModelFromSpListForm() {
+            if (!SPUtility.GetSPFieldByInternalName("SendAsMessage").GetValue()) {
                 //user did not check 'Send as Message' box
                 return null;
             }
             var item = new MessageTraffic();
 
-                //item.LinkToMissionDocument
-            
+            //item.LinkToMissionDocument
+
             item.Title = SPUtility.GetSPFieldByInternalName("MessageTitle").GetValue();
             item.TaskInfo = SPUtility.GetSPFieldByInternalName("MessageDetails").GetValue();
             item.OriginatorSender = SPUtility.GetSPFieldByInternalName("MessageOriginatorSender").GetValue();
@@ -2557,7 +2566,7 @@
             return item;
         }
 
-        function generateMissionDocumentModelFromSpListForm(){
+        function generateMissionDocumentModelFromSpListForm() {
             var doc = new MissionDocument();
             doc.FileLeafRef = SPUtility.GetSPFieldByInternalName("FileLeafRef").GetValue();
             doc.Title = SPUtility.GetSPFieldByInternalName("Title").GetValue();
@@ -2568,20 +2577,20 @@
             doc.Id = _.getQueryStringParam("ID");
             return doc;
         }
-        
-        function init(){
+
+        function init() {
             itemOnEditFormAspxLoad = spContext.getContextFromEditFormASPX();
             console.log(itemOnEditFormAspxLoad);
             wireUpEventHandlers();
         }
 
-        function wireUpEventHandlers(){
+        function wireUpEventHandlers() {
             var spUtilityField = SPUtility.GetSPFieldByInternalName("SendAsMessage");
             var spUtilityFieldParentTableRow = $(spUtilityField.ControlsRow);
-            var nextSixRows = spUtilityFieldParentTableRow.nextAll().slice(0,6);
-            $(spUtilityField.Checkbox).on('change', function(){
+            var nextSixRows = spUtilityFieldParentTableRow.nextAll().slice(0, 6);
+            $(spUtilityField.Checkbox).on('change', function () {
                 var isChecked = this.checked;
-                if(isChecked){
+                if (isChecked) {
                     nextSixRows.show();
                 } else {
                     nextSixRows.hide();

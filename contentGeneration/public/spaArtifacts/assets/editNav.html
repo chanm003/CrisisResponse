@@ -1,7 +1,33 @@
+<p>
+    <uif-button type="button" ng-click="vm.onSaveClicked()" uif-type="primary">Save Changes</uif-button>
+</p>
 <div class="ms-Grid">
     <div class="ms-Grid-row">
-        <div class="ms-Grid-col ms-u-sm12 ms-u-md12 ms-u-lg12">
-            <div js-tree="vm.treeConfig" should-apply="vm.applyModelChanges()" ng-model="vm.treeData" tree="vm.treeInstance" tree-events="ready:vm.readyCB;create_node:vm.createCB"></div>
+        <div class="ms-Grid-col ms-u-sm6 ms-u-md6 ms-u-lg6">
+            <div js-tree="vm.treeConfig" should-apply="false" ng-model="vm.treeData" tree="vm.treeInstance" tree-events="ready:vm.readyCB;create_node:vm.createCB;delete_node:vm.deleteCB;select_node:vm.selectCB">
+            </div>
+        </div>
+        <div class="ms-Grid-col ms-u-sm6 ms-u-md6 ms-u-lg6">
+            <div ng-show="vm.selectedNode">
+                <div ng-show="vm.selectedNode.parent !== '#'">
+                    <h3>Configuration for <strong>{{vm.selectedNode.text}}</strong> navigation item</h3>
+                    <uif-textfield uif-label="URL:" ng-model="vm.selectedNode.li_attr.url" />
+
+                    <label for="">Visibility:</label>
+                    <uif-dropdown ng-model="vm.selectedNode.li_attr.visibility">
+                        <uif-dropdown-option value="Anonymous">Anonymous</uif-dropdown-option>
+                        <uif-dropdown-option value="Hidden">Hidden</uif-dropdown-option>
+                        <uif-dropdown-option value="Authenticated">Authenticated</uif-dropdown-option>
+                    </uif-dropdown>
+
+                    <label for="">Open link in:</label>
+                    <uif-dropdown uif-label="Target:" ng-model="vm.selectedNode.li_attr.target">
+                        <uif-dropdown-option value="_self">current window</uif-dropdown-option>
+                        <uif-dropdown-option value="_blank">new window/tab</uif-dropdown-option>
+                    </uif-dropdown>
+                </div>
+            </div>
+            {{vm.treeData}}
         </div>
     </div>
 </div>
