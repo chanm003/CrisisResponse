@@ -1029,6 +1029,64 @@
     }
 })();
 
+/* Data Repository: Config */
+(function () {
+    angular.module('app.data')
+        .service('ConfigRepository', ConfigRepository)
+    ConfigRepository.$inject = ['$http', '$q', '$resource', 'exception', 'logger', 'spContext'];
+    function ConfigRepository($http, $q, $resource, exception, logger, spContext) {
+        var service = {
+            getByKey: getByKey,
+            save: save
+        };
+
+        var fieldsToSelect = [
+            spContext.SP2013REST.selectForCommonListFields,
+            "JSON"
+        ].join(',');
+
+        var fieldsToExpand = [
+            spContext.SP2013REST.expandoForCommonListFields
+        ].join(',');
+
+        var ngResourceConstructParams = {
+            fieldsToSelect: fieldsToSelect,
+            fieldsToExpand: fieldsToExpand,
+            listName: 'Config'
+        };
+
+        function getByKey(configKey) {
+            var qsParams = {$filter:"Title eq '" + configKey + "'"};
+            var restCollection = spContext.constructNgResourceForRESTCollection(ngResourceConstructParams);
+            return restCollection.get(qsParams).$promise
+                .then(function (response) {
+                    var queryResults = response.d.results;
+                    var firstMatch = queryResults[0];
+                    return {
+                        Id: firstMatch.Id,
+                        JSON: JSON.parse(firstMatch.JSON)
+                    };
+                });
+        }
+
+        function save(id, config) {
+            config = JSON.stringify(config);
+            var httpPostBody = {
+                __metadata: {
+                    type: "SP.Data.ConfigListItem"
+                },
+                JSON: config
+            };
+            
+            var constructParams = angular.extend({}, { item: { Id: id } }, ngResourceConstructParams);
+            var restResource = spContext.constructNgResourceForRESTResource(constructParams);
+            return restResource.post(httpPostBody).$promise;
+        }
+
+        return service;
+    }
+})();
+
 /* Data Repository: RFI */
 (function () {
     angular.module('app.data')
@@ -1600,13 +1658,15 @@
         }
     }
 
-    EditNavController.$inject = ['$q', '$timeout', '_', 'logger'];
-    function EditNavController($q, $timeout, _, logger) {
+    EditNavController.$inject = ['$q', '$timeout', '_', 'logger', 'ConfigRepository'];
+    function EditNavController($q, $timeout, _, logger, ConfigRepository) {
+        $.jstree.defaults.contextmenu.select_node = false;
         var vm = this;
+        vm.asyncDataLoaded= false 
 
-        vm.treeData = [
-            { id: 'rootNode', parent: '#', text: 'Trojan Footprint 16 Navigation', li_attr: { id: 'rootNode' }, state: { opened: true } }
-        ];
+        vm.tree = {
+            data: []
+        }
 
         vm.treeConfig = {
             core: {
@@ -1663,7 +1723,12 @@
         };
 
         vm.onSaveClicked = function () {
-            console.log(vm.treeData);
+            ConfigRepository.save(vm.tree.listItemId, vm.tree.data)
+                .then(function(){
+                    logger.success('Navigation updated', {
+                        alwaysShowToEnduser: true
+                    });
+                })
         }
 
         vm.readyCB = function () {
@@ -1673,34 +1738,52 @@
         };
 
         vm.createCB = function (e, item) {
-            vm.treeData.push(item.node);
+            vm.asyncDataLoaded = true;
+            
+            if(!isDuplicateNode(item.node)){
+                vm.tree.data.push(item.node);
+                vm.selectedNode = item.node;
+            }
+
+            function isDuplicateNode(node){
+                return !!_.find(vm.tree.data, {id: node.id});
+            }
         };
 
         vm.deleteCB = function (e, item) {
-            vm.treeData = _.remove(vm.treeData, function (node) {
+            vm.tree.data = _.remove(vm.tree.data, function (node) {
                 return item.node.id !== node.id;
             });
+            vm.selectedNode = null;
         };
 
+        vm.renameCB = function(e, item){
+            var nodeToEdit = _.find(vm.tree.data, { id: item.node.id });
+            nodeToEdit.text = item.node.text;
+            vm.selectedNode = nodeToEdit;
+        }
+
         vm.selectCB = function (e, item) {
-            vm.selectedNode = _.find(vm.treeData, { id: item.node.id });
-            console.log(vm.selectedNode);
+            vm.selectedNode = _.find(vm.tree.data, { id: item.node.id });
         };
 
         activate();
 
         function activate() {
+            
             fetchData()
                 .then(function (data) {
-                    logger.info('Activated Edit Nav View');
+                    vm.tree.listItemId = data.Id;
+                    _.each(data.JSON, function(item){
+                        vm.tree.data.push(item);
+                    });
+                    //vm.syncModelChangesToView = true;
                 });
         }
 
         function fetchData() {
-            var staticData = [];
-            return $q.when(staticData);
+            return ConfigRepository.getByKey("MENU_CONFIG");
         }
-
     }
 })();
 

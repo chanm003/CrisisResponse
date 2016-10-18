@@ -4,7 +4,7 @@
 <div class="ms-Grid">
     <div class="ms-Grid-row">
         <div class="ms-Grid-col ms-u-sm6 ms-u-md6 ms-u-lg6">
-            <div js-tree="vm.treeConfig" should-apply="false" ng-model="vm.treeData" tree="vm.treeInstance" tree-events="ready:vm.readyCB;create_node:vm.createCB;delete_node:vm.deleteCB;select_node:vm.selectCB">
+            <div js-tree="vm.treeConfig" should-apply="!vm.asyncDataLoaded" ng-model="vm.tree.data" tree="vm.treeInstance" tree-events="ready:vm.readyCB;create_node:vm.createCB;delete_node:vm.deleteCB;select_node:vm.selectCB;rename_node:vm.renameCB">
             </div>
         </div>
         <div class="ms-Grid-col ms-u-sm6 ms-u-md6 ms-u-lg6">
@@ -27,7 +27,6 @@
                     </uif-dropdown>
                 </div>
             </div>
-            {{vm.treeData}}
         </div>
     </div>
 </div>
