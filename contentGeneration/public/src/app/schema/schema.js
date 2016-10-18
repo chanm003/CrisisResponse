@@ -16,6 +16,25 @@ crisisResponseSchema.missionTypesMappedToDefaultApprovalAuthority = {
 	"SUP: Support Patrol (log, etc)": ""
 }
 
+crisisResponseSchema.listDefs["Config"] = {
+	Title: "Config",
+		BaseTemplate: 'genericList',
+		shouldHideTitleField: true,
+		fieldsToCreate:[
+			{
+				//EXAMPLE: MULTIPLE LINE OF TEXT
+				Name: "JSON",
+				DisplayName: "JSON",
+				Type: "Note",
+				Required: "TRUE",
+				NumLines: 6,
+				RichText: "FALSE",						//RECOMMENDED
+				AppendOnly: "FALSE"						//VERSIONING MUST BE TURNED ON, otherwise specifie "FALSE"
+				
+			}		
+		]
+};
+
 crisisResponseSchema.listDefs["Mission Tracker"] = {
 	Title: "Mission Tracker",
 		BaseTemplate: 'genericList',

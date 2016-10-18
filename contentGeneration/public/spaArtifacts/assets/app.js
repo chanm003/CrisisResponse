@@ -25,7 +25,6 @@
         'blocks.logger',
         'blocks.router',
         'ui.router',
-        'ngJsTree',
         'ngplus'
     ])
         .constant('_', extendLoDash(_))
@@ -1056,7 +1055,7 @@
         };
 
         function getByKey(configKey) {
-            var qsParams = {$filter:"Title eq '" + configKey + "'"};
+            var qsParams = { $filter: "Title eq '" + configKey + "'" };
             var restCollection = spContext.constructNgResourceForRESTCollection(ngResourceConstructParams);
             return restCollection.get(qsParams).$promise
                 .then(function (response) {
@@ -1077,7 +1076,7 @@
                 },
                 JSON: config
             };
-            
+
             var constructParams = angular.extend({}, { item: { Id: id } }, ngResourceConstructParams);
             var restResource = spContext.constructNgResourceForRESTResource(constructParams);
             return restResource.post(httpPostBody).$promise;
@@ -1660,129 +1659,127 @@
 
     EditNavController.$inject = ['$q', '$timeout', '_', 'logger', 'ConfigRepository'];
     function EditNavController($q, $timeout, _, logger, ConfigRepository) {
-        $.jstree.defaults.contextmenu.select_node = false;
         var vm = this;
-        vm.asyncDataLoaded= false 
+    }
+})();
 
-        vm.tree = {
-            data: []
-        }
+/* Directive: navTree */
+(function () {
+    angular
+        .module('app.core')
+        .directive('navTree', generateDirectiveDef);
 
-        vm.treeConfig = {
-            core: {
-                multiple: false,
-                animation: true,
-                error: function (error) {
-                },
-                check_callback: function (op, node, par, pos, more) {
-                    if (op === "delete_node" || op === "rename_node") {
-                        if (node.parent === '#') {
-                            alert('Cannot delete or rename root menu item');
-                            return false;
-                        }
-                    }
-                },
-                worker: true
+    generateDirectiveDef.$inject = ['ConfigRepository', 'logger'];
+    function generateDirectiveDef(ConfigRepository, logger) {
+        /* 
+        USAGE: <nav-tree></nav-tree>
+        */
+        $.jstree.defaults.contextmenu.select_node = false;  //Ensure node can only be selected with left-mouse-click
+        var directiveDefinition = {
+            restrict: 'E',
+            scope: {
+                nodeToEdit: "="
             },
-            version: 1,
-            plugins: ['dnd', 'contextmenu'],
-            contextmenu: {
-                items: function (node) {
-                    var tree = vm.treeInstance.jstree(true);
-                    return {
-                        "Create": {
-                            "separator_before": false,
-                            "separator_after": false,
-                            "label": "Create",
-                            "action": function (obj) {
-                                var $node = tree.create_node(node);
-                                tree.edit($node);
-                            }
-                        },
-                        "Rename": {
-                            "separator_before": false,
-                            "separator_after": false,
-                            "label": "Rename",
-                            "action": function (obj) {
-                                tree.edit(node);
-                            }
-                        },
-                        "Remove": {
-                            "separator_before": true,
-                            "separator_after": false,
-                            "label": "Delete",
-                            "action": function (obj) {
-                                if (confirm('Are you sure to remove this menu item?')) {
-                                    tree.delete_node(node);
+            link: link,
+            template: buildSaveButtonHtml() + '<div class="edit-nav-tree"></div>'
+        };
+        return directiveDefinition;
+
+        function link(scope, elem, attrs) {       
+            scope.jsTreeInstance = $(elem).find(".edit-nav-tree");
+            
+            scope.onSaveClicked = function () {
+                var treeState = scope.jsTreeInstance.jstree(true).get_json('#', { 'flat': true });
+                ConfigRepository.save(scope.listItemId, treeState)
+                    .then(function () {
+                        logger.success('Navigation updated', {
+                            alwaysShowToEnduser: true
+                        });
+                    });
+            }
+
+            ConfigRepository.getByKey("MENU_CONFIG")
+                .then(function (data) {
+                    scope.listItemId = data.Id;
+                    initializeJstree(data);
+                    listenForNodeSelection();
+                });
+
+            function initializeJstree(data) {
+                var opts = {
+                    core: {
+                        animation: 0,
+                        check_callback: function (op, node, par, pos, more) {
+                            if (op === "delete_node" || op === "rename_node") {
+                                if (node.parent === '#') {
+                                    alert('Cannot delete or rename root menu item');
+                                    return false;
                                 }
                             }
+                        },
+                        themes: { stripes: true },
+                        data: data.JSON
+                    },
+                    types: {
+                        "#": {
+                            max_children: 1,
+                            max_depth: 4
                         }
-                    };
+                    },
+                    plugins: ["contextmenu", "dnd", "search", "state", "types", "wholerow"],
+                    contextmenu: configureContextMenu()
+                };
+                
+                scope.jsTreeInstance.jstree(opts);
+
+                function configureContextMenu(){
+                    return {
+                        items: function (node) {
+                            var tree = scope.jsTreeInstance.jstree(true);
+                            return {
+                                "Create": {
+                                    "separator_before": false,
+                                    "separator_after": false,
+                                    "label": "Create",
+                                    "action": function (obj) {
+                                        var $node = tree.create_node(node);
+                                        tree.edit($node);
+                                    }
+                                },
+                                "Rename": {
+                                    "separator_before": false,
+                                    "separator_after": false,
+                                    "label": "Rename",
+                                    "action": function (obj) {
+                                        tree.edit(node);
+                                    }
+                                },
+                                "Remove": {
+                                    "separator_before": true,
+                                    "separator_after": false,
+                                    "label": "Delete",
+                                    "action": function (obj) {
+                                        if (confirm('Are you sure to remove this menu item?')) {
+                                            tree.delete_node(node);
+                                        }
+                                    }
+                                }
+                            };
+                        }
+                    }
                 }
             }
-        };
-
-        vm.onSaveClicked = function () {
-            ConfigRepository.save(vm.tree.listItemId, vm.tree.data)
-                .then(function(){
-                    logger.success('Navigation updated', {
-                        alwaysShowToEnduser: true
+            function listenForNodeSelection(){
+                scope.jsTreeInstance.bind("select_node.jstree", function(evt, data){
+                    scope.$apply(function(){
+                        scope.nodeToEdit = data.node;
                     });
                 })
-        }
-
-        vm.readyCB = function () {
-            $timeout(function () {
-                console.log('Js Tree issued the ready event');
-            });
-        };
-
-        vm.createCB = function (e, item) {
-            vm.asyncDataLoaded = true;
-            
-            if(!isDuplicateNode(item.node)){
-                vm.tree.data.push(item.node);
-                vm.selectedNode = item.node;
             }
-
-            function isDuplicateNode(node){
-                return !!_.find(vm.tree.data, {id: node.id});
-            }
-        };
-
-        vm.deleteCB = function (e, item) {
-            vm.tree.data = _.remove(vm.tree.data, function (node) {
-                return item.node.id !== node.id;
-            });
-            vm.selectedNode = null;
-        };
-
-        vm.renameCB = function(e, item){
-            var nodeToEdit = _.find(vm.tree.data, { id: item.node.id });
-            nodeToEdit.text = item.node.text;
-            vm.selectedNode = nodeToEdit;
         }
 
-        vm.selectCB = function (e, item) {
-            vm.selectedNode = _.find(vm.tree.data, { id: item.node.id });
-        };
-
-        activate();
-
-        function activate() {
-            
-            fetchData()
-                .then(function (data) {
-                    vm.tree.listItemId = data.Id;
-                    _.each(data.JSON, function(item){
-                        vm.tree.data.push(item);
-                    });
-                    //vm.syncModelChangesToView = true;
-                });
-        }
-
-        function fetchData() {
-            return ConfigRepository.getByKey("MENU_CONFIG");
+        function buildSaveButtonHtml() {
+            return '<p><uif-button type="button" ng-click="onSaveClicked()" uif-type="primary">Save Changes</uif-button></p>';
         }
     }
 })();

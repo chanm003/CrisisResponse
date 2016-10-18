@@ -1,11 +1,7 @@
-<p>
-    <uif-button type="button" ng-click="vm.onSaveClicked()" uif-type="primary">Save Changes</uif-button>
-</p>
 <div class="ms-Grid">
     <div class="ms-Grid-row">
         <div class="ms-Grid-col ms-u-sm6 ms-u-md6 ms-u-lg6">
-            <div js-tree="vm.treeConfig" should-apply="!vm.asyncDataLoaded" ng-model="vm.tree.data" tree="vm.treeInstance" tree-events="ready:vm.readyCB;create_node:vm.createCB;delete_node:vm.deleteCB;select_node:vm.selectCB;rename_node:vm.renameCB">
-            </div>
+            <nav-tree node-to-edit="vm.selectedNode"></nav-tree>
         </div>
         <div class="ms-Grid-col ms-u-sm6 ms-u-md6 ms-u-lg6">
             <div ng-show="vm.selectedNode">
@@ -30,3 +26,4 @@
         </div>
     </div>
 </div>
+

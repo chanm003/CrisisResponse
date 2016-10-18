@@ -450,8 +450,7 @@
 				'angular-animate.min.js',
 				'ngOfficeUiFabric.min.js',
 				'fullCalendar.min.js',
-				'jstree.min.js',
-				'ngJsTree.min.js'
+				'jstree.min.js'
 			];
 			var sequenceCounter = 0;
 			_.each(vendorFiles, function (fileName) {
