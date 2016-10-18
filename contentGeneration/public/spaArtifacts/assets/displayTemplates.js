@@ -300,7 +300,7 @@
             }
 
             function setDropdownOnNewFormWhenOnlyOneOption(ctx) {
-                if (ctx.BaseViewID === "NewForm" && ctx.CurrentFieldSchema.Choices.length === 1) {
+                if(ctx.CurrentFieldSchema.Choices.length === 0 && !ctx.CurrentFieldValue) {
                     //only one choice so preset for the user
                     ctx.CurrentFieldValue = ctx.CurrentFieldSchema.Choices[0];
                 }

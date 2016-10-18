@@ -132,6 +132,7 @@
             sound: false,
             size: 'mini',
 	        rounded: true,
+            //position: 'right top',
 	        delayIndicator: false
         });
 
@@ -188,7 +189,7 @@
             var errorData = { exception: exception, cause: cause };
             exception.message = appErrorPrefix + exception.message;
             $delegate(exception, cause);
-            logger.error(exception.message, errorData);
+            logger.error(exception.message, {data: errorData});
         };
     }
 
@@ -233,32 +234,34 @@
         return service;
         /////////////////////
 
-        function showToast(message, title, toastType, showToEnduser){
-            if(showToEnduser || config.showDebugToasts){
-                Lobibox.notify(toastType, {
-                    title: title,
-                    msg: message
-                });
+        function showToast(message, toastType, opts){
+            if(config.showDebugToasts || (opts && opts.alwaysShowToEnduser)){
+                opts = angular.extend({}, {msg: message}, opts);
+                Lobibox.notify(toastType, opts);
             }
         }
 
-        function error(message, data, title, showToEnduser) {
-            showToast(message, title, 'error', showToEnduser);
+        function error(message, opts) {
+            showToast(message, 'error', opts);
+            var data = (opts && opts.data) || "";
             $log.error('Error: ' + message, data);
         }
 
-        function info(message, data, title, showToEnduser) {
-            showToast(message, title, 'info', showToEnduser);
+        function info(message, opts) {
+            showToast(message, 'info', opts);
+            var data = (opts && opts.data) || "";
             $log.info('Info: ' + message, data);
         }
 
-        function success(message, data, title, showToEnduser) {
-            showToast(message, title, 'success', showToEnduser);
+        function success(message, opts) {
+            showToast(message, 'success', opts);
+            var data = (opts && opts.data) || "";
             $log.info('Success: ' + message, data);
         }
 
-        function warning(message, data, title, showToEnduser) {
-            showToast(message, title, 'warning', showToEnduser);
+        function warning(message, opts) {
+            showToast(message, 'warning', opts);
+            var data = (opts && opts.data) || "";
             $log.warn('Warning: ' + message, data);
         }
     }
@@ -333,7 +336,7 @@
                         var msg = 'Error routing to ' + destination + '. ' +
                             (error.data || '') + '. <br/>' + (error.statusText || '') +
                             ': ' + (error.status || '');
-                        logger.warning(msg, [toState]);
+                        logger.warning(msg, {data: [toState]});
                         $location.path('/');
                     }
                 );
@@ -370,7 +373,7 @@
         activate();
 
         function activate() {
-            logger.success(config.appTitle + ' loaded!', null);
+            logger.success(config.appTitle + ' loaded!');
             hideSplash();
         }
 
@@ -583,10 +586,6 @@
         }
 
         function refreshSecurityValidation() {
-            if (service.securityValidation) {
-                logger.info("refreshing soon-to-expire security validation: " + service.securityValidation);
-            }
-
             var siteContextInfoResource = $resource(_spPageContextInfo.webServerRelativeUrl + '/_api/contextinfo?$select=FormDigestValue', {}, {
                 post: {
                     method: 'POST',
@@ -2057,6 +2056,10 @@
 
             scope.openChopDialog = function(){
                 if (!!scope.chopProcessTimestamp) { return; }
+                if(!scope.chopDialogCtx){
+                    alert("Chopping process should be initiated from Component Command or Task Group pages")
+                    return;
+                }
                 //fetch missions, fetch Mission document properties
                 //on success set three properties on chopDialogCtx (show, missions, listItem)
                 $q.all([
@@ -2102,7 +2105,12 @@
                 function onChopStartedSuccessfully(item) {
                     scope.chopProcessTimestamp = item.ChopProcess;
                     scope.chopDialogCtx.show = false;
-                    logger.success("Chop Process initiated", null, "", true);
+                    var missionTrackerUrl = _spPageContextInfo.webServerRelativeUrl + "/SitePages/app.aspx/#/missionTracker";
+                    logger.success('Track the process using the <a href="'+missionTrackerUrl+'" style="text-decoration:underline;color:white;">Mission Tracker</a>', {
+                        title: "Chop Process initiated",
+                        alwaysShowToEnduser: true,
+                        delay: false
+                    });
                 }
                 
             }
