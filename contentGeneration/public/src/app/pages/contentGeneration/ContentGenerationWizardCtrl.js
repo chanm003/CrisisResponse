@@ -3,10 +3,11 @@
 
 	angular.module('BlurAdmin.pages.contentGeneration')
 		.controller('ContentGenerationWizardCtrl', WizardCtrl)
-		.factory('countriesSvc', countriesSvc);
+		.factory('countriesSvc', countriesSvc)
+		.factory('menuSvc', menuSvc);
 
 	/** @ngInject */
-	function WizardCtrl($q, common, commonConfig, countriesSvc, sharepointUtilities) {
+	function WizardCtrl($q, common, commonConfig, countriesSvc, menuSvc, sharepointUtilities) {
 		var vm = this;
 
 		var defaults = {
@@ -64,7 +65,7 @@
 				.then(provisionTaskGroupPage);
 		}
 
-		vm.onAdditionalFeaturesCollected = function(){
+		vm.onAdditionalFeaturesCollected = function () {
 			return modifyChoiceFields()
 				.then(generateJocInBoxConfigFile)
 				.then(provisionAssetsToSitePagesLibrary);
@@ -105,6 +106,7 @@
 				return $q.all([
 					createCalendarList(),
 					createCcirList(),
+					createConfigList(),
 					createMissionList(),
 					createMessageTrafficList(),
 					createWatchLogList()
@@ -121,6 +123,13 @@
 			function createCalendarList() {
 				//DEPENDENCIES: None
 				var listSchemaDef = crisisResponseSchema.listDefs["Calendar"];
+				listSchemaDef.webUrl = vm.childWebUrl;
+				return sharepointUtilities.createList(listSchemaDef);
+			}
+
+			function createConfigList() {
+				//DEPENDENCIES: None
+				var listSchemaDef = crisisResponseSchema.listDefs["Config"];
 				listSchemaDef.webUrl = vm.childWebUrl;
 				return sharepointUtilities.createList(listSchemaDef);
 			}
@@ -170,7 +179,7 @@
 
 		function generateDefaults() {
 			vm.componentCommands = [
-				{ name: "SOCC", country: _.find(vm.countries, { code: "US" }), staffSections: defaults.staffSectionsForCombatantCommand.slice() /* by value copy for primitives only */  }
+				{ name: "SOCC", country: _.find(vm.countries, { code: "US" }), staffSections: defaults.staffSectionsForCombatantCommand.slice() /* by value copy for primitives only */ }
 			];
 
 			vm.taskGroups = [
@@ -194,6 +203,7 @@
 			function getRandom(max) {
 				return Math.floor(Math.random() * max);
 			}
+			
 		}
 
 		function init() {
@@ -202,7 +212,7 @@
 				generateDefaults();
 			});
 
-			
+
 		}
 
 		function generateChoiceOptionsForStaffSection(prefix, sections) {
@@ -282,11 +292,11 @@
 		function modifyChoiceFields() {
 			var choiceFieldUpdates = _.chain(crisisResponseSchema.organizationalChoiceFields)
 				.groupBy('listName')
-				.map(function(defs, listName){
+				.map(function (defs, listName) {
 					return {
 						webUrl: vm.childWebUrl || '/ngspa/tf16',
 						listName: listName,
-						fieldsToUpdate: _.map(defs, function(def){
+						fieldsToUpdate: _.map(defs, function (def) {
 							return {
 								fieldName: def.fieldName,
 								options: buildArrayOfChoices(def, vm.componentCommands, vm.taskGroups, vm.airComponents, vm.communicationsComponents, vm.exerciseControlGroups)
@@ -297,7 +307,7 @@
 				.value();
 
 			return sharepointUtilities.updateChoiceFields(choiceFieldUpdates);
-			
+
 			function buildArrayOfChoices(fieldGenDef, componentCommands, taskGroups, airComponents, communicationsComponents, exerciseControlGroups) {
 				var choices = [];
 				if (fieldGenDef.generationFlags.includeComponentCommands) {
@@ -346,13 +356,13 @@
 
 				return _.sortBy(choices);
 
-				
+
 			}
 		}
 
-		function generateJocInBoxConfigFile(){
+		function generateJocInBoxConfigFile() {
 			var dashboards = {};
-			_.each(vm.componentCommands, function(org){
+			_.each(vm.componentCommands, function (org) {
 				dashboards[org.name] = {
 					orgType: 'Component Command',
 					optionsForChoiceField: [org.name].concat(generateChoiceOptionsForStaffSection(org.name, org.staffSections)),
@@ -360,7 +370,7 @@
 				};
 			});
 
-			_.each(vm.taskGroups, function(org){
+			_.each(vm.taskGroups, function (org) {
 				dashboards[org.name] = {
 					orgType: 'Task Group',
 					optionsForChoiceField: [org.name],
@@ -369,14 +379,14 @@
 				};
 			});
 
-			_.each(vm.communicationsComponents, function(org){
+			_.each(vm.communicationsComponents, function (org) {
 				dashboards[org.name] = {
 					orgType: 'Communications',
 					optionsForChoiceField: [org.name]
 				};
 			});
 
-			_.each(vm.airComponents, function(org){
+			_.each(vm.airComponents, function (org) {
 				dashboards[org.name] = {
 					orgType: 'Air Component',
 					optionsForChoiceField: [org.name].concat(generateChoiceOptionsForStaffSection(org.name, org.staffSections)),
@@ -384,19 +394,19 @@
 				};
 			});
 
-			_.each(vm.exerciseControlGroups, function(org){
+			_.each(vm.exerciseControlGroups, function (org) {
 				dashboards[org.name] = {
 					orgType: 'Exercise Control Group',
 					optionsForChoiceField: [org.name].concat(org.notionals.slice())
 				};
 			});
 
-			_.each(dashboards, function(config, orgName){
+			_.each(dashboards, function (config, orgName) {
 				dashboards[orgName].routes = [];
 			});
 
 			var content = [
-				'var jocInBoxConfig = jocInBoxConfig || {};', 
+				'var jocInBoxConfig = jocInBoxConfig || {};',
 				'jocInBoxConfig.dashboards = ' + JSON.stringify(dashboards) + ";",
 				'jocInBoxConfig.missionTypes = ' + JSON.stringify(crisisResponseSchema.missionTypesMappedToDefaultApprovalAuthority) + ";"
 			].join('\n\n');
@@ -408,6 +418,91 @@
 				fileContent: content
 			});
 
+		}
+
+		function generateMenuItems() {
+			var menuItems = [];
+			menuItems.push(menuSvc.generateBaseMenuNode(vm.siteInfo.name))
+
+			_.each(vm.componentCommands, function (org) {
+				var dashboardUrl = vm.childWebUrl + "/SitePages/socc.aspx?org=" + org.name;
+				menuItems.push(menuSvc.generateChildMenuNode(org.name, org.name, "rootNode", {url: dashboardUrl}));
+			});
+
+			if(vm.optionalFeatures["Air Component"]){
+				_.each(vm.airComponents, function (org) {
+					var dashboardUrl = vm.childWebUrl + "/SitePages/soac.aspx?org=" + org.name;
+					menuItems.push(menuSvc.generateChildMenuNode(org.name, org.name, "rootNode", {url: dashboardUrl}));
+				});
+			}
+
+			_.each(vm.taskGroups, function (org) {
+				var dashboardUrl = vm.childWebUrl + "/SitePages/sotg.aspx?org=" + org.name;
+				menuItems.push(menuSvc.generateChildMenuNode(org.name, org.name, "rootNode", {url: dashboardUrl}));
+			});			
+
+			if(vm.optionalFeatures["Exercise Control Group"]){
+				_.each(vm.exerciseControlGroups, function (org) {
+					var dashboardUrl = vm.childWebUrl + "/SitePages/excon.aspx?org=" + org.name;
+					menuItems.push(menuSvc.generateChildMenuNode(org.name, org.name, "rootNode", {url: dashboardUrl}));
+				});
+			}
+
+			console.log(JSON.stringify(menuItems))
+			return;
+
+/*
+			return sharepointUtilities.createListItem({
+				webUrl: vm.childWebUrl,
+				listName: 'Config',
+				props: [
+					{
+						fieldName: "Title",
+						value: "MENU_CONFIG"
+					},
+					{
+						fieldName: "JSON",
+						value: JSON.stringify(menuItems)
+					}
+				]
+			});
+*/
+
+		}
+	}
+
+	function menuSvc($q) {
+		return {
+			generateBaseMenuNode: generateBaseMenuNode,
+			generateChildMenuNode: generateChildMenuNode
+		};
+
+		function generateBaseMenuNode(siteName){
+			return {
+				id: "rootNode",
+				parent: "#",
+				text: siteName + " Navigation",
+				li_attr:{ id: "rootNode" },
+				state: {
+					opened: true,
+					selected: true
+				}
+			}
+		}
+
+		function generateChildMenuNode(id, text, parent, attrs){
+			var defaultAttrs = {
+				id: id, 
+				visibility: "Anonymous", 
+				target: "_self" 
+			};
+			var settings = angular.extend({}, defaultAttrs, attrs || {});
+			return {
+				id: id,
+				parent: parent,
+				text: text,
+				li_attr: settings
+			}
 		}
 	}
 

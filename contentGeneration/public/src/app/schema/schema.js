@@ -18,21 +18,21 @@ crisisResponseSchema.missionTypesMappedToDefaultApprovalAuthority = {
 
 crisisResponseSchema.listDefs["Config"] = {
 	Title: "Config",
-		BaseTemplate: 'genericList',
-		shouldHideTitleField: true,
-		fieldsToCreate:[
-			{
-				//EXAMPLE: MULTIPLE LINE OF TEXT
-				Name: "JSON",
-				DisplayName: "JSON",
-				Type: "Note",
-				Required: "TRUE",
-				NumLines: 6,
-				RichText: "FALSE",						//RECOMMENDED
-				AppendOnly: "FALSE"						//VERSIONING MUST BE TURNED ON, otherwise specifie "FALSE"
-				
-			}		
-		]
+	BaseTemplate: 'genericList',
+	shouldHideTitleField: false,
+	fieldsToCreate:[
+		{
+			//EXAMPLE: MULTIPLE LINE OF TEXT
+			Name: "JSON",
+			DisplayName: "JSON",
+			Type: "Note",
+			Required: "TRUE",
+			NumLines: 6,
+			RichText: "FALSE",						//RECOMMENDED
+			AppendOnly: "FALSE"						//VERSIONING MUST BE TURNED ON, otherwise specifie "FALSE"
+			
+		}		
+	]
 };
 
 crisisResponseSchema.listDefs["Mission Tracker"] = {
