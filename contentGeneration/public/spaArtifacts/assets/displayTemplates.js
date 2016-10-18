@@ -6,6 +6,7 @@
  * https://blogs.msdn.microsoft.com/sridhara/2013/02/08/register-csr-override-on-mds-enabled-sharepoint-2013-site/
  */
 (function () {
+    $(document).ready(overrideCalendarListForm);
     RegisterModuleInit("SitePages/displayTemplates.js", registerCustomizations); // CSR-override for MDS enabled site
     registerCustomizations(); //CSR-override for MDS disabled site (because we need to call the entry point function in this case whereas it is not needed for anonymous functions)
 
@@ -557,6 +558,35 @@
             return "respond";
         } else if(ctx.BaseViewID === "EditForm" && qsParamAction === "Reopen"){
             return "reopen";
+        }
+    }
+
+    function overrideCalendarListForm(){
+        var url = document.location.pathname.toUpperCase();
+        if(!_.includes(url, "/LISTS/CALENDAR/NEWFORM.ASPX") && !_.includes(url, "/LISTS/CALENDAR/EDITFORM.ASPX")){
+            //Client-side-rendering display templates do not work for Calendar or Survey lists
+            return;
+        }
+        var org = _.extractOrgFromQueryString();
+        var orgDropdown = $(SPUtility.GetSPFieldByInternalName("Organization").Dropdown);
+
+        if(org && orgDropdown){
+            var existingOrganizations = _.map(orgDropdown.find("option"), function(option){
+                return $(option).val();
+            });
+            var orgConfig = jocInBoxConfig.dashboards[org];
+            if(orgConfig){
+                var organizations = _.intersection(existingOrganizations, orgConfig.optionsForChoiceField);
+                var selectedOptionOnLoad = orgDropdown.find("option:selected").val();
+                orgDropdown.find("option").remove();
+                _.each(organizations, function(org){
+                    $("<option>").val(org).text(org).appendTo(orgDropdown);
+                });
+
+                if(selectedOptionOnLoad){
+                    orgDropdown.val(selectedOptionOnLoad);
+                }
+            }
         }
     }
 

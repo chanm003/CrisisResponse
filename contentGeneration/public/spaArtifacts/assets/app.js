@@ -1449,7 +1449,9 @@
                     });
 
                     if (organizationFilter) {
-                        events = _.filter(events, { organization: organizationFilter });
+                        events = _.filter(events, function(evt){
+                            return _.includes(evt.organization, organizationFilter);
+                        });
                     }
 
                     return events;
