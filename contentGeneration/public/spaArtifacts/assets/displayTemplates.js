@@ -323,6 +323,7 @@
                 addExpandCollapseButtons(ctx, webPartDiv);
                 disableNavigationToSharepointLists(ctx, webPartDiv);
                 hideToolbarForInboundMessages(ctx, webPartDiv);
+                ensureUploadFormIsNotDialog(ctx, webPartDiv);
             }
             function addExpandCollapseButtons(ctx, webPartDiv) {
                 /**
@@ -378,6 +379,18 @@
                 if (shouldDisableLinks) {
                     //prevents users from navigating to backend lists
                     webPartDiv.find(".ms-webpart-titleText>a").removeAttr("href");
+                }
+            }
+
+            function ensureUploadFormIsNotDialog(ctx, webPartDiv){
+                if(ctx.ListTitle === "Mission Documents"){
+                    var uploadBtn = webPartDiv.find(".js-listview-qcbUploadButton");
+                    uploadBtn.removeAttr("onclick");
+                    uploadBtn.on("click", function(){
+                        window.location.href =  _spPageContextInfo.webServerRelativeUrl + 
+                            '/_layouts/15/Upload.aspx?List='+ctx.listName +
+                            '&Source='+document.location.href;
+                    });
                 }
             }
 

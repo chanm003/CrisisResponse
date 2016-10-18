@@ -860,6 +860,10 @@
             }
         }
 
+        MissionDocument.prototype.checkIn = function(){
+            return MissionDocumentRepository.checkInFile(this);
+        }
+
         MissionDocument.prototype.deriveRouteSequence = function(mission, orgConfig){
             var sequence = "";
             if(mission && orgConfig){
@@ -1149,6 +1153,7 @@
     MissionDocumentRepository.$inject = ['$http', '$q', '$resource', 'exception', 'logger', 'spContext'];
     function MissionDocumentRepository($http, $q, $resource, exception, logger, spContext) {
         var service = {
+            checkInFile: checkInFile,
             getAll: getAll,
             getById: getById,
             save: save
@@ -1171,6 +1176,29 @@
             fieldsToExpand: fieldsToExpand,
             listName: 'Mission Documents'
         };
+
+        function checkInFile(opts){
+            var webUrl = _spPageContextInfo.webServerRelativeUrl;
+            var fileUrl = webUrl + "/MissionDocuments/" + opts.FileLeafRef;
+            var url = webUrl + "/_api/web/GetFileByServerRelativeUrl('"+fileUrl+"')/CheckIn(comment='',checkintype=2)";
+
+            return $http({
+                    method: "post",
+                    url: url,
+                    headers: {
+                        'Accept': 'application/json;odata=verbose;',
+                        'Content-Type': 'application/json;odata=verbose;',
+                        'X-RequestDigest': spContext.securityValidation,
+                        'X-HTTP-Method': 'MERGE',
+                        'If-Match': '*'
+                    }
+                })
+                .catch(function(response){
+                    if(!_.endsWith(response.data.error.message.value, "is not checked out.")){
+                       return $q.reject(response); 
+                    }
+                });
+        }
 
         function getAll() {
             var dfd = $q.defer();
@@ -1867,7 +1895,8 @@
         }
 
         function buildCheckboxHtml() {
-            var html = '<input type="checkbox" ng-model="showPastMissions"> <label>Show Past Missions</label>';
+            var html = '<uif-choicefield-option uif-type="checkbox" value="value1" ng-model="showPastMissions" ng-true-value="true" ng-false-value="false"> Show Past Missions</uif-choicefield-option>';
+            //var html = '<input type="checkbox" ng-model="showPastMissions"> <label>Show Past Missions</label>';
             return html;
         }
 
@@ -2474,11 +2503,16 @@
                 alert(errors);
             } else {
                 doc.save()
+                    .then(checkInFile)
                     .then(generateMessage)
                     .then(redirectToSource)
                     .catch(function(error){
                         alert(error);
                     });
+            }
+
+            function checkInFile(){
+                return doc.checkIn();
             }
             
             function generateMessage(){
