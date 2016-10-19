@@ -75,8 +75,13 @@
             spPage.attr('ng-controller', 'MissionProductsDataEntryAspxController as vm');
         }
 
+        addMenuDirective();
         //BOOTSTRAP NG-APP
         angular.element(document).ready(function () { angular.bootstrap(document, ['singlePageApp']); });
+
+        function addMenuDirective(){
+            spPage.find("#sideNavBox").prepend("<nav-menu></nav-menu>");
+        }
 
         function generateChopDialogHtml() {
             var html = [
@@ -1790,8 +1795,8 @@
         .module('app.core')
         .directive('navMenu', generateDirectiveDef);
 
-    generateDirectiveDef.$inject = ['ConfigRepository', 'logger'];
-    function generateDirectiveDef(ConfigRepository, logger) {
+    generateDirectiveDef.$inject = ['config','ConfigRepository', 'logger'];
+    function generateDirectiveDef(config, ConfigRepository, logger) {
         /* 
         USAGE: <nav-menu></nav-menu>
         */
@@ -1800,13 +1805,40 @@
             scope: {
             },
             link: link,
-            template: ''
+            templateUrl: config.baseUrl+ '/assets'+'/menu_item_renderer.html'
         };
         return directiveDefinition;
 
         function link(scope, elem, attrs) {
-            var dataSource = null;
-           
+            scope.menuDataSource = null;
+             ConfigRepository.getByKey("MENU_CONFIG")
+                .then(function (data) {
+                    _.remove(data.JSON, isRootNode);
+                    _.each(data.JSON, associateToFlag);
+                    scope.menuDataSource = convertToRecursive(data.JSON);
+                });
+        }
+
+        function associateToFlag(item){
+            var orgConfig = jocInBoxConfig.dashboards[item.text]
+            if(orgConfig && orgConfig.flagCode){
+                item.flagCode = orgConfig.flagCode;
+            }
+        }
+
+        function convertToRecursive(dataSource){
+            return getChildNodes("rootNode");
+            function getChildNodes(parent) {
+                var nodes = _.filter(dataSource, {parent: parent});
+                _.each(nodes, function(node){
+                    node.children = getChildNodes(node.id);
+                });
+                return nodes;
+            }
+        }
+
+        function isRootNode(item){
+            return item.parent === "#";
         }
     }
 })();
@@ -2355,39 +2387,7 @@
         activate();
 
         function activate() {
-            initTabs();
-            
-            var nonRecursiveDataSource = null;
-            vm.tree = null;
-            ConfigRepository.getByKey("MENU_CONFIG")
-                .then(function (data) {
-                    _.remove(data.JSON, isRootNode);
-                    _.each(data.JSON, associateToFlag);
-                    nonRecursiveDataSource = data.JSON;
-                    vm.tree = convertToRecursive(data.JSON);
-                });
-
-            function associateToFlag(item){
-                var orgConfig = jocInBoxConfig.dashboards[item.text]
-                if(orgConfig && orgConfig.flagCode){
-                    item.flagCode = orgConfig.flagCode;
-                }
-            }
-
-            function convertToRecursive(dataSource){
-                return getChildNodes("rootNode");
-                function getChildNodes(parent) {
-                    var nodes = _.filter(dataSource, {parent: parent});
-                    _.each(nodes, function(node){
-                        node.children = getChildNodes(node.id);
-                    });
-                    return nodes;
-                }
-            }
-
-            function isRootNode(item){
-                return item.parent === "#";
-            }
+            initTabs();  
         }
 
         function initTabs() {

@@ -1,3 +1,7 @@
+#DeltaPlaceHolderLeftNavBar{
+  display: none;
+}
+
 /*#region Splash */
 #splash-page {
   z-index: 99999 !important;
@@ -611,6 +615,7 @@
     background-color: #fff;
     border: 1px solid #c8c8c8;
     width: 180px;
+    z-index: 1000;
 }
 
 #jocboxmenu ul li{
@@ -689,3 +694,4 @@
 
 
 /*#endregion Sidebar Menu */
+
