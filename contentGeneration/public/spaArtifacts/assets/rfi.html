@@ -12,9 +12,38 @@
 </uif-pivot>
 
 <div class="ms-Grid">
-    <div class="ms-Grid-row">
-        <div class="ms-Grid-col ms-u-sm12 ms-u-md12 ms-u-lg12">
-            
-        </div>
+  <div class="ms-Grid-row">
+    <div class="ms-Grid-col ms-u-sm6 ms-u-md6 ms-u-lg6">
+      <nav-menu></nav-menu>
+
+
+
+      <script type="text/ng-template" id="tree_item_renderer.html">
+        <a ng-if="!data.flagCode" class="noflag" ng-href="{{data.li_attr.url}}" target="{{data.li_attr.target}}">
+          <span class="menu-label-when-no-flag">{{data.text}}</span>
+        </a>
+        <a ng-if="data.flagCode" ng-href="{{data.li_attr.url}}" target="{{data.li_attr.target}}">
+            <span class="f32"><span class="flag" ng-class="data.flagCode"><span class="menu-label-when-flag">{{data.text}}</span></span></span>
+        </a>
+        <i ng-show="data.children.length !== 0" class="ms-ContextualMenu-subMenuIcon ms-Icon ms-Icon--chevronRight"></i>
+        <ul ng-show="data.children.length !== 0">
+          <li ng-repeat="data in data.children" ng-include="'tree_item_renderer.html'"></li>
+        </ul>  
+      </script>
+
+      <div id="jocboxmenu">
+        <ul>
+          <li ng-repeat="data in vm.tree" ng-include="'tree_item_renderer.html'"></li>
+        </ul>
+      </div>
+      
+
+
+
+
     </div>
+    <div class="ms-Grid-col ms-u-sm6 ms-u-md6 ms-u-lg6">
+
+    </div>
+  </div>
 </div>

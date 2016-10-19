@@ -1685,9 +1685,9 @@
         };
         return directiveDefinition;
 
-        function link(scope, elem, attrs) {       
+        function link(scope, elem, attrs) {
             scope.jsTreeInstance = $(elem).find(".edit-nav-tree");
-            
+
             scope.onSaveClicked = function () {
                 var treeState = scope.jsTreeInstance.jstree(true).get_json('#', { 'flat': true });
                 ConfigRepository.save(scope.listItemId, treeState)
@@ -1729,10 +1729,10 @@
                     plugins: ["contextmenu", "dnd", "search", "state", "types", "wholerow"],
                     contextmenu: configureContextMenu()
                 };
-                
+
                 scope.jsTreeInstance.jstree(opts);
 
-                function configureContextMenu(){
+                function configureContextMenu() {
                     return {
                         items: function (node) {
                             var tree = scope.jsTreeInstance.jstree(true);
@@ -1769,9 +1769,9 @@
                     }
                 }
             }
-            function listenForNodeSelection(){
-                scope.jsTreeInstance.bind("select_node.jstree", function(evt, data){
-                    scope.$apply(function(){
+            function listenForNodeSelection() {
+                scope.jsTreeInstance.bind("select_node.jstree", function (evt, data) {
+                    scope.$apply(function () {
                         scope.nodeToEdit = data.node;
                     });
                 })
@@ -1780,6 +1780,33 @@
 
         function buildSaveButtonHtml() {
             return '<p><uif-button type="button" ng-click="onSaveClicked()" uif-type="primary">Save Changes</uif-button></p>';
+        }
+    }
+})();
+
+/* Directive: navMenu */
+(function () {
+    angular
+        .module('app.core')
+        .directive('navMenu', generateDirectiveDef);
+
+    generateDirectiveDef.$inject = ['ConfigRepository', 'logger'];
+    function generateDirectiveDef(ConfigRepository, logger) {
+        /* 
+        USAGE: <nav-menu></nav-menu>
+        */
+        var directiveDefinition = {
+            restrict: 'E',
+            scope: {
+            },
+            link: link,
+            template: ''
+        };
+        return directiveDefinition;
+
+        function link(scope, elem, attrs) {
+            var dataSource = null;
+           
         }
     }
 })();
@@ -2210,6 +2237,24 @@
 
 })();
 
+/* Directive: includeReplace */
+(function () {
+    /**USAGE
+     * <div ng-include src="dynamicTemplatePath" include-replace></div>
+     */
+    angular
+        .module('app.core')
+        .directive('includeReplace', function () {
+            return {
+                require: 'ngInclude',
+                restrict: 'A', /* optional */
+                link: function (scope, el, attrs) {
+                    el.replaceWith(el.children());
+                }
+            };
+        });
+})();
+
 /* Directive: scrollableCurrentOpsSummary */
 (function () {
     angular
@@ -2304,16 +2349,45 @@
         }
     }
 
-    RfiController.$inject = ['$q', '$state', '$stateParams', '_', 'logger', 'RFI', 'RfiRepository', 'Mission', 'MissionTrackerRepository'];
-    function RfiController($q, $state, $stateParams, _, logger, RFI, RFIRepository, Mission, MissionTrackerRepository) {
+    RfiController.$inject = ['$q', '$state', '$stateParams', '_', 'logger', 'RFI', 'RfiRepository', 'Mission', 'MissionTrackerRepository', 'ConfigRepository'];
+    function RfiController($q, $state, $stateParams, _, logger, RFI, RFIRepository, Mission, MissionTrackerRepository, ConfigRepository) {
         var vm = this;
         activate();
 
         function activate() {
             initTabs();
-            fetchData().then(function () {
-                logger.info('Activated RFI View');
-            });
+            
+            var nonRecursiveDataSource = null;
+            vm.tree = null;
+            ConfigRepository.getByKey("MENU_CONFIG")
+                .then(function (data) {
+                    _.remove(data.JSON, isRootNode);
+                    _.each(data.JSON, associateToFlag);
+                    nonRecursiveDataSource = data.JSON;
+                    vm.tree = convertToRecursive(data.JSON);
+                });
+
+            function associateToFlag(item){
+                var orgConfig = jocInBoxConfig.dashboards[item.text]
+                if(orgConfig && orgConfig.flagCode){
+                    item.flagCode = orgConfig.flagCode;
+                }
+            }
+
+            function convertToRecursive(dataSource){
+                return getChildNodes("rootNode");
+                function getChildNodes(parent) {
+                    var nodes = _.filter(dataSource, {parent: parent});
+                    _.each(nodes, function(node){
+                        node.children = getChildNodes(node.id);
+                    });
+                    return nodes;
+                }
+            }
+
+            function isRootNode(item){
+                return item.parent === "#";
+            }
         }
 
         function initTabs() {
@@ -2660,7 +2734,6 @@
 
         function init() {
             itemOnEditFormAspxLoad = spContext.getContextFromEditFormASPX();
-            console.log(itemOnEditFormAspxLoad);
             wireUpEventHandlers();
         }
 

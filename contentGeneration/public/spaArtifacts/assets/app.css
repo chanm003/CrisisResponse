@@ -561,7 +561,9 @@
 .fc-event:visited{
   color: #fff;
 }
+/*#endregion FullCalendar */
 
+/*#region Listview Webpart buttons */
 .custombtn {
   background: #3498db;
   -webkit-border-radius: 14;
@@ -593,5 +595,97 @@
   cursor: not-allowed;
   opacity: 0.65;
 }
+/*#endregion Listview Webpart buttons */
 
-  
+/*#region Sidebar Menu */
+
+#jocboxmenu ul, #jocboxmenu ul li{
+    font-size:13px;
+    margin:0;
+    padding:0;
+    list-style:none;
+}
+
+#jocboxmenu ul{
+    box-shadow: 0 0 5px 0 rgba(0,0,0,.4);
+    background-color: #fff;
+    border: 1px solid #c8c8c8;
+    width: 180px;
+}
+
+#jocboxmenu ul li{
+    width:180px;
+    cursor:pointer;
+    position:relative;
+}
+
+#jocboxmenu ul li:hover{
+  /*on hover of level-one, make position relative*/
+  position:relative;   
+}
+
+
+#jocboxmenu ul li ul{
+    /*hide level-two menu*/
+    position:absolute;
+    display:none;
+}
+
+#jocboxmenu ul li:hover ul{
+    /*on hover of level-one, show level-two menu*/
+    left:180px;
+    top:0px;
+    display:block;
+}
+
+#jocboxmenu ul li:hover ul li ul{
+    /*hide level-three menu*/
+    position:absolute;
+    display:none;
+}
+
+#jocboxmenu ul li:hover ul li:hover ul{
+    /*on hover of level-one and two, show level-three menu*/
+    display:block;
+    left:180px;
+    top:0;
+}
+
+#jocboxmenu a{
+  text-decoration: none;
+    color: #333;
+    border: 1px solid transparent;
+    cursor: pointer;
+    display: block;
+    padding: 0 8px;
+    position: relative
+}
+
+#jocboxmenu a:hover{    
+  background-color: #eaeaea;
+}
+
+#jocboxmenu a.noflag{
+    height: 34px;
+    line-height: 34px;
+}
+
+#jocboxmenu span.menu-label-when-flag {
+  margin-left: 36px;
+  white-space: nowrap;
+  overflow:hidden;
+  display:block;
+  width: 105px;
+  text-overflow:ellipsis;
+}
+
+#jocboxmenu span.menu-label-when-no-flag {
+    white-space: nowrap;
+    overflow:hidden;
+    display:block;
+    width: 140px;
+    text-overflow:ellipsis;
+}
+
+
+/*#endregion Sidebar Menu */
