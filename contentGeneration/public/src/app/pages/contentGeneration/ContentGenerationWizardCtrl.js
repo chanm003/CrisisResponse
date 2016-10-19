@@ -68,6 +68,7 @@
 		vm.onAdditionalFeaturesCollected = function () {
 			return modifyChoiceFields()
 				.then(generateJocInBoxConfigFile)
+				.then(generateMenuItems)
 				.then(provisionAssetsToSitePagesLibrary);
 		}
 
@@ -448,26 +449,23 @@
 				});
 			}
 
-			console.log(JSON.stringify(menuItems))
-			return;
 
-/*
 			return sharepointUtilities.createListItem({
 				webUrl: vm.childWebUrl,
 				listName: 'Config',
 				props: [
 					{
 						fieldName: "Title",
-						value: "MENU_CONFIG"
+						fieldValue: "MENU_CONFIG",
+						type: "Text"
 					},
 					{
 						fieldName: "JSON",
-						value: JSON.stringify(menuItems)
+						fieldValue: JSON.stringify(menuItems),
+						type: "Text"
 					}
 				]
 			});
-*/
-
 		}
 	}
 

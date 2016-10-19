@@ -13,6 +13,7 @@
 			copyFile: copyFile,
 			createOrUpdateFile: createOrUpdateFile,
 			createList: createList,
+			createListItem: createListItem,
 			createSite: createSite,
 			createTypeaheadDataSourceForSiteUsersList: createTypeaheadDataSourceForSiteUsersList,
 			deleteFiles: deleteFiles,
@@ -378,6 +379,38 @@
 					logger.logError('Request to create list (' + opts.Title + ') failed: ' + args.get_message(), args.get_stackTrace(), 'sharepointUtilities service, createList()');
 					dfd.reject();
 				}
+			}
+		}
+
+		function createListItem(opts){
+			var dfd = $q.defer();
+			var ctx = new SP.ClientContext(opts.webUrl);
+			var spWeb = ctx.get_web();
+			var list = ctx.get_web().get_lists().getByTitle(opts.listName);
+			var itemCreateInfo = new SP.ListItemCreationInformation();
+            var listItem = list.addItem(itemCreateInfo);
+
+			_.each(opts.props, function (prop) {
+				listItem.set_item(prop.fieldName, prop.fieldValue);
+			});			
+			
+            listItem.update();
+            ctx.load(listItem);
+			ctx.executeQueryAsync(
+				Function.createDelegate(this, onQuerySucceeded),
+				Function.createDelegate(this, onQueryFailed)
+			);
+
+			return dfd.promise;
+
+			function onQuerySucceeded() {
+				logger.logSuccess('List item created in : ' + opts.listName, null, 'sharepointUtilities service, createListItem()');
+				dfd.resolve();
+			}
+
+			function onQueryFailed(sender, args) {
+				logger.logError('Request failed: ' + args.get_message(), args.get_stackTrace(), 'sharepointUtilities service, createListItem()');
+				dfd.reject();
 			}
 		}
 

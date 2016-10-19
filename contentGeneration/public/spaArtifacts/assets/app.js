@@ -619,7 +619,7 @@
             }
 
             function fail(error) {
-                logger.logError("response from contextinfo: " + error);
+                logger.error("response from contextinfo: " + error);
             }
 
         }
