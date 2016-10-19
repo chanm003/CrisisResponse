@@ -1522,152 +1522,6 @@
     }
 })();
 
-/* Controller: MissionTrackerController */
-(function () {
-    'use strict';
-    //nicer looking plugin found here but requires bootstrap: http://www.dijit.fr/demo/angular-weekly-scheduler/
-    angular
-        .module('app.core')
-        .run(registerMissionTrackerRoute)
-        .controller('MissionTrackerController', MissionTrackerController);
-
-    registerMissionTrackerRoute.$inject = ['config', 'routerHelper'];
-    function registerMissionTrackerRoute(config, routerHelper) {
-        routerHelper.configureStates(getStates());
-
-        function getStates() {
-            return [
-                {
-                    state: 'missionTracker',
-                    config: {
-                        url: '/missionTracker',
-                        templateUrl: config.baseUrl + '/assets/missionTracker.html',
-                        controller: 'MissionTrackerController',
-                        controllerAs: 'vm',
-                        title: 'Mission Tracker'
-                    }
-                }
-            ];
-        }
-    }
-
-    MissionTrackerController.$inject = ['$q', '_', 'logger', 'MissionTrackerRepository'];
-    function MissionTrackerController($q, _, logger, MissionTrackerRepository) {
-        var vm = this;
-
-        activate();
-
-        function activate() {
-            initTabs();
-            $q.all([
-                getDataForVerticalTimeline(),
-                getDataForProcess()
-            ])
-                .then(function (data) {
-                    vm.missionLifecycleEvents = data[0];
-                    vm.routingSteps = data[1];
-                    logger.info('Activated Mission Tacker View');
-                });
-        }
-
-        function initTabs() {
-            vm.tabConfig = {
-                selectedSize: "large",
-                selectedType: "tabs",
-                pivots: [
-                    { title: "Timeline" },
-                    { title: "Products" },
-                    { title: "Product Chop" }
-                ],
-                selectedPivot: { title: "Timeline" },
-                menuOpened: false
-            }
-            vm.openMenu = function () {
-                vm.tabConfig.menuOpened = !vm.tabConfig.menuOpened;
-            }
-        }
-
-
-        function getDataForVerticalTimeline() {
-            var staticData = [
-                {
-                    direction: 'right',
-                    subject: 'Born on this date',
-                    message: 'Lodash makes JavaScript easier by taking the hassle out of working with arrays, numbers, objects, strings, etc. Lodash’s modular methods are great',
-                    moment: moment()
-                },
-                {
-                    direction: 'left',
-                    subject: 'Got footprint',
-                    message: 'When choosing a motion for side panels, consider the origin of the triggering element. Use the motion to create a link between the action and the resulting UI.',
-                    moment: moment().add(1, 'days')
-                }
-            ];
-            return $q.when(staticData);
-        }
-
-        function getDataForProcess() {
-            var staticData = [
-                {
-                    status: 'complete',
-                    text: "Shift Created"
-                },
-                {
-                    status: 'complete',
-                    text: "Email Sent"
-                },
-                {
-                    status: 'incomplete',
-                    text: "SIC Approval"
-                },
-                {
-                    status: '',
-                    text: "Shift Completed"
-                }
-            ];
-            return $q.when(staticData);
-        }
-
-
-
-
-
-    }
-})();
-
-/* Controller: EditNavController */
-(function () {
-    angular
-        .module('app.core')
-        .run(registerEditNavRoute)
-        .controller('EditNavController', EditNavController);
-
-    registerEditNavRoute.$inject = ['config', 'routerHelper'];
-    function registerEditNavRoute(config, routerHelper) {
-        routerHelper.configureStates(getStates());
-
-        function getStates() {
-            return [
-                {
-                    state: 'editNav',
-                    config: {
-                        url: '/editNav',
-                        templateUrl: config.baseUrl + '/assets/editnav.html',
-                        controller: 'EditNavController',
-                        controllerAs: 'vm',
-                        title: 'Edit Navigation'
-                    }
-                }
-            ];
-        }
-    }
-
-    EditNavController.$inject = ['$q', '$timeout', '_', 'logger', 'ConfigRepository'];
-    function EditNavController($q, $timeout, _, logger, ConfigRepository) {
-        var vm = this;
-    }
-})();
-
 /* Directive: navTree */
 (function () {
     angular
@@ -1789,60 +1643,6 @@
     }
 })();
 
-/* Directive: navMenu */
-(function () {
-    angular
-        .module('app.core')
-        .directive('navMenu', generateDirectiveDef);
-
-    generateDirectiveDef.$inject = ['config','ConfigRepository', 'logger'];
-    function generateDirectiveDef(config, ConfigRepository, logger) {
-        /* 
-        USAGE: <nav-menu></nav-menu>
-        */
-        var directiveDefinition = {
-            restrict: 'E',
-            scope: {
-            },
-            link: link,
-            templateUrl: config.baseUrl+ '/assets'+'/menu_item_renderer.html'
-        };
-        return directiveDefinition;
-
-        function link(scope, elem, attrs) {
-            scope.menuDataSource = null;
-             ConfigRepository.getByKey("MENU_CONFIG")
-                .then(function (data) {
-                    _.remove(data.JSON, isRootNode);
-                    _.each(data.JSON, associateToFlag);
-                    scope.menuDataSource = convertToRecursive(data.JSON);
-                });
-        }
-
-        function associateToFlag(item){
-            var orgConfig = jocInBoxConfig.dashboards[item.text]
-            if(orgConfig && orgConfig.flagCode){
-                item.flagCode = orgConfig.flagCode;
-            }
-        }
-
-        function convertToRecursive(dataSource){
-            return getChildNodes("rootNode");
-            function getChildNodes(parent) {
-                var nodes = _.filter(dataSource, {parent: parent});
-                _.each(nodes, function(node){
-                    node.children = getChildNodes(node.id);
-                });
-                return nodes;
-            }
-        }
-
-        function isRootNode(item){
-            return item.parent === "#";
-        }
-    }
-})();
-
 /* Directive: exerciseCalendar */
 (function () {
     angular
@@ -1896,168 +1696,6 @@
         }
     }
 
-})();
-
-/* Directive: missionTimeline */
-(function () {
-    angular
-        .module('app.core')
-        .directive('missionTimeline', missionTimeline);
-
-    missionTimeline.$inject = ['Mission', 'MissionTrackerRepository', 'spContext'];
-    function missionTimeline(Mission, MissionTrackerRepository, spContext) {
-        /* 
-        USAGE: <timeline></timeline>
-        */
-        var directiveDefinition = {
-            link: link,
-            restrict: 'E',
-            scope: {
-                showNewItemLink: '='
-            },
-            template: buildHeroButtonHtml() + buildCheckboxHtml() + buildLegendHtml() + '<div class="mission-timeline" ng-show="missions.length"></div>' + buildMessageBarHtml()
-        };
-        return directiveDefinition;
-
-        function link(scope, elem, attrs) {
-            var options = {
-                stack: false,
-                start: moment(),
-                end: moment().add(15, 'days'),
-                editable: false,
-                margin: {
-                    item: 5, // minimal margin between items
-                    axis: 3   // minimal margin between items and the axis
-                },
-                orientation: 'top'
-            };
-            var items = [];
-            scope.showPastMissions = false;
-            scope.statusColorLegend = [
-                { name: "Initial Targeting", cssStyle: 'background-color:#FFFF00; border-color: #FFFF00; color: #000;' }, //yellow,black
-                { name: "JPG Assigned", cssStyle: 'background-color:#FFFF00; border-color: #FFFF00; color: #000;' }, //yellow,black
-                { name: "COA Approved", cssStyle: 'background-color:#FFFF00; border-color: #FFFF00; color: #000;' }, //yellow,black
-                { name: "CONOP Received - In Chop", cssStyle: 'background-color:#FFFF00; border-color: #FFFF00; color: #000;' }, //yellow,black
-
-                { name: "CONOP Disapproved", cssStyle: 'background-color:#ff0000; border-color: #ff0000; color: #fff;' }, //red,white	
-
-                { name: "CONOP Approved", cssStyle: 'background-color:#007f00; border-color: #007f00; color: #fff;' }, //green,black
-                { name: "FRAGO In-Chop", cssStyle: 'background-color:#007f00; border-color: #007f00; color: #fff;' }, //green,black
-                { name: "FRAGO Released", cssStyle: 'background-color:#007f00; border-color: #007f00; color: #fff;' }, //green,black
-                { name: "EXORD Released", cssStyle: 'background-color:#007f00; border-color: #007f00; color: #fff;' }, //green,black
-
-                { name: "Mission In Progress", cssStyle: 'background-color:#ffa500; border-color: #ffa500; color: #000;' }, //orange, black
-
-                { name: "Return to Base", cssStyle: 'background-color:#2C5197; border-color: #2C5197; color: #000;' }, //blue, black		
-                { name: "QuickLook", cssStyle: 'background-color:#2C5197; border-color: #2C5197; color: #000;' }, //blue, black	
-                { name: "StoryBoard", cssStyle: 'background-color:#2C5197; border-color: #2C5197; color: #000;' }, //blue, black
-                { name: "OPSUM", cssStyle: 'background-color:#2C5197; border-color: #2C5197; color: #000;' }, //blue, black
-
-                { name: "Mission Closed", cssStyle: 'background-color:#000; border-color: #000; color: #fff;' } //black, white
-            ];
-
-            scope.selectedOrg = (_.getQueryStringParam("org") || "");
-
-            MissionTrackerRepository.getByOrganization(scope.selectedOrg).then(function (data) {
-                items = _.map(data, function (item) { return new Mission(item); });
-                renderTimeline(items)
-            })
-
-            scope.$watch('showPastMissions', function () {
-                renderTimeline(items);
-            })
-
-            var timeline = null;
-            function renderTimeline(items) {
-                if (timeline) {
-                    timeline.destroy();
-                }
-
-                var now = moment();
-                scope.missions = _.filter(items, function (item) {
-                    return scope.showPastMissions || (!item.ExpectedTermination || moment(item.ExpectedTermination) > now);
-                });
-
-                var groups = new vis.DataSet(_.map(scope.missions, function (item) { return { id: item.Id, content: item.Identifier }; }));
-                var items = new vis.DataSet(
-                    _.map(scope.missions, function (item) {
-                        return {
-                            id: item.Id,
-                            group: item.Id,
-                            start: moment(item.ExpectedExecution),
-                            end: moment(item.ExpectedTermination),
-                            style: _.find(scope.statusColorLegend, { name: item.Status }).cssStyle,
-                            title: item.buildOnHoverText()
-                        };
-                    })
-                );
-
-                timeline = new vis.Timeline($(elem).find(".mission-timeline").get(0), null, options);
-                timeline.setGroups(groups);
-                timeline.setItems(items);
-                timeline.on('click', function (props) {
-                    if (props.what === 'group-label' || props.what === 'item') {
-                        var url = _spPageContextInfo.webServerRelativeUrl + '/Lists/MissionTracker/DispForm.aspx?ID=' + props.group + "&Source=" + document.location.href;
-                        document.location.href = url;
-                        //window.open(url , '_blank');    
-                    }
-                })
-
-
-            }
-        }
-
-        function buildLegendHtml() {
-            var html = '<div style="position:relative;">';
-            html += buildShowLegendHyperlink();
-            html += buildCalloutHtml();
-            html += "</div>";
-            return html;
-
-            function buildCalloutHtml() {
-                var html =
-                    '<div class="ms-Callout ms-Callout--arrowLeft" style="position:absolute;left:80px;top:-56px;" ng-show="showLegend">\
-                        <div class="ms-Callout-main">\
-                            <div class="ms-Callout-header">\
-                                <p class="ms-Callout-title">Mission Statuses</p>\
-                            </div>\
-                            <div class="ms-Callout-inner">\
-                                <div class="ms-Callout-content">\
-                                    <p class="ms-Callout-subText ms-Callout-subText--s">\
-                                        <table>\
-                                            <tr ng-repeat="status in statusColorLegend">\
-                                                <td style="{{status.cssStyle + \';width:25px;\'}}">&nbsp;</td>\
-                                                <td>{{status.name}}</td>\
-                                            </tr>\
-                                        </table>\
-                                    </p>\
-                                </div>\
-                            </div>\
-                        </div>\
-                    </div>';
-                return html;
-            }
-
-            function buildShowLegendHyperlink() {
-                return '<a ng-mouseover="showLegend = true" ng-mouseleave="showLegend = false" ng-show="missions.length">Show Legend</a>';
-            }
-        }
-
-        function buildCheckboxHtml() {
-            var html = '<uif-choicefield-option uif-type="checkbox" value="value1" ng-model="showPastMissions" ng-true-value="true" ng-false-value="false"> Show Past Missions</uif-choicefield-option>';
-            //var html = '<input type="checkbox" ng-model="showPastMissions"> <label>Show Past Missions</label>';
-            return html;
-        }
-
-        function buildHeroButtonHtml() {
-            var newFormUrl = _spPageContextInfo.webServerRelativeUrl + "/Lists/MissionTracker/NewForm.aspx?Source=" + document.location.href;
-            return spContext.htmlHelpers.buildHeroButton('new item', newFormUrl, 'showNewItemLink');
-        }
-
-        function buildMessageBarHtml() {
-            return '<uif-message-bar ng-show="missions.length === 0"> <uif-content>No {{showPastMissions ? "past/ongoing" : "ongoing" }} {{selectedOrg}} missions</uif-content> </uif-message-bar>';
-        }
-    }
 })();
 
 /* Directive: verticalTimeline */
@@ -2351,6 +1989,222 @@
             bindToController: true, //required in 1.3+ with controllerAs
             templateUrl: config.baseUrl + '/assets/current-operations-summary.html'
         };
+    }
+})();
+
+/* Directive: navMenu */
+(function () {
+    angular
+        .module('app.core')
+        .directive('navMenu', generateDirectiveDef);
+
+    generateDirectiveDef.$inject = ['config','ConfigRepository', 'logger'];
+    function generateDirectiveDef(config, ConfigRepository, logger) {
+        /* 
+        USAGE: <nav-menu></nav-menu>
+        */
+        var directiveDefinition = {
+            restrict: 'E',
+            scope: {
+            },
+            link: link,
+            templateUrl: config.baseUrl+ '/assets'+'/menu_item_renderer.html'
+        };
+        return directiveDefinition;
+
+        function link(scope, elem, attrs) {
+            scope.menuDataSource = null;
+             ConfigRepository.getByKey("MENU_CONFIG")
+                .then(function (data) {
+                    _.remove(data.JSON, isRootNode);
+                    _.each(data.JSON, associateToFlag);
+                    scope.menuDataSource = convertToRecursive(data.JSON);
+                });
+        }
+
+        function associateToFlag(item){
+            var orgConfig = jocInBoxConfig.dashboards[item.text]
+            if(orgConfig && orgConfig.flagCode){
+                item.flagCode = orgConfig.flagCode;
+            }
+        }
+
+        function convertToRecursive(dataSource){
+            return getChildNodes("rootNode");
+            function getChildNodes(parent) {
+                var nodes = _.filter(dataSource, {parent: parent});
+                _.each(nodes, function(node){
+                    node.children = getChildNodes(node.id);
+                });
+                return nodes;
+            }
+        }
+
+        function isRootNode(item){
+            return item.parent === "#";
+        }
+    }
+})();
+
+/* Directive: missionTimeline */
+(function () {
+    angular
+        .module('app.core')
+        .directive('missionTimeline', missionTimeline);
+
+    missionTimeline.$inject = ['Mission', 'MissionTrackerRepository', 'spContext'];
+    function missionTimeline(Mission, MissionTrackerRepository, spContext) {
+        /* 
+        USAGE: <timeline></timeline>
+        */
+        var directiveDefinition = {
+            link: link,
+            restrict: 'E',
+            scope: {
+                showNewItemLink: '='
+            },
+            template: buildHeroButtonHtml() + buildCheckboxHtml() + buildLegendHtml() + '<div class="mission-timeline" ng-show="missions.length"></div>' + buildMessageBarHtml()
+        };
+        return directiveDefinition;
+
+        function link(scope, elem, attrs) {
+            var options = {
+                stack: false,
+                start: moment(),
+                end: moment().add(15, 'days'),
+                editable: false,
+                margin: {
+                    item: 5, // minimal margin between items
+                    axis: 3   // minimal margin between items and the axis
+                },
+                orientation: 'top'
+            };
+            var items = [];
+            scope.showPastMissions = false;
+            scope.statusColorLegend = [
+                { name: "Initial Targeting", cssStyle: 'background-color:#FFFF00; border-color: #FFFF00; color: #000;' }, //yellow,black
+                { name: "JPG Assigned", cssStyle: 'background-color:#FFFF00; border-color: #FFFF00; color: #000;' }, //yellow,black
+                { name: "COA Approved", cssStyle: 'background-color:#FFFF00; border-color: #FFFF00; color: #000;' }, //yellow,black
+                { name: "CONOP Received - In Chop", cssStyle: 'background-color:#FFFF00; border-color: #FFFF00; color: #000;' }, //yellow,black
+
+                { name: "CONOP Disapproved", cssStyle: 'background-color:#ff0000; border-color: #ff0000; color: #fff;' }, //red,white	
+
+                { name: "CONOP Approved", cssStyle: 'background-color:#007f00; border-color: #007f00; color: #fff;' }, //green,black
+                { name: "FRAGO In-Chop", cssStyle: 'background-color:#007f00; border-color: #007f00; color: #fff;' }, //green,black
+                { name: "FRAGO Released", cssStyle: 'background-color:#007f00; border-color: #007f00; color: #fff;' }, //green,black
+                { name: "EXORD Released", cssStyle: 'background-color:#007f00; border-color: #007f00; color: #fff;' }, //green,black
+
+                { name: "Mission In Progress", cssStyle: 'background-color:#ffa500; border-color: #ffa500; color: #000;' }, //orange, black
+
+                { name: "Return to Base", cssStyle: 'background-color:#2C5197; border-color: #2C5197; color: #000;' }, //blue, black		
+                { name: "QuickLook", cssStyle: 'background-color:#2C5197; border-color: #2C5197; color: #000;' }, //blue, black	
+                { name: "StoryBoard", cssStyle: 'background-color:#2C5197; border-color: #2C5197; color: #000;' }, //blue, black
+                { name: "OPSUM", cssStyle: 'background-color:#2C5197; border-color: #2C5197; color: #000;' }, //blue, black
+
+                { name: "Mission Closed", cssStyle: 'background-color:#000; border-color: #000; color: #fff;' } //black, white
+            ];
+
+            scope.selectedOrg = (_.getQueryStringParam("org") || "");
+
+            MissionTrackerRepository.getByOrganization(scope.selectedOrg).then(function (data) {
+                items = _.map(data, function (item) { return new Mission(item); });
+                renderTimeline(items)
+            })
+
+            scope.$watch('showPastMissions', function () {
+                renderTimeline(items);
+            })
+
+            var timeline = null;
+            function renderTimeline(items) {
+                if (timeline) {
+                    timeline.destroy();
+                }
+
+                var now = moment();
+                scope.missions = _.filter(items, function (item) {
+                    return scope.showPastMissions || (!item.ExpectedTermination || moment(item.ExpectedTermination) > now);
+                });
+
+                var groups = new vis.DataSet(_.map(scope.missions, function (item) { return { id: item.Id, content: item.Identifier }; }));
+                var items = new vis.DataSet(
+                    _.map(scope.missions, function (item) {
+                        return {
+                            id: item.Id,
+                            group: item.Id,
+                            start: moment(item.ExpectedExecution),
+                            end: moment(item.ExpectedTermination),
+                            style: _.find(scope.statusColorLegend, { name: item.Status }).cssStyle,
+                            title: item.buildOnHoverText()
+                        };
+                    })
+                );
+
+                timeline = new vis.Timeline($(elem).find(".mission-timeline").get(0), null, options);
+                timeline.setGroups(groups);
+                timeline.setItems(items);
+                timeline.on('click', function (props) {
+                    if (props.what === 'group-label' || props.what === 'item') {
+                        var url = _spPageContextInfo.webServerRelativeUrl + '/Lists/MissionTracker/DispForm.aspx?ID=' + props.group + "&Source=" + document.location.href;
+                        document.location.href = url;
+                        //window.open(url , '_blank');    
+                    }
+                })
+
+
+            }
+        }
+
+        function buildLegendHtml() {
+            var html = '<div style="position:relative;">';
+            html += buildShowLegendHyperlink();
+            html += buildCalloutHtml();
+            html += "</div>";
+            return html;
+
+            function buildCalloutHtml() {
+                var html =
+                    '<div class="ms-Callout ms-Callout--arrowLeft" style="position:absolute;left:80px;top:-56px;" ng-show="showLegend">\
+                        <div class="ms-Callout-main">\
+                            <div class="ms-Callout-header">\
+                                <p class="ms-Callout-title">Mission Statuses</p>\
+                            </div>\
+                            <div class="ms-Callout-inner">\
+                                <div class="ms-Callout-content">\
+                                    <p class="ms-Callout-subText ms-Callout-subText--s">\
+                                        <table>\
+                                            <tr ng-repeat="status in statusColorLegend">\
+                                                <td style="{{status.cssStyle + \';width:25px;\'}}">&nbsp;</td>\
+                                                <td>{{status.name}}</td>\
+                                            </tr>\
+                                        </table>\
+                                    </p>\
+                                </div>\
+                            </div>\
+                        </div>\
+                    </div>';
+                return html;
+            }
+
+            function buildShowLegendHyperlink() {
+                return '<a ng-mouseover="showLegend = true" ng-mouseleave="showLegend = false" ng-show="missions.length">Show Legend</a>';
+            }
+        }
+
+        function buildCheckboxHtml() {
+            var html = '<uif-choicefield-option uif-type="checkbox" value="value1" ng-model="showPastMissions" ng-true-value="true" ng-false-value="false"> Show Past Missions</uif-choicefield-option>';
+            //var html = '<input type="checkbox" ng-model="showPastMissions"> <label>Show Past Missions</label>';
+            return html;
+        }
+
+        function buildHeroButtonHtml() {
+            var newFormUrl = _spPageContextInfo.webServerRelativeUrl + "/Lists/MissionTracker/NewForm.aspx?Source=" + document.location.href;
+            return spContext.htmlHelpers.buildHeroButton('new item', newFormUrl, 'showNewItemLink');
+        }
+
+        function buildMessageBarHtml() {
+            return '<uif-message-bar ng-show="missions.length === 0"> <uif-content>No {{showPastMissions ? "past/ongoing" : "ongoing" }} {{selectedOrg}} missions</uif-content> </uif-message-bar>';
+        }
     }
 })();
 
@@ -2750,5 +2604,151 @@
                 }
             })
         }
+    }
+})();
+
+/* Controller: MissionTrackerController */
+(function () {
+    'use strict';
+    //nicer looking plugin found here but requires bootstrap: http://www.dijit.fr/demo/angular-weekly-scheduler/
+    angular
+        .module('app.core')
+        .run(registerMissionTrackerRoute)
+        .controller('MissionTrackerController', MissionTrackerController);
+
+    registerMissionTrackerRoute.$inject = ['config', 'routerHelper'];
+    function registerMissionTrackerRoute(config, routerHelper) {
+        routerHelper.configureStates(getStates());
+
+        function getStates() {
+            return [
+                {
+                    state: 'missionTracker',
+                    config: {
+                        url: '/missionTracker',
+                        templateUrl: config.baseUrl + '/assets/missionTracker.html',
+                        controller: 'MissionTrackerController',
+                        controllerAs: 'vm',
+                        title: 'Mission Tracker'
+                    }
+                }
+            ];
+        }
+    }
+
+    MissionTrackerController.$inject = ['$q', '_', 'logger', 'MissionTrackerRepository'];
+    function MissionTrackerController($q, _, logger, MissionTrackerRepository) {
+        var vm = this;
+
+        activate();
+
+        function activate() {
+            initTabs();
+            $q.all([
+                getDataForVerticalTimeline(),
+                getDataForProcess()
+            ])
+                .then(function (data) {
+                    vm.missionLifecycleEvents = data[0];
+                    vm.routingSteps = data[1];
+                    logger.info('Activated Mission Tacker View');
+                });
+        }
+
+        function initTabs() {
+            vm.tabConfig = {
+                selectedSize: "large",
+                selectedType: "tabs",
+                pivots: [
+                    { title: "Timeline" },
+                    { title: "Products" },
+                    { title: "Product Chop" }
+                ],
+                selectedPivot: { title: "Timeline" },
+                menuOpened: false
+            }
+            vm.openMenu = function () {
+                vm.tabConfig.menuOpened = !vm.tabConfig.menuOpened;
+            }
+        }
+
+
+        function getDataForVerticalTimeline() {
+            var staticData = [
+                {
+                    direction: 'right',
+                    subject: 'Born on this date',
+                    message: 'Lodash makes JavaScript easier by taking the hassle out of working with arrays, numbers, objects, strings, etc. Lodash’s modular methods are great',
+                    moment: moment()
+                },
+                {
+                    direction: 'left',
+                    subject: 'Got footprint',
+                    message: 'When choosing a motion for side panels, consider the origin of the triggering element. Use the motion to create a link between the action and the resulting UI.',
+                    moment: moment().add(1, 'days')
+                }
+            ];
+            return $q.when(staticData);
+        }
+
+        function getDataForProcess() {
+            var staticData = [
+                {
+                    status: 'complete',
+                    text: "Shift Created"
+                },
+                {
+                    status: 'complete',
+                    text: "Email Sent"
+                },
+                {
+                    status: 'incomplete',
+                    text: "SIC Approval"
+                },
+                {
+                    status: '',
+                    text: "Shift Completed"
+                }
+            ];
+            return $q.when(staticData);
+        }
+
+
+
+
+
+    }
+})();
+
+/* Controller: EditNavController */
+(function () {
+    angular
+        .module('app.core')
+        .run(registerEditNavRoute)
+        .controller('EditNavController', EditNavController);
+
+    registerEditNavRoute.$inject = ['config', 'routerHelper'];
+    function registerEditNavRoute(config, routerHelper) {
+        routerHelper.configureStates(getStates());
+
+        function getStates() {
+            return [
+                {
+                    state: 'editNav',
+                    config: {
+                        url: '/editNav',
+                        templateUrl: config.baseUrl + '/assets/editnav.html',
+                        controller: 'EditNavController',
+                        controllerAs: 'vm',
+                        title: 'Edit Navigation'
+                    }
+                }
+            ];
+        }
+    }
+
+    EditNavController.$inject = ['$q', '$timeout', '_', 'logger', 'ConfigRepository'];
+    function EditNavController($q, $timeout, _, logger, ConfigRepository) {
+        var vm = this;
     }
 })();
