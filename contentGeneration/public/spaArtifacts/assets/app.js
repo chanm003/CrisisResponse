@@ -1992,60 +1992,6 @@
     }
 })();
 
-/* Directive: navMenu */
-(function () {
-    angular
-        .module('app.core')
-        .directive('navMenu', generateDirectiveDef);
-
-    generateDirectiveDef.$inject = ['config','ConfigRepository', 'logger'];
-    function generateDirectiveDef(config, ConfigRepository, logger) {
-        /* 
-        USAGE: <nav-menu></nav-menu>
-        */
-        var directiveDefinition = {
-            restrict: 'E',
-            scope: {
-            },
-            link: link,
-            templateUrl: config.baseUrl+ '/assets'+'/menu_item_renderer.html'
-        };
-        return directiveDefinition;
-
-        function link(scope, elem, attrs) {
-            scope.menuDataSource = null;
-             ConfigRepository.getByKey("MENU_CONFIG")
-                .then(function (data) {
-                    _.remove(data.JSON, isRootNode);
-                    _.each(data.JSON, associateToFlag);
-                    scope.menuDataSource = convertToRecursive(data.JSON);
-                });
-        }
-
-        function associateToFlag(item){
-            var orgConfig = jocInBoxConfig.dashboards[item.text]
-            if(orgConfig && orgConfig.flagCode){
-                item.flagCode = orgConfig.flagCode;
-            }
-        }
-
-        function convertToRecursive(dataSource){
-            return getChildNodes("rootNode");
-            function getChildNodes(parent) {
-                var nodes = _.filter(dataSource, {parent: parent});
-                _.each(nodes, function(node){
-                    node.children = getChildNodes(node.id);
-                });
-                return nodes;
-            }
-        }
-
-        function isRootNode(item){
-            return item.parent === "#";
-        }
-    }
-})();
-
 /* Directive: missionTimeline */
 (function () {
     angular
@@ -2204,78 +2150,6 @@
 
         function buildMessageBarHtml() {
             return '<uif-message-bar ng-show="missions.length === 0"> <uif-content>No {{showPastMissions ? "past/ongoing" : "ongoing" }} {{selectedOrg}} missions</uif-content> </uif-message-bar>';
-        }
-    }
-})();
-
-/* Controller: RfiController */
-(function () {
-    angular
-        .module('app.core')
-        .run(registerRfiRoute)
-        .controller('RfiController', RfiController);
-
-    registerRfiRoute.$inject = ['config', 'routerHelper'];
-    function registerRfiRoute(config, routerHelper) {
-        routerHelper.configureStates(getStates());
-
-        function getStates() {
-            return [
-                {
-                    state: 'rfi',
-                    config: {
-                        url: '/rfi/:tabIndex',
-                        templateUrl: config.baseUrl + '/assets/rfi.html',
-                        controller: 'RfiController',
-                        controllerAs: 'vm',
-                        title: 'Request for Information'
-                    }
-                }
-            ];
-        }
-    }
-
-    RfiController.$inject = ['$q', '$state', '$stateParams', '_', 'logger', 'RFI', 'RfiRepository', 'Mission', 'MissionTrackerRepository', 'ConfigRepository'];
-    function RfiController($q, $state, $stateParams, _, logger, RFI, RFIRepository, Mission, MissionTrackerRepository, ConfigRepository) {
-        var vm = this;
-        activate();
-
-        function activate() {
-            initTabs();  
-        }
-
-        function initTabs() {
-            var pivots = [
-                { title: "Open" },
-                { title: "Closed" },
-                { title: "My RFIs" },
-                { title: "Manage RFIs" }
-            ];
-
-            var selectedIndex = (!$stateParams.tabIndex || $stateParams.tabIndex >= pivots.length) ? 0 : $stateParams.tabIndex;
-
-            vm.tabConfig = {
-                selectedSize: "large",
-                selectedType: "tabs",
-                pivots: pivots,
-                selectedPivot: pivots[selectedIndex],
-                menuOpened: false
-            }
-            vm.openMenu = function () {
-                vm.tabConfig.menuOpened = !vm.tabConfig.menuOpened;
-            }
-
-        }
-
-        function fetchData() {
-            return RFIRepository.getAll()
-                .then(function (data) {
-                    vm.rfiList = _.map(data, function (item) { return new RFI(item); })
-                    _.each(vm.rfiList, function (item) {
-                        console.log(item);
-                        item.complete();
-                    });
-                })
         }
     }
 })();
@@ -2607,17 +2481,51 @@
     }
 })();
 
+/* Controller: EditNavController */
+(function () {
+    angular
+        .module('app.core')
+        //.run(registerEditNavRoute)
+        .controller('EditNavController', EditNavController);
+
+    registerEditNavRoute.$inject = ['config', 'routerHelper'];
+    function registerEditNavRoute(config, routerHelper) {
+        routerHelper.configureStates(getStates());
+
+        function getStates() {
+            return [
+                {
+                    state: 'editNav',
+                    config: {
+                        url: '/editNav',
+                        templateUrl: config.baseUrl + '/assets/editnav.html',
+                        controller: 'EditNavController',
+                        controllerAs: 'vm',
+                        title: 'Edit Navigation'
+                    }
+                }
+            ];
+        }
+    }
+
+    EditNavController.$inject = ['$q', '$timeout', '_', 'logger', 'ConfigRepository'];
+    function EditNavController($q, $timeout, _, logger, ConfigRepository) {
+        var vm = this;
+    }
+})();
+
 /* Controller: MissionTrackerController */
 (function () {
     'use strict';
     //nicer looking plugin found here but requires bootstrap: http://www.dijit.fr/demo/angular-weekly-scheduler/
     angular
         .module('app.core')
-        .run(registerMissionTrackerRoute)
+        //.run(registerMissionTrackerRoute)
         .controller('MissionTrackerController', MissionTrackerController);
 
     registerMissionTrackerRoute.$inject = ['config', 'routerHelper'];
     function registerMissionTrackerRoute(config, routerHelper) {
+        if(!shouldSetupSPA()) { return; }
         routerHelper.configureStates(getStates());
 
         function getStates() {
@@ -2720,35 +2628,129 @@
     }
 })();
 
-/* Controller: EditNavController */
+/* Controller: RfiController */
 (function () {
     angular
         .module('app.core')
-        .run(registerEditNavRoute)
-        .controller('EditNavController', EditNavController);
+        //.run(registerRfiRoute)
+        .controller('RfiController', RfiController);
 
-    registerEditNavRoute.$inject = ['config', 'routerHelper'];
-    function registerEditNavRoute(config, routerHelper) {
+    registerRfiRoute.$inject = ['config', 'routerHelper'];
+    function registerRfiRoute(config, routerHelper) {
         routerHelper.configureStates(getStates());
 
         function getStates() {
             return [
                 {
-                    state: 'editNav',
+                    state: 'rfi',
                     config: {
-                        url: '/editNav',
-                        templateUrl: config.baseUrl + '/assets/editnav.html',
-                        controller: 'EditNavController',
+                        url: '/rfi/:tabIndex',
+                        templateUrl: config.baseUrl + '/assets/rfi.html',
+                        controller: 'RfiController',
                         controllerAs: 'vm',
-                        title: 'Edit Navigation'
+                        title: 'Request for Information'
                     }
                 }
             ];
         }
     }
 
-    EditNavController.$inject = ['$q', '$timeout', '_', 'logger', 'ConfigRepository'];
-    function EditNavController($q, $timeout, _, logger, ConfigRepository) {
+    RfiController.$inject = ['$q', '$state', '$stateParams', '_', 'logger', 'RFI', 'RfiRepository', 'Mission', 'MissionTrackerRepository', 'ConfigRepository'];
+    function RfiController($q, $state, $stateParams, _, logger, RFI, RFIRepository, Mission, MissionTrackerRepository, ConfigRepository) {
         var vm = this;
+        activate();
+
+        function activate() {
+            initTabs();  
+        }
+
+        function initTabs() {
+            var pivots = [
+                { title: "Open" },
+                { title: "Closed" },
+                { title: "My RFIs" },
+                { title: "Manage RFIs" }
+            ];
+
+            var selectedIndex = (!$stateParams.tabIndex || $stateParams.tabIndex >= pivots.length) ? 0 : $stateParams.tabIndex;
+
+            vm.tabConfig = {
+                selectedSize: "large",
+                selectedType: "tabs",
+                pivots: pivots,
+                selectedPivot: pivots[selectedIndex],
+                menuOpened: false
+            }
+            vm.openMenu = function () {
+                vm.tabConfig.menuOpened = !vm.tabConfig.menuOpened;
+            }
+
+        }
+
+        function fetchData() {
+            return RFIRepository.getAll()
+                .then(function (data) {
+                    vm.rfiList = _.map(data, function (item) { return new RFI(item); })
+                    _.each(vm.rfiList, function (item) {
+                        console.log(item);
+                        item.complete();
+                    });
+                })
+        }
+    }
+})();
+
+/* Directive: navMenu */
+(function () {
+    angular
+        .module('app.core')
+        .directive('navMenu', generateDirectiveDef);
+
+    generateDirectiveDef.$inject = ['config','ConfigRepository', 'logger'];
+    function generateDirectiveDef(config, ConfigRepository, logger) {
+        /* 
+        USAGE: <nav-menu></nav-menu>
+        */
+        var directiveDefinition = {
+            restrict: 'E',
+            scope: {
+            },
+            link: link,
+            //templateUrl: config.baseUrl+ '/assets'+'/menu_item_renderer.html'
+            template: "Raasclaat no templateUrl for directives"
+        };
+        return directiveDefinition;
+
+        function link(scope, elem, attrs) {
+            scope.menuDataSource = null;
+             ConfigRepository.getByKey("MENU_CONFIG")
+                .then(function (data) {
+                    _.remove(data.JSON, isRootNode);
+                    _.each(data.JSON, associateToFlag);
+                    scope.menuDataSource = convertToRecursive(data.JSON);
+                });
+        }
+
+        function associateToFlag(item){
+            var orgConfig = jocInBoxConfig.dashboards[item.text]
+            if(orgConfig && orgConfig.flagCode){
+                item.flagCode = orgConfig.flagCode;
+            }
+        }
+
+        function convertToRecursive(dataSource){
+            return getChildNodes("rootNode");
+            function getChildNodes(parent) {
+                var nodes = _.filter(dataSource, {parent: parent});
+                _.each(nodes, function(node){
+                    node.children = getChildNodes(node.id);
+                });
+                return nodes;
+            }
+        }
+
+        function isRootNode(item){
+            return item.parent === "#";
+        }
     }
 })();
