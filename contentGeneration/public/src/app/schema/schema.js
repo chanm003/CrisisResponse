@@ -35,6 +35,65 @@ crisisResponseSchema.listDefs["Config"] = {
 	]
 };
 
+crisisResponseSchema.listDefs["DocumentChops"] = {
+	Title: "DocumentChops",
+	BaseTemplate: 'genericList',
+	shouldHideTitleField: true,
+	fieldsToCreate:[
+		{
+			//EXAMPLE: SINGLE LINE OF TEXT
+			Name: "DocumentId",
+			DisplayName: "DocumentId",
+			Type: "Text",
+			Required: "TRUE",
+			MaxLength: 10,
+			Default: "",							//(optional)
+			Description: "Non-relational lookup to Mission Documents"
+		},
+		{
+			//EXAMPLE: SINGLE LINE OF TEXT
+			Name: "Organization",
+			DisplayName: "Organization",
+			Type: "Text",
+			Required: "TRUE",
+			MaxLength: 20,
+			Default: "",							//(optional)
+			Description: ""
+		},
+		{
+			//EXAMPLE: SINGLE LINE OF TEXT
+			Name: "OrganizationalRole",
+			DisplayName: "OrganizationalRole",
+			Type: "Text",
+			Required: "TRUE",
+			MaxLength: 20,
+			Default: "",							//(optional)
+			Description: "Should be CDR or one of the staff sections"
+		},
+		{
+			//EXAMPLE: SINGLE LINE OF TEXT
+			Name: "Verdict",
+			DisplayName: "Verdict",
+			Type: "Text",
+			Required: "TRUE",
+			MaxLength: 20,
+			Default: "",							//(optional)
+			Description: "Concur, Nonconcur or Pending"
+		},
+		{
+			//EXAMPLE: MULTIPLE LINE OF TEXT
+			Name: "Comments",
+			DisplayName: "Comments",
+			Type: "Note",
+			Required: "FALSE",
+			NumLines: 6,
+			RichText: "FALSE",						//RECOMMENDED
+			AppendOnly: "FALSE"						//VERSIONING MUST BE TURNED ON, otherwise specifie "FALSE"
+			
+		}		
+	]
+};
+
 crisisResponseSchema.listDefs["Mission Tracker"] = {
 	Title: "Mission Tracker",
 		BaseTemplate: 'genericList',

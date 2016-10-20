@@ -929,6 +929,74 @@
             return (errors.length) ? "\n\t-" + errors.join("\n\t-") : "";
         }
 
+        MissionDocument.prototype.setupRouteStages = function(jocInBoxConfig, documentChops){
+            if(!this.ChopRouteSequence) { return; }   
+
+            var stageNames = this.ChopRouteSequence.split(';');
+            this.routeStages = _.map(stageNames, function(stageName){
+                var routeStage = {
+                    name: stageName,
+                    cdrDecisions: buildCommanderDecisionsList(stageName, documentChops),
+                    staffSectionDecisions: buildStaffDecisionsDictionaryLookup(jocInBoxConfig, stageName, documentChops)
+                };
+                return routeStage;
+            });
+
+            function buildCommanderDecisionsList(organizationName, documentChops){
+                return _.chain(documentChops)
+                        .filter({Organization: organizationName, OrganizationalRole: "CDR"})
+                        .orderBy(['Created'], ['desc'])
+                        .value();
+            }
+
+            function buildStaffDecisionsDictionaryLookup(jocInBoxConfig, organizationName, documentChops){
+                var decisionLookup = {};
+                _.each(jocInBoxConfig.dashboards[organizationName].optionsForChoiceField, function(staffSectionName){
+                    decisionLookup[staffSectionName] = _.chain(documentChops)
+                                                            .filter({Organization: organizationName, OrganizationalRole: staffSectionName})
+                                                            .orderBy(['Created'], ['desc'])
+                                                            .value();
+                });
+                return decisionLookup;
+            }
+        }
+
+        MissionDocument.prototype.derviveOverallChopStatus = function(){
+            if(!this.routeStages) { throw "setupRouteStages has not been invoked"; }
+
+            //check for "Approved"
+            var decisionsByFinalCommander = _.last(this.routeStages).cdrDecisions;
+            var mostRecentDecisionByFinalCommander = decisionsByFinalCommander.length && decisionsByFinalCommander[0] && null;
+            if(mostRecentDecisionByFinalCommander  && mostRecentDecisionByFinalCommander.Verdict === "Concur"){
+                return "Approved";
+            }
+
+            //check for "Disapproved" i.e. if even one commander has Disapproved
+           var evenOneCommanderHasDisapproved = !_.find(this.routeStages, function(routeStage){
+                var mostRecentCdrDecision = routeStage.cdrDecisions.length && routeStage.cdrDecisions[0];
+                return mostRecentCdrDecision.Verdict === "Nonconcur";
+            });  
+            if(evenOneCommanderHasDisapproved){
+                return "Disapproved";
+            }
+
+            //fall-thru
+            return "In Chop";
+        }
+
+        MissionDocument.prototype.isReadyForChop = function(organizationName){
+            if(!this.routeStages) { throw "setupRouteStages has not been invoked"; }
+
+            var positionInChopSequence = _.indexOf(this.ChopRouteSequence, organizationName);
+            if(positionInChopSequence === 0){
+                //organization is the first one to chop...
+                return true;
+            }
+
+            var previousOrganizationInSequence = this.routeStages[positionInChopSequence-1];
+            return previousOrganizationInSequence.cdrDecisions.length && previousOrganizationInSequence.cdrDecisions[0].Verdict === "Concur";
+        }
+
         return MissionDocument;
     }
 })();

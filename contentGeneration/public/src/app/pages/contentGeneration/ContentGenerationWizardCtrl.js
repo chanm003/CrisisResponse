@@ -110,7 +110,8 @@
 					createConfigList(),
 					createMissionList(),
 					createMessageTrafficList(),
-					createWatchLogList()
+					createWatchLogList(),
+					createDocumentChopsList()
 				]);
 			}
 
@@ -141,6 +142,13 @@
 				listSchemaDef.webUrl = vm.childWebUrl;
 				return sharepointUtilities.createList(listSchemaDef);
 			}
+
+			function createDocumentChopsList(){
+				//DEPENDENCIES: None
+				var listSchemaDef = crisisResponseSchema.listDefs["DocumentChops"];
+				listSchemaDef.webUrl = vm.childWebUrl;
+				return sharepointUtilities.createList(listSchemaDef);
+			} 
 
 			function createMissionList() {
 				//DEPENDENCIES: None
