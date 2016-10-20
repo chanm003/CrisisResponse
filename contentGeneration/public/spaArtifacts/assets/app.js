@@ -2154,6 +2154,118 @@
     }
 })();
 
+/* Directive: navMenu */
+(function () {
+    angular
+        .module('app.core')
+        .directive('navMenu', generateDirectiveDef);
+
+    generateDirectiveDef.$inject = ['config','ConfigRepository', 'logger'];
+    function generateDirectiveDef(config, ConfigRepository, logger) {
+        /* 
+        USAGE: <nav-menu></nav-menu>
+        */
+        var directiveDefinition = {
+            restrict: 'E',
+            scope: {
+            },
+            link: link,
+            template: generateContainerHtml()
+        };
+        return directiveDefinition;
+
+        function link(scope, elem, attrs) {
+            ConfigRepository.getByKey("MENU_CONFIG")
+                .then(function (data) {
+                    _.remove(data.JSON, isRootNode);
+                    _.each(data.JSON, associateToFlag);
+                    generateMenu(convertToRecursive(data.JSON));
+                });
+
+            function generateMenu(menuDataSource){
+                var baseMenuUL = $(elem).find("#jocboxmenu ul");
+                console.log(baseMenuUL.size());
+                _.each(menuDataSource, function(node){
+                    generateMenuItem(node, baseMenuUL);
+                });
+            }
+
+            function generateMenuItem(node, container){
+                var li = $("<li>");
+                container.append(li);
+
+                if(node.flagCode){
+                    li.append(generateAnchor_withFlagIcon(node));
+                } else {
+                    li.append(generateAnchor_standard(node));
+                }
+
+                //check for children
+                if(node.children && node.children.length){
+                    //append chevron
+                    li.append('<i class="ms-ContextualMenu-subMenuIcon ms-Icon ms-Icon--chevronRight"></i>')
+
+                    //append child menu
+                    var childUL = $("<ul>");
+                    li.append(childUL);
+                    _.each(node.children, function(node){
+                        generateMenuItem(node, childUL);
+                    });
+                }
+            }            
+
+            function generateAnchor_standard(node){
+                var parts = [
+                    '<a class="noflag" href="'+ node.li_attr.url + '" target="' + node.li_attr.target + '">',
+                    '   <span class="menu-label-when-no-flag">' + node.text + '</span>',
+                    '</a>'
+                ].join('');
+                return parts;
+            }
+
+            function generateAnchor_withFlagIcon(node){
+                var parts = [
+                    '<a href="'+ node.li_attr.url + '" target="' + node.li_attr.target + '">',
+                    '   <span class="f32"><span class="flag ' + node.flagCode + '"><span class="menu-label-when-flag">' + node.text + '</span></span></span>',
+                    '</a>'
+                ].join('');
+                return parts;
+            }
+        }
+        function associateToFlag(item){
+            var orgConfig = jocInBoxConfig.dashboards[item.text]
+            if(orgConfig && orgConfig.flagCode){
+                item.flagCode = orgConfig.flagCode;
+            }
+        }
+
+        function convertToRecursive(dataSource){
+            return getChildNodes("rootNode");
+            function getChildNodes(parent) {
+                var nodes = _.filter(dataSource, {parent: parent});
+                _.each(nodes, function(node){
+                    node.children = getChildNodes(node.id);
+                });
+                return nodes;
+            }
+        }
+
+        function isRootNode(item){
+            return item.parent === "#";
+        }
+
+        function generateContainerHtml(){
+            var parts = [
+                '<div id="jocboxmenu">',
+                '   <ul>',
+                '   </ul>',
+                '</div>'
+            ].join('');
+            return parts;
+        }
+    }
+})();
+
 /* Controller: SoccAspxController */
 (function () {
     angular
@@ -2488,7 +2600,7 @@
         //.run(registerEditNavRoute)
         .controller('EditNavController', EditNavController);
 
-    registerEditNavRoute.$inject = ['config', 'routerHelper'];
+    /*registerEditNavRoute.$inject = ['config', 'routerHelper'];
     function registerEditNavRoute(config, routerHelper) {
         routerHelper.configureStates(getStates());
 
@@ -2506,7 +2618,7 @@
                 }
             ];
         }
-    }
+    }*/
 
     EditNavController.$inject = ['$q', '$timeout', '_', 'logger', 'ConfigRepository'];
     function EditNavController($q, $timeout, _, logger, ConfigRepository) {
@@ -2523,7 +2635,7 @@
         //.run(registerMissionTrackerRoute)
         .controller('MissionTrackerController', MissionTrackerController);
 
-    registerMissionTrackerRoute.$inject = ['config', 'routerHelper'];
+    /*registerMissionTrackerRoute.$inject = ['config', 'routerHelper'];
     function registerMissionTrackerRoute(config, routerHelper) {
         if(!shouldSetupSPA()) { return; }
         routerHelper.configureStates(getStates());
@@ -2542,7 +2654,7 @@
                 }
             ];
         }
-    }
+    }*/
 
     MissionTrackerController.$inject = ['$q', '_', 'logger', 'MissionTrackerRepository'];
     function MissionTrackerController($q, _, logger, MissionTrackerRepository) {
@@ -2635,7 +2747,7 @@
         //.run(registerRfiRoute)
         .controller('RfiController', RfiController);
 
-    registerRfiRoute.$inject = ['config', 'routerHelper'];
+    /*registerRfiRoute.$inject = ['config', 'routerHelper'];
     function registerRfiRoute(config, routerHelper) {
         routerHelper.configureStates(getStates());
 
@@ -2653,7 +2765,7 @@
                 }
             ];
         }
-    }
+    }*/
 
     RfiController.$inject = ['$q', '$state', '$stateParams', '_', 'logger', 'RFI', 'RfiRepository', 'Mission', 'MissionTrackerRepository', 'ConfigRepository'];
     function RfiController($q, $state, $stateParams, _, logger, RFI, RFIRepository, Mission, MissionTrackerRepository, ConfigRepository) {
@@ -2700,57 +2812,3 @@
     }
 })();
 
-/* Directive: navMenu */
-(function () {
-    angular
-        .module('app.core')
-        .directive('navMenu', generateDirectiveDef);
-
-    generateDirectiveDef.$inject = ['config','ConfigRepository', 'logger'];
-    function generateDirectiveDef(config, ConfigRepository, logger) {
-        /* 
-        USAGE: <nav-menu></nav-menu>
-        */
-        var directiveDefinition = {
-            restrict: 'E',
-            scope: {
-            },
-            link: link,
-            //templateUrl: config.baseUrl+ '/assets'+'/menu_item_renderer.html'
-            template: "Raasclaat no templateUrl for directives"
-        };
-        return directiveDefinition;
-
-        function link(scope, elem, attrs) {
-            scope.menuDataSource = null;
-             ConfigRepository.getByKey("MENU_CONFIG")
-                .then(function (data) {
-                    _.remove(data.JSON, isRootNode);
-                    _.each(data.JSON, associateToFlag);
-                    scope.menuDataSource = convertToRecursive(data.JSON);
-                });
-        }
-
-        function associateToFlag(item){
-            var orgConfig = jocInBoxConfig.dashboards[item.text]
-            if(orgConfig && orgConfig.flagCode){
-                item.flagCode = orgConfig.flagCode;
-            }
-        }
-
-        function convertToRecursive(dataSource){
-            return getChildNodes("rootNode");
-            function getChildNodes(parent) {
-                var nodes = _.filter(dataSource, {parent: parent});
-                _.each(nodes, function(node){
-                    node.children = getChildNodes(node.id);
-                });
-                return nodes;
-            }
-        }
-
-        function isRootNode(item){
-            return item.parent === "#";
-        }
-    }
-})();
