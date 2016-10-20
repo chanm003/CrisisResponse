@@ -289,9 +289,9 @@
         };
 
         this.$get = RouterHelper;
-        RouterHelper.$inject = ['$location', '$rootScope', '$state', 'logger'];
+        RouterHelper.$inject = ['$rootScope', 'logger'];
         /* @ngInject */
-        function RouterHelper($location, $rootScope, $state, logger) {
+        function RouterHelper($rootScope, logger) {
             var handlingStateChangeError = false;
             var hasOtherwise = false;
             var stateCounts = {
@@ -301,7 +301,6 @@
 
             var service = {
                 configureStates: configureStates,
-                getStates: getStates,
                 stateCounts: stateCounts
             };
 
@@ -341,7 +340,6 @@
                             (error.data || '') + '. <br/>' + (error.statusText || '') +
                             ': ' + (error.status || '');
                         logger.warning(msg, { data: [toState] });
-                        $location.path('/');
                     }
                 );
             }
@@ -350,8 +348,6 @@
                 handleRoutingErrors();
                 updateDocTitle();
             }
-
-            function getStates() { return $state.get(); }
 
             function updateDocTitle() {
                 $rootScope.$on('$stateChangeSuccess',
@@ -2184,7 +2180,6 @@
 
             function generateMenu(menuDataSource){
                 var baseMenuUL = $(elem).find("#jocboxmenu ul");
-                console.log(baseMenuUL.size());
                 _.each(menuDataSource, function(node){
                     generateMenuItem(node, baseMenuUL);
                 });
@@ -2597,10 +2592,10 @@
 (function () {
     angular
         .module('app.core')
-        //.run(registerEditNavRoute)
+        .run(registerEditNavRoute)
         .controller('EditNavController', EditNavController);
 
-    /*registerEditNavRoute.$inject = ['config', 'routerHelper'];
+    registerEditNavRoute.$inject = ['config', 'routerHelper'];
     function registerEditNavRoute(config, routerHelper) {
         routerHelper.configureStates(getStates());
 
@@ -2618,7 +2613,7 @@
                 }
             ];
         }
-    }*/
+    }
 
     EditNavController.$inject = ['$q', '$timeout', '_', 'logger', 'ConfigRepository'];
     function EditNavController($q, $timeout, _, logger, ConfigRepository) {
@@ -2632,12 +2627,11 @@
     //nicer looking plugin found here but requires bootstrap: http://www.dijit.fr/demo/angular-weekly-scheduler/
     angular
         .module('app.core')
-        //.run(registerMissionTrackerRoute)
+        .run(registerMissionTrackerRoute)
         .controller('MissionTrackerController', MissionTrackerController);
 
-    /*registerMissionTrackerRoute.$inject = ['config', 'routerHelper'];
+    registerMissionTrackerRoute.$inject = ['config', 'routerHelper'];
     function registerMissionTrackerRoute(config, routerHelper) {
-        if(!shouldSetupSPA()) { return; }
         routerHelper.configureStates(getStates());
 
         function getStates() {
@@ -2654,7 +2648,7 @@
                 }
             ];
         }
-    }*/
+    }
 
     MissionTrackerController.$inject = ['$q', '_', 'logger', 'MissionTrackerRepository'];
     function MissionTrackerController($q, _, logger, MissionTrackerRepository) {
@@ -2691,7 +2685,6 @@
                 vm.tabConfig.menuOpened = !vm.tabConfig.menuOpened;
             }
         }
-
 
         function getDataForVerticalTimeline() {
             var staticData = [
@@ -2732,11 +2725,6 @@
             ];
             return $q.when(staticData);
         }
-
-
-
-
-
     }
 })();
 
@@ -2744,10 +2732,10 @@
 (function () {
     angular
         .module('app.core')
-        //.run(registerRfiRoute)
+        .run(registerRfiRoute)
         .controller('RfiController', RfiController);
 
-    /*registerRfiRoute.$inject = ['config', 'routerHelper'];
+    registerRfiRoute.$inject = ['config', 'routerHelper'];
     function registerRfiRoute(config, routerHelper) {
         routerHelper.configureStates(getStates());
 
@@ -2765,7 +2753,7 @@
                 }
             ];
         }
-    }*/
+    }
 
     RfiController.$inject = ['$q', '$state', '$stateParams', '_', 'logger', 'RFI', 'RfiRepository', 'Mission', 'MissionTrackerRepository', 'ConfigRepository'];
     function RfiController($q, $state, $stateParams, _, logger, RFI, RFIRepository, Mission, MissionTrackerRepository, ConfigRepository) {
