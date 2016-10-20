@@ -1,32 +1,79 @@
-<uif-pivot uif-type="{{vm.tabConfig.selectedType}}" uif-size="{{vm.tabConfig.selectedSize}}" uif-pivots="vm.tabConfig.pivots"
-  uif-selected="vm.tabConfig.selectedPivot" id="msPivot" class="pivot-overflow-fix">
-  <uif-pivot-ellipsis ng-click="vm.openMenu()">
-    <uif-contextual-menu uif-is-open="vm.tabConfig.menuOpened" uif-close-on-click="true">
-      <uif-contextual-menu-item>
-        <uif-content>
-          <uif-icon uif-type="plus"></uif-icon> New RFI
-        </uif-content>
-      </uif-contextual-menu-item>
-    </uif-contextual-menu>
-  </uif-pivot-ellipsis>
-</uif-pivot>
+<p>
+  <uif-pivot uif-type="{{vm.tabConfig.selectedType}}" uif-size="{{vm.tabConfig.selectedSize}}" uif-pivots="vm.tabConfig.pivots"
+    uif-selected="vm.tabConfig.selectedPivot" id="msPivot" class="pivot-overflow-fix">
+    <uif-pivot-ellipsis ng-click="vm.openMenu()">
+      <uif-contextual-menu uif-is-open="vm.tabConfig.menuOpened" uif-close-on-click="true">
+        <uif-contextual-menu-item ng-click="vm.goToNewRfiForm()">
+          <uif-content>
+            <uif-icon uif-type="plus"></uif-icon> New RFI
+          </uif-content>
+        </uif-contextual-menu-item>
+      </uif-contextual-menu>
+    </uif-pivot-ellipsis>
+  </uif-pivot>
+</p>
 
 <div class="ms-Grid">
   <div class="ms-Grid-row">
-    <div class="ms-Grid-col ms-u-sm6 ms-u-md6 ms-u-lg6">
-      
+    <div class="ms-Grid-col ms-u-sm10 ms-u-md10 ms-u-lg10">
+      <uif-button type="button" uif-type="hero" ng-click="vm.goToNewRfiForm()">
+        <uif-icon uif-type="plus"></uif-icon>
+        create a new RFI
+      </uif-button>
+    
+
+      <uif-table>
+        <uif-table-head>
+          <uif-table-row>
+            <uif-table-header>&nbsp;</uif-table-header>
+            <uif-table-header>Title</uif-table-header>
+            <uif-table-header>Mission</uif-table-header>
+            <uif-table-header uif-order-by="PocOrganization">POC</uif-table-header>
+            <uif-table-header uif-order-by="RecommendedOPR">OPR</uif-table-header>
+            <uif-table-header style="white-space:nowrap;" uif-order-by="RfiTrackingNumber">Tracking #</uif-table-header>
+            <uif-table-header uif-order-by="PrioritySort">Priority</uif-table-header>
+            <uif-table-header uif-order-by="LTIOV">LTIOV</uif-table-header>
+            <uif-table-header style="white-space:nowrap;" uif-order-by="Created">Date Opened</uif-table-header>
+            <uif-table-header style="white-space:nowrap;" uif-order-by="DateClosed" ng-show="vm.tabConfig.selectedPivot.title === 'Closed'">Date Closed</uif-table-header>
+          </uif-table-row>
+        </uif-table-head>
+        <uif-table-body>
+          <uif-table-row ng-repeat="item in vm.selectedDataSource | orderBy:table.orderBy:!table.orderAsc"">
+            <uif-table-cell>
+              <uif-button type="button" uif-type="primary" ng-click="vm.goToEditForm(item)">{{vm.getAction(item)}}</uif-button>
+            </uif-table-cell>
+            <uif-table-cell>{{item.Title}}</uif-table-cell>
+            <uif-table-cell style="white-space:nowrap;">{{item.Mission.FullName}}</uif-table-cell>
+            <uif-table-cell style="white-space:nowrap;"><span title="{{item.PocName.Title}}">{{item.PocOrganization}}</span></uif-table-cell>
+            <uif-table-cell style="white-space:nowrap;">{{item.RecommendedOPR}}</uif-table-cell>
+            <uif-table-cell>{{item.RfiTrackingNumber}}</uif-table-cell>
+            <uif-table-cell>
+              <div style="white-space:nowrap;" class="alert alert-warning" ng-class="{'alert-danger': item.Priority === 'Immediate (< 24 hrs)','alert-warning': item.Priority === 'Priority (24-48 hrs)', 'alert-default': item.Priority === 'Routine (48-96 hrs)'}" role="alert">
+                      {{item.Priority}}
+              </div>
+            </uif-table-cell>
+            <uif-table-cell style="white-space:nowrap;">{{item.LTIOV.format('L')}}</uif-table-cell>
+            <uif-table-cell style="white-space:nowrap;">{{item.Created.format('L')}}</uif-table-cell>
+            <uif-table-cell style="white-space:nowrap;" ng-show="vm.tabConfig.selectedPivot.title === 'Closed'">{{item.DateClosed.format('L')}}</uif-table-cell>
+          </uif-table-row>
+        </uif-table-body>
+      </uif-table>
 
 
 
-      
-      
 
 
-
-
-    </div>
-    <div class="ms-Grid-col ms-u-sm6 ms-u-md6 ms-u-lg6">
-
-    </div>
   </div>
+  <div class="ms-Grid-col ms-u-sm2 ms-u-md2 ms-u-lg2">
+    <uif-contextual-menu uif-is-open="true" uif-multiselect="true" uif-close-on-click="false">
+      <uif-contextual-menu-item uif-text="'Filter by OPR'" uif-type="header"></uif-contextual-menu-item>
+      <uif-contextual-menu-item ng-repeat="item in vm.filterControlDataSource" uif-is-selected="item.isSelected" ng-click="vm.applyFilters(item)">
+        <uif-content>
+          <span style="float:right;">({{item.count}})</span>
+          <span style="font-size:11px;" title="{{item.key}}">{{vm.truncateText(item.key, 14)}}</span>
+        </uif-content>
+      </uif-contextual-menu-item>
+    </uif-contextual-menu>
+  </div>
+</div>
 </div>

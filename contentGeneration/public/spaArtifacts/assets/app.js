@@ -656,9 +656,29 @@
             } else {
                 for (var prop in data) {
                     if (data.hasOwnProperty(prop)) {
-                        this[prop] = data[prop];
+                        this[prop] = remap(data, prop);
                     }
                 }
+            }
+        }
+
+        function remap(item, propName){
+            var funcMap = {
+                "Created": function(item, propName){
+                    return moment(item[propName]);
+                },
+                "DateClosed": function(item, propName){
+                    return moment(item[propName]);
+                },
+                "LTIOV": function(item, propName){
+                    return moment(item[propName]);
+                }
+            }
+
+            if(funcMap[propName]){
+                return funcMap[propName](item, propName);
+            } else {
+                return item[propName];
             }
         }
 
@@ -1101,7 +1121,7 @@
         var fieldsToSelect = [
             spContext.SP2013REST.selectForCommonListFields,
             'Status,RfiTrackingNumber,MissionId,Details,Priority,LTIOV,PocNameId,PocPhone,PocOrganization,RecommendedOPR',
-            'ManageRFIId,RespondentNameId,RespondentPhone,ResponseToRequest,DateClosed,ResponseSufficient,InsufficientExplanation',
+            'ManageRFIId,RespondentNameId,RespondentPhone,ResponseToRequest,DateClosed,ResponseSufficient,InsufficientExplanation,PrioritySort',
             'Mission/FullName,PocName/Title,ManageRFI/Title,RespondentName/Title'
         ].join(',');
 
@@ -2418,7 +2438,7 @@
                 rfi.setHiddenFieldsPriorToSave(formState, itemOnAspxLoad);
                 rfi.save(formState)
                     .then(function () {
-                        window.location.href = _.getQueryStringParam("Source");
+                        $("input:button[value='Cancel'][id!='attachCancelButton']").eq(0).click();
                     })
                     .catch(function (error) {
                         alert(error);
@@ -2755,13 +2775,103 @@
         }
     }
 
-    RfiController.$inject = ['$q', '$state', '$stateParams', '_', 'logger', 'RFI', 'RfiRepository', 'Mission', 'MissionTrackerRepository', 'ConfigRepository'];
-    function RfiController($q, $state, $stateParams, _, logger, RFI, RFIRepository, Mission, MissionTrackerRepository, ConfigRepository) {
+    RfiController.$inject = ['$q', '$scope', '$stateParams','_', 'logger', 'RFI', 'RfiRepository', 'Mission', 'MissionTrackerRepository', 'ConfigRepository'];
+    function RfiController($q, $scope, $stateParams, _, logger, RFI, RFIRepository, Mission, MissionTrackerRepository, ConfigRepository) {
         var vm = this;
+        var rfiList = null;
         activate();
 
         function activate() {
-            initTabs();  
+            initTabs();
+            fetchData()
+                .then(function(data){
+                    rfiList = data;
+                    buildFilterControlDataSource();
+                    vm.applyFilters();
+                });  
+        }
+
+        vm.getAction = function(item){
+            var action;
+
+            if(vm.tabConfig.selectedPivot.title === "My RFIs"){
+                action = (item.Status === "Open") ? "Respond" : "Edit";
+            } else {
+                action = (item.Status === "Open") ? "Respond" : "Reopen";
+            }
+
+            return action;
+        }
+
+        vm.goToEditForm = function(item){
+            var url = _spPageContextInfo.webServerRelativeUrl + "/Lists/RFI/EditForm.aspx?ID=" + item.Id + "&Source=" + encodeURIComponent(document.location.href);
+            var action = vm.getAction(item);
+
+            if(action !== "Edit"){
+                url += "&action=" + action;
+            }
+            window.location.href = url;
+        }
+
+        vm.getButtonText = function(item){
+            
+            window.location.href = url;
+        }
+
+        var dataSources = {
+            "Open": [],
+            "Closed": [],
+            "My RFIs": [],
+            "Manage RFIs": []
+        };
+
+        $scope.$watch('vm.tabConfig.selectedPivot', function(){
+            vm.applyFilters();
+        });
+
+        vm.goToNewRfiForm = function(){
+            window.location.href = _spPageContextInfo.webServerRelativeUrl + "/Lists/Rfi/NewForm.aspx?&Source=" + encodeURIComponent(document.location.href);
+        }
+
+        vm.applyFilters = function(clickedOpr){
+            if(clickedOpr){
+                clickedOpr.isSelected = !clickedOpr.isSelected;
+            }
+            
+            var selectedOprs = _.chain(vm.filterControlDataSource)
+                                    .filter({ isSelected: true })
+                                    .map('key')
+                                    .value();
+            var filteredList = _.filter(rfiList, isRecommendedOprOneOfTheSelected); 
+            
+            dataSources["Open"] = _.filter(filteredList, {Status: "Open"});    
+            dataSources["Closed"] = _.filter(filteredList, {Status: "Closed"}); 
+            dataSources["My RFIs"] = _.filter(filteredList, {AuthorId: _spPageContextInfo.userId });
+            dataSources["Manage RFIs"] = _.filter(filteredList, isCurrentUserTaggedAsManagerForRfi); 
+
+            vm.selectedDataSource = dataSources[vm.tabConfig.selectedPivot.title]
+
+            function isCurrentUserTaggedAsManagerForRfi(item){
+                if(!item.ManageRFIId) { return false; }
+                return _.includes(item.ManageRFIId.results, _spPageContextInfo.userId);
+            } 
+
+            function isRecommendedOprOneOfTheSelected(item){
+                return _.includes(selectedOprs, item.RecommendedOPR);
+            } 
+        }
+
+        vm.truncateText = function(str, length){
+            if(!str.length || str.length <= length ) { return str; }
+            return str.substr(0, length) + "...";
+        }
+
+        function buildFilterControlDataSource(){
+            vm.filterControlDataSource = _.chain(rfiList)
+                                            .groupBy('RecommendedOPR')
+                                            .map(function(items, groupName){ return { key: groupName, count: items.length, isSelected: true }; })
+                                            .sortBy(['key'])
+                                            .value();
         }
 
         function initTabs() {
@@ -2790,11 +2900,7 @@
         function fetchData() {
             return RFIRepository.getAll()
                 .then(function (data) {
-                    vm.rfiList = _.map(data, function (item) { return new RFI(item); })
-                    _.each(vm.rfiList, function (item) {
-                        console.log(item);
-                        item.complete();
-                    });
+                    return _.map(data, function (item) { return new RFI(item); })       
                 })
         }
     }

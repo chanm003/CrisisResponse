@@ -1,48 +1,11 @@
-integrate/research ng-tree (#/editNav)
-- to improve menu-editing UX
-- to create UX for SPWeb selection process
-
---------------------------------------------------------------------------------------------
-
 integrate/research uifTable
 - render tabular data
 
 integrate/research uifContextualMenu
 - multiselection menu to pick the the "Sort by", "Group By", "Order By" column for tabular data
-- use angular animate to render a hierarchical menu (possible to open sub-menu on hover?)
 
 develop PoC for full page slide show 
 - https://chanm003.sharepoint.com/ngspa/instance/SitePages/projectionScrollable.aspx
 
-Window.PreSaveAction for RFI List
-
-Calendar data entry form (no CSR so we may have to security trim old school)
-
-Documents data entry form (can we force it to always open up in full page and not modal)
-		On load blank out values for 7 fields, hide all but SendAsMessage
-		SPUtility.GetSPFieldByInternalName("SendAsMessage").SetValue("")
-		SPUtility.GetSPFieldByInternalName("MessageTitle").SetValue("")
-		SPUtility.GetSPFieldByInternalName("MessageDetails").SetValue("")
-		SPUtility.GetSPFieldByInternalName("MessageDTG").SetValue("") 
-		SPUtility.GetSPFieldByInternalName("MessageOriginatorSender").SetValue("")
-		//use jquery to uncheck all boxes
-		$(SPUtility.GetSPFieldByInternalName("MessageRecipients").ControlsRow.cells[1]).find("input:checkbox").prop('checked', false);
-		SPUtility.GetSPFieldByInternalName("SignificantMessage").SetValue("")
-
-		when SendAsMessage is checked
-		- show six rows
-		- set MessageDTG to current date time
-		- set OriginatorSender based on querystring
-
-		on save generate a list item in message traffic
-
-		On Document EditForm (after upload but before the item has been checked in first time)
-		- do we have access to the document under context?
-
 Getting Web Part Properties:
 /ngspa/tf16/_api/web/getfilebyserverrelativeurl('/ngspa/tf16/lists/MissionTracker/NewForm.aspx')/getlimitedwebpartmanager(1)/WebParts?$expand=WebPart/Properties
-
-routes array should contain objects:
-        {name: "0: Task Group", sequence: ['SOTG 10']},
-		{name: "1: Joint Task Force", sequence: ['SOTG 10', 'CJSOTF-RO']},
-		{name: "2: Combatant Command", sequence: ['SOTG 10', 'CJSOTF-RO', 'SOCC']}
