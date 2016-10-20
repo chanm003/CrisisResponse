@@ -501,6 +501,27 @@
     transition: all 200ms ease-in;
   }
 }
+
+/* overriding stock behavior*/
+.horizontal-timeline {
+  margin-top: 13px;
+	justify-content: inherit;
+}
+
+.status{
+  padding: 0 7px;
+}
+
+.status:before{
+  width: 20px;
+	height: 20px;
+	top: -11px;
+}
+
+.status h4{
+  margin-top: 6px;
+}
+
 /*#endregion HORIZONTAL-TIMELINE END*/
 
 /*#region SLIDESHOW-ANIMATION */

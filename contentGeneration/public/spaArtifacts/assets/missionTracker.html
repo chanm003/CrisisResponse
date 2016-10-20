@@ -1,11 +1,47 @@
-
 <uif-pivot uif-type="{{vm.tabConfig.selectedType}}" uif-size="{{vm.tabConfig.selectedSize}}" uif-pivots="vm.tabConfig.pivots"
-	uif-selected="vm.tabConfig.selectedPivot" id="msPivot" class="pivot-overflow-fix"></uif-pivot>
+	uif-selected="vm.tabConfig.selectedPivot" id="msPivot" class="pivot-overflow-fix">
+</uif-pivot>
 
 <div class="ms-Grid">
 	<div class="ms-Grid-row">
 		<div class="ms-Grid-col ms-u-sm12 ms-u-md12 ms-u-lg12">
 			<mission-timeline></mission-timeline>
+		</div>
+	</div>
+
+	<div class="ms-Grid-row">
+		<div class="ms-Grid-col ms-u-sm12 ms-u-md12 ms-u-lg12">
+
+
+
+			<uif-table>
+				<uif-table-head>
+					<uif-table-row>
+						<uif-table-header>Document Name</uif-table-header>
+						<uif-table-header>Routing Process</uif-table-header>
+					</uif-table-row>
+				</uif-table-head>
+				<uif-table-body>
+					<uif-table-row>
+						<uif-table-cell>TEST</uif-table-cell>
+						<uif-table-cell>
+							<routing-process-visualization steps="vm.routingSteps"></routing-process-visualization>
+						</uif-table-cell>
+					</uif-table-row>
+				</uif-table-body>
+			</uif-table>
+
+
+
+
+
+
+
+
+
+
+
+			
 		</div>
 	</div>
 	<div class="ms-Grid-row">
@@ -14,13 +50,4 @@
 				<vertical-timeline>
 		</div>
 	</div>
-	<div class="ms-Grid-row">
-		<div class="ms-Grid-col ms-u-sm12 ms-u-md12 ms-u-lg12">
-			<routing-process-visualization steps="vm.routingSteps"></routing-process-visualization>	
-		</div>
-	</div>
 </div>
-
-
-
-
