@@ -333,9 +333,9 @@ crisisResponseSchema.listDefs["Mission Documents"] = {
 			//EXAMPLE: Yes/No 
 			Name: "SendAsMessage",
 			DisplayName: "Send As Message",
-			Description: "Check here to send the document via a Message",
 			Type: "Boolean",
-			Default: 0								//(optional) Use 0 if you want default to be 'No', 1 if for 'Yes'
+			Default: 0,								//(optional) Use 0 if you want default to be 'No', 1 if for 'Yes'
+			Description: "Check here to send the document via a Message"
 		},
 		{
 			//EXAMPLE: SINGLE LINE OF TEXT

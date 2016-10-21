@@ -929,11 +929,11 @@
             return (errors.length) ? "\n\t-" + errors.join("\n\t-") : "";
         }
 
-        MissionDocument.prototype.setupRouteStages = function(jocInBoxConfig, documentChops){
+        MissionDocument.prototype.buildRouteStages = function(jocInBoxConfig, documentChops){
             if(!this.ChopRouteSequence) { return; }   
 
             var stageNames = this.ChopRouteSequence.split(';');
-            this.routeStages = _.map(stageNames, function(stageName){
+            var routeStages = _.map(stageNames, function(stageName){
                 var routeStage = {
                     name: stageName,
                     cdrDecisions: buildCommanderDecisionsList(stageName, documentChops),
@@ -941,6 +941,7 @@
                 };
                 return routeStage;
             });
+            return routeStages;
 
             function buildCommanderDecisionsList(organizationName, documentChops){
                 return _.chain(documentChops)
@@ -962,18 +963,18 @@
         }
 
         MissionDocument.prototype.derviveOverallChopStatus = function(){
-            if(!this.routeStages) { throw "setupRouteStages has not been invoked"; }
+            if(!this.routeStages) { return "Chop Process has not been initiated" }
 
             //check for "Approved"
             var decisionsByFinalCommander = _.last(this.routeStages).cdrDecisions;
-            var mostRecentDecisionByFinalCommander = decisionsByFinalCommander.length && decisionsByFinalCommander[0] && null;
+            var mostRecentDecisionByFinalCommander = (decisionsByFinalCommander.length && decisionsByFinalCommander[0]) || null;
             if(mostRecentDecisionByFinalCommander  && mostRecentDecisionByFinalCommander.Verdict === "Concur"){
                 return "Approved";
             }
 
             //check for "Disapproved" i.e. if even one commander has Disapproved
-           var evenOneCommanderHasDisapproved = !_.find(this.routeStages, function(routeStage){
-                var mostRecentCdrDecision = routeStage.cdrDecisions.length && routeStage.cdrDecisions[0];
+           var evenOneCommanderHasDisapproved = _.find(this.routeStages, function(routeStage){
+                var mostRecentCdrDecision = (routeStage.cdrDecisions.length && routeStage.cdrDecisions[0]) || null;
                 return mostRecentCdrDecision.Verdict === "Nonconcur";
             });  
             if(evenOneCommanderHasDisapproved){
@@ -985,7 +986,7 @@
         }
 
         MissionDocument.prototype.isReadyForChop = function(organizationName){
-            if(!this.routeStages) { throw "setupRouteStages has not been invoked"; }
+            if(!this.routeStages) { throw "Chop Process has not been initiated"; }
 
             var positionInChopSequence = _.indexOf(this.ChopRouteSequence, organizationName);
             if(positionInChopSequence === 0){
@@ -1360,6 +1361,7 @@
             checkInFile: checkInFile,
             getAll: getAll,
             getById: getById,
+            getMissionRelated: getMissionRelated,
             save: save
         };
 
@@ -1407,6 +1409,19 @@
         function getAll() {
             var dfd = $q.defer();
             var qsParams = {}; //{$filter:"FavoriteNumber eq 8"};
+            spContext.constructNgResourceForRESTCollection(ngResourceConstructParams).get(qsParams,
+                function (data) {
+                    dfd.resolve(data.d.results);
+                },
+                function (error) {
+                    dfd.reject(error);
+                });
+            return dfd.promise;
+        }
+
+        function getMissionRelated() {
+            var dfd = $q.defer();
+            var qsParams = {$filter:"MissionId ne null"};
             spContext.constructNgResourceForRESTCollection(ngResourceConstructParams).get(qsParams,
                 function (data) {
                     dfd.resolve(data.d.results);
@@ -2797,8 +2812,8 @@
         }
     }
 
-    MissionTrackerController.$inject = ['$q', '$stateParams', '_', 'logger', 'DocumentChopsRepository'];
-    function MissionTrackerController($q, $stateParams, _, logger, DocumentChopsRepository) {
+    MissionTrackerController.$inject = ['$q', '$stateParams', '_', 'logger', 'DocumentChopsRepository', 'MissionDocument', 'MissionDocumentRepository'];
+    function MissionTrackerController($q, $stateParams, _, logger, DocumentChopsRepository, MissionDocument, MissionDocumentRepository) {
         var vm = this;
 
         activate();
@@ -2814,9 +2829,20 @@
         function activate() {
             initTabs();
             $q.all([
+                    MissionDocumentRepository.getMissionRelated(),
                     DocumentChopsRepository.getAll()
                 ])
                 .then(function (data) {
+                    vm.missionRelatedDocs = _.map(data[0], function(item){
+                        var doc = new MissionDocument(item);
+                        var relatedChops = _.filter(data[1], function(docChop){
+                            return parseInt(docChop.DocumentId, 10) === doc.Id;
+                        });
+                        doc.routeStages = doc.buildRouteStages(jocInBoxConfig, relatedChops);
+                        doc.overallChopStatus = doc.derviveOverallChopStatus();
+                        return doc;
+                    });
+                    console.log(_.last(vm.missionRelatedDocs));
                     logger.info('Activated Mission Tacker View');
                 });
         }
