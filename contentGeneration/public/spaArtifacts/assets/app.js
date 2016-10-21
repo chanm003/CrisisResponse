@@ -58,8 +58,11 @@
     function bootstrapNgApplication() {
         var currentURL = window.location.pathname.toUpperCase();
         var spPage = $("body");
+
         if (_.includes(currentURL, '/SITEPAGES/SOCC.ASPX')) {
             spPage.attr('ng-controller', 'SoccAspxController as vm');
+        if (_.includes(currentURL, '/SITEPAGES/SOCC.ASPX') || _.includes(currentURL, '/SITEPAGES/SOTG.ASPX')) {
+            spPage.attr('ng-controller', 'OrgDashboardAspxController as vm');
             spPage.append(generateChopDialogHtml());
         }
 
@@ -307,8 +310,6 @@
             init();
 
             return service;
-
-            ///////////////
 
             function configureStates(states, otherwisePath) {
                 states.forEach(function (state) {
@@ -929,11 +930,11 @@
             return (errors.length) ? "\n\t-" + errors.join("\n\t-") : "";
         }
 
-        MissionDocument.prototype.setupRouteStages = function(jocInBoxConfig, documentChops){
+        MissionDocument.prototype.buildRouteStages = function(jocInBoxConfig, documentChops){
             if(!this.ChopRouteSequence) { return; }   
 
             var stageNames = this.ChopRouteSequence.split(';');
-            this.routeStages = _.map(stageNames, function(stageName){
+            var routeStages = _.map(stageNames, function(stageName){
                 var routeStage = {
                     name: stageName,
                     cdrDecisions: buildCommanderDecisionsList(stageName, documentChops),
@@ -941,6 +942,7 @@
                 };
                 return routeStage;
             });
+            return routeStages;
 
             function buildCommanderDecisionsList(organizationName, documentChops){
                 return _.chain(documentChops)
@@ -962,19 +964,19 @@
         }
 
         MissionDocument.prototype.derviveOverallChopStatus = function(){
-            if(!this.routeStages) { throw "setupRouteStages has not been invoked"; }
+            if(!this.routeStages) { return "Chop Process has not been initiated" }
 
             //check for "Approved"
             var decisionsByFinalCommander = _.last(this.routeStages).cdrDecisions;
-            var mostRecentDecisionByFinalCommander = decisionsByFinalCommander.length && decisionsByFinalCommander[0] && null;
+            var mostRecentDecisionByFinalCommander = (decisionsByFinalCommander.length && decisionsByFinalCommander[0]) || null;
             if(mostRecentDecisionByFinalCommander  && mostRecentDecisionByFinalCommander.Verdict === "Concur"){
                 return "Approved";
             }
 
             //check for "Disapproved" i.e. if even one commander has Disapproved
-           var evenOneCommanderHasDisapproved = !_.find(this.routeStages, function(routeStage){
-                var mostRecentCdrDecision = routeStage.cdrDecisions.length && routeStage.cdrDecisions[0];
-                return mostRecentCdrDecision.Verdict === "Nonconcur";
+           var evenOneCommanderHasDisapproved = _.find(this.routeStages, function(routeStage){
+                var mostRecentCdrDecision = (routeStage.cdrDecisions.length && routeStage.cdrDecisions[0]) || null;
+                return mostRecentCdrDecision && mostRecentCdrDecision.Verdict === "Nonconcur";
             });  
             if(evenOneCommanderHasDisapproved){
                 return "Disapproved";
@@ -985,7 +987,7 @@
         }
 
         MissionDocument.prototype.isReadyForChop = function(organizationName){
-            if(!this.routeStages) { throw "setupRouteStages has not been invoked"; }
+            if(!this.routeStages) { throw "Chop Process has not been initiated"; }
 
             var positionInChopSequence = _.indexOf(this.ChopRouteSequence, organizationName);
             if(positionInChopSequence === 0){
@@ -1009,6 +1011,25 @@
                 }
             };
             return DocumentChopsRepository.save(dto);
+        }
+
+        MissionDocument.prototype.buildStepsForHorizontalVisualization = function(){
+            if(!this.routeStages) { throw "Chop Process has not been initiated"; } 
+
+            var map = {
+                'Concur': 'complete',
+                'Nonconcur': 'incomplete',
+                'Pending': ''
+            };
+
+            var steps = _.map(this.routeStages, function(routeStage){
+                var mostRecentCdrDecision = routeStage.cdrDecisions[0] || null;
+                return {
+                    text: routeStage.name,
+                    status: (mostRecentCdrDecision) ? map[mostRecentCdrDecision.Verdict] : ''
+                }    
+            }); 
+            return steps; 
         }
 
         return MissionDocument;
@@ -1360,6 +1381,7 @@
             checkInFile: checkInFile,
             getAll: getAll,
             getById: getById,
+            getMissionRelated: getMissionRelated,
             save: save
         };
 
@@ -1407,6 +1429,19 @@
         function getAll() {
             var dfd = $q.defer();
             var qsParams = {}; //{$filter:"FavoriteNumber eq 8"};
+            spContext.constructNgResourceForRESTCollection(ngResourceConstructParams).get(qsParams,
+                function (data) {
+                    dfd.resolve(data.d.results);
+                },
+                function (error) {
+                    dfd.reject(error);
+                });
+            return dfd.promise;
+        }
+
+        function getMissionRelated() {
+            var dfd = $q.defer();
+            var qsParams = {$filter:"MissionId ne null"};
             spContext.constructNgResourceForRESTCollection(ngResourceConstructParams).get(qsParams,
                 function (data) {
                     dfd.resolve(data.d.results);
@@ -2150,9 +2185,12 @@
             link: link,
             restrict: 'E',
             scope: {
-                showNewItemLink: '='
+                missions: '=',
+                selectedOrg: '=',
+                showNewItemLink: '=',
+                onMissionsFiltered: '&'
             },
-            template: buildHeroButtonHtml() + buildCheckboxHtml() + buildLegendHtml() + '<div class="mission-timeline" ng-show="missions.length"></div>' + buildMessageBarHtml()
+            template: buildHeroButtonHtml() + buildCheckboxHtml() + buildLegendHtml() + '<div class="mission-timeline" ng-show="missionsToShow.length"></div>' + buildMessageBarHtml()
         };
         return directiveDefinition;
 
@@ -2168,7 +2206,7 @@
                 },
                 orientation: 'top'
             };
-            var items = [];
+
             scope.showPastMissions = false;
             scope.statusColorLegend = [
                 { name: "Initial Targeting", cssStyle: 'background-color:#FFFF00; border-color: #FFFF00; color: #000;' }, //yellow,black
@@ -2193,31 +2231,32 @@
                 { name: "Mission Closed", cssStyle: 'background-color:#000; border-color: #000; color: #fff;' } //black, white
             ];
 
-            scope.selectedOrg = (_.getQueryStringParam("org") || "");
-
-            MissionTrackerRepository.getByOrganization(scope.selectedOrg).then(function (data) {
-                items = _.map(data, function (item) { return new Mission(item); });
-                renderTimeline(items)
-            })
+            
 
             scope.$watch('showPastMissions', function () {
-                renderTimeline(items);
+                renderTimeline();
+            });
+
+            scope.$watch('missions', function () {
+                renderTimeline();
             })
 
             var timeline = null;
-            function renderTimeline(items) {
+            function renderTimeline() {
                 if (timeline) {
                     timeline.destroy();
                 }
 
                 var now = moment();
-                scope.missions = _.filter(items, function (item) {
+                scope.missionsToShow = _.filter(scope.missions, function (item) {
                     return scope.showPastMissions || (!item.ExpectedTermination || moment(item.ExpectedTermination) > now);
                 });
 
-                var groups = new vis.DataSet(_.map(scope.missions, function (item) { return { id: item.Id, content: item.Identifier }; }));
+                scope.onMissionsFiltered({missions: scope.missionsToShow});
+
+                var groups = new vis.DataSet(_.map(scope.missionsToShow, function (item) { return { id: item.Id, content: item.Identifier }; }));
                 var items = new vis.DataSet(
-                    _.map(scope.missions, function (item) {
+                    _.map(scope.missionsToShow, function (item) {
                         return {
                             id: item.Id,
                             group: item.Id,
@@ -2276,7 +2315,7 @@
             }
 
             function buildShowLegendHyperlink() {
-                return '<a ng-mouseover="showLegend = true" ng-mouseleave="showLegend = false" ng-show="missions.length">Show Legend</a>';
+                return '<a ng-mouseover="showLegend = true" ng-mouseleave="showLegend = false" ng-show="missionsToShow.length">Show Legend</a>';
             }
         }
 
@@ -2292,7 +2331,7 @@
         }
 
         function buildMessageBarHtml() {
-            return '<uif-message-bar ng-show="missions.length === 0"> <uif-content>No {{showPastMissions ? "past/ongoing" : "ongoing" }} {{selectedOrg}} missions</uif-content> </uif-message-bar>';
+            return '<uif-message-bar ng-show="missionsToShow.length === 0"> <uif-content>No {{showPastMissions ? "past/ongoing" : "ongoing" }} {{selectedOrg}} missions</uif-content> </uif-message-bar>';
         }
     }
 })();
@@ -2408,22 +2447,23 @@
     }
 })();
 
-/* Controller: SoccAspxController */
+/* Controller: OrgDashboardAspxController */
 (function () {
     angular
         .module('app.core')
-        .controller('SoccAspxController', SoccAspxController);
+        .controller('OrgDashboardAspxController', OrgDashboardAspxController);
 
-
-
-    SoccAspxController.$inject = ['_', 'MissionTrackerRepository'];
-    function SoccAspxController(_, MissionTrackerRepository) {
+    OrgDashboardAspxController.$inject = ['_', 'Mission','MissionTrackerRepository'];
+    function OrgDashboardAspxController(_, Mission, MissionTrackerRepository) {
         var vm = this;
         vm.chopDialogCtx = {
             show: false
         }
 
-       
+        vm.selectedOrg = (_.getQueryStringParam("org") || "");
+        MissionTrackerRepository.getByOrganization(vm.selectedOrg).then(function (data) {
+            vm.missions = _.map(data, function (item) { return new Mission(item); });
+        })
     }
 
 
@@ -2735,7 +2775,7 @@
     }
 })();
 
-/* Controller: EditNavController */
+/* Controller: EditNavController with route for SPA */
 (function () {
     angular
         .module('app.core')
@@ -2768,7 +2808,7 @@
     }
 })();
 
-/* Controller: MissionTrackerController */
+/* Controller: MissionTrackerController with route for SPA*/
 (function () {
     'use strict';
     //nicer looking plugin found here but requires bootstrap: http://www.dijit.fr/demo/angular-weekly-scheduler/
@@ -2784,9 +2824,9 @@
         function getStates() {
             return [
                 {
-                    state: 'missionTracker',
+                    state: 'mission',
                     config: {
-                        url: '/missionTracker',
+                        url: '/missiontracker/:tabIndex',
                         templateUrl: config.baseUrl + '/assets/missionTracker.html',
                         controller: 'MissionTrackerController',
                         controllerAs: 'vm',
@@ -2797,11 +2837,56 @@
         }
     }
 
-    MissionTrackerController.$inject = ['$q', '_', 'logger', 'MissionTrackerRepository', 'DocumentChopsRepository'];
-    function MissionTrackerController($q, _, logger, MissionTrackerRepository, DocumentChopsRepository) {
+    MissionTrackerController.$inject = ['$q', '$stateParams', '_', 'logger', 'DocumentChopsRepository', 'MissionDocument', 'MissionDocumentRepository', 'Mission', 'MissionTrackerRepository'];
+    function MissionTrackerController($q, $stateParams, _, logger, DocumentChopsRepository, MissionDocument, MissionDocumentRepository, Mission, MissionTrackerRepository) {
         var vm = this;
+        var dataSources = {
+            missionRelatedDocs: [],
+            chopProcesses: []
+        };
+
+        vm.filterOptions = {
+            chopProcesses: {
+                overallChopStatus:[]
+            }
+        };
 
         activate();
+
+        vm.onMissionsFiltered = function(selectedMissions){
+            vm.selectedMissions_idList = _.map(selectedMissions, 'Id');
+            applyFilters();
+        }
+
+        vm.onFilterOptionClicked = function(option){
+            if(option){
+                option.isSelected = !option.isSelected;
+            }
+            applyFilters();
+        }
+
+        function applyFilters(){
+            vm.missionProductsDataSource = 
+                _.chain(dataSources.missionRelatedDocs)
+                    .filter(shouldShowBasedOnSelectedMissions)
+                    .value();
+            
+            vm.chopProcessesDataSource = 
+                _.chain(dataSources.chopProcesses)
+                    .filter(shouldShowBasedOnSelectedMissions)
+                    .filter(shouldShowBasedOnSelectedChopStatuses)
+                    .value();
+        } 
+
+        function shouldShowBasedOnSelectedMissions(item){
+            if(vm.selectedMissions_idList.length === 0) { return false; }
+            return _.includes(vm.selectedMissions_idList, item.MissionId);
+        }
+
+        function shouldShowBasedOnSelectedChopStatuses(item){
+            var selectedStatuses = _.map(_.filter(vm.filterOptions.chopProcesses.overallChopStatus,{isSelected: true} ), 'key');
+            return _.includes(selectedStatuses, item.overallChopStatus);
+        }
 
         /**
          * var doc = new MissionDocument();
@@ -2811,84 +2896,100 @@
          * });;
          */
 
-        DocumentChopsRepository.getAll()
-            .then(function(data){ 
-                console.log(data.length);
-            });
-
         function activate() {
             initTabs();
             $q.all([
-                getDataForVerticalTimeline(),
-                getDataForProcess()
-            ])
+                    getMissionRelatedDocumentsWithTheirAssociatedChops(),
+                    getMissions()
+                ])
                 .then(function (data) {
-                    vm.missionLifecycleEvents = data[0];
-                    vm.routingSteps = data[1];
+                    var docs = data[0];
+                    dataSources.missionRelatedDocs = data[0];
+                    dataSources.chopProcesses = _.filter(dataSources.missionRelatedDocs, function(doc){ return !!doc.ChopProcess; });
+                    buildFilterControlsForChopProcesses();
+                    vm.missions = data[1];
                     logger.info('Activated Mission Tacker View');
                 });
         }
 
+        function buildFilterControlsForChopProcesses(){
+            buildStatusFilter();
+
+            function buildStatusFilter(){
+                var statuses = ["In Chop", "Approved", "Disapproved"];
+                vm.filterOptions.chopProcesses.overallChopStatus = _.map(statuses, function(status){
+                    return {
+                        key: status,
+                        isSelected: true
+                    };
+                });
+            }
+        }
+
         function initTabs() {
+            var pivots = [
+                 { title: "Timeline" },
+                    { title: "Products" },
+                    { title: "Product Chop" }
+            ];
+
+            var selectedIndex = (!$stateParams.tabIndex || $stateParams.tabIndex >= pivots.length) ? 0 : $stateParams.tabIndex;
+
             vm.tabConfig = {
                 selectedSize: "large",
                 selectedType: "tabs",
-                pivots: [
-                    { title: "Timeline" },
-                    { title: "Products" },
-                    { title: "Product Chop" }
-                ],
-                selectedPivot: { title: "Timeline" },
+                pivots: pivots,
+                selectedPivot: pivots[selectedIndex],
                 menuOpened: false
             }
             vm.openMenu = function () {
                 vm.tabConfig.menuOpened = !vm.tabConfig.menuOpened;
             }
+
         }
 
-        function getDataForVerticalTimeline() {
-            var staticData = [
-                {
-                    direction: 'right',
-                    subject: 'Born on this date',
-                    message: 'Lodash makes JavaScript easier by taking the hassle out of working with arrays, numbers, objects, strings, etc. Lodash’s modular methods are great',
-                    moment: moment()
-                },
-                {
-                    direction: 'left',
-                    subject: 'Got footprint',
-                    message: 'When choosing a motion for side panels, consider the origin of the triggering element. Use the motion to create a link between the action and the resulting UI.',
-                    moment: moment().add(1, 'days')
-                }
-            ];
-            return $q.when(staticData);
+        function getMissions(){
+            return MissionTrackerRepository.getByOrganization("").then(function (data) {
+                return _.map(data, function (item) { return new Mission(item); });
+            })
         }
 
-        function getDataForProcess() {
-            var staticData = [
-                {
-                    status: 'complete',
-                    text: "Shift Created"
-                },
-                {
-                    status: 'complete',
-                    text: "Email Sent"
-                },
-                {
-                    status: 'incomplete',
-                    text: "SIC Approval"
-                },
-                {
-                    status: '',
-                    text: "Shift Completed"
+        function getMissionRelatedDocumentsWithTheirAssociatedChops(){
+            var chopsJSON; 
+
+            return $q.all([
+                    MissionDocumentRepository.getMissionRelated(),
+                    DocumentChopsRepository.getAll()
+                ])
+                .then(function (data) {
+                    chopsJSON = data[1];
+                    var docs = _.chain(data[0])
+                                    .map(function(item){ return new MissionDocument(item); })
+                                    .each(checkForAssociatedChops)
+                                    .value();
+                    return docs;
+                });
+            
+            function checkForAssociatedChops(doc){
+                if(doc.ChopProcess){
+                    var relatedChops = getRelatedChops(doc);
+                    doc.routeStages = doc.buildRouteStages(jocInBoxConfig, relatedChops);
+                    doc.overallChopStatus = doc.derviveOverallChopStatus();
+                    doc.routeSteps = doc.buildStepsForHorizontalVisualization();
+                    
                 }
-            ];
-            return $q.when(staticData);
-        }
+
+                function getRelatedChops(doc){
+                    return _.filter(chopsJSON, function(docChop){
+                        return parseInt(docChop.DocumentId, 10) === doc.Id;
+                    });
+                }
+            }      
+        }    
     }
 })();
 
-/* Controller: RfiController */
+/* Controller: RfiController with route for SPA*/
 (function () {
     angular
         .module('app.core')
@@ -3042,6 +3143,94 @@
                 .then(function (data) {
                     return _.map(data, function (item) { return new RFI(item); })       
                 })
+        }
+    }
+})();
+
+/* Controller: SandboxController with route for SPA*/
+(function () {
+    'use strict';
+    angular
+        .module('app.core')
+        .run(registerRoute)
+        .controller('DeveloperSandboxController', ControllerDefFunc);
+
+    registerRoute.$inject = ['config', 'routerHelper'];
+    function registerRoute(config, routerHelper) {
+        routerHelper.configureStates(getStates());
+
+        function getStates() {
+            return [
+                {
+                    state: 'sandbox',
+                    config: {
+                        url: '/sandbox',
+                        templateUrl: config.baseUrl + '/assets/devsandbox.html',
+                        controller: 'DeveloperSandboxController',
+                        controllerAs: 'vm',
+                        title: 'Developer Sandbox'
+                    }
+                }
+            ];
+        }
+    }
+
+    ControllerDefFunc.$inject = ['$q', '$stateParams', '_', 'logger'];
+    function ControllerDefFunc($q, $stateParams, _, logger) {
+        var vm = this;
+
+        activate();
+
+        function activate() {
+            $q.all([
+                getDataForVerticalTimeline(),
+                getDataForProcess()
+            ])
+                .then(function (data) {
+                    vm.missionLifecycleEvents = data[0];
+                    vm.routingSteps = data[1];
+                    logger.info('Activated Developer Sandbox View');
+                });
+        }
+
+        function getDataForVerticalTimeline() {
+            var staticData = [
+                {
+                    direction: 'right',
+                    subject: 'Born on this date',
+                    message: 'Lodash makes JavaScript easier by taking the hassle out of working with arrays, numbers, objects, strings, etc. Lodash’s modular methods are great',
+                    moment: moment()
+                },
+                {
+                    direction: 'left',
+                    subject: 'Got footprint',
+                    message: 'When choosing a motion for side panels, consider the origin of the triggering element. Use the motion to create a link between the action and the resulting UI.',
+                    moment: moment().add(1, 'days')
+                }
+            ];
+            return $q.when(staticData);
+        }
+
+        function getDataForProcess() {
+            var staticData = [
+                {
+                    status: 'complete',
+                    text: "Shift Created"
+                },
+                {
+                    status: 'complete',
+                    text: "Email Sent"
+                },
+                {
+                    status: 'incomplete',
+                    text: "SIC Approval"
+                },
+                {
+                    status: '',
+                    text: "Shift Completed"
+                }
+            ];
+            return $q.when(staticData);
         }
     }
 })();

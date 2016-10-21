@@ -333,9 +333,9 @@ crisisResponseSchema.listDefs["Mission Documents"] = {
 			//EXAMPLE: Yes/No 
 			Name: "SendAsMessage",
 			DisplayName: "Send As Message",
-			Description: "Check here to send the document via a Message",
 			Type: "Boolean",
-			Default: 0								//(optional) Use 0 if you want default to be 'No', 1 if for 'Yes'
+			Default: 0,								//(optional) Use 0 if you want default to be 'No', 1 if for 'Yes'
+			Description: "Check here to send the document via a Message"
 		},
 		{
 			//EXAMPLE: SINGLE LINE OF TEXT
@@ -1045,7 +1045,7 @@ crisisResponseSchema.webpartPageDefs['Component Command Page'] = {
 			webPartProperties: [
 				{
 					attributes: {name: 'Content', type: 'string'},
-					innerText: '&lt;mission-timeline show-new-item-link="true"&gt;&lt;/mission-timeline&gt;'
+					innerText: '&lt;mission-timeline missions="vm.missions" selected-org="vm.selectedOrg" show-new-item-link="true"&gt;&lt;/mission-timeline&gt;'
 				},
 				{
 					attributes: {name: 'Title', type: 'string'},
@@ -1178,7 +1178,7 @@ crisisResponseSchema.webpartPageDefs['Task Group Page'] = {
 			webPartProperties: [
 				{
 					attributes: {name: 'Content', type: 'string'},
-					innerText: '&lt;mission-timeline show-new-item-link="true"&gt;&lt;/mission-timeline&gt;'
+					innerText: '&lt;mission-timeline missions="vm.missions" selected-org="vm.selectedOrg" show-new-item-link="true"&gt;&lt;/mission-timeline&gt;'
 				},
 				{
 					attributes: {name: 'Title', type: 'string'},

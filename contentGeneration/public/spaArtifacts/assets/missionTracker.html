@@ -2,52 +2,58 @@
 	uif-selected="vm.tabConfig.selectedPivot" id="msPivot" class="pivot-overflow-fix">
 </uif-pivot>
 
-<div class="ms-Grid">
+<div class="ms-Grid" ng-show="vm.tabConfig.selectedPivot.title === 'Timeline'">
 	<div class="ms-Grid-row">
 		<div class="ms-Grid-col ms-u-sm12 ms-u-md12 ms-u-lg12">
-			<mission-timeline></mission-timeline>
-		</div>
-	</div>
+			<mission-timeline missions="vm.missions" on-missions-filtered="vm.onMissionsFiltered(missions)" ></mission-timeline>
 
-	<div class="ms-Grid-row">
-		<div class="ms-Grid-col ms-u-sm12 ms-u-md12 ms-u-lg12">
-
-
-
-			<uif-table>
-				<uif-table-head>
-					<uif-table-row>
-						<uif-table-header>Document Name</uif-table-header>
-						<uif-table-header>Routing Process</uif-table-header>
-					</uif-table-row>
-				</uif-table-head>
-				<uif-table-body>
-					<uif-table-row>
-						<uif-table-cell>TEST</uif-table-cell>
-						<uif-table-cell>
-							<routing-process-visualization steps="vm.routingSteps"></routing-process-visualization>
-						</uif-table-cell>
-					</uif-table-row>
-				</uif-table-body>
-			</uif-table>
-
-
-
-
-
-
-
-
-
-
-
-			
-		</div>
-	</div>
-	<div class="ms-Grid-row">
-		<div class="ms-Grid-col ms-u-sm12 ms-u-md12 ms-u-lg12">
-			<vertical-timeline items="vm.missionLifecycleEvents">
-				<vertical-timeline>
+			<p>{{vm.missionProductsDataSource.length}}
+            </p>
+			<p>{{vm.chopProcessesDataSource.length}}</p>
 		</div>
 	</div>
 </div>
+
+<br/>
+<br/>
+
+<div class="ms-Grid" ng-show="vm.tabConfig.selectedPivot.title === 'Product Chop'">
+  <div class="ms-Grid-row">
+    <div class="ms-Grid-col ms-u-sm10 ms-u-md10 ms-u-lg10">
+      <uif-table>
+        <uif-table-head>
+          <uif-table-row>
+            <uif-table-header>Mission</uif-table-header>
+            <uif-table-header>Product</uif-table-header>
+			<uif-table-header>Organizations Involved</uif-table-header>
+			<uif-table-header>Staff Sections</uif-table-header>
+          </uif-table-row>
+        </uif-table-head>
+		<uif-table-body>
+          <uif-table-row ng-repeat="item in vm.chopProcessesDataSource | orderBy:table.orderBy:!table.orderAsc">
+            <uif-table-cell>{{item.Mission.FullName}}</uif-table-cell>
+            <uif-table-cell style="white-space:nowrap;">{{item.TypeOfDocument}}</uif-table-cell>
+			<uif-table-cell style="white-space:nowrap;">
+				<routing-process-visualization steps="item.routeSteps"></routing-process-visualization>
+			</uif-table-cell>
+			<uif-table-cell style="white-space:nowrap;">
+				
+			</uif-table-cell>
+          </uif-table-row>
+		</uif-table-body>
+      </uif-table>
+    </div>
+    <div class="ms-Grid-col ms-u-sm2 ms-u-md2 ms-u-lg2">
+      <uif-contextual-menu uif-is-open="true" uif-multiselect="true" uif-close-on-click="false">
+        <uif-contextual-menu-item uif-text="'Filter by Status'" uif-type="header"></uif-contextual-menu-item>
+        <uif-contextual-menu-item ng-repeat="item in vm.filterOptions.chopProcesses.overallChopStatus" uif-is-selected="item.isSelected" ng-click="vm.onFilterOptionClicked(item, 'chopProcesses', 'overallChopStatus')">
+          <uif-content>
+            <span style="font-size:11px;" title="{{item.key}}">{{item.key}}</span>
+          </uif-content>
+        </uif-contextual-menu-item>
+      </uif-contextual-menu>
+    </div>
+  </div>
+</div>
+
+<p>{{vm.chopStatuses}}</p>

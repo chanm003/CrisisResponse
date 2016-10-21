@@ -1,11 +1,8 @@
-integrate/research uifTable
-- render tabular data
-
-integrate/research uifContextualMenu
-- multiselection menu to pick the the "Sort by", "Group By", "Order By" column for tabular data
-
 develop PoC for full page slide show 
 - https://chanm003.sharepoint.com/ngspa/instance/SitePages/projectionScrollable.aspx
 
 Getting Web Part Properties:
 /ngspa/tf16/_api/web/getfilebyserverrelativeurl('/ngspa/tf16/lists/MissionTracker/NewForm.aspx')/getlimitedwebpartmanager(1)/WebParts?$expand=WebPart/Properties
+
+CODE SMELLS:
+- <initiatechopbutton> contains too much code, dialog html is currently injected into <body> using jQuery, consider making this a directive, so the jquery only adds <chopDialog> into <body> then figure out some form of directive-to-directive communication mechanism.  <initiatechopbutton> might emit a chopButtonClickedEvent with (missions[], documentObj).  Then the <chopDialog> might emit a documentChopInitiated event handler with (document)
