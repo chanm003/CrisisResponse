@@ -2735,7 +2735,7 @@
     }
 })();
 
-/* Controller: EditNavController */
+/* Controller: EditNavController with route for SPA */
 (function () {
     angular
         .module('app.core')
@@ -2768,7 +2768,7 @@
     }
 })();
 
-/* Controller: MissionTrackerController */
+/* Controller: MissionTrackerController with route for SPA*/
 (function () {
     'use strict';
     //nicer looking plugin found here but requires bootstrap: http://www.dijit.fr/demo/angular-weekly-scheduler/
@@ -2797,8 +2797,8 @@
         }
     }
 
-    MissionTrackerController.$inject = ['$q', '$stateParams', '_', 'logger', 'MissionTrackerRepository', 'DocumentChopsRepository'];
-    function MissionTrackerController($q, $stateParams, _, logger, MissionTrackerRepository, DocumentChopsRepository) {
+    MissionTrackerController.$inject = ['$q', '$stateParams', '_', 'logger', 'DocumentChopsRepository'];
+    function MissionTrackerController($q, $stateParams, _, logger, DocumentChopsRepository) {
         var vm = this;
 
         activate();
@@ -2811,20 +2811,12 @@
          * });;
          */
 
-        DocumentChopsRepository.getAll()
-            .then(function(data){ 
-                console.log(data.length);
-            });
-
         function activate() {
             initTabs();
             $q.all([
-                getDataForVerticalTimeline(),
-                getDataForProcess()
-            ])
+                    DocumentChopsRepository.getAll()
+                ])
                 .then(function (data) {
-                    vm.missionLifecycleEvents = data[0];
-                    vm.routingSteps = data[1];
                     logger.info('Activated Mission Tacker View');
                 });
         }
@@ -2850,50 +2842,10 @@
             }
 
         }
-
-        function getDataForVerticalTimeline() {
-            var staticData = [
-                {
-                    direction: 'right',
-                    subject: 'Born on this date',
-                    message: 'Lodash makes JavaScript easier by taking the hassle out of working with arrays, numbers, objects, strings, etc. Lodash’s modular methods are great',
-                    moment: moment()
-                },
-                {
-                    direction: 'left',
-                    subject: 'Got footprint',
-                    message: 'When choosing a motion for side panels, consider the origin of the triggering element. Use the motion to create a link between the action and the resulting UI.',
-                    moment: moment().add(1, 'days')
-                }
-            ];
-            return $q.when(staticData);
-        }
-
-        function getDataForProcess() {
-            var staticData = [
-                {
-                    status: 'complete',
-                    text: "Shift Created"
-                },
-                {
-                    status: 'complete',
-                    text: "Email Sent"
-                },
-                {
-                    status: 'incomplete',
-                    text: "SIC Approval"
-                },
-                {
-                    status: '',
-                    text: "Shift Completed"
-                }
-            ];
-            return $q.when(staticData);
-        }
     }
 })();
 
-/* Controller: RfiController */
+/* Controller: RfiController with route for SPA*/
 (function () {
     angular
         .module('app.core')
@@ -3047,6 +2999,94 @@
                 .then(function (data) {
                     return _.map(data, function (item) { return new RFI(item); })       
                 })
+        }
+    }
+})();
+
+/* Controller: SandboxController with route for SPA*/
+(function () {
+    'use strict';
+    angular
+        .module('app.core')
+        .run(registerRoute)
+        .controller('DeveloperSandboxController', ControllerDefFunc);
+
+    registerRoute.$inject = ['config', 'routerHelper'];
+    function registerRoute(config, routerHelper) {
+        routerHelper.configureStates(getStates());
+
+        function getStates() {
+            return [
+                {
+                    state: 'sandbox',
+                    config: {
+                        url: '/sandbox',
+                        templateUrl: config.baseUrl + '/assets/devsandbox.html',
+                        controller: 'DeveloperSandboxController',
+                        controllerAs: 'vm',
+                        title: 'Developer Sandbox'
+                    }
+                }
+            ];
+        }
+    }
+
+    ControllerDefFunc.$inject = ['$q', '$stateParams', '_', 'logger'];
+    function ControllerDefFunc($q, $stateParams, _, logger) {
+        var vm = this;
+
+        activate();
+
+        function activate() {
+            $q.all([
+                getDataForVerticalTimeline(),
+                getDataForProcess()
+            ])
+                .then(function (data) {
+                    vm.missionLifecycleEvents = data[0];
+                    vm.routingSteps = data[1];
+                    logger.info('Activated Developer Sandbox View');
+                });
+        }
+
+        function getDataForVerticalTimeline() {
+            var staticData = [
+                {
+                    direction: 'right',
+                    subject: 'Born on this date',
+                    message: 'Lodash makes JavaScript easier by taking the hassle out of working with arrays, numbers, objects, strings, etc. Lodash’s modular methods are great',
+                    moment: moment()
+                },
+                {
+                    direction: 'left',
+                    subject: 'Got footprint',
+                    message: 'When choosing a motion for side panels, consider the origin of the triggering element. Use the motion to create a link between the action and the resulting UI.',
+                    moment: moment().add(1, 'days')
+                }
+            ];
+            return $q.when(staticData);
+        }
+
+        function getDataForProcess() {
+            var staticData = [
+                {
+                    status: 'complete',
+                    text: "Shift Created"
+                },
+                {
+                    status: 'complete',
+                    text: "Email Sent"
+                },
+                {
+                    status: 'incomplete',
+                    text: "SIC Approval"
+                },
+                {
+                    status: '',
+                    text: "Shift Completed"
+                }
+            ];
+            return $q.when(staticData);
         }
     }
 })();
