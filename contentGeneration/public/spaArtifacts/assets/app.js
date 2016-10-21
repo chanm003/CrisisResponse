@@ -58,8 +58,8 @@
     function bootstrapNgApplication() {
         var currentURL = window.location.pathname.toUpperCase();
         var spPage = $("body");
-        if (_.includes(currentURL, '/SITEPAGES/SOCC.ASPX')) {
-            spPage.attr('ng-controller', 'SoccAspxController as vm');
+        if (_.includes(currentURL, '/SITEPAGES/SOCC.ASPX') || _.includes(currentURL, '/SITEPAGES/SOTG.ASPX')) {
+            spPage.attr('ng-controller', 'OrgDashboardAspxController as vm');
             spPage.append(generateChopDialogHtml());
         }
 
@@ -2165,9 +2165,11 @@
             link: link,
             restrict: 'E',
             scope: {
+                missions: '=',
+                selectedOrg: '=',
                 showNewItemLink: '='
             },
-            template: buildHeroButtonHtml() + buildCheckboxHtml() + buildLegendHtml() + '<div class="mission-timeline" ng-show="missions.length"></div>' + buildMessageBarHtml()
+            template: buildHeroButtonHtml() + buildCheckboxHtml() + buildLegendHtml() + '<div class="mission-timeline" ng-show="missionsToShow.length"></div>' + buildMessageBarHtml()
         };
         return directiveDefinition;
 
@@ -2183,7 +2185,7 @@
                 },
                 orientation: 'top'
             };
-            var items = [];
+
             scope.showPastMissions = false;
             scope.statusColorLegend = [
                 { name: "Initial Targeting", cssStyle: 'background-color:#FFFF00; border-color: #FFFF00; color: #000;' }, //yellow,black
@@ -2208,31 +2210,30 @@
                 { name: "Mission Closed", cssStyle: 'background-color:#000; border-color: #000; color: #fff;' } //black, white
             ];
 
-            scope.selectedOrg = (_.getQueryStringParam("org") || "");
-
-            MissionTrackerRepository.getByOrganization(scope.selectedOrg).then(function (data) {
-                items = _.map(data, function (item) { return new Mission(item); });
-                renderTimeline(items)
-            })
+            
 
             scope.$watch('showPastMissions', function () {
-                renderTimeline(items);
+                renderTimeline();
+            });
+
+            scope.$watch('missions', function () {
+                renderTimeline();
             })
 
             var timeline = null;
-            function renderTimeline(items) {
+            function renderTimeline() {
                 if (timeline) {
                     timeline.destroy();
                 }
 
                 var now = moment();
-                scope.missions = _.filter(items, function (item) {
+                scope.missionsToShow = _.filter(scope.missions, function (item) {
                     return scope.showPastMissions || (!item.ExpectedTermination || moment(item.ExpectedTermination) > now);
                 });
 
-                var groups = new vis.DataSet(_.map(scope.missions, function (item) { return { id: item.Id, content: item.Identifier }; }));
+                var groups = new vis.DataSet(_.map(scope.missionsToShow, function (item) { return { id: item.Id, content: item.Identifier }; }));
                 var items = new vis.DataSet(
-                    _.map(scope.missions, function (item) {
+                    _.map(scope.missionsToShow, function (item) {
                         return {
                             id: item.Id,
                             group: item.Id,
@@ -2291,7 +2292,7 @@
             }
 
             function buildShowLegendHyperlink() {
-                return '<a ng-mouseover="showLegend = true" ng-mouseleave="showLegend = false" ng-show="missions.length">Show Legend</a>';
+                return '<a ng-mouseover="showLegend = true" ng-mouseleave="showLegend = false" ng-show="missionsToShow.length">Show Legend</a>';
             }
         }
 
@@ -2307,7 +2308,7 @@
         }
 
         function buildMessageBarHtml() {
-            return '<uif-message-bar ng-show="missions.length === 0"> <uif-content>No {{showPastMissions ? "past/ongoing" : "ongoing" }} {{selectedOrg}} missions</uif-content> </uif-message-bar>';
+            return '<uif-message-bar ng-show="missionsToShow.length === 0"> <uif-content>No {{showPastMissions ? "past/ongoing" : "ongoing" }} {{selectedOrg}} missions</uif-content> </uif-message-bar>';
         }
     }
 })();
@@ -2423,22 +2424,23 @@
     }
 })();
 
-/* Controller: SoccAspxController */
+/* Controller: OrgDashboardAspxController */
 (function () {
     angular
         .module('app.core')
-        .controller('SoccAspxController', SoccAspxController);
+        .controller('OrgDashboardAspxController', OrgDashboardAspxController);
 
-
-
-    SoccAspxController.$inject = ['_', 'MissionTrackerRepository'];
-    function SoccAspxController(_, MissionTrackerRepository) {
+    OrgDashboardAspxController.$inject = ['_', 'Mission','MissionTrackerRepository'];
+    function OrgDashboardAspxController(_, Mission, MissionTrackerRepository) {
         var vm = this;
         vm.chopDialogCtx = {
             show: false
         }
 
-       
+        vm.selectedOrg = (_.getQueryStringParam("org") || "");
+        MissionTrackerRepository.getByOrganization(vm.selectedOrg).then(function (data) {
+            vm.missions = _.map(data, function (item) { return new Mission(item); });
+        })
     }
 
 
@@ -2812,8 +2814,8 @@
         }
     }
 
-    MissionTrackerController.$inject = ['$q', '$stateParams', '_', 'logger', 'DocumentChopsRepository', 'MissionDocument', 'MissionDocumentRepository'];
-    function MissionTrackerController($q, $stateParams, _, logger, DocumentChopsRepository, MissionDocument, MissionDocumentRepository) {
+    MissionTrackerController.$inject = ['$q', '$stateParams', '_', 'logger', 'DocumentChopsRepository', 'MissionDocument', 'MissionDocumentRepository', 'Mission', 'MissionTrackerRepository'];
+    function MissionTrackerController($q, $stateParams, _, logger, DocumentChopsRepository, MissionDocument, MissionDocumentRepository, Mission, MissionTrackerRepository) {
         var vm = this;
 
         activate();
@@ -2830,18 +2832,11 @@
             initTabs();
             $q.all([
                     MissionDocumentRepository.getMissionRelated(),
-                    DocumentChopsRepository.getAll()
+                    DocumentChopsRepository.getAll(),
+                    getMissions()
                 ])
                 .then(function (data) {
-                    vm.missionRelatedDocs = _.map(data[0], function(item){
-                        var doc = new MissionDocument(item);
-                        var relatedChops = _.filter(data[1], function(docChop){
-                            return parseInt(docChop.DocumentId, 10) === doc.Id;
-                        });
-                        doc.routeStages = doc.buildRouteStages(jocInBoxConfig, relatedChops);
-                        doc.overallChopStatus = doc.derviveOverallChopStatus();
-                        return doc;
-                    });
+                    associateChopsToParentMissionDocument(data[0], data[1]);
                     console.log(_.last(vm.missionRelatedDocs));
                     logger.info('Activated Mission Tacker View');
                 });
@@ -2867,6 +2862,24 @@
                 vm.tabConfig.menuOpened = !vm.tabConfig.menuOpened;
             }
 
+        }
+
+        function getMissions(){
+            return MissionTrackerRepository.getByOrganization("").then(function (data) {
+                vm.missions = _.map(data, function (item) { return new Mission(item); });
+            })
+        }
+
+        function associateChopsToParentMissionDocument(docsJSON, chopsJSON){
+            vm.missionRelatedDocs = _.map(docsJSON, function(item){
+                var doc = new MissionDocument(item);
+                var relatedChops = _.filter(chopsJSON, function(docChop){
+                    return parseInt(docChop.DocumentId, 10) === doc.Id;
+                });
+                doc.routeStages = doc.buildRouteStages(jocInBoxConfig, relatedChops);
+                doc.overallChopStatus = doc.derviveOverallChopStatus();
+                return doc;
+            });
         }
     }
 })();

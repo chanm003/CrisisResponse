@@ -1045,7 +1045,7 @@ crisisResponseSchema.webpartPageDefs['Component Command Page'] = {
 			webPartProperties: [
 				{
 					attributes: {name: 'Content', type: 'string'},
-					innerText: '&lt;mission-timeline show-new-item-link="true"&gt;&lt;/mission-timeline&gt;'
+					innerText: '&lt;mission-timeline missions="vm.missions" selected-org="vm.selectedOrg" show-new-item-link="true"&gt;&lt;/mission-timeline&gt;'
 				},
 				{
 					attributes: {name: 'Title', type: 'string'},
@@ -1178,7 +1178,7 @@ crisisResponseSchema.webpartPageDefs['Task Group Page'] = {
 			webPartProperties: [
 				{
 					attributes: {name: 'Content', type: 'string'},
-					innerText: '&lt;mission-timeline show-new-item-link="true"&gt;&lt;/mission-timeline&gt;'
+					innerText: '&lt;mission-timeline missions="vm.missions" selected-org="vm.selectedOrg" show-new-item-link="true"&gt;&lt;/mission-timeline&gt;'
 				},
 				{
 					attributes: {name: 'Title', type: 'string'},
