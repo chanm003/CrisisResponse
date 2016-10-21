@@ -470,7 +470,6 @@
 			var vendorFiles = [
 				'jquery.min.js',
 				'lodash.min.js',
-				'string.min.js',
 				'sputility.min.js',
 				'vis.min.js',
 				'angular.min.js',

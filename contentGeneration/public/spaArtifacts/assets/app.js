@@ -56,22 +56,22 @@
         .controller('ShellController', ShellController);
 
     function bootstrapNgApplication() {
-        var currentURL = S(window.location.pathname.toUpperCase());
+        var currentURL = window.location.pathname.toUpperCase();
         var spPage = $("body");
-        if (currentURL.include('/SITEPAGES/SOCC.ASPX')) {
+        if (_.includes(currentURL, '/SITEPAGES/SOCC.ASPX')) {
             spPage.attr('ng-controller', 'SoccAspxController as vm');
             spPage.append(generateChopDialogHtml());
         }
 
-        if (currentURL.include('/LISTS/MISSIONTRACKER/NEWFORM.ASPX') || currentURL.include('/LISTS/MISSIONTRACKER/EDITFORM.ASPX')) {
+        if (_.includes(currentURL, '/LISTS/MISSIONTRACKER/NEWFORM.ASPX') || _.includes(currentURL, '/LISTS/MISSIONTRACKER/EDITFORM.ASPX')) {
             spPage.attr('ng-controller', 'MissionTrackerDataEntryAspxController as vm');
         }
 
-        if (currentURL.include('/LISTS/RFI/NEWFORM.ASPX') || currentURL.include('/LISTS/RFI/EDITFORM.ASPX')) {
+        if (_.includes(currentURL, '/LISTS/RFI/NEWFORM.ASPX') || _.includes(currentURL, '/LISTS/RFI/EDITFORM.ASPX')) {
             spPage.attr('ng-controller', 'RfiDataEntryAspxController as vm');
         }
 
-        if (currentURL.include('/MISSIONDOCUMENTS/FORMS/EDITFORM.ASPX')) {
+        if (_.includes(currentURL, '/MISSIONDOCUMENTS/FORMS/EDITFORM.ASPX')) {
             spPage.attr('ng-controller', 'MissionProductsDataEntryAspxController as vm');
         }
 
