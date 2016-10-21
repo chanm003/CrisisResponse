@@ -58,9 +58,6 @@
     function bootstrapNgApplication() {
         var currentURL = window.location.pathname.toUpperCase();
         var spPage = $("body");
-
-        if (_.includes(currentURL, '/SITEPAGES/SOCC.ASPX')) {
-            spPage.attr('ng-controller', 'SoccAspxController as vm');
         if (_.includes(currentURL, '/SITEPAGES/SOCC.ASPX') || _.includes(currentURL, '/SITEPAGES/SOTG.ASPX')) {
             spPage.attr('ng-controller', 'OrgDashboardAspxController as vm');
             spPage.append(generateChopDialogHtml());
@@ -310,6 +307,8 @@
             init();
 
             return service;
+
+            ///////////////
 
             function configureStates(states, otherwisePath) {
                 states.forEach(function (state) {
@@ -3234,4 +3233,3 @@
         }
     }
 })();
-
