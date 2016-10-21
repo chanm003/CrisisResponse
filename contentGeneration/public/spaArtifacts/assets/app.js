@@ -975,7 +975,7 @@
             //check for "Disapproved" i.e. if even one commander has Disapproved
            var evenOneCommanderHasDisapproved = _.find(this.routeStages, function(routeStage){
                 var mostRecentCdrDecision = (routeStage.cdrDecisions.length && routeStage.cdrDecisions[0]) || null;
-                return mostRecentCdrDecision.Verdict === "Nonconcur";
+                return mostRecentCdrDecision && mostRecentCdrDecision.Verdict === "Nonconcur";
             });  
             if(evenOneCommanderHasDisapproved){
                 return "Disapproved";
@@ -1010,6 +1010,25 @@
                 }
             };
             return DocumentChopsRepository.save(dto);
+        }
+
+        MissionDocument.prototype.buildStepsForHorizontalVisualization = function(){
+            if(!this.routeStages) { throw "Chop Process has not been initiated"; } 
+
+            var map = {
+                'Concur': 'complete',
+                'Nonconcur': 'incomplete',
+                'Pending': ''
+            };
+
+            var steps = _.map(this.routeStages, function(routeStage){
+                var mostRecentCdrDecision = routeStage.cdrDecisions[0] || null;
+                return {
+                    text: routeStage.name,
+                    status: (mostRecentCdrDecision) ? map[mostRecentCdrDecision.Verdict] : ''
+                }    
+            }); 
+            return steps; 
         }
 
         return MissionDocument;
@@ -2820,17 +2839,52 @@
     MissionTrackerController.$inject = ['$q', '$stateParams', '_', 'logger', 'DocumentChopsRepository', 'MissionDocument', 'MissionDocumentRepository', 'Mission', 'MissionTrackerRepository'];
     function MissionTrackerController($q, $stateParams, _, logger, DocumentChopsRepository, MissionDocument, MissionDocumentRepository, Mission, MissionTrackerRepository) {
         var vm = this;
-        var missionRelatedDocs = [];
+        var dataSources = {
+            missionRelatedDocs: [],
+            chopProcesses: []
+        };
+
+        vm.filterOptions = {
+            chopProcesses: {
+                overallChopStatus:[]
+            }
+        };
+
         activate();
 
-        vm.onMissionsFiltered = function(missions){
-            var missionIdsList = _.map(missions, 'Id');
-            vm.missionProductsDataSource = (missions.length) ? _.filter(missionRelatedDocs, shouldShow) : []
-            vm.chopProcessesDataSource = _.filter(vm.missionProductsDataSource, function(doc){ return !!doc.ChopProcess; }) ;
+        vm.onMissionsFiltered = function(selectedMissions){
+            vm.selectedMissions_idList = _.map(selectedMissions, 'Id');
+            applyFilters();
+        }
 
-            function shouldShow(doc){
-                return _.includes(missionIdsList, doc.MissionId);
+        vm.onFilterOptionClicked = function(option){
+            if(option){
+                option.isSelected = !option.isSelected;
             }
+            applyFilters();
+        }
+
+        function applyFilters(){
+            vm.missionProductsDataSource = 
+                _.chain(dataSources.missionRelatedDocs)
+                    .filter(shouldShowBasedOnSelectedMissions)
+                    .value();
+            
+            vm.chopProcessesDataSource = 
+                _.chain(dataSources.chopProcesses)
+                    .filter(shouldShowBasedOnSelectedMissions)
+                    .filter(shouldShowBasedOnSelectedChopStatuses)
+                    .value();
+        } 
+
+        function shouldShowBasedOnSelectedMissions(item){
+            if(vm.selectedMissions_idList.length === 0) { return false; }
+            return _.includes(vm.selectedMissions_idList, item.MissionId);
+        }
+
+        function shouldShowBasedOnSelectedChopStatuses(item){
+            var selectedStatuses = _.map(_.filter(vm.filterOptions.chopProcesses.overallChopStatus,{isSelected: true} ), 'key');
+            return _.includes(selectedStatuses, item.overallChopStatus);
         }
 
         /**
@@ -2848,10 +2902,27 @@
                     getMissions()
                 ])
                 .then(function (data) {
-                    missionRelatedDocs = data[0];
+                    var docs = data[0];
+                    dataSources.missionRelatedDocs = data[0];
+                    dataSources.chopProcesses = _.filter(dataSources.missionRelatedDocs, function(doc){ return !!doc.ChopProcess; });
+                    buildFilterControlsForChopProcesses();
                     vm.missions = data[1];
                     logger.info('Activated Mission Tacker View');
                 });
+        }
+
+        function buildFilterControlsForChopProcesses(){
+            buildStatusFilter();
+
+            function buildStatusFilter(){
+                var statuses = ["In Chop", "Approved", "Disapproved"];
+                vm.filterOptions.chopProcesses.overallChopStatus = _.map(statuses, function(status){
+                    return {
+                        key: status,
+                        isSelected: true
+                    };
+                });
+            }
         }
 
         function initTabs() {
@@ -2883,28 +2954,36 @@
         }
 
         function getMissionRelatedDocumentsWithTheirAssociatedChops(){
-             return $q.all([
+            var chopsJSON; 
+
+            return $q.all([
                     MissionDocumentRepository.getMissionRelated(),
                     DocumentChopsRepository.getAll()
                 ])
                 .then(function (data) {
-                    return associateChopsToParentMissionDocument(data[0], data[1]);
+                    chopsJSON = data[1];
+                    var docs = _.chain(data[0])
+                                    .map(function(item){ return new MissionDocument(item); })
+                                    .each(checkForAssociatedChops)
+                                    .value();
+                    return docs;
                 });
             
-            function associateChopsToParentMissionDocument(docsJSON, chopsJSON){
-                var docs = 
-                    _.map(docsJSON, function(item){
-                        var doc = new MissionDocument(item);
-                        var relatedChops = 
-                            _.filter(chopsJSON, function(docChop){
-                                return parseInt(docChop.DocumentId, 10) === doc.Id;
-                            });
-                        doc.routeStages = doc.buildRouteStages(jocInBoxConfig, relatedChops);
-                        doc.overallChopStatus = doc.derviveOverallChopStatus();
-                        return doc;
+            function checkForAssociatedChops(doc){
+                if(doc.ChopProcess){
+                    var relatedChops = getRelatedChops(doc);
+                    doc.routeStages = doc.buildRouteStages(jocInBoxConfig, relatedChops);
+                    doc.overallChopStatus = doc.derviveOverallChopStatus();
+                    doc.routeSteps = doc.buildStepsForHorizontalVisualization();
+                    
+                }
+
+                function getRelatedChops(doc){
+                    return _.filter(chopsJSON, function(docChop){
+                        return parseInt(docChop.DocumentId, 10) === doc.Id;
                     });
-                return docs;
-            }
+                }
+            }      
         }    
     }
 })();

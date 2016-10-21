@@ -17,11 +17,9 @@
   <div class="ms-Grid-row">
     <div class="ms-Grid-col ms-u-sm10 ms-u-md10 ms-u-lg10">
       <uif-button type="button" uif-type="hero" ng-click="vm.goToNewRfiForm()">
-        <uif-icon uif-type="plus"></uif-icon>
-        create a new RFI
+        <uif-icon uif-type="plus"></uif-icon> create a new RFI
       </uif-button>
-    
-
+      
       <uif-table>
         <uif-table-head>
           <uif-table-row>
@@ -58,22 +56,17 @@
           </uif-table-row>
         </uif-table-body>
       </uif-table>
-
-
-
-
-
+    </div>
+    <div class="ms-Grid-col ms-u-sm2 ms-u-md2 ms-u-lg2">
+      <uif-contextual-menu uif-is-open="true" uif-multiselect="true" uif-close-on-click="false">
+        <uif-contextual-menu-item uif-text="'Filter by OPR'" uif-type="header"></uif-contextual-menu-item>
+        <uif-contextual-menu-item ng-repeat="item in vm.filterControlDataSource" uif-is-selected="item.isSelected" ng-click="vm.applyFilters(item)">
+          <uif-content>
+            <span style="float:right;">({{item.count}})</span>
+            <span style="font-size:11px;" title="{{item.key}}">{{vm.truncateText(item.key, 14)}}</span>
+          </uif-content>
+        </uif-contextual-menu-item>
+      </uif-contextual-menu>
+    </div>
   </div>
-  <div class="ms-Grid-col ms-u-sm2 ms-u-md2 ms-u-lg2">
-    <uif-contextual-menu uif-is-open="true" uif-multiselect="true" uif-close-on-click="false">
-      <uif-contextual-menu-item uif-text="'Filter by OPR'" uif-type="header"></uif-contextual-menu-item>
-      <uif-contextual-menu-item ng-repeat="item in vm.filterControlDataSource" uif-is-selected="item.isSelected" ng-click="vm.applyFilters(item)">
-        <uif-content>
-          <span style="float:right;">({{item.count}})</span>
-          <span style="font-size:11px;" title="{{item.key}}">{{vm.truncateText(item.key, 14)}}</span>
-        </uif-content>
-      </uif-contextual-menu-item>
-    </uif-contextual-menu>
-  </div>
-</div>
 </div>
