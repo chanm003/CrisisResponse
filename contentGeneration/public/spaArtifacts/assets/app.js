@@ -2167,7 +2167,8 @@
             scope: {
                 missions: '=',
                 selectedOrg: '=',
-                showNewItemLink: '='
+                showNewItemLink: '=',
+                onMissionsFiltered: '&'
             },
             template: buildHeroButtonHtml() + buildCheckboxHtml() + buildLegendHtml() + '<div class="mission-timeline" ng-show="missionsToShow.length"></div>' + buildMessageBarHtml()
         };
@@ -2230,6 +2231,8 @@
                 scope.missionsToShow = _.filter(scope.missions, function (item) {
                     return scope.showPastMissions || (!item.ExpectedTermination || moment(item.ExpectedTermination) > now);
                 });
+
+                scope.onMissionsFiltered({missions: scope.missionsToShow});
 
                 var groups = new vis.DataSet(_.map(scope.missionsToShow, function (item) { return { id: item.Id, content: item.Identifier }; }));
                 var items = new vis.DataSet(
@@ -2817,8 +2820,18 @@
     MissionTrackerController.$inject = ['$q', '$stateParams', '_', 'logger', 'DocumentChopsRepository', 'MissionDocument', 'MissionDocumentRepository', 'Mission', 'MissionTrackerRepository'];
     function MissionTrackerController($q, $stateParams, _, logger, DocumentChopsRepository, MissionDocument, MissionDocumentRepository, Mission, MissionTrackerRepository) {
         var vm = this;
-
+        var missionRelatedDocs = [];
         activate();
+
+        vm.onMissionsFiltered = function(missions){
+            var missionIdsList = _.map(missions, 'Id');
+            vm.missionProductsDataSource = (missions.length) ? _.filter(missionRelatedDocs, shouldShow) : []
+            vm.chopProcessesDataSource = _.filter(vm.missionProductsDataSource, function(doc){ return !!doc.ChopProcess; }) ;
+
+            function shouldShow(doc){
+                return _.includes(missionIdsList, doc.MissionId);
+            }
+        }
 
         /**
          * var doc = new MissionDocument();
@@ -2831,13 +2844,12 @@
         function activate() {
             initTabs();
             $q.all([
-                    MissionDocumentRepository.getMissionRelated(),
-                    DocumentChopsRepository.getAll(),
+                    getMissionRelatedDocumentsWithTheirAssociatedChops(),
                     getMissions()
                 ])
                 .then(function (data) {
-                    associateChopsToParentMissionDocument(data[0], data[1]);
-                    console.log(_.last(vm.missionRelatedDocs));
+                    missionRelatedDocs = data[0];
+                    vm.missions = data[1];
                     logger.info('Activated Mission Tacker View');
                 });
         }
@@ -2866,21 +2878,34 @@
 
         function getMissions(){
             return MissionTrackerRepository.getByOrganization("").then(function (data) {
-                vm.missions = _.map(data, function (item) { return new Mission(item); });
+                return _.map(data, function (item) { return new Mission(item); });
             })
         }
 
-        function associateChopsToParentMissionDocument(docsJSON, chopsJSON){
-            vm.missionRelatedDocs = _.map(docsJSON, function(item){
-                var doc = new MissionDocument(item);
-                var relatedChops = _.filter(chopsJSON, function(docChop){
-                    return parseInt(docChop.DocumentId, 10) === doc.Id;
+        function getMissionRelatedDocumentsWithTheirAssociatedChops(){
+             return $q.all([
+                    MissionDocumentRepository.getMissionRelated(),
+                    DocumentChopsRepository.getAll()
+                ])
+                .then(function (data) {
+                    return associateChopsToParentMissionDocument(data[0], data[1]);
                 });
-                doc.routeStages = doc.buildRouteStages(jocInBoxConfig, relatedChops);
-                doc.overallChopStatus = doc.derviveOverallChopStatus();
-                return doc;
-            });
-        }
+            
+            function associateChopsToParentMissionDocument(docsJSON, chopsJSON){
+                var docs = 
+                    _.map(docsJSON, function(item){
+                        var doc = new MissionDocument(item);
+                        var relatedChops = 
+                            _.filter(chopsJSON, function(docChop){
+                                return parseInt(docChop.DocumentId, 10) === doc.Id;
+                            });
+                        doc.routeStages = doc.buildRouteStages(jocInBoxConfig, relatedChops);
+                        doc.overallChopStatus = doc.derviveOverallChopStatus();
+                        return doc;
+                    });
+                return docs;
+            }
+        }    
     }
 })();
 

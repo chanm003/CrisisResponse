@@ -5,9 +5,11 @@
 <div class="ms-Grid">
 	<div class="ms-Grid-row">
 		<div class="ms-Grid-col ms-u-sm12 ms-u-md12 ms-u-lg12">
-			<mission-timeline missions="vm.missions" ng-show="vm.tabConfig.selectedPivot.title === 'Timeline'"></mission-timeline>
+			<mission-timeline missions="vm.missions" on-missions-filtered="vm.onMissionsFiltered(missions)" ng-show="vm.tabConfig.selectedPivot.title === 'Timeline'"></mission-timeline>
 
-			{{vm.missionRelatedDocs.length}}
+			<p>{{vm.missionProductsDataSource.length}}
+            </p>
+			<p>{{vm.chopProcessesDataSource.length}}</p>
 		</div>
 	</div>
 </div>
