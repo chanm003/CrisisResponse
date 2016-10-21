@@ -2784,9 +2784,9 @@
         function getStates() {
             return [
                 {
-                    state: 'missionTracker',
+                    state: 'mission',
                     config: {
-                        url: '/missionTracker',
+                        url: '/missiontracker/:tabIndex',
                         templateUrl: config.baseUrl + '/assets/missionTracker.html',
                         controller: 'MissionTrackerController',
                         controllerAs: 'vm',
@@ -2797,8 +2797,8 @@
         }
     }
 
-    MissionTrackerController.$inject = ['$q', '_', 'logger', 'MissionTrackerRepository', 'DocumentChopsRepository'];
-    function MissionTrackerController($q, _, logger, MissionTrackerRepository, DocumentChopsRepository) {
+    MissionTrackerController.$inject = ['$q', '$stateParams', '_', 'logger', 'MissionTrackerRepository', 'DocumentChopsRepository'];
+    function MissionTrackerController($q, $stateParams, _, logger, MissionTrackerRepository, DocumentChopsRepository) {
         var vm = this;
 
         activate();
@@ -2830,20 +2830,25 @@
         }
 
         function initTabs() {
+            var pivots = [
+                 { title: "Timeline" },
+                    { title: "Products" },
+                    { title: "Product Chop" }
+            ];
+
+            var selectedIndex = (!$stateParams.tabIndex || $stateParams.tabIndex >= pivots.length) ? 0 : $stateParams.tabIndex;
+
             vm.tabConfig = {
                 selectedSize: "large",
                 selectedType: "tabs",
-                pivots: [
-                    { title: "Timeline" },
-                    { title: "Products" },
-                    { title: "Product Chop" }
-                ],
-                selectedPivot: { title: "Timeline" },
+                pivots: pivots,
+                selectedPivot: pivots[selectedIndex],
                 menuOpened: false
             }
             vm.openMenu = function () {
                 vm.tabConfig.menuOpened = !vm.tabConfig.menuOpened;
             }
+
         }
 
         function getDataForVerticalTimeline() {
