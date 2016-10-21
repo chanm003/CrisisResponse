@@ -854,8 +854,8 @@
     angular.module('app.models')
         .factory('MissionDocument', MissionDocumentModel);
 
-    MissionDocumentModel.$inject = ['MissionDocumentRepository'];
-    function MissionDocumentModel(MissionDocumentRepository) {
+    MissionDocumentModel.$inject = ['DocumentChopsRepository', 'MissionDocumentRepository'];
+    function MissionDocumentModel(DocumentChopsRepository, MissionDocumentRepository) {
         var MissionDocument = function (data) {
             if (!data) {
                 this.Id = undefined; //number
@@ -995,6 +995,20 @@
 
             var previousOrganizationInSequence = this.routeStages[positionInChopSequence-1];
             return previousOrganizationInSequence.cdrDecisions.length && previousOrganizationInSequence.cdrDecisions[0].Verdict === "Concur";
+        }
+
+        MissionDocument.prototype.createChop = function(org, orgRole, verdict, comments){
+            var dto = {
+                DocumentId: (this.Id).toString(),
+                Organization: org,
+                OrganizationalRole: orgRole,
+                Verdict: verdict,
+                Comments: comments,
+                __metadata: {
+                    type: "SP.Data.DocumentChopsListItem"
+                }
+            };
+            return DocumentChopsRepository.save(dto);
         }
 
         return MissionDocument;
@@ -1169,6 +1183,51 @@
             var constructParams = angular.extend({}, { item: { Id: id } }, ngResourceConstructParams);
             var restResource = spContext.constructNgResourceForRESTResource(constructParams);
             return restResource.post(httpPostBody).$promise;
+        }
+
+        return service;
+    }
+})();
+
+/* Data Repository: Document Chops */
+(function () {
+    angular.module('app.data')
+        .service('DocumentChopsRepository', DocumentChopsRepository)
+    DocumentChopsRepository.$inject = ['$http', '$q', '$resource', 'exception', 'logger', 'spContext'];
+    function DocumentChopsRepository($http, $q, $resource, exception, logger, spContext) {
+        var service = {
+            getAll: getAll,
+            save: save
+        };
+
+        var fieldsToSelect = [
+            spContext.SP2013REST.selectForCommonListFields,
+            "DocumentId,Organization,OrganizationalRole,Verdict,Comments"
+        ].join(',');
+
+        var fieldsToExpand = [
+            spContext.SP2013REST.expandoForCommonListFields
+        ].join(',');
+
+        var ngResourceConstructParams = {
+            fieldsToSelect: fieldsToSelect,
+            fieldsToExpand: fieldsToExpand,
+            listName: 'DocumentChops'
+        };
+
+        function getAll() {
+            var qsParams = {}; //{$filter:"FavoriteNumber eq 8"};
+            return spContext.constructNgResourceForRESTCollection(ngResourceConstructParams).get(qsParams).$promise
+                    .then(function(response){
+                        return response.d.results;
+                    });
+        }
+
+        function save(item) {
+            var restCollection = spContext.constructNgResourceForRESTCollection(ngResourceConstructParams)
+            return restCollection.post(item).$promise.then(function(response){
+                return response.d;
+            });
         }
 
         return service;
@@ -2364,7 +2423,7 @@
             show: false
         }
 
-
+       
     }
 
 
@@ -2738,11 +2797,24 @@
         }
     }
 
-    MissionTrackerController.$inject = ['$q', '_', 'logger', 'MissionTrackerRepository'];
-    function MissionTrackerController($q, _, logger, MissionTrackerRepository) {
+    MissionTrackerController.$inject = ['$q', '_', 'logger', 'MissionTrackerRepository', 'DocumentChopsRepository'];
+    function MissionTrackerController($q, _, logger, MissionTrackerRepository, DocumentChopsRepository) {
         var vm = this;
 
         activate();
+
+        /**
+         * var doc = new MissionDocument();
+         * doc.Id = 808786808415;
+         * doc.createChop("CJSOTF-RO", "Loredana", "Concur", "Wljdlsf asdlfkjlsjdf ").then(function(item){
+         *      console.log(item.Id);
+         * });;
+         */
+
+        DocumentChopsRepository.getAll()
+            .then(function(data){ 
+                console.log(data.length);
+            });
 
         function activate() {
             initTabs();

@@ -164,6 +164,10 @@
                         return SPField_FormDisplay_Default(ctx);
                     }
 
+                    if(ctx.CurrentFieldSchema.FieldType !== "Choice"){
+                        return getDefaultHtmlOutput(ctx);
+                    }
+
                     ctx.CurrentFieldSchema.Choices = trimOrganizationChoicesBasedOnQueryString(ctx.CurrentFieldSchema.Choices);
                     setDropdownOnNewFormWhenOnlyOneOption(ctx);
                     return SPFieldChoice_Edit(ctx);
@@ -239,7 +243,17 @@
                 }
             });
 
-            function getDefaultHtmlOutput(ctx, field, listItem, listSchema) {
+            function getDefaultHtmlOutput(ctx){
+                // get the default templates for each field type
+                var templatesByType = SPClientTemplates._defaultTemplates.Fields.default.all.all;
+                // get the default templates for the current field type
+                var currentTemplates = templatesByType[ctx.CurrentFieldSchema.Type];
+                // get the render function by view id (i.e. NewForm, View, etc.)
+                var currentRenderFunc = currentTemplates[ctx.BaseViewID];
+                return currentRenderFunc(ctx);
+            }
+
+            function getDefaultHtmlOutput_v2(ctx, field, listItem, listSchema) {
                 /**
                  * USAGE:
                  * var output = getDefaultFieldHtml (ctx, ctx.CurrentFieldSchema, ctx.CurrentItem, ctx.ListSchema);
@@ -301,7 +315,7 @@
             }
 
             function setDropdownOnNewFormWhenOnlyOneOption(ctx) {
-                if(ctx.CurrentFieldSchema.Choices.length === 0 && !ctx.CurrentFieldValue) {
+                if(ctx.CurrentFieldSchema.Choices.length === 1 && !ctx.CurrentFieldValue) {
                     //only one choice so preset for the user
                     ctx.CurrentFieldValue = ctx.CurrentFieldSchema.Choices[0];
                 }
