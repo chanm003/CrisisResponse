@@ -801,3 +801,25 @@
   margin-bottom: 10px;
     display: inline-block;
 }
+
+.chop-comments-container { 
+  display: block; 
+  background: #fff; 
+  padding: 14px 20px; 
+  -webkit-border-radius: 4px; 
+  -moz-border-radius: 4px; 
+  border-radius: 4px; 
+  -webkit-box-shadow: 1px 1px 1px 1px rgba(0,0,0,0.3);
+  -moz-box-shadow: 1px 1px 1px 1px rgba(0,0,0,0.3);
+  box-shadow: 1px 1px 1px 1px rgba(0,0,0,0.3);
+}
+
+.chop-comments { display: block; padding-left: 0;}
+
+.chop-comments .cmmnt, ul .cmmnt, ul ul .cmmnt { display: block; position: relative; padding-left: 35px }
+.chop-comments .cmmnt .avatar  { position: absolute; top: 8px; left: 0; }
+.chop-comments .cmmnt .cmmnt-content { padding: 0px 3px; padding-bottom: 12px; padding-top: 8px; }
+.chop-comments .cmmnt .cmmnt-content header .pubdate { color: #777; }
+.chop-comments .cmmnt .cmmnt-content header .userlink { font-weight: bold; }
+.border-top {border-top: 1px solid #ddd;} 
+.chop-comments .cmmnt p { margin-top:8px; margin-bottom:8px;}

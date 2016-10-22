@@ -993,6 +993,7 @@
                 return _.chain(documentChops)
                         .filter({Organization: organizationName, OrganizationalRole: "CDR"})
                         .orderBy(['Created'], ['desc'])
+                        .map(convertCreatedToMoment) //AFTER the orderBy operation!
                         .value();
             }
 
@@ -1003,11 +1004,17 @@
                         decisionLookup[staffSectionName] = _.chain(documentChops)
                                                                 .filter({Organization: organizationName, OrganizationalRole: staffSectionName})
                                                                 .orderBy(['Created'], ['desc'])
+                                                                .map(convertCreatedToMoment) //AFTER the orderBy operation!
                                                                 .value();
                     }
                 });
                 return decisionLookup;
-            }   
+            }
+
+            function convertCreatedToMoment(item){
+                item.Created = moment.utc(item.Created);
+                return item;
+            } 
         }
 
         function buildRouteStepsVisualizationDataSource(doc){
@@ -2579,6 +2586,10 @@
                 scope.selectedTab = !block ? '' : block.signOnBehalfOf;
             }
 
+            scope.replaceLineBreaks = function(text){
+                return !!text ? text.replace(/(?:\r\n|\r|\n)/g, '<br />'): '';
+            }
+
             function buildSignatureBlocks(){
                 scope.selectedTab = '';
                 var blocks = []
@@ -2656,7 +2667,24 @@
 
         function generatePreviousChopsHtml(){ 
             var parts = [
-                '<uif-message-bar ng-if="block.previousChops.length === 0"><uif-content>{{selectedStage.name}} {{block.title}} has no previous chops for this document</uif-content></uif-message-bar>'
+                '<div ng-if="block.previousChops.length === 0" style="padding-top:9px;">',
+                '   <uif-message-bar><uif-content>{{selectedStage.name}} {{block.title}} has no previous chops for this document</uif-content></uif-message-bar>',
+                '</div>',
+                '<div ng-if="block.previousChops.length" class="chop-comments-container ">',
+	            '   <ul class="chop-comments">',
+		        '       <li class="cmmnt" ng-repeat="item in block.previousChops" ng-class="{\'border-top\': $index !== 0}">',
+			    '           <div class="avatar">',
+                '               <i ng-if="item.Verdict === \'Concur\'" class="fa fa-thumbs-up fa-2x" style="color:green;"></i>',
+                '               <i ng-if="item.Verdict === \'Nonconcur\'" class="fa fa-thumbs-down fa-2x" style="color:red;"></i>',
+                '               <i ng-if="item.Verdict === \'Pending\'" class="fa fa-hourglass-start fa-2x"></i>',
+                '           </div>',
+			    '           <div class="cmmnt-content">',
+				'               <header><a class="userlink">{{item.Author.Title}}</a> - <span class="pubdate">{{item.Created.format(\'DD MMM YY HHmm[Z]\').toUpperCase()}}</span></header>',
+				'               <p ng-bind-html="replaceLineBreaks(item.Comments)"></p>',
+			    '           </div>',
+		        '       </li>',
+	            '   </ul>',
+                '</div>'
             ].join('');
             
             return parts;
