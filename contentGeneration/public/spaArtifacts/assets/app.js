@@ -1939,7 +1939,8 @@
         .module('app.core')
         .directive('routingProcessVisualization', routingProcessVisualization);
 
-    function routingProcessVisualization() {
+    routingProcessVisualization.$inject = ['$rootScope'];
+    function routingProcessVisualization($rootScope) {
         /* 
         USAGE: <routing-process-visualization steps=""></routing-process-visualization>
         */
@@ -1948,9 +1949,10 @@
             scope: {
                 document: "="
             },
+            link: link,
             template:
             '<ul class="horizontal-timeline">\
-                    <li ng-repeat="step in document.chopProcessInfo.routeStepsVisualizationDataSource" class="li" ng-class="{\'complete\': step.status===\'complete\', \'incomplete\': step.status===\'incomplete\' }">\
+                    <li ng-click="onStepClicked(step.text)" ng-repeat="step in document.chopProcessInfo.routeStepsVisualizationDataSource" class="li" ng-class="{\'complete\': step.status===\'complete\', \'incomplete\': step.status===\'incomplete\' }">\
                         <div class="status">\
                             <h4>\
                                 {{step.text}}\
@@ -1960,7 +1962,17 @@
                 </ul>'
         };
         return directiveDefinition;
+
+        function link(scope, elem, attrs){
+            scope.onStepClicked = function(stepName){
+                $rootScope.$broadcast("routing-process-visualization:nodeClicked", {
+                    stepName: stepName,
+                    missionDocumentID: scope.document.Id
+                })
+            }
+        }
     }
+
 })();
 
 /* Directive: rfibutton */
@@ -2476,7 +2488,7 @@
         .module('app.core')
         .directive('routingProcessParticipants', directiveDefinitionFunc);
 
-    function directiveDefinitionFunc() {
+    function directiveDefinitionFunc($rootScope) {
         /* 
         USAGE: <routing-process-participants process-info=""></routing-process-participants>
         */
@@ -2523,7 +2535,13 @@
         function link(scope, elem, attrs) {
             if(scope.document.chopProcessInfo.requiresDecisionFrom){
                 scope.selectedRouteStage = _.find(scope.document.chopProcessInfo.routeStages, {name: scope.document.chopProcessInfo.requiresDecisionFrom});
-            }  
+            }
+
+            $rootScope.$on("routing-process-visualization:nodeClicked", function(evt, args){
+                if(args.missionDocumentID == scope.document.Id){
+                    scope.selectedRouteStage = _.find(scope.document.chopProcessInfo.routeStages, {name: args.stepName});
+                }
+            })  
         }
     }
 

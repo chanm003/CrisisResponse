@@ -428,6 +428,7 @@
 
 .li {
   transition: all 200ms ease-in;
+  cursor: pointer;
 }
 
 .status {
