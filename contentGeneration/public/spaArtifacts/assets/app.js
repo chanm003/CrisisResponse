@@ -969,6 +969,12 @@
             }
             this.chopProcessInfo.overallChopStatus = deriveOverallChopStatus(this);
             this.chopProcessInfo.routeStepsVisualizationDataSource = buildRouteStepsVisualizationDataSource(this);
+
+            if(this.chopProcessInfo.overallChopStatus === "Approved" || this.chopProcessInfo.overallChopStatus === "Disapproved"){
+                this.chopProcessInfo.requiresDecisionFrom = null;
+            } else {
+                this.chopProcessInfo.requiresDecisionFrom = findCommandThatMustTakeAction(this);
+            }
         }
 
         function buildRouteStages(doc, jocInBoxConfig){
@@ -993,10 +999,12 @@
             function buildStaffDecisionsDictionaryLookup(jocInBoxConfig, organizationName, documentChops){
                 var decisionLookup = {};
                 _.each(jocInBoxConfig.dashboards[organizationName].optionsForChoiceField, function(staffSectionName){
-                    decisionLookup[staffSectionName] = _.chain(documentChops)
-                                                            .filter({Organization: organizationName, OrganizationalRole: staffSectionName})
-                                                            .orderBy(['Created'], ['desc'])
-                                                            .value();
+                    if(staffSectionName !== organizationName){
+                        decisionLookup[staffSectionName] = _.chain(documentChops)
+                                                                .filter({Organization: organizationName, OrganizationalRole: staffSectionName})
+                                                                .orderBy(['Created'], ['desc'])
+                                                                .value();
+                    }
                 });
                 return decisionLookup;
             }   
@@ -1038,6 +1046,14 @@
 
             //fall-thru
             return "In Chop";
+        }
+
+        function findCommandThatMustTakeAction(doc){
+            var stage = _.find(doc.chopProcessInfo.routeStages, function(routeStage){
+                var mostRecentCdrDecision = routeStage.cdrDecisions[0] || null;
+                return !mostRecentCdrDecision || mostRecentCdrDecision.Verdict === "Pending";
+            });
+            return stage.name;
         }
 
         return MissionDocument;
@@ -2453,6 +2469,65 @@
             return parts;
         }
     }
+})();
+
+/* Directive: routingProcessParticipants */
+(function () {
+    angular
+        .module('app.core')
+        .directive('routingProcessParticipants', directiveDefinitionFunc);
+
+    function directiveDefinitionFunc() {
+        /* 
+        USAGE: <routing-process-participants process-info=""></routing-process-participants>
+        */
+        var directiveDefinition = {
+            restrict: 'E',
+            scope: {
+                processInfo: "="
+            },
+            link: link,
+            template: buildFacePileHtml()
+        };
+        return directiveDefinition;
+
+        function buildFacePileHtml(){
+            var parts = [
+                '<div class="ms-Facepile">',
+				'   <div class="ms-Facepile-members">',
+				'       <div class="ms-Facepile-itemBtn ms-Facepile-itemBtn--member">',
+                '           <div size="1" class="ms-Persona ms-Persona--xs">',
+				'               <div class="ms-Persona-imageArea">',
+                '                   <div ng-if="selectedRouteStage.cdrDecisions[0].Verdict === \'Concur\'" class="ms-Persona-initials ms-Persona-initials--darkGreen"><i class="fa fa-thumbs-o-up"></i></div>',
+                '                   <div ng-if="selectedRouteStage.cdrDecisions[0].Verdict === \'Nonconcur\'" class="ms-Persona-initials ms-Persona-initials--darkRed"><i class="fa fa-thumbs-o-down"></i></div>',
+                '                   <div ng-if="selectedRouteStage.cdrDecisions[0].Verdict === \'Pending\'" class="ms-Persona-initials ms-Persona-initials--blue"><i class="fa fa-hourglass-start"></i></div>',
+                '                   <div ng-if="selectedRouteStage.cdrDecisions.length === 0" class="ms-Persona-initials ms-Persona-initials--blue"><i class="ms-Facepile-addPersonIcon ms-Icon ms-Icon--chat"></i></div>',                
+                '               </div>',
+                '           </div>',
+                '       </div>',
+				'       <div class="ms-Facepile-itemBtn ms-Facepile-itemBtn--member" ng-repeat="(sectionName, decisions) in selectedRouteStage.staffSectionDecisions">',
+                '           <div size="1" class="ms-Persona ms-Persona--xs">',
+				'               <div class="ms-Persona-imageArea">',
+                '                   <div ng-if="decisions[0].Verdict === \'Concur\'" class="ms-Persona-initials ms-Persona-initials--darkGreen"><i class="fa fa-thumbs-o-up"></i></div>',
+                '                   <div ng-if="decisions[0].Verdict === \'Nonconcur\'" class="ms-Persona-initials ms-Persona-initials--darkRed"><i class="fa fa-thumbs-o-down"></i></div>',
+                '                   <div ng-if="decisions[0].Verdict === \'Pending\'" class="ms-Persona-initials ms-Persona-initials--blue"><i class="fa fa-hourglass-start"></i></div>',
+                '                   <div ng-if="decisions.length === 0" class="ms-Persona-initials ms-Persona-initials--blue"><i class="ms-Facepile-addPersonIcon ms-Icon ms-Icon--chat"></i></div>',                
+                '               </div>',
+                '           </div>',
+                '       </div>',
+                '   </div>',
+                '</div>'
+            ].join('');
+            return parts;
+        }
+
+        function link(scope, elem, attrs) {
+            if(scope.processInfo.requiresDecisionFrom){
+                scope.selectedRouteStage = _.find(scope.processInfo.routeStages, {name: scope.processInfo.requiresDecisionFrom});
+            }  
+        }
+    }
+
 })();
 
 /* Controller: OrgDashboardAspxController */

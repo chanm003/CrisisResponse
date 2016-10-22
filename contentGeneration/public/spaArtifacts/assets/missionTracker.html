@@ -32,12 +32,12 @@
 		<uif-table-body>
           <uif-table-row ng-repeat="item in vm.chopProcessesDataSource | orderBy:table.orderBy:!table.orderAsc">
             <uif-table-cell>{{item.Mission.FullName}}</uif-table-cell>
-            <uif-table-cell style="white-space:nowrap;">{{item.TypeOfDocument}}</uif-table-cell>
+            <uif-table-cell>{{item.TypeOfDocument}}</uif-table-cell>
 			<uif-table-cell style="white-space:nowrap;">
 				<routing-process-visualization steps="item.chopProcessInfo.routeStepsVisualizationDataSource"></routing-process-visualization>
 			</uif-table-cell>
 			<uif-table-cell style="white-space:nowrap;">
-				
+        <routing-process-participants process-info="item.chopProcessInfo"></routing-process-participants>
 			</uif-table-cell>
           </uif-table-row>
 		</uif-table-body>

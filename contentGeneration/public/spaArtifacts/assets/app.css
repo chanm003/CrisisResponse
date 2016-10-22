@@ -755,3 +755,35 @@
     background-color: #dff0d8;
     border-color: #d6e9c6;
 }
+
+/*#region Facepile customizations */
+.ms-Facepile{
+		margin-top: 5px;
+	}
+	
+	.ms-persona {
+		font-size: 20px;
+	}
+	
+	.ms-Facepile-itemBtn {
+		height: 24px;
+		width: 24px;
+		line-height: 24px;
+	}
+	
+	.ms-Persona-imageArea {
+		width: 24px;
+		height: 24px;
+	}
+	
+	.ms-Persona.ms-Persona--xs .ms-Persona-initials {
+		font-size: 14px;
+		line-height: 24px;
+	}
+	
+	.ms-Persona.ms-Persona--xs .ms-Persona-image,
+	.ms-Persona.ms-Persona--xs .ms-Persona-imageArea {
+		width: 24px;
+		height: 24px;
+	}
+/*#endregion Facepile customizations */
