@@ -1,3 +1,37 @@
+<style>
+	.ms-Facepile{
+		margin-top: 5px;
+	}
+	
+	.ms-persona {
+		font-size: 20px;
+	}
+	
+	.ms-Facepile-itemBtn {
+		height: 24px;
+		width: 24px;
+		line-height: 24px;
+	}
+	
+	.ms-Persona-imageArea {
+		width: 24px;
+		height: 24px;
+	}
+	
+	.ms-Persona.ms-Persona--xs .ms-Persona-initials {
+		font-size: 14px;
+		line-height: 24px;
+	}
+	
+	.ms-Persona.ms-Persona--xs .ms-Persona-image,
+	.ms-Persona.ms-Persona--xs .ms-Persona-imageArea {
+		width: 24px;
+		height: 24px;
+	}
+</style>
+
+
+
 <div class="ms-Grid">
 	<div class="ms-Grid-row">
 		<div class="ms-Grid-col ms-u-sm12 ms-u-md12 ms-u-lg12">
@@ -12,16 +46,62 @@
 					<uif-table-row>
 						<uif-table-cell>TEST</uif-table-cell>
 						<uif-table-cell>
-							<routing-process-visualization steps="vm.routingSteps"></routing-process-visualization>
+
+							<div class="ms-Facepile">
+								<div class="ms-Facepile-members">
+									<div class="ms-Facepile-itemBtn ms-Facepile-itemBtn--member" title="Greta Lundberg">
+										<div size="1" class="ms-Persona ms-Persona--xs">
+											<div class="ms-Persona-imageArea">
+												<div class="ms-Persona-initials ms-Persona-initials--black"><i class="ms-Facepile-addPersonIcon ms-Icon ms-Icon--personAdd"></i></div>
+												<div class="ms-Image ms-Persona-image">
+													<img class="ms-Image-image ms-Image-image--cover is-fadeIn is-notLoaded">
+												</div>
+											</div>
+										</div>
+									</div>
+									<div class="ms-Facepile-itemBtn ms-Facepile-itemBtn--member" title="Greta Lundberg">
+										<div size="1" class="ms-Persona ms-Persona--xs">
+											<div class="ms-Persona-imageArea">
+												<div class="ms-Persona-initials ms-Persona-initials--darkGreen"><i class="fa fa-thumbs-o-up"></i></div>
+
+											</div>
+										</div>
+									</div>
+									<div class="ms-Facepile-itemBtn ms-Facepile-itemBtn--member" title="Greta Lundberg">
+										<div size="1" class="ms-Persona ms-Persona--xs">
+											<div class="ms-Persona-imageArea">
+												<div class="ms-Persona-initials ms-Persona-initials--darkRed"><i class="fa fa-thumbs-o-down"></i></div>>
+											</div>
+										</div>
+									</div>
+									<div class="ms-Facepile-itemBtn ms-Facepile-itemBtn--member" title="Greta Lundberg">
+										<div size="1" class="ms-Persona ms-Persona--xs">
+											<div class="ms-Persona-imageArea">
+												<div class="ms-Persona-initials ms-Persona-initials--blue"><i class="ms-Facepile-addPersonIcon ms-Icon ms-Icon--chat"></i></div>
+
+											</div>
+										</div>
+									</div>
+									<div class="ms-Facepile-itemBtn ms-Facepile-itemBtn--member" title="Greta Lundberg">
+										<div size="1" class="ms-Persona ms-Persona--xs">
+											<div class="ms-Persona-imageArea">
+												<div class="ms-Persona-initials ms-Persona-initials--blue"><i class="fa fa-hourglass-start"></i></div>>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+
 						</uif-table-cell>
 					</uif-table-row>
 				</uif-table-body>
-			</uif-table>	
+			</uif-table>
 		</div>
 	</div>
 	<div class="ms-Grid-row">
 		<div class="ms-Grid-col ms-u-sm12 ms-u-md12 ms-u-lg12">
-			<vertical-timeline items="vm.missionLifecycleEvents"><vertical-timeline>
+			<vertical-timeline items="vm.missionLifecycleEvents">
+				<vertical-timeline>
 		</div>
 	</div>
 </div>
