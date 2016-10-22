@@ -788,3 +788,16 @@
 		height: 24px;
 	}
 /*#endregion Facepile customizations */
+
+
+.form-header {
+    border-bottom: 1px solid #a6a6a6;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.form-header span{
+  margin-bottom: 10px;
+    display: inline-block;
+}

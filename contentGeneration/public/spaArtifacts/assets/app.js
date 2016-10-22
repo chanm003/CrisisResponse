@@ -1967,7 +1967,7 @@
             scope.onStepClicked = function(stepName){
                 $rootScope.$broadcast("routing-process-visualization:nodeClicked", {
                     stepName: stepName,
-                    missionDocumentID: scope.document.Id
+                    document: scope.document
                 })
             }
         }
@@ -2538,7 +2538,7 @@
             }
 
             $rootScope.$on("routing-process-visualization:nodeClicked", function(evt, args){
-                if(args.missionDocumentID == scope.document.Id){
+                if(args.document.Id == scope.document.Id){
                     scope.selectedRouteStage = _.find(scope.document.chopProcessInfo.routeStages, {name: args.stepName});
                 }
             })  
@@ -2546,6 +2546,142 @@
     }
 
 })();
+
+/* Directive: routingSheet */
+(function () {
+    angular
+        .module('app.core')
+        .directive('routingSheet', directiveDefinitionFunc);
+
+    function directiveDefinitionFunc($rootScope) {
+        /* 
+        USAGE: <routing-sheet></routing-sheet>
+        SIMPLY listens for an event
+        */
+        var directiveDefinition = {
+            restrict: 'E',
+            link: link,
+            scope: {},
+            template: buildPanelHtml()
+        };
+        return directiveDefinition;
+
+        function link(scope, elem, attrs) {
+            $rootScope.$on("routing-process-visualization:nodeClicked", function(evt, args){
+                //args.document, stepName
+                scope.document = args.document;
+                scope.selectedStage = _.find(scope.document.chopProcessInfo.routeStages, {name: args.stepName});
+                buildSignatureBlocks();
+                scope.showPanel = true;
+            });  
+
+            scope.onTabClicked = function(block){
+                scope.selectedTab = !block ? '' : block.signOnBehalfOf;
+            }
+
+            function buildSignatureBlocks(){
+                scope.selectedTab = '';
+                var blocks = []
+                //add one for CDR
+                blocks.push({
+                    title: "Commander",
+                    signOnBehalfOf: "CDR",
+                    previousChops: scope.selectedStage.cdrDecisions
+                });
+                //then one for each section
+                _.each(scope.selectedStage.staffSectionDecisions, function(decisions, sectionName){
+                    blocks.push({
+                        title: sectionName.replace(scope.selectedStage.name + " - ", ""),
+                        signOnBehalfOf: sectionName,
+                        previousChops: decisions
+                    });
+                });           
+                scope.signatureBlocks = blocks;
+            }
+        }
+    }
+
+    function buildPanelHtml(){
+        var parts = [
+            '<uif-panel uif-type="large" uif-is-open="showPanel" uif-show-overlay="true" uif-show-close="true" close-panel="onPanelClosed()">',
+            '   <uif-panel-header>',
+            '       {{selectedStage.name}} Routing Sheet',
+            '   </uif-panel-header>',
+            '   <uif-content>',
+                    generateTabsHtml(),
+                    generateShowAllSectionsMessage(),
+                    generateDetailsAboutDocument(),
+            '       <div class="ms-Grid">',
+            '           <div class="ms-Grid-row" ng-show="!selectedTab || selectedTab === block.signOnBehalfOf" ng-repeat="block in signatureBlocks" style="margin-top: 20px;">',
+            '               <div class="ms-Grid-col ms-u-md12">',
+            '                   <div class="form-header"><span class="ms-font-xl">{{block.title}}</span></div>',
+            '                   <div class="ms-Grid">',
+            '                       <div class="ms-Grid-row">',
+            '                           <div class="ms-Grid-col ms-u-md4">',
+            '                               <uif-textfield ng-model="block.Comments"  uif-multiline="true" />',
+                                            generateVerdictPicker(),
+                                            generateButtonsHtml(),
+            '                           </div>',
+            '                           <div class="ms-Grid-col ms-u-md8">',
+                                            generatePreviousChopsHtml(),
+            '                           </div>',
+            '                       </div>',
+            '                   </div>',
+            '               </div>',
+            '           </div>',
+            '       </div>',
+            '   </uif-content>',
+            '</uif-panel>'
+        ].join('');
+        return parts;
+
+        function generateButtonsHtml(){
+            return '<uif-button type="button" uif-type="primary" ng-click="saveChop(block)">Chop</uif-button>';
+        }
+
+        function generateDetailsAboutDocument(){
+            return '<br/><uif-message-bar> <uif-content>The document you are chopping on can be referenced </uif-content> <uif-link ng-href="{{document.File.ServerRelativeUrl}}">here</uif-link> </uif-message-bar>';
+        }
+
+        function generateVerdictPicker(){
+            var parts = [
+                '<uif-choicefield-group ng-model="block.Verdict">',
+                '   <uif-choicefield-option uif-type="radio" value="Concur">Concur</uif-choicefield-option>',
+                '   <uif-choicefield-option uif-type="radio" value="Nonconcur">Nonconcur</uif-choicefield-option>',
+                '   <uif-choicefield-option uif-type="radio" value="Pending">Pending</uif-choicefield-option>',
+                '</uif-choicefield-group>'
+            ].join('');
+            return parts;
+        }
+
+        function generatePreviousChopsHtml(){ 
+            var parts = [
+                '<uif-message-bar ng-if="block.previousChops.length === 0"><uif-content>{{selectedStage.name}} {{block.title}} has no previous chops for this document</uif-content></uif-message-bar>'
+            ].join('');
+            
+            return parts;
+        }
+
+        function generateShowAllSectionsMessage(){
+            var parts = [
+                '<uif-message-banner uif-is-visible="!!selectedTab" uif-action-label="Show All Sections" uif-action="onTabClicked()">',
+                '   <uif-content> You are only looking at <b>one section</b> of the {{selectedStage.name}} routing sheet.  To see the other sections click the button.</uif-content>',
+                '</uif-message-banner>'
+            ].join('');
+            return parts;
+        }
+
+        function generateTabsHtml(){
+            var parts = [
+                '<ul class="ms-Pivot ms-Pivot--tabs ms-Pivot--large">',
+                '   <li class="ms-Pivot-link" ng-repeat="block in signatureBlocks" ng-click="onTabClicked(block)" ng-class="{\'is-selected\': block.signOnBehalfOf === selectedTab}">{{block.title}}</li>',
+                '</ul>'
+            ].join('');
+            return parts;   
+        }
+    }
+
+})();    
 
 /* Controller: OrgDashboardAspxController */
 (function () {

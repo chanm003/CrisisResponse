@@ -2,21 +2,17 @@
 	uif-selected="vm.tabConfig.selectedPivot" id="msPivot" class="pivot-overflow-fix">
 </uif-pivot>
 
+<!--TAB 1 CONTENT -->
 <div class="ms-Grid" ng-show="vm.tabConfig.selectedPivot.title === 'Timeline'">
 	<div class="ms-Grid-row">
 		<div class="ms-Grid-col ms-u-sm12 ms-u-md12 ms-u-lg12">
 			<mission-timeline missions="vm.missions" on-missions-filtered="vm.onMissionsFiltered(missions)" ></mission-timeline>
-
-			<p>{{vm.missionProductsDataSource.length}}
-            </p>
-			<p>{{vm.chopProcessesDataSource.length}}</p>
 		</div>
 	</div>
 </div>
 
-<br/>
-<br/>
 
+<!--TAB 3 CONTENT -->
 <div class="ms-Grid" ng-show="vm.tabConfig.selectedPivot.title === 'Product Chop'">
   <div class="ms-Grid-row">
     <div class="ms-Grid-col ms-u-sm10 ms-u-md10 ms-u-lg10">
@@ -56,4 +52,5 @@
   </div>
 </div>
 
-<p>{{vm.chopStatuses}}</p>
+<!--HIDDEN MODAL-->
+<routing-sheet></routing-sheet>
