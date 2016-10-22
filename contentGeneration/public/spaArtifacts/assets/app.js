@@ -1946,11 +1946,11 @@
         var directiveDefinition = {
             restrict: 'E',
             scope: {
-                steps: "="
+                document: "="
             },
             template:
             '<ul class="horizontal-timeline">\
-                    <li ng-repeat="step in steps" class="li" ng-class="{\'complete\': step.status===\'complete\', \'incomplete\': step.status===\'incomplete\' }">\
+                    <li ng-repeat="step in document.chopProcessInfo.routeStepsVisualizationDataSource" class="li" ng-class="{\'complete\': step.status===\'complete\', \'incomplete\': step.status===\'incomplete\' }">\
                         <div class="status">\
                             <h4>\
                                 {{step.text}}\
@@ -1961,7 +1961,6 @@
         };
         return directiveDefinition;
     }
-
 })();
 
 /* Directive: rfibutton */
@@ -2484,7 +2483,7 @@
         var directiveDefinition = {
             restrict: 'E',
             scope: {
-                processInfo: "="
+                document: "="
             },
             link: link,
             template: buildFacePileHtml()
@@ -2522,8 +2521,8 @@
         }
 
         function link(scope, elem, attrs) {
-            if(scope.processInfo.requiresDecisionFrom){
-                scope.selectedRouteStage = _.find(scope.processInfo.routeStages, {name: scope.processInfo.requiresDecisionFrom});
+            if(scope.document.chopProcessInfo.requiresDecisionFrom){
+                scope.selectedRouteStage = _.find(scope.document.chopProcessInfo.routeStages, {name: scope.document.chopProcessInfo.requiresDecisionFrom});
             }  
         }
     }

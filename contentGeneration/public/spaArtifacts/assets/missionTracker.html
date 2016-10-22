@@ -34,10 +34,10 @@
             <uif-table-cell>{{item.Mission.FullName}}</uif-table-cell>
             <uif-table-cell>{{item.TypeOfDocument}}</uif-table-cell>
 			<uif-table-cell style="white-space:nowrap;">
-				<routing-process-visualization steps="item.chopProcessInfo.routeStepsVisualizationDataSource"></routing-process-visualization>
+				<routing-process-visualization document="item"></routing-process-visualization>
 			</uif-table-cell>
 			<uif-table-cell style="white-space:nowrap;">
-        <routing-process-participants process-info="item.chopProcessInfo"></routing-process-participants>
+        <routing-process-participants document="item"></routing-process-participants>
 			</uif-table-cell>
           </uif-table-row>
 		</uif-table-body>
