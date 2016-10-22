@@ -34,7 +34,7 @@
             <uif-table-cell>{{item.Mission.FullName}}</uif-table-cell>
             <uif-table-cell style="white-space:nowrap;">{{item.TypeOfDocument}}</uif-table-cell>
 			<uif-table-cell style="white-space:nowrap;">
-				<routing-process-visualization steps="item.routeSteps"></routing-process-visualization>
+				<routing-process-visualization steps="item.chopProcessInfo.routeStepsVisualizationDataSource"></routing-process-visualization>
 			</uif-table-cell>
 			<uif-table-cell style="white-space:nowrap;">
 				
@@ -46,7 +46,7 @@
     <div class="ms-Grid-col ms-u-sm2 ms-u-md2 ms-u-lg2">
       <uif-contextual-menu uif-is-open="true" uif-multiselect="true" uif-close-on-click="false">
         <uif-contextual-menu-item uif-text="'Filter by Status'" uif-type="header"></uif-contextual-menu-item>
-        <uif-contextual-menu-item ng-repeat="item in vm.filterOptions.chopProcesses.overallChopStatus" uif-is-selected="item.isSelected" ng-click="vm.onFilterOptionClicked(item, 'chopProcesses', 'overallChopStatus')">
+        <uif-contextual-menu-item ng-repeat="item in vm.filterOptions.chopProcesses.overallChopStatus" uif-is-selected="item.isSelected" ng-click="vm.onFilterOptionClicked(item, 'chopProcesses')">
           <uif-content>
             <span style="font-size:11px;" title="{{item.key}}">{{item.key}}</span>
           </uif-content>

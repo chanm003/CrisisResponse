@@ -929,64 +929,8 @@
             return (errors.length) ? "\n\t-" + errors.join("\n\t-") : "";
         }
 
-        MissionDocument.prototype.buildRouteStages = function(jocInBoxConfig, documentChops){
-            if(!this.ChopRouteSequence) { return; }   
-
-            var stageNames = this.ChopRouteSequence.split(';');
-            var routeStages = _.map(stageNames, function(stageName){
-                var routeStage = {
-                    name: stageName,
-                    cdrDecisions: buildCommanderDecisionsList(stageName, documentChops),
-                    staffSectionDecisions: buildStaffDecisionsDictionaryLookup(jocInBoxConfig, stageName, documentChops)
-                };
-                return routeStage;
-            });
-            return routeStages;
-
-            function buildCommanderDecisionsList(organizationName, documentChops){
-                return _.chain(documentChops)
-                        .filter({Organization: organizationName, OrganizationalRole: "CDR"})
-                        .orderBy(['Created'], ['desc'])
-                        .value();
-            }
-
-            function buildStaffDecisionsDictionaryLookup(jocInBoxConfig, organizationName, documentChops){
-                var decisionLookup = {};
-                _.each(jocInBoxConfig.dashboards[organizationName].optionsForChoiceField, function(staffSectionName){
-                    decisionLookup[staffSectionName] = _.chain(documentChops)
-                                                            .filter({Organization: organizationName, OrganizationalRole: staffSectionName})
-                                                            .orderBy(['Created'], ['desc'])
-                                                            .value();
-                });
-                return decisionLookup;
-            }
-        }
-
-        MissionDocument.prototype.derviveOverallChopStatus = function(){
-            if(!this.routeStages) { return "Chop Process has not been initiated" }
-
-            //check for "Approved"
-            var decisionsByFinalCommander = _.last(this.routeStages).cdrDecisions;
-            var mostRecentDecisionByFinalCommander = (decisionsByFinalCommander.length && decisionsByFinalCommander[0]) || null;
-            if(mostRecentDecisionByFinalCommander  && mostRecentDecisionByFinalCommander.Verdict === "Concur"){
-                return "Approved";
-            }
-
-            //check for "Disapproved" i.e. if even one commander has Disapproved
-           var evenOneCommanderHasDisapproved = _.find(this.routeStages, function(routeStage){
-                var mostRecentCdrDecision = (routeStage.cdrDecisions.length && routeStage.cdrDecisions[0]) || null;
-                return mostRecentCdrDecision && mostRecentCdrDecision.Verdict === "Nonconcur";
-            });  
-            if(evenOneCommanderHasDisapproved){
-                return "Disapproved";
-            }
-
-            //fall-thru
-            return "In Chop";
-        }
-
         MissionDocument.prototype.isReadyForChop = function(organizationName){
-            if(!this.routeStages) { throw "Chop Process has not been initiated"; }
+            if(!this.chopProcessInfo) { throw "Chop Process has not been initiated"; }
 
             var positionInChopSequence = _.indexOf(this.ChopRouteSequence, organizationName);
             if(positionInChopSequence === 0){
@@ -994,7 +938,7 @@
                 return true;
             }
 
-            var previousOrganizationInSequence = this.routeStages[positionInChopSequence-1];
+            var previousOrganizationInSequence = this.chopProcessInfo.routeStages[positionInChopSequence-1];
             return previousOrganizationInSequence.cdrDecisions.length && previousOrganizationInSequence.cdrDecisions[0].Verdict === "Concur";
         }
 
@@ -1012,23 +956,88 @@
             return DocumentChopsRepository.save(dto);
         }
 
-        MissionDocument.prototype.buildStepsForHorizontalVisualization = function(){
-            if(!this.routeStages) { throw "Chop Process has not been initiated"; } 
+        MissionDocument.prototype.refreshChopProcessInfo = function(){
+            if(!this.ChopRouteSequence) {
+                this.chopProcessInfo = null;
+                return;
+            }   
 
+            if(!this.chopProcessInfo){
+                this.chopProcessInfo = {
+                    routeStages: buildRouteStages(this, jocInBoxConfig)
+                };
+            }
+            this.chopProcessInfo.overallChopStatus = deriveOverallChopStatus(this);
+            this.chopProcessInfo.routeStepsVisualizationDataSource = buildRouteStepsVisualizationDataSource(this);
+        }
+
+        function buildRouteStages(doc, jocInBoxConfig){
+            var stageNames = doc.ChopRouteSequence.split(';');
+            var routeStages = _.map(stageNames, function(stageName){
+                var routeStage = {
+                    name: stageName,
+                    cdrDecisions: buildCommanderDecisionsList(stageName, doc.relatedChops),
+                    staffSectionDecisions: buildStaffDecisionsDictionaryLookup(jocInBoxConfig, stageName, doc.relatedChops)
+                };
+                return routeStage;
+            });
+            return routeStages; 
+
+            function buildCommanderDecisionsList(organizationName, documentChops){
+                return _.chain(documentChops)
+                        .filter({Organization: organizationName, OrganizationalRole: "CDR"})
+                        .orderBy(['Created'], ['desc'])
+                        .value();
+            }
+
+            function buildStaffDecisionsDictionaryLookup(jocInBoxConfig, organizationName, documentChops){
+                var decisionLookup = {};
+                _.each(jocInBoxConfig.dashboards[organizationName].optionsForChoiceField, function(staffSectionName){
+                    decisionLookup[staffSectionName] = _.chain(documentChops)
+                                                            .filter({Organization: organizationName, OrganizationalRole: staffSectionName})
+                                                            .orderBy(['Created'], ['desc'])
+                                                            .value();
+                });
+                return decisionLookup;
+            }   
+        }
+
+        function buildRouteStepsVisualizationDataSource(doc){
             var map = {
                 'Concur': 'complete',
                 'Nonconcur': 'incomplete',
                 'Pending': ''
             };
 
-            var steps = _.map(this.routeStages, function(routeStage){
+            var steps = _.map(doc.chopProcessInfo.routeStages, function(routeStage){
                 var mostRecentCdrDecision = routeStage.cdrDecisions[0] || null;
                 return {
                     text: routeStage.name,
                     status: (mostRecentCdrDecision) ? map[mostRecentCdrDecision.Verdict] : ''
                 }    
             }); 
-            return steps; 
+            return steps;
+        }
+
+        function deriveOverallChopStatus(doc){
+            //check for "Approved"
+            var decisionsByFinalCommander = _.last(doc.chopProcessInfo.routeStages).cdrDecisions;
+            var mostRecentDecisionByFinalCommander = (decisionsByFinalCommander.length && decisionsByFinalCommander[0]) || null;
+            if(mostRecentDecisionByFinalCommander  && mostRecentDecisionByFinalCommander.Verdict === "Concur"){
+                return "Approved";
+            }
+
+            //check for "Disapproved" i.e. if even one commander has Disapproved
+           var evenOneCommanderHasDisapproved = _.find(doc.chopProcessInfo.routeStages, function(routeStage){
+                var mostRecentCdrDecision = (routeStage.cdrDecisions.length && routeStage.cdrDecisions[0]) || null;
+                return mostRecentCdrDecision && mostRecentCdrDecision.Verdict === "Nonconcur";
+            });  
+            if(evenOneCommanderHasDisapproved){
+                return "Disapproved";
+            }
+
+            //fall-thru
+            return "In Chop";
         }
 
         return MissionDocument;
@@ -2884,7 +2893,7 @@
 
         function shouldShowBasedOnSelectedChopStatuses(item){
             var selectedStatuses = _.map(_.filter(vm.filterOptions.chopProcesses.overallChopStatus,{isSelected: true} ), 'key');
-            return _.includes(selectedStatuses, item.overallChopStatus);
+            return _.includes(selectedStatuses, item.chopProcessInfo.overallChopStatus);
         }
 
         /**
@@ -2903,6 +2912,8 @@
                 ])
                 .then(function (data) {
                     var docs = data[0];
+
+                    console.log(_.map(docs, 'chopProcessInfo'));
                     dataSources.missionRelatedDocs = data[0];
                     dataSources.chopProcesses = _.filter(dataSources.missionRelatedDocs, function(doc){ return !!doc.ChopProcess; });
                     buildFilterControlsForChopProcesses();
@@ -2954,36 +2965,27 @@
         }
 
         function getMissionRelatedDocumentsWithTheirAssociatedChops(){
-            var chopsJSON; 
 
             return $q.all([
                     MissionDocumentRepository.getMissionRelated(),
                     DocumentChopsRepository.getAll()
                 ])
                 .then(function (data) {
-                    chopsJSON = data[1];
-                    var docs = _.chain(data[0])
-                                    .map(function(item){ return new MissionDocument(item); })
-                                    .each(checkForAssociatedChops)
-                                    .value();
-                    return docs;
+                    var chopsJSON = data[1];
+                    var docs = _.map(data[0], function(item){ 
+                        var doc = new MissionDocument(item);
+                        doc.relatedChops = getRelatedChops(doc, chopsJSON);
+                        doc.refreshChopProcessInfo();
+                        return doc;
+                    });
+                    return docs;                                    
                 });
             
-            function checkForAssociatedChops(doc){
-                if(doc.ChopProcess){
-                    var relatedChops = getRelatedChops(doc);
-                    doc.routeStages = doc.buildRouteStages(jocInBoxConfig, relatedChops);
-                    doc.overallChopStatus = doc.derviveOverallChopStatus();
-                    doc.routeSteps = doc.buildStepsForHorizontalVisualization();
-                    
-                }
-
-                function getRelatedChops(doc){
-                    return _.filter(chopsJSON, function(docChop){
-                        return parseInt(docChop.DocumentId, 10) === doc.Id;
-                    });
-                }
-            }      
+             function getRelatedChops(doc, chopsJSON) {
+                return _.filter(chopsJSON, function(docChop){
+                    return parseInt(docChop.DocumentId, 10) === doc.Id;
+                });
+            }
         }    
     }
 })();
