@@ -929,17 +929,29 @@
             return (errors.length) ? "\n\t-" + errors.join("\n\t-") : "";
         }
 
-        MissionDocument.prototype.isReadyForChop = function(organizationName){
+        MissionDocument.prototype.checkIfChoppingOutOfTurn = function(organizationName){
             if(!this.chopProcessInfo) { throw "Chop Process has not been initiated"; }
 
-            var positionInChopSequence = _.indexOf(this.ChopRouteSequence, organizationName);
-            if(positionInChopSequence === 0){
-                //organization is the first one to chop...
-                return true;
+            if(organizationName === this.chopProcessInfo.lastKnownLocationAlongRoute){
+                //no errors
+                return null;
             }
-
-            var previousOrganizationInSequence = this.chopProcessInfo.routeStages[positionInChopSequence-1];
-            return previousOrganizationInSequence.cdrDecisions.length && previousOrganizationInSequence.cdrDecisions[0].Verdict === "Concur";
+            var routeStageNames = _.map(this.chopProcessInfo.routeStages, "name");
+            var positionInChopSequence = _.indexOf(routeStageNames, organizationName);
+            var positionOfCurrentLocation = _.indexOf(routeStageNames, this.chopProcessInfo.lastKnownLocationAlongRoute);
+           
+            if(positionInChopSequence < positionOfCurrentLocation){
+                return {
+                    errorType: 'TooLate',
+                    message: "This form is read-only.  Too late for " + organizationName + " to chop.  This is now sitting on the desk of the " + this.chopProcessInfo.lastKnownLocationAlongRoute
+                };
+            } else {
+                var whoStillNeedsToApprove = routeStageNames.slice(positionOfCurrentLocation, positionInChopSequence).join(', ');
+                return {
+                    errorType: 'TooEarly',
+                    message: "This document is not ready for " + organizationName + " to chop. It still needs to be approved by the following organization(s): " + whoStillNeedsToApprove
+                };
+            }
         }
 
         MissionDocument.prototype.createChop = function(org, orgRole, verdict, comments){
@@ -970,11 +982,9 @@
             this.chopProcessInfo.overallChopStatus = deriveOverallChopStatus(this);
             this.chopProcessInfo.routeStepsVisualizationDataSource = buildRouteStepsVisualizationDataSource(this);
 
-            if(this.chopProcessInfo.overallChopStatus === "Approved" || this.chopProcessInfo.overallChopStatus === "Disapproved"){
-                this.chopProcessInfo.requiresDecisionFrom = null;
-            } else {
-                this.chopProcessInfo.requiresDecisionFrom = findCommandThatMustTakeAction(this);
-            }
+            var noLongerRequiresAction = (this.chopProcessInfo.overallChopStatus === "Approved" || this.chopProcessInfo.overallChopStatus === "Disapproved");
+            this.chopProcessInfo.requiresDecisionFrom = (noLongerRequiresAction) ? null: findCommandThatMustTakeAction(this);
+            this.chopProcessInfo.lastKnownLocationAlongRoute = findLastKnownLocationAlongRoute(this);
         }
 
         function buildRouteStages(doc, jocInBoxConfig){
@@ -1061,6 +1071,29 @@
                 return !mostRecentCdrDecision || mostRecentCdrDecision.Verdict === "Pending";
             });
             return stage.name;
+        }
+
+        function findLastKnownLocationAlongRoute(doc){
+            //need to iterate array starting from the back
+            var indexesReversed = _.reverse(_.range(doc.chopProcessInfo.routeStages.length));
+            var indexCorrespondingToRouteStageWhereCommanderMadeDecision = _.find(indexesReversed, function(index){
+                var routeStage = doc.chopProcessInfo.routeStages[index];
+                return routeStage.cdrDecisions.length; 
+            });
+
+            if(!indexCorrespondingToRouteStageWhereCommanderMadeDecision){
+                //not a single commander along the route has made a decisionLookup, so the first commander has the "conch"
+                return doc.chopProcessInfo.routeStages[0].name;
+            }
+
+            var mostRecentCdrDecsion = doc.chopProcessInfo.routeStages[indexCorrespondingToRouteStageWhereCommanderMadeDecision].cdrDecisions[0];
+            var isFinalCommander = (indexCorrespondingToRouteStageWhereCommanderMadeDecision === doc.chopProcessInfo.routeStages.length);
+            if(isFinalCommander || mostRecentCdrDecsion.Verdict !== "Approved"){
+                //commander has disapproved, or marked as pending, so "conch" has not been passed to next commander on the route
+                return doc.chopProcessInfo.routeStages[indexCorrespondingToRouteStageWhereCommanderMadeDecision].name;
+            } else {
+               return doc.chopProcessInfo.routeStages[indexCorrespondingToRouteStageWhereCommanderMadeDecision+1].name;
+            }
         }
 
         return MissionDocument;
@@ -2579,6 +2612,7 @@
                 scope.document = args.document;
                 scope.selectedStage = _.find(scope.document.chopProcessInfo.routeStages, {name: args.stepName});
                 buildSignatureBlocks();
+                scope.errors = scope.document.checkIfChoppingOutOfTurn(scope.selectedStage.name);
                 scope.showPanel = true;
             });  
 
@@ -2620,16 +2654,17 @@
             '   </uif-panel-header>',
             '   <uif-content>',
                     generateTabsHtml(),
+                    generateChoppingOutOfSequenceError(),
                     generateShowAllSectionsMessage(),
                     generateDetailsAboutDocument(),
-            '       <div class="ms-Grid">',
+            '       <div class="ms-Grid" ng-if="!errors || errors.errorType !== \'TooEarly\'" >',
             '           <div class="ms-Grid-row" ng-show="!selectedTab || selectedTab === block.signOnBehalfOf" ng-repeat="block in signatureBlocks" style="margin-top: 20px;">',
             '               <div class="ms-Grid-col ms-u-md12">',
             '                   <div class="form-header"><span class="ms-font-xl">{{block.title}}</span></div>',
             '                   <div class="ms-Grid">',
             '                       <div class="ms-Grid-row">',
             '                           <div class="ms-Grid-col ms-u-md4">',
-            '                               <uif-textfield ng-model="block.Comments"  uif-multiline="true" />',
+            '                               <uif-textfield ng-model="block.Comments" uif-multiline="true" ng-disabled="document.chopProcessInfo.lastKnownLocationAlongRoute !== selectedStage.name" />',
                                             generateVerdictPicker(),
                                             generateButtonsHtml(),
             '                           </div>',
@@ -2647,16 +2682,25 @@
         return parts;
 
         function generateButtonsHtml(){
-            return '<uif-button type="button" uif-type="primary" ng-click="saveChop(block)">Chop</uif-button>';
+            return '<uif-button type="button" uif-type="primary" ng-click="saveChop(block)" ng-disabled="document.chopProcessInfo.lastKnownLocationAlongRoute !== selectedStage.name">Chop</uif-button>';
+        }
+
+        function generateChoppingOutOfSequenceError(){
+            var parts = [
+                '<uif-message-bar uif-type="error" ng-if="!!errors"> <uif-content>{{errors.message}}</uif-content></uif-message-bar>'
+            ]
+            .join('');
+            
+            return parts;
         }
 
         function generateDetailsAboutDocument(){
-            return '<br/><uif-message-bar> <uif-content>The document you are chopping on can be referenced </uif-content> <uif-link ng-href="{{document.File.ServerRelativeUrl}}">here</uif-link> </uif-message-bar>';
+            return '<br/><uif-message-bar> <uif-content>The document being chopped can be referenced </uif-content> <uif-link ng-href="{{document.File.ServerRelativeUrl}}">here</uif-link> </uif-message-bar>';
         }
 
         function generateVerdictPicker(){
             var parts = [
-                '<uif-choicefield-group ng-model="block.Verdict">',
+                '<uif-choicefield-group ng-model="block.Verdict" ng-disabled="document.chopProcessInfo.lastKnownLocationAlongRoute !== selectedStage.name">',
                 '   <uif-choicefield-option uif-type="radio" value="Concur">Concur</uif-choicefield-option>',
                 '   <uif-choicefield-option uif-type="radio" value="Nonconcur">Nonconcur</uif-choicefield-option>',
                 '   <uif-choicefield-option uif-type="radio" value="Pending">Pending</uif-choicefield-option>',
@@ -2713,7 +2757,7 @@
 
         function generateTabsHtml(){
             var parts = [
-                '<ul class="ms-Pivot ms-Pivot--tabs ms-Pivot--large">',
+                '<ul ng-if="signatureBlocks.length > 1 && !errors" class="ms-Pivot ms-Pivot--tabs ms-Pivot--large">',
                 '   <li class="ms-Pivot-link" ng-repeat="block in signatureBlocks" ng-click="onTabClicked(block)" ng-class="{\'is-selected\': block.signOnBehalfOf === selectedTab}">{{block.title}}</li>',
                 '</ul>'
             ].join('');
