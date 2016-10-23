@@ -58,7 +58,7 @@
       </uif-table>
     </div>
     <div class="ms-Grid-col ms-u-sm2 ms-u-md2 ms-u-lg2">
-      <uif-contextual-menu uif-is-open="true" uif-multiselect="true" uif-close-on-click="false">
+      <uif-contextual-menu ng-show="vm.filterControlDataSource.length" uif-is-open="true" uif-multiselect="true" uif-close-on-click="false">
         <uif-contextual-menu-item uif-text="'Filter by OPR'" uif-type="header"></uif-contextual-menu-item>
         <uif-contextual-menu-item ng-repeat="item in vm.filterControlDataSource" uif-is-selected="item.isSelected" ng-click="vm.applyFilters(item)">
           <uif-content>
