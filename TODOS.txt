@@ -10,3 +10,35 @@ CODE SMELLS:
 Question:
 - currently clicking on one of the subway nodes launches the dialog AND potentially changes the facepiles
 - should we always just fix the facepiles to the command that has the CONCH?
+
+=========================================================================
+DEPLOYMENT STEPS
+=========================================================================
+At the base of a subsite create a document libary called "generator"
+Three folders and one file get pasted into the general folder:
+spArtifacts
+src
+vendor
+index.aspx
+
+Modify spaArtifacts\assets\app.js 
+var globalConfig = { baseUrl: 'http://localhost:3000/spaArtifacts/assets'};
+var globalConfig = { baseUrl: _spPageContextInfo.webServerRelativeUrl + '/SitePages' };
+
+Modify src\app\common\common.js 
+this.settings = {baseUrl: 'http://localhost:3000', cdn: 'http://localhost:3000/spaArtifacts/assets' };
+this.settings = {baseUrl: _spPageContextInfo.webServerRelativeUrl + '/generator', cdn: '~site/SitePages'};
+
+Modify spaArtifacts\assets\app.css, paste at top:
+@import url("font-awesome.min.css");        
+@import url("lobibox.min.css");        
+@import url("fabric.min.css");        
+@import url("fabric.components.min.css");        
+@import url("flags16.css");
+@import url("flags32.css");        
+@import url("fullcalendar.min.css");        
+
+Change to version 15.0.0.0 on all ASPX  
+
+ret is undefined....documents how to patch the JS
+http://www.techmikael.com/2013/07/how-to-copy-files-between-sites-using.html
