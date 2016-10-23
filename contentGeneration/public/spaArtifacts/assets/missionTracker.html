@@ -21,8 +21,9 @@
           <uif-table-row>
             <uif-table-header>Mission</uif-table-header>
             <uif-table-header>Product</uif-table-header>
-			<uif-table-header>Organizations Involved</uif-table-header>
-			<uif-table-header>Staff Sections</uif-table-header>
+			<uif-table-header>Routing Process</uif-table-header>
+      <uif-table-header>CMDWITHCONCH</uif-table-header>
+			<uif-table-header>Choppers</uif-table-header>
           </uif-table-row>
         </uif-table-head>
 		<uif-table-body>
@@ -32,6 +33,9 @@
 			<uif-table-cell style="white-space:nowrap;">
 				<routing-process-visualization document="item"></routing-process-visualization>
 			</uif-table-cell>
+      <uif-table-cell style="white-space:nowrap;">
+          {{item.chopProcessInfo.requiresDecisionFrom}}
+      </uif-table-cell>
 			<uif-table-cell style="white-space:nowrap;">
         <routing-process-participants document="item"></routing-process-participants>
 			</uif-table-cell>

@@ -974,16 +974,23 @@
                 return;
             }   
 
-            if(!this.chopProcessInfo){
-                this.chopProcessInfo = {
-                    routeStages: buildRouteStages(this, jocInBoxConfig)
-                };
-            }
+            this.chopProcessInfo = {
+                routeStages: buildRouteStages(this, jocInBoxConfig)
+            };
+            
             this.chopProcessInfo.overallChopStatus = deriveOverallChopStatus(this);
             this.chopProcessInfo.routeStepsVisualizationDataSource = buildRouteStepsVisualizationDataSource(this);
 
             var noLongerRequiresAction = (this.chopProcessInfo.overallChopStatus === "Approved" || this.chopProcessInfo.overallChopStatus === "Disapproved");
-            this.chopProcessInfo.requiresDecisionFrom = (noLongerRequiresAction) ? null: findCommandThatMustTakeAction(this);
+
+            if(noLongerRequiresAction){
+                this.chopProcessInfo.requiresDecisionFrom = null;
+                this.chopProcessInfo.selectedRouteStage = null;
+            } else {
+                var stageThatMustTakeAction = findCommandThatMustTakeAction(this);
+                this.chopProcessInfo.requiresDecisionFrom = stageThatMustTakeAction.name;
+                this.chopProcessInfo.selectedRouteStage = stageThatMustTakeAction;
+            }
             this.chopProcessInfo.lastKnownLocationAlongRoute = findLastKnownLocationAlongRoute(this);
         }
 
@@ -1003,7 +1010,7 @@
                 return _.chain(documentChops)
                         .filter({Organization: organizationName, OrganizationalRole: "CDR"})
                         .orderBy(['Created'], ['desc'])
-                        .map(convertCreatedToMoment) //AFTER the orderBy operation!
+                        .map(addCreatedToMomentProp) //AFTER the orderBy operation!
                         .value();
             }
 
@@ -1014,15 +1021,15 @@
                         decisionLookup[staffSectionName] = _.chain(documentChops)
                                                                 .filter({Organization: organizationName, OrganizationalRole: staffSectionName})
                                                                 .orderBy(['Created'], ['desc'])
-                                                                .map(convertCreatedToMoment) //AFTER the orderBy operation!
+                                                                .map(addCreatedToMomentProp) //AFTER the orderBy operation!
                                                                 .value();
                     }
                 });
                 return decisionLookup;
             }
 
-            function convertCreatedToMoment(item){
-                item.Created = moment.utc(item.Created);
+            function addCreatedToMomentProp(item){
+                item.CreatedMoment = moment.utc(item.Created);
                 return item;
             } 
         }
@@ -1070,7 +1077,7 @@
                 var mostRecentCdrDecision = routeStage.cdrDecisions[0] || null;
                 return !mostRecentCdrDecision || mostRecentCdrDecision.Verdict === "Pending";
             });
-            return stage.name;
+            return stage;
         }
 
         function findLastKnownLocationAlongRoute(doc){
@@ -1081,14 +1088,14 @@
                 return routeStage.cdrDecisions.length; 
             });
 
-            if(!indexCorrespondingToRouteStageWhereCommanderMadeDecision){
+            if(indexCorrespondingToRouteStageWhereCommanderMadeDecision === undefined){
                 //not a single commander along the route has made a decisionLookup, so the first commander has the "conch"
                 return doc.chopProcessInfo.routeStages[0].name;
             }
 
-            var mostRecentCdrDecsion = doc.chopProcessInfo.routeStages[indexCorrespondingToRouteStageWhereCommanderMadeDecision].cdrDecisions[0];
+            var mostRecentCdrDecision = doc.chopProcessInfo.routeStages[indexCorrespondingToRouteStageWhereCommanderMadeDecision].cdrDecisions[0];
             var isFinalCommander = (indexCorrespondingToRouteStageWhereCommanderMadeDecision === doc.chopProcessInfo.routeStages.length);
-            if(isFinalCommander || mostRecentCdrDecsion.Verdict !== "Approved"){
+            if(isFinalCommander || mostRecentCdrDecision.Verdict !== "Concur"){
                 //commander has disapproved, or marked as pending, so "conch" has not been passed to next commander on the route
                 return doc.chopProcessInfo.routeStages[indexCorrespondingToRouteStageWhereCommanderMadeDecision].name;
             } else {
@@ -2005,6 +2012,10 @@
 
         function link(scope, elem, attrs){
             scope.onStepClicked = function(stepName){
+                /*
+                FACEPILE dialog listens to selectedRouteStage property -- do we want to rerender the facepile each time a user clicks a subway-node?
+                scope.document.chopProcessInfo.selectedRouteStage = _.find(scope.document.chopProcessInfo.routeStages, {name: stepName});
+                */
                 $rootScope.$broadcast("routing-process-visualization:nodeClicked", {
                     stepName: stepName,
                     document: scope.document
@@ -2146,7 +2157,7 @@
                 function onChopStartedSuccessfully(item) {
                     scope.chopProcessTimestamp = item.ChopProcess;
                     scope.chopDialogCtx.show = false;
-                    var missionTrackerUrl = _spPageContextInfo.webServerRelativeUrl + "/SitePages/app.aspx/#/missionTracker";
+                    var missionTrackerUrl = _spPageContextInfo.webServerRelativeUrl + "/SitePages/app.aspx/#/missiontracker/2";
                     logger.success('Track the process using the <a href="' + missionTrackerUrl + '" style="text-decoration:underline;color:white;">Mission Tracker</a>', {
                         title: "Chop Process initiated",
                         alwaysShowToEnduser: true,
@@ -2549,14 +2560,14 @@
 				'       <div class="ms-Facepile-itemBtn ms-Facepile-itemBtn--member">',
                 '           <div size="1" class="ms-Persona ms-Persona--xs">',
 				'               <div class="ms-Persona-imageArea">',
-                '                   <div ng-if="selectedRouteStage.cdrDecisions[0].Verdict === \'Concur\'" class="ms-Persona-initials ms-Persona-initials--darkGreen"><i class="fa fa-thumbs-o-up"></i></div>',
-                '                   <div ng-if="selectedRouteStage.cdrDecisions[0].Verdict === \'Nonconcur\'" class="ms-Persona-initials ms-Persona-initials--darkRed"><i class="fa fa-thumbs-o-down"></i></div>',
-                '                   <div ng-if="selectedRouteStage.cdrDecisions[0].Verdict === \'Pending\'" class="ms-Persona-initials ms-Persona-initials--blue"><i class="fa fa-hourglass-start"></i></div>',
-                '                   <div ng-if="selectedRouteStage.cdrDecisions.length === 0" class="ms-Persona-initials ms-Persona-initials--blue"><i class="ms-Facepile-addPersonIcon ms-Icon ms-Icon--chat"></i></div>',                
+                '                   <div ng-if="document.chopProcessInfo.selectedRouteStage.cdrDecisions[0].Verdict === \'Concur\'" class="ms-Persona-initials ms-Persona-initials--darkGreen"><i class="fa fa-thumbs-o-up"></i></div>',
+                '                   <div ng-if="document.chopProcessInfo.selectedRouteStage.cdrDecisions[0].Verdict === \'Nonconcur\'" class="ms-Persona-initials ms-Persona-initials--darkRed"><i class="fa fa-thumbs-o-down"></i></div>',
+                '                   <div ng-if="document.chopProcessInfo.selectedRouteStage.cdrDecisions[0].Verdict === \'Pending\'" class="ms-Persona-initials ms-Persona-initials--blue"><i class="fa fa-hourglass-start"></i></div>',
+                '                   <div ng-if="document.chopProcessInfo.selectedRouteStage.cdrDecisions.length === 0" class="ms-Persona-initials ms-Persona-initials--blue"><i class="ms-Facepile-addPersonIcon ms-Icon ms-Icon--chat"></i></div>',                
                 '               </div>',
                 '           </div>',
                 '       </div>',
-				'       <div class="ms-Facepile-itemBtn ms-Facepile-itemBtn--member" ng-repeat="(sectionName, decisions) in selectedRouteStage.staffSectionDecisions">',
+				'       <div class="ms-Facepile-itemBtn ms-Facepile-itemBtn--member" ng-repeat="(sectionName, decisions) in document.chopProcessInfo.selectedRouteStage.staffSectionDecisions">',
                 '           <div size="1" class="ms-Persona ms-Persona--xs">',
 				'               <div class="ms-Persona-imageArea">',
                 '                   <div ng-if="decisions[0].Verdict === \'Concur\'" class="ms-Persona-initials ms-Persona-initials--darkGreen"><i class="fa fa-thumbs-o-up"></i></div>',
@@ -2573,15 +2584,7 @@
         }
 
         function link(scope, elem, attrs) {
-            if(scope.document.chopProcessInfo.requiresDecisionFrom){
-                scope.selectedRouteStage = _.find(scope.document.chopProcessInfo.routeStages, {name: scope.document.chopProcessInfo.requiresDecisionFrom});
-            }
-
-            $rootScope.$on("routing-process-visualization:nodeClicked", function(evt, args){
-                if(args.document.Id == scope.document.Id){
-                    scope.selectedRouteStage = _.find(scope.document.chopProcessInfo.routeStages, {name: args.stepName});
-                }
-            })  
+          
         }
     }
 
@@ -2593,7 +2596,7 @@
         .module('app.core')
         .directive('routingSheet', directiveDefinitionFunc);
 
-    function directiveDefinitionFunc($rootScope) {
+    function directiveDefinitionFunc($rootScope, logger, MissionDocument) {
         /* 
         USAGE: <routing-sheet></routing-sheet>
         SIMPLY listens for an event
@@ -2622,6 +2625,29 @@
 
             scope.replaceLineBreaks = function(text){
                 return !!text ? text.replace(/(?:\r\n|\r|\n)/g, '<br />'): '';
+            }
+
+            scope.saveChop = function(block){
+                block.errors = "";
+                if(!block.Verdict){
+                    block.errors = "Please specify 'Concur', 'Nonconcur', or 'Pending'";
+                    return;
+                }
+                if(block.Verdict === "Nonconcur" && !block.Comments){
+                    block.errors = "Comments are required when nonconcurring";
+                    return;
+                }
+
+                scope.document.createChop(scope.selectedStage.name, block.signOnBehalfOf, block.Verdict, block.Comments).then(function(item){
+                    item.Author = {
+                        Title: "You"
+                    };
+
+                    //TODO: display logger message
+                    scope.document.relatedChops.push(item);
+                    scope.document.refreshChopProcessInfo();
+                    scope.showPanel = false
+                });
             }
 
             function buildSignatureBlocks(){
@@ -2664,8 +2690,9 @@
             '                   <div class="ms-Grid">',
             '                       <div class="ms-Grid-row">',
             '                           <div class="ms-Grid-col ms-u-md4">',
-            '                               <uif-textfield ng-model="block.Comments" uif-multiline="true" ng-disabled="document.chopProcessInfo.lastKnownLocationAlongRoute !== selectedStage.name" />',
+            '                               <uif-textfield uif-label="Comments" ng-model="block.Comments" uif-multiline="true" ng-disabled="document.chopProcessInfo.lastKnownLocationAlongRoute !== selectedStage.name" />',
                                             generateVerdictPicker(),
+                                            generateBlockErrorMessages(),
                                             generateButtonsHtml(),
             '                           </div>',
             '                           <div class="ms-Grid-col ms-u-md8">',
@@ -2680,6 +2707,15 @@
             '</uif-panel>'
         ].join('');
         return parts;
+
+        function generateBlockErrorMessages(){
+             var parts = [
+                '<div style="margin-bottom:5px;"><uif-message-bar uif-type="error" ng-if="!!block.errors"> <uif-content>{{block.errors}}</uif-content></uif-message-bar></div>'
+            ]
+            .join('');
+            
+            return parts;
+        }
 
         function generateButtonsHtml(){
             return '<uif-button type="button" uif-type="primary" ng-click="saveChop(block)" ng-disabled="document.chopProcessInfo.lastKnownLocationAlongRoute !== selectedStage.name">Chop</uif-button>';
@@ -2723,7 +2759,7 @@
                 '               <i ng-if="item.Verdict === \'Pending\'" class="fa fa-hourglass-start fa-2x"></i>',
                 '           </div>',
 			    '           <div class="cmmnt-content">',
-				'               <header><a class="userlink">{{item.Author.Title}}</a> - <span class="pubdate">{{item.Created.format(\'DD MMM YY HHmm[Z]\').toUpperCase()}}</span></header>',
+				'               <header><a class="userlink">{{item.Author.Title}}</a> - <span class="pubdate">{{item.CreatedMoment.format(\'DD MMM YY HHmm[Z]\').toUpperCase()}}</span></header>',
 				'               <p ng-bind-html="replaceLineBreaks(item.Comments)"></p>',
 			    '           </div>',
 		        '       </li>',
@@ -3207,14 +3243,6 @@
             var selectedStatuses = _.map(_.filter(vm.filterOptions.chopProcesses.overallChopStatus,{isSelected: true} ), 'key');
             return _.includes(selectedStatuses, item.chopProcessInfo.overallChopStatus);
         }
-
-        /**
-         * var doc = new MissionDocument();
-         * doc.Id = 808786808415;
-         * doc.createChop("CJSOTF-RO", "Loredana", "Concur", "Wljdlsf asdlfkjlsjdf ").then(function(item){
-         *      console.log(item.Id);
-         * });;
-         */
 
         function activate() {
             initTabs();
