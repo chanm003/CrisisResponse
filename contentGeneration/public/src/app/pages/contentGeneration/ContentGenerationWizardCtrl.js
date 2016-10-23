@@ -302,7 +302,7 @@
 				.groupBy('listName')
 				.map(function (defs, listName) {
 					return {
-						webUrl: vm.childWebUrl || '/ngspa/tf16',
+						webUrl: vm.childWebUrl,
 						listName: listName,
 						fieldsToUpdate: _.map(defs, function (def) {
 							return {
@@ -455,7 +455,15 @@
 					menuItems.push(menuSvc.generateChildMenuNode(org.name, org.name, "rootNode", {url: dashboardUrl}));
 				});
 			}
+			
+			var battlespaceNodes = menuSvc.generateBattleSpaceNodes(vm.childWebUrl, vm.optionalFeatures, vm.componentCommands, vm.airComponents, vm.communicationsComponents);
+			menuItems = menuItems.concat(battlespaceNodes);
 
+			var infoSupportNodes = menuSvc.generateInformationSupportNodes(vm.childWebUrl, vm.optionalFeatures);
+			menuItems = menuItems.concat(infoSupportNodes);
+
+			var recyclebinURL = vm.childWebUrl + "/_layouts/15/RecycleBin.aspx";
+			menuItems.push(menuSvc.generateChildMenuNode("recyclebin", "Recycle Bin", "rootNode", {url: recyclebinURL}));
 
 			return sharepointUtilities.createListItem({
 				webUrl: vm.childWebUrl,
@@ -479,7 +487,9 @@
 	function menuSvc($q) {
 		return {
 			generateBaseMenuNode: generateBaseMenuNode,
-			generateChildMenuNode: generateChildMenuNode
+			generateBattleSpaceNodes: generateBattleSpaceNodes,
+			generateChildMenuNode: generateChildMenuNode,
+			generateInformationSupportNodes: generateInformationSupportNodes
 		};
 
 		function generateBaseMenuNode(siteName){
@@ -508,6 +518,75 @@
 				text: text,
 				li_attr: settings
 			}
+		}
+
+		function generateRandomId(){
+			return Math.random().toString().split('.')[1];
+		}
+
+		function generateBattleSpaceNodes(childWebUrl, selectedOptions, componentCommands, airComponents, communicationsComponents){	
+			var nodes = [];
+			var nodeId_battlespace = generateRandomId();
+			
+			//battlespace root
+			nodes.push(generateChildMenuNode(nodeId_battlespace, "Battlespace Applications", "rootNode", {}));
+
+			//comms
+			if(selectedOptions["Communications Component"]){
+				var commsUrl = childWebUrl + "/SitePages/comms.aspx?org=" + communicationsComponents[0].name;
+				nodes.push(generateChildMenuNode(generateRandomId(), "Communications Tracker", nodeId_battlespace, {url: commsUrl}));
+			}
+
+			//ops summaries for component commands and air component
+			var nodeId_currentOpsSummary = generateRandomId();
+			var currentOpsSummaryBaseUrl = childWebUrl + "/SitePages/projectionScrollable.aspx";
+			nodes.push(generateChildMenuNode(nodeId_currentOpsSummary, "Current Operations Summary", nodeId_battlespace, {url: currentOpsSummaryBaseUrl}));		
+			_.each(componentCommands, function (org) {
+				var url = currentOpsSummaryBaseUrl + "?org=" + org.name;
+				nodes.push(generateChildMenuNode(generateRandomId(), org.name, nodeId_currentOpsSummary, {url: url}));
+			});
+			if(selectedOptions["Air Component"]){
+				var currentOpsSummaryAirName = airComponents[0].name;
+				var currentOpsSummaryAirUrl = currentOpsSummaryBaseUrl + "?org=" + currentOpsSummaryAirName;
+				nodes.push(generateChildMenuNode(generateRandomId(), currentOpsSummaryAirName, nodeId_currentOpsSummary, {url: currentOpsSummaryAirUrl}));
+			}
+
+			//missiontracker
+			var missionTrackerUrl = childWebUrl + "/SitePages/app.aspx/#/missiontracker/";
+			nodes.push(generateChildMenuNode(generateRandomId(), "Mission Tracker/Product Chop", nodeId_battlespace, {url: missionTrackerUrl}));
+
+			//RFI
+			var rfiUrl = childWebUrl + "/SitePages/app.aspx/#/rfi/";
+			nodes.push(generateChildMenuNode(generateRandomId(), "RFI", nodeId_battlespace, {url: rfiUrl}));
+
+			return nodes;
+		}
+
+		function generateInformationSupportNodes(childWebUrl, selectedOptions){	
+			var nodes = [];
+			var nodeId_infoSupport = generateRandomId();
+			
+			//info support
+			nodes.push(generateChildMenuNode(nodeId_infoSupport, "Information & Support", "rootNode", {}));
+
+			//calendar
+			var nodeId_calendar = generateRandomId();
+			var calendarBaseUrl = childWebUrl + "/Lists/Calendar";
+			nodes.push(generateChildMenuNode(nodeId_calendar, "Calendar", nodeId_infoSupport, {}));		
+			nodes.push(generateChildMenuNode(generateRandomId(), "Academics", nodeId_calendar, {url: calendarBaseUrl+"/Academics.aspx" }));
+			nodes.push(generateChildMenuNode(generateRandomId(), "VTC", nodeId_calendar, {url: calendarBaseUrl+"/VTC.aspx" }));
+
+			//helpdesk
+			if(selectedOptions["Help Desk Ticketing System"]){
+				var helpUrl = childWebUrl + "/SitePages/app.aspx/#/helpdesk/"
+				nodes.push(generateChildMenuNode(generateRandomId(), "Help Desk", nodeId_infoSupport, {url: helpUrl}));
+			}
+
+			//phonebook
+			var phoneBookUrl = childWebUrl + "/Lists/Roster"
+			nodes.push(generateChildMenuNode(generateRandomId(), "Phonebook", nodeId_infoSupport, {url: phoneBookUrl }));
+
+			return nodes;
 		}
 	}
 

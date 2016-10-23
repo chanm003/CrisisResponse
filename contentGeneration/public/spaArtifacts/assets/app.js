@@ -2499,8 +2499,9 @@
             }
 
             function generateAnchor_standard(node) {
+                var url = node.li_attr.url || "#";
                 var parts = [
-                    '<a class="noflag" href="' + node.li_attr.url + '" target="' + node.li_attr.target + '">',
+                    '<a class="noflag" href="' + url + '" target="' + node.li_attr.target + '">',
                     '   <span class="menu-label-when-no-flag">' + node.text + '</span>',
                     '</a>'
                 ].join('');
@@ -2508,8 +2509,9 @@
             }
 
             function generateAnchor_withFlagIcon(node) {
+                var url = node.li_attr.url || "#";
                 var parts = [
-                    '<a href="' + node.li_attr.url + '" target="' + node.li_attr.target + '">',
+                    '<a href="' + url + '" target="' + node.li_attr.target + '">',
                     '   <span class="f32"><span class="flag ' + node.flagCode + '"><span class="menu-label-when-flag">' + node.text + '</span></span></span>',
                     '</a>'
                 ].join('');
