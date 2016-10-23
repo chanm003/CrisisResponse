@@ -3207,6 +3207,9 @@
         vm.filterOptions = {
             chopProcesses: {
                 overallChopStatus:[]
+            },
+            products: {
+                organization:[]
             }
         };
 
@@ -3232,6 +3235,7 @@
             vm.missionProductsDataSource = 
                 _.chain(dataSources.missionRelatedDocs)
                     .filter(shouldShowBasedOnSelectedMissions)
+                    .filter(shouldShowBasedOnSelectedOrganizations)
                     .value();
             
             vm.chopProcessesDataSource = 
@@ -3247,8 +3251,13 @@
         }
 
         function shouldShowBasedOnSelectedChopStatuses(item){
-            var selectedStatuses = _.map(_.filter(vm.filterOptions.chopProcesses.overallChopStatus,{isSelected: true} ), 'key');
-            return _.includes(selectedStatuses, item.chopProcessInfo.overallChopStatus);
+            var selectedOptions = _.map(_.filter(vm.filterOptions.chopProcesses.overallChopStatus,{isSelected: true} ), 'key');
+            return _.includes(selectedOptions, item.chopProcessInfo.overallChopStatus);
+        }
+
+        function shouldShowBasedOnSelectedOrganizations(item){
+            var selectedOptions = _.map(_.filter(vm.filterOptions.products.organization,{isSelected: true} ), 'key');
+            return _.includes(selectedOptions, item.Organization);
         }
 
         function activate() {
@@ -3261,6 +3270,7 @@
                     var docs = data[0];
                     dataSources.missionRelatedDocs = data[0];
                     dataSources.chopProcesses = _.filter(dataSources.missionRelatedDocs, function(doc){ return !!doc.ChopProcess; });
+                    buildFilterControlsForProducts();
                     buildFilterControlsForChopProcesses();
                     vm.missions = data[1];
                     logger.info('Activated Mission Tacker View');
@@ -3275,6 +3285,20 @@
                 vm.filterOptions.chopProcesses.overallChopStatus = _.map(statuses, function(status){
                     return {
                         key: status,
+                        isSelected: true
+                    };
+                });
+            }
+        }
+
+        function buildFilterControlsForProducts(){
+            buildOrganizationFilter();
+
+            function buildOrganizationFilter(){
+                var uniqueOrgs = _.sortBy(_.uniq(_.map(dataSources.missionRelatedDocs, "Organization")));
+                vm.filterOptions.products.organization = _.map(uniqueOrgs, function(item){
+                    return {
+                        key: item,
                         isSelected: true
                     };
                 });
