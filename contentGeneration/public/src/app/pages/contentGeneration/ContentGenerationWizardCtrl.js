@@ -18,8 +18,7 @@
 		vm.childWebUrl = "";
 		vm.serverLocation = document.location.protocol + '//' + document.location.host;
 		vm.siteInfo = {
-			cdn: commonConfig.settings.baseUrl + '/spaArtifacts/assets',
-			//cdn: '~site/SitePages',
+			cdn: commonConfig.settings.cdn,
 			name: "Trojan Footprint 16",
 			acronym: 'TF16',
 			parentWeb: _spPageContextInfo.webServerRelativeUrl,

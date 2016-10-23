@@ -3,7 +3,7 @@
     var globalConfig = {
         appErrorPrefix: '[Exercise Application Error] ',
         appTitle: 'Exercise Application',
-        baseUrl: 'http://localhost:3000/spaArtifacts',
+        baseUrl: 'http://localhost:3000/spaArtifacts/assets',
         showDebugToasts: true
     };
 
@@ -2268,7 +2268,7 @@
             controller: controller,
             controllerAs: 'vm',
             bindToController: true, //required in 1.3+ with controllerAs
-            templateUrl: config.baseUrl + '/assets/current-operations-summary.html'
+            templateUrl: config.baseUrl + '/current-operations-summary.html'
         };
     }
 })();
@@ -3168,7 +3168,7 @@
                     state: 'editNav',
                     config: {
                         url: '/editNav',
-                        templateUrl: config.baseUrl + '/assets/editnav.html',
+                        templateUrl: config.baseUrl + '/editnav.html',
                         controller: 'EditNavController',
                         controllerAs: 'vm',
                         title: 'Edit Navigation'
@@ -3203,7 +3203,7 @@
                     state: 'mission',
                     config: {
                         url: '/missiontracker/:tabIndex',
-                        templateUrl: config.baseUrl + '/assets/missionTracker.html',
+                        templateUrl: config.baseUrl + '/missionTracker.html',
                         controller: 'MissionTrackerController',
                         controllerAs: 'vm',
                         title: 'Mission Tracker'
@@ -3411,7 +3411,7 @@
                     state: 'rfi',
                     config: {
                         url: '/rfi/:tabIndex',
-                        templateUrl: config.baseUrl + '/assets/rfi.html',
+                        templateUrl: config.baseUrl + '/rfi.html',
                         controller: 'RfiController',
                         controllerAs: 'vm',
                         title: 'Request for Information'
@@ -3570,7 +3570,7 @@
                     state: 'sandbox',
                     config: {
                         url: '/sandbox',
-                        templateUrl: config.baseUrl + '/assets/devsandbox.html',
+                        templateUrl: config.baseUrl + '/devsandbox.html',
                         controller: 'DeveloperSandboxController',
                         controllerAs: 'vm',
                         title: 'Developer Sandbox'
