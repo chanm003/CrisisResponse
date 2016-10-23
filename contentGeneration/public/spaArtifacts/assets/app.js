@@ -2604,7 +2604,9 @@
         var directiveDefinition = {
             restrict: 'E',
             link: link,
-            scope: {},
+            scope: { 
+                onChopCreated: '&'
+            },
             template: buildPanelHtml()
         };
         return directiveDefinition;
@@ -2646,6 +2648,7 @@
                     //TODO: display logger message
                     scope.document.relatedChops.push(item);
                     scope.document.refreshChopProcessInfo();
+                    scope.onChopCreated()
                     scope.showPanel = false
                 });
             }
@@ -3221,6 +3224,10 @@
             applyFilters();
         }
 
+        vm.onChopCreated = function(){
+            applyFilters();
+        }
+
         function applyFilters(){
             vm.missionProductsDataSource = 
                 _.chain(dataSources.missionRelatedDocs)
@@ -3252,8 +3259,6 @@
                 ])
                 .then(function (data) {
                     var docs = data[0];
-
-                    console.log(_.map(docs, 'chopProcessInfo'));
                     dataSources.missionRelatedDocs = data[0];
                     dataSources.chopProcesses = _.filter(dataSources.missionRelatedDocs, function(doc){ return !!doc.ChopProcess; });
                     buildFilterControlsForChopProcesses();

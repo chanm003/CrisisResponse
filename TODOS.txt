@@ -7,9 +7,6 @@ Getting Web Part Properties:
 CODE SMELLS:
 - <initiatechopbutton> contains too much code, dialog html is currently injected into <body> using jQuery, consider making this a directive, so the jquery only adds <chopDialog> into <body> then figure out some form of directive-to-directive communication mechanism.  <initiatechopbutton> might emit a chopButtonClickedEvent with (missions[], documentObj).  Then the <chopDialog> might emit a documentChopInitiated event handler with (document)
 
-BUG:
-- Since chop dialog can modify overall state, controller should listen for dialog closed event, so it can call apply filters....
-
 Question:
 - currently clicking on one of the subway nodes launches the dialog AND potentially changes the facepiles
 - should we always just fix the facepiles to the command that has the CONCH?
