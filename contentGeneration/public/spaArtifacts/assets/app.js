@@ -79,7 +79,7 @@
         //BOOTSTRAP NG-APP
         angular.element(document).ready(function () { angular.bootstrap(document, ['singlePageApp']); });
 
-        function addMenuDirective(){
+        function addMenuDirective() {
             spPage.find("#sideNavBox").prepend("<nav-menu></nav-menu>");
         }
 
@@ -662,20 +662,20 @@
             }
         }
 
-        function remap(item, propName){
+        function remap(item, propName) {
             var funcMap = {
-                "Created": function(item, propName){
+                "Created": function (item, propName) {
                     return moment(item[propName]);
                 },
-                "DateClosed": function(item, propName){
+                "DateClosed": function (item, propName) {
                     return moment(item[propName]);
                 },
-                "LTIOV": function(item, propName){
+                "LTIOV": function (item, propName) {
                     return moment(item[propName]);
                 }
             }
 
-            if(funcMap[propName]){
+            if (funcMap[propName]) {
                 return funcMap[propName](item, propName);
             } else {
                 return item[propName];
@@ -873,8 +873,25 @@
             } else {
                 for (var prop in data) {
                     if (data.hasOwnProperty(prop)) {
-                        this[prop] = data[prop];
+                        this[prop] = remap(data, prop);
                     }
+                }
+            }
+
+            function remap(item, propName) {
+                var funcMap = {
+                    "Created": function (item, propName) {
+                        return moment(item[propName]);
+                    },
+                    "Modified": function (item, propName) {
+                        return moment(item[propName]);
+                    }
+                }
+
+                if (funcMap[propName]) {
+                    return funcMap[propName](item, propName);
+                } else {
+                    return item[propName];
                 }
             }
         }
@@ -929,18 +946,18 @@
             return (errors.length) ? "\n\t-" + errors.join("\n\t-") : "";
         }
 
-        MissionDocument.prototype.checkIfChoppingOutOfTurn = function(organizationName){
-            if(!this.chopProcessInfo) { throw "Chop Process has not been initiated"; }
+        MissionDocument.prototype.checkIfChoppingOutOfTurn = function (organizationName) {
+            if (!this.chopProcessInfo) { throw "Chop Process has not been initiated"; }
 
-            if(organizationName === this.chopProcessInfo.lastKnownLocationAlongRoute){
+            if (organizationName === this.chopProcessInfo.lastKnownLocationAlongRoute) {
                 //no errors
                 return null;
             }
             var routeStageNames = _.map(this.chopProcessInfo.routeStages, "name");
             var positionInChopSequence = _.indexOf(routeStageNames, organizationName);
             var positionOfCurrentLocation = _.indexOf(routeStageNames, this.chopProcessInfo.lastKnownLocationAlongRoute);
-           
-            if(positionInChopSequence < positionOfCurrentLocation){
+
+            if (positionInChopSequence < positionOfCurrentLocation) {
                 return {
                     errorType: 'TooLate',
                     message: "This form is read-only.  Too late for " + organizationName + " to chop.  This is now sitting on the desk of the " + this.chopProcessInfo.lastKnownLocationAlongRoute
@@ -954,7 +971,7 @@
             }
         }
 
-        MissionDocument.prototype.createChop = function(org, orgRole, verdict, comments){
+        MissionDocument.prototype.createChop = function (org, orgRole, verdict, comments) {
             var dto = {
                 DocumentId: (this.Id).toString(),
                 Organization: org,
@@ -968,22 +985,22 @@
             return DocumentChopsRepository.save(dto);
         }
 
-        MissionDocument.prototype.refreshChopProcessInfo = function(){
-            if(!this.ChopRouteSequence) {
+        MissionDocument.prototype.refreshChopProcessInfo = function () {
+            if (!this.ChopRouteSequence) {
                 this.chopProcessInfo = null;
                 return;
-            }   
+            }
 
             this.chopProcessInfo = {
                 routeStages: buildRouteStages(this, jocInBoxConfig)
             };
-            
+
             this.chopProcessInfo.overallChopStatus = deriveOverallChopStatus(this);
             this.chopProcessInfo.routeStepsVisualizationDataSource = buildRouteStepsVisualizationDataSource(this);
 
             var noLongerRequiresAction = (this.chopProcessInfo.overallChopStatus === "Approved" || this.chopProcessInfo.overallChopStatus === "Disapproved");
 
-            if(noLongerRequiresAction){
+            if (noLongerRequiresAction) {
                 this.chopProcessInfo.requiresDecisionFrom = null;
                 this.chopProcessInfo.selectedRouteStage = null;
             } else {
@@ -994,9 +1011,9 @@
             this.chopProcessInfo.lastKnownLocationAlongRoute = findLastKnownLocationAlongRoute(this);
         }
 
-        function buildRouteStages(doc, jocInBoxConfig){
+        function buildRouteStages(doc, jocInBoxConfig) {
             var stageNames = doc.ChopRouteSequence.split(';');
-            var routeStages = _.map(stageNames, function(stageName){
+            var routeStages = _.map(stageNames, function (stageName) {
                 var routeStage = {
                     name: stageName,
                     cdrDecisions: buildCommanderDecisionsList(stageName, doc.relatedChops),
@@ -1004,67 +1021,67 @@
                 };
                 return routeStage;
             });
-            return routeStages; 
+            return routeStages;
 
-            function buildCommanderDecisionsList(organizationName, documentChops){
+            function buildCommanderDecisionsList(organizationName, documentChops) {
                 return _.chain(documentChops)
-                        .filter({Organization: organizationName, OrganizationalRole: "CDR"})
-                        .orderBy(['Created'], ['desc'])
-                        .map(addCreatedToMomentProp) //AFTER the orderBy operation!
-                        .value();
+                    .filter({ Organization: organizationName, OrganizationalRole: "CDR" })
+                    .orderBy(['Created'], ['desc'])
+                    .map(addCreatedToMomentProp) //AFTER the orderBy operation!
+                    .value();
             }
 
-            function buildStaffDecisionsDictionaryLookup(jocInBoxConfig, organizationName, documentChops){
+            function buildStaffDecisionsDictionaryLookup(jocInBoxConfig, organizationName, documentChops) {
                 var decisionLookup = {};
-                _.each(jocInBoxConfig.dashboards[organizationName].optionsForChoiceField, function(staffSectionName){
-                    if(staffSectionName !== organizationName){
+                _.each(jocInBoxConfig.dashboards[organizationName].optionsForChoiceField, function (staffSectionName) {
+                    if (staffSectionName !== organizationName) {
                         decisionLookup[staffSectionName] = _.chain(documentChops)
-                                                                .filter({Organization: organizationName, OrganizationalRole: staffSectionName})
-                                                                .orderBy(['Created'], ['desc'])
-                                                                .map(addCreatedToMomentProp) //AFTER the orderBy operation!
-                                                                .value();
+                            .filter({ Organization: organizationName, OrganizationalRole: staffSectionName })
+                            .orderBy(['Created'], ['desc'])
+                            .map(addCreatedToMomentProp) //AFTER the orderBy operation!
+                            .value();
                     }
                 });
                 return decisionLookup;
             }
 
-            function addCreatedToMomentProp(item){
+            function addCreatedToMomentProp(item) {
                 item.CreatedMoment = moment.utc(item.Created);
                 return item;
-            } 
+            }
         }
 
-        function buildRouteStepsVisualizationDataSource(doc){
+        function buildRouteStepsVisualizationDataSource(doc) {
             var map = {
                 'Concur': 'complete',
                 'Nonconcur': 'incomplete',
                 'Pending': ''
             };
 
-            var steps = _.map(doc.chopProcessInfo.routeStages, function(routeStage){
+            var steps = _.map(doc.chopProcessInfo.routeStages, function (routeStage) {
                 var mostRecentCdrDecision = routeStage.cdrDecisions[0] || null;
                 return {
                     text: routeStage.name,
                     status: (mostRecentCdrDecision) ? map[mostRecentCdrDecision.Verdict] : ''
-                }    
-            }); 
+                }
+            });
             return steps;
         }
 
-        function deriveOverallChopStatus(doc){
+        function deriveOverallChopStatus(doc) {
             //check for "Approved"
             var decisionsByFinalCommander = _.last(doc.chopProcessInfo.routeStages).cdrDecisions;
             var mostRecentDecisionByFinalCommander = (decisionsByFinalCommander.length && decisionsByFinalCommander[0]) || null;
-            if(mostRecentDecisionByFinalCommander  && mostRecentDecisionByFinalCommander.Verdict === "Concur"){
+            if (mostRecentDecisionByFinalCommander && mostRecentDecisionByFinalCommander.Verdict === "Concur") {
                 return "Approved";
             }
 
             //check for "Disapproved" i.e. if even one commander has Disapproved
-           var evenOneCommanderHasDisapproved = _.find(doc.chopProcessInfo.routeStages, function(routeStage){
+            var evenOneCommanderHasDisapproved = _.find(doc.chopProcessInfo.routeStages, function (routeStage) {
                 var mostRecentCdrDecision = (routeStage.cdrDecisions.length && routeStage.cdrDecisions[0]) || null;
                 return mostRecentCdrDecision && mostRecentCdrDecision.Verdict === "Nonconcur";
-            });  
-            if(evenOneCommanderHasDisapproved){
+            });
+            if (evenOneCommanderHasDisapproved) {
                 return "Disapproved";
             }
 
@@ -1072,34 +1089,34 @@
             return "In Chop";
         }
 
-        function findCommandThatMustTakeAction(doc){
-            var stage = _.find(doc.chopProcessInfo.routeStages, function(routeStage){
+        function findCommandThatMustTakeAction(doc) {
+            var stage = _.find(doc.chopProcessInfo.routeStages, function (routeStage) {
                 var mostRecentCdrDecision = routeStage.cdrDecisions[0] || null;
                 return !mostRecentCdrDecision || mostRecentCdrDecision.Verdict === "Pending";
             });
             return stage;
         }
 
-        function findLastKnownLocationAlongRoute(doc){
+        function findLastKnownLocationAlongRoute(doc) {
             //need to iterate array starting from the back
             var indexesReversed = _.reverse(_.range(doc.chopProcessInfo.routeStages.length));
-            var indexCorrespondingToRouteStageWhereCommanderMadeDecision = _.find(indexesReversed, function(index){
+            var indexCorrespondingToRouteStageWhereCommanderMadeDecision = _.find(indexesReversed, function (index) {
                 var routeStage = doc.chopProcessInfo.routeStages[index];
-                return routeStage.cdrDecisions.length; 
+                return routeStage.cdrDecisions.length;
             });
 
-            if(indexCorrespondingToRouteStageWhereCommanderMadeDecision === undefined){
+            if (indexCorrespondingToRouteStageWhereCommanderMadeDecision === undefined) {
                 //not a single commander along the route has made a decisionLookup, so the first commander has the "conch"
                 return doc.chopProcessInfo.routeStages[0].name;
             }
 
             var mostRecentCdrDecision = doc.chopProcessInfo.routeStages[indexCorrespondingToRouteStageWhereCommanderMadeDecision].cdrDecisions[0];
             var isFinalCommander = (indexCorrespondingToRouteStageWhereCommanderMadeDecision === doc.chopProcessInfo.routeStages.length);
-            if(isFinalCommander || mostRecentCdrDecision.Verdict !== "Concur"){
+            if (isFinalCommander || mostRecentCdrDecision.Verdict !== "Concur") {
                 //commander has disapproved, or marked as pending, so "conch" has not been passed to next commander on the route
                 return doc.chopProcessInfo.routeStages[indexCorrespondingToRouteStageWhereCommanderMadeDecision].name;
             } else {
-               return doc.chopProcessInfo.routeStages[indexCorrespondingToRouteStageWhereCommanderMadeDecision+1].name;
+                return doc.chopProcessInfo.routeStages[indexCorrespondingToRouteStageWhereCommanderMadeDecision + 1].name;
             }
         }
 
@@ -1310,14 +1327,14 @@
         function getAll() {
             var qsParams = {}; //{$filter:"FavoriteNumber eq 8"};
             return spContext.constructNgResourceForRESTCollection(ngResourceConstructParams).get(qsParams).$promise
-                    .then(function(response){
-                        return response.d.results;
-                    });
+                .then(function (response) {
+                    return response.d.results;
+                });
         }
 
         function save(item) {
             var restCollection = spContext.constructNgResourceForRESTCollection(ngResourceConstructParams)
-            return restCollection.post(item).$promise.then(function(response){
+            return restCollection.post(item).$promise.then(function (response) {
                 return response.d;
             });
         }
@@ -1512,7 +1529,7 @@
 
         function getMissionRelated() {
             var dfd = $q.defer();
-            var qsParams = {$filter:"MissionId ne null"};
+            var qsParams = { $filter: "MissionId ne null" };
             spContext.constructNgResourceForRESTCollection(ngResourceConstructParams).get(qsParams,
                 function (data) {
                     dfd.resolve(data.d.results);
@@ -2010,8 +2027,8 @@
         };
         return directiveDefinition;
 
-        function link(scope, elem, attrs){
-            scope.onStepClicked = function(stepName){
+        function link(scope, elem, attrs) {
+            scope.onStepClicked = function (stepName) {
                 /*
                 FACEPILE dialog listens to selectedRouteStage property -- do we want to rerender the facepile each time a user clicks a subway-node?
                 scope.document.chopProcessInfo.selectedRouteStage = _.find(scope.document.chopProcessInfo.routeStages, {name: stepName});
@@ -2317,7 +2334,7 @@
                 { name: "Mission Closed", cssStyle: 'background-color:#000; border-color: #000; color: #fff;' } //black, white
             ];
 
-            
+
 
             scope.$watch('showPastMissions', function () {
                 renderTimeline();
@@ -2338,7 +2355,7 @@
                     return scope.showPastMissions || (!item.ExpectedTermination || moment(item.ExpectedTermination) > now);
                 });
 
-                scope.onMissionsFiltered({missions: scope.missionsToShow});
+                scope.onMissionsFiltered({ missions: scope.missionsToShow });
 
                 var groups = new vis.DataSet(_.map(scope.missionsToShow, function (item) { return { id: item.Id, content: item.Identifier }; }));
                 var items = new vis.DataSet(
@@ -2428,7 +2445,7 @@
         .module('app.core')
         .directive('navMenu', generateDirectiveDef);
 
-    generateDirectiveDef.$inject = ['config','ConfigRepository', 'logger'];
+    generateDirectiveDef.$inject = ['config', 'ConfigRepository', 'logger'];
     function generateDirectiveDef(config, ConfigRepository, logger) {
         /* 
         USAGE: <nav-menu></nav-menu>
@@ -2450,78 +2467,78 @@
                     generateMenu(convertToRecursive(data.JSON));
                 });
 
-            function generateMenu(menuDataSource){
+            function generateMenu(menuDataSource) {
                 var baseMenuUL = $(elem).find("#jocboxmenu ul");
-                _.each(menuDataSource, function(node){
+                _.each(menuDataSource, function (node) {
                     generateMenuItem(node, baseMenuUL);
                 });
             }
 
-            function generateMenuItem(node, container){
+            function generateMenuItem(node, container) {
                 var li = $("<li>");
                 container.append(li);
 
-                if(node.flagCode){
+                if (node.flagCode) {
                     li.append(generateAnchor_withFlagIcon(node));
                 } else {
                     li.append(generateAnchor_standard(node));
                 }
 
                 //check for children
-                if(node.children && node.children.length){
+                if (node.children && node.children.length) {
                     //append chevron
                     li.append('<i class="ms-ContextualMenu-subMenuIcon ms-Icon ms-Icon--chevronRight"></i>')
 
                     //append child menu
                     var childUL = $("<ul>");
                     li.append(childUL);
-                    _.each(node.children, function(node){
+                    _.each(node.children, function (node) {
                         generateMenuItem(node, childUL);
                     });
                 }
-            }            
+            }
 
-            function generateAnchor_standard(node){
+            function generateAnchor_standard(node) {
                 var parts = [
-                    '<a class="noflag" href="'+ node.li_attr.url + '" target="' + node.li_attr.target + '">',
+                    '<a class="noflag" href="' + node.li_attr.url + '" target="' + node.li_attr.target + '">',
                     '   <span class="menu-label-when-no-flag">' + node.text + '</span>',
                     '</a>'
                 ].join('');
                 return parts;
             }
 
-            function generateAnchor_withFlagIcon(node){
+            function generateAnchor_withFlagIcon(node) {
                 var parts = [
-                    '<a href="'+ node.li_attr.url + '" target="' + node.li_attr.target + '">',
+                    '<a href="' + node.li_attr.url + '" target="' + node.li_attr.target + '">',
                     '   <span class="f32"><span class="flag ' + node.flagCode + '"><span class="menu-label-when-flag">' + node.text + '</span></span></span>',
                     '</a>'
                 ].join('');
                 return parts;
             }
         }
-        function associateToFlag(item){
+        function associateToFlag(item) {
             var orgConfig = jocInBoxConfig.dashboards[item.text]
-            if(orgConfig && orgConfig.flagCode){
+            if (orgConfig && orgConfig.flagCode) {
                 item.flagCode = orgConfig.flagCode;
             }
         }
 
-        function convertToRecursive(dataSource){
+        function convertToRecursive(dataSource) {
             return getChildNodes("rootNode");
             function getChildNodes(parent) {
-                var nodes = _.filter(dataSource, {parent: parent});
-                _.each(nodes, function(node){
+                var nodes = _.filter(dataSource, { parent: parent });
+                _.each(nodes, function (node) {
                     node.children = getChildNodes(node.id);
                 });
                 return nodes;
             }
         }
 
-        function isRootNode(item){
+        function isRootNode(item) {
             return item.parent === "#";
         }
 
-        function generateContainerHtml(){
+        function generateContainerHtml() {
             var parts = [
                 '<div id="jocboxmenu">',
                 '   <ul>',
@@ -2553,27 +2570,27 @@
         };
         return directiveDefinition;
 
-        function buildFacePileHtml(){
+        function buildFacePileHtml() {
             var parts = [
                 '<div class="ms-Facepile">',
-				'   <div class="ms-Facepile-members">',
-				'       <div class="ms-Facepile-itemBtn ms-Facepile-itemBtn--member">',
+                '   <div class="ms-Facepile-members">',
+                '       <div class="ms-Facepile-itemBtn ms-Facepile-itemBtn--member">',
                 '           <div size="1" class="ms-Persona ms-Persona--xs">',
-				'               <div class="ms-Persona-imageArea">',
+                '               <div class="ms-Persona-imageArea">',
                 '                   <div ng-if="document.chopProcessInfo.selectedRouteStage.cdrDecisions[0].Verdict === \'Concur\'" class="ms-Persona-initials ms-Persona-initials--darkGreen"><i class="fa fa-thumbs-o-up"></i></div>',
                 '                   <div ng-if="document.chopProcessInfo.selectedRouteStage.cdrDecisions[0].Verdict === \'Nonconcur\'" class="ms-Persona-initials ms-Persona-initials--darkRed"><i class="fa fa-thumbs-o-down"></i></div>',
                 '                   <div ng-if="document.chopProcessInfo.selectedRouteStage.cdrDecisions[0].Verdict === \'Pending\'" class="ms-Persona-initials ms-Persona-initials--blue"><i class="fa fa-hourglass-start"></i></div>',
-                '                   <div ng-if="document.chopProcessInfo.selectedRouteStage.cdrDecisions.length === 0" class="ms-Persona-initials ms-Persona-initials--blue"><i class="ms-Facepile-addPersonIcon ms-Icon ms-Icon--chat"></i></div>',                
+                '                   <div ng-if="document.chopProcessInfo.selectedRouteStage.cdrDecisions.length === 0" class="ms-Persona-initials ms-Persona-initials--blue"><i class="ms-Facepile-addPersonIcon ms-Icon ms-Icon--chat"></i></div>',
                 '               </div>',
                 '           </div>',
                 '       </div>',
-				'       <div class="ms-Facepile-itemBtn ms-Facepile-itemBtn--member" ng-repeat="(sectionName, decisions) in document.chopProcessInfo.selectedRouteStage.staffSectionDecisions">',
+                '       <div class="ms-Facepile-itemBtn ms-Facepile-itemBtn--member" ng-repeat="(sectionName, decisions) in document.chopProcessInfo.selectedRouteStage.staffSectionDecisions">',
                 '           <div size="1" class="ms-Persona ms-Persona--xs">',
-				'               <div class="ms-Persona-imageArea">',
+                '               <div class="ms-Persona-imageArea">',
                 '                   <div ng-if="decisions[0].Verdict === \'Concur\'" class="ms-Persona-initials ms-Persona-initials--darkGreen"><i class="fa fa-thumbs-o-up"></i></div>',
                 '                   <div ng-if="decisions[0].Verdict === \'Nonconcur\'" class="ms-Persona-initials ms-Persona-initials--darkRed"><i class="fa fa-thumbs-o-down"></i></div>',
                 '                   <div ng-if="decisions[0].Verdict === \'Pending\'" class="ms-Persona-initials ms-Persona-initials--blue"><i class="fa fa-hourglass-start"></i></div>',
-                '                   <div ng-if="decisions.length === 0" class="ms-Persona-initials ms-Persona-initials--blue"><i class="ms-Facepile-addPersonIcon ms-Icon ms-Icon--chat"></i></div>',                
+                '                   <div ng-if="decisions.length === 0" class="ms-Persona-initials ms-Persona-initials--blue"><i class="ms-Facepile-addPersonIcon ms-Icon ms-Icon--chat"></i></div>',
                 '               </div>',
                 '           </div>',
                 '       </div>',
@@ -2584,7 +2601,7 @@
         }
 
         function link(scope, elem, attrs) {
-          
+
         }
     }
 
@@ -2604,7 +2621,7 @@
         var directiveDefinition = {
             restrict: 'E',
             link: link,
-            scope: { 
+            scope: {
                 onChopCreated: '&'
             },
             template: buildPanelHtml()
@@ -2612,35 +2629,35 @@
         return directiveDefinition;
 
         function link(scope, elem, attrs) {
-            $rootScope.$on("routing-process-visualization:nodeClicked", function(evt, args){
+            $rootScope.$on("routing-process-visualization:nodeClicked", function (evt, args) {
                 //args.document, stepName
                 scope.document = args.document;
-                scope.selectedStage = _.find(scope.document.chopProcessInfo.routeStages, {name: args.stepName});
+                scope.selectedStage = _.find(scope.document.chopProcessInfo.routeStages, { name: args.stepName });
                 buildSignatureBlocks();
                 scope.errors = scope.document.checkIfChoppingOutOfTurn(scope.selectedStage.name);
                 scope.showPanel = true;
-            });  
+            });
 
-            scope.onTabClicked = function(block){
+            scope.onTabClicked = function (block) {
                 scope.selectedTab = !block ? '' : block.signOnBehalfOf;
             }
 
-            scope.replaceLineBreaks = function(text){
-                return !!text ? text.replace(/(?:\r\n|\r|\n)/g, '<br />'): '';
+            scope.replaceLineBreaks = function (text) {
+                return !!text ? text.replace(/(?:\r\n|\r|\n)/g, '<br />') : '';
             }
 
-            scope.saveChop = function(block){
+            scope.saveChop = function (block) {
                 block.errors = "";
-                if(!block.Verdict){
+                if (!block.Verdict) {
                     block.errors = "Please specify 'Concur', 'Nonconcur', or 'Pending'";
                     return;
                 }
-                if(block.Verdict === "Nonconcur" && !block.Comments){
+                if (block.Verdict === "Nonconcur" && !block.Comments) {
                     block.errors = "Comments are required when nonconcurring";
                     return;
                 }
 
-                scope.document.createChop(scope.selectedStage.name, block.signOnBehalfOf, block.Verdict, block.Comments).then(function(item){
+                scope.document.createChop(scope.selectedStage.name, block.signOnBehalfOf, block.Verdict, block.Comments).then(function (item) {
                     item.Author = {
                         Title: "You"
                     };
@@ -2653,7 +2670,7 @@
                 });
             }
 
-            function buildSignatureBlocks(){
+            function buildSignatureBlocks() {
                 scope.selectedTab = '';
                 var blocks = []
                 //add one for CDR
@@ -2663,29 +2680,29 @@
                     previousChops: scope.selectedStage.cdrDecisions
                 });
                 //then one for each section
-                _.each(scope.selectedStage.staffSectionDecisions, function(decisions, sectionName){
+                _.each(scope.selectedStage.staffSectionDecisions, function (decisions, sectionName) {
                     blocks.push({
                         title: sectionName.replace(scope.selectedStage.name + " - ", ""),
                         signOnBehalfOf: sectionName,
                         previousChops: decisions
                     });
-                });           
+                });
                 scope.signatureBlocks = blocks;
             }
         }
     }
 
-    function buildPanelHtml(){
+    function buildPanelHtml() {
         var parts = [
             '<uif-panel uif-type="large" uif-is-open="showPanel" uif-show-overlay="true" uif-show-close="true" close-panel="onPanelClosed()">',
             '   <uif-panel-header>',
             '       {{selectedStage.name}} Routing Sheet',
             '   </uif-panel-header>',
             '   <uif-content>',
-                    generateTabsHtml(),
-                    generateChoppingOutOfSequenceError(),
-                    generateShowAllSectionsMessage(),
-                    generateDetailsAboutDocument(),
+            generateTabsHtml(),
+            generateChoppingOutOfSequenceError(),
+            generateShowAllSectionsMessage(),
+            generateDetailsAboutDocument(),
             '       <div class="ms-Grid" ng-if="!errors || errors.errorType !== \'TooEarly\'" >',
             '           <div class="ms-Grid-row" ng-show="!selectedTab || selectedTab === block.signOnBehalfOf" ng-repeat="block in signatureBlocks" style="margin-top: 20px;">',
             '               <div class="ms-Grid-col ms-u-md12">',
@@ -2694,12 +2711,12 @@
             '                       <div class="ms-Grid-row">',
             '                           <div class="ms-Grid-col ms-u-md4">',
             '                               <uif-textfield uif-label="Comments" ng-model="block.Comments" uif-multiline="true" ng-disabled="document.chopProcessInfo.lastKnownLocationAlongRoute !== selectedStage.name" />',
-                                            generateVerdictPicker(),
-                                            generateBlockErrorMessages(),
-                                            generateButtonsHtml(),
+            generateVerdictPicker(),
+            generateBlockErrorMessages(),
+            generateButtonsHtml(),
             '                           </div>',
             '                           <div class="ms-Grid-col ms-u-md8">',
-                                            generatePreviousChopsHtml(),
+            generatePreviousChopsHtml(),
             '                           </div>',
             '                       </div>',
             '                   </div>',
@@ -2711,33 +2728,33 @@
         ].join('');
         return parts;
 
-        function generateBlockErrorMessages(){
-             var parts = [
+        function generateBlockErrorMessages() {
+            var parts = [
                 '<div style="margin-bottom:5px;"><uif-message-bar uif-type="error" ng-if="!!block.errors"> <uif-content>{{block.errors}}</uif-content></uif-message-bar></div>'
             ]
-            .join('');
-            
+                .join('');
+
             return parts;
         }
 
-        function generateButtonsHtml(){
+        function generateButtonsHtml() {
             return '<uif-button type="button" uif-type="primary" ng-click="saveChop(block)" ng-disabled="document.chopProcessInfo.lastKnownLocationAlongRoute !== selectedStage.name">Chop</uif-button>';
         }
 
-        function generateChoppingOutOfSequenceError(){
+        function generateChoppingOutOfSequenceError() {
             var parts = [
                 '<uif-message-bar uif-type="error" ng-if="!!errors"> <uif-content>{{errors.message}}</uif-content></uif-message-bar>'
             ]
-            .join('');
-            
+                .join('');
+
             return parts;
         }
 
-        function generateDetailsAboutDocument(){
+        function generateDetailsAboutDocument() {
             return '<br/><uif-message-bar> <uif-content>The document being chopped can be referenced </uif-content> <uif-link ng-href="{{document.File.ServerRelativeUrl}}">here</uif-link> </uif-message-bar>';
         }
 
-        function generateVerdictPicker(){
+        function generateVerdictPicker() {
             var parts = [
                 '<uif-choicefield-group ng-model="block.Verdict" ng-disabled="document.chopProcessInfo.lastKnownLocationAlongRoute !== selectedStage.name">',
                 '   <uif-choicefield-option uif-type="radio" value="Concur">Concur</uif-choicefield-option>',
@@ -2748,32 +2765,32 @@
             return parts;
         }
 
-        function generatePreviousChopsHtml(){ 
+        function generatePreviousChopsHtml() {
             var parts = [
                 '<div ng-if="block.previousChops.length === 0" style="padding-top:9px;">',
                 '   <uif-message-bar><uif-content>{{selectedStage.name}} {{block.title}} has no previous chops for this document</uif-content></uif-message-bar>',
                 '</div>',
                 '<div ng-if="block.previousChops.length" class="chop-comments-container ">',
-	            '   <ul class="chop-comments">',
-		        '       <li class="cmmnt" ng-repeat="item in block.previousChops" ng-class="{\'border-top\': $index !== 0}">',
-			    '           <div class="avatar">',
+                '   <ul class="chop-comments">',
+                '       <li class="cmmnt" ng-repeat="item in block.previousChops" ng-class="{\'border-top\': $index !== 0}">',
+                '           <div class="avatar">',
                 '               <i ng-if="item.Verdict === \'Concur\'" class="fa fa-thumbs-up fa-2x" style="color:green;"></i>',
                 '               <i ng-if="item.Verdict === \'Nonconcur\'" class="fa fa-thumbs-down fa-2x" style="color:red;"></i>',
                 '               <i ng-if="item.Verdict === \'Pending\'" class="fa fa-hourglass-start fa-2x"></i>',
                 '           </div>',
-			    '           <div class="cmmnt-content">',
-				'               <header><a class="userlink">{{item.Author.Title}}</a> - <span class="pubdate">{{item.CreatedMoment.format(\'DD MMM YY HHmm[Z]\').toUpperCase()}}</span></header>',
-				'               <p ng-bind-html="replaceLineBreaks(item.Comments)"></p>',
-			    '           </div>',
-		        '       </li>',
-	            '   </ul>',
+                '           <div class="cmmnt-content">',
+                '               <header><a class="userlink">{{item.Author.Title}}</a> - <span class="pubdate">{{item.CreatedMoment.format(\'DD MMM YY HHmm[Z]\').toUpperCase()}}</span></header>',
+                '               <p ng-bind-html="replaceLineBreaks(item.Comments)"></p>',
+                '           </div>',
+                '       </li>',
+                '   </ul>',
                 '</div>'
             ].join('');
-            
+
             return parts;
         }
 
-        function generateShowAllSectionsMessage(){
+        function generateShowAllSectionsMessage() {
             var parts = [
                 '<div class="ms-MessageBanner" ng-show="!!selectedTab">',
                 '   <div class="ms-MessageBanner-content">',
@@ -2794,17 +2811,17 @@
             return parts;
         }
 
-        function generateTabsHtml(){
+        function generateTabsHtml() {
             var parts = [
                 '<ul ng-if="signatureBlocks.length > 1 && !errors" class="ms-Pivot ms-Pivot--tabs ms-Pivot--large">',
                 '   <li class="ms-Pivot-link" ng-repeat="block in signatureBlocks" ng-click="onTabClicked(block)" ng-class="{\'is-selected\': block.signOnBehalfOf === selectedTab}">{{block.title}}</li>',
                 '</ul>'
             ].join('');
-            return parts;   
+            return parts;
         }
     }
 
-})();    
+})();
 
 /* Controller: OrgDashboardAspxController */
 (function () {
@@ -2812,7 +2829,7 @@
         .module('app.core')
         .controller('OrgDashboardAspxController', OrgDashboardAspxController);
 
-    OrgDashboardAspxController.$inject = ['_', 'Mission','MissionTrackerRepository'];
+    OrgDashboardAspxController.$inject = ['_', 'Mission', 'MissionTrackerRepository'];
     function OrgDashboardAspxController(_, Mission, MissionTrackerRepository) {
         var vm = this;
         vm.chopDialogCtx = {
@@ -3206,70 +3223,88 @@
 
         vm.filterOptions = {
             chopProcesses: {
-                overallChopStatus:[]
+                overallChopStatus: []
             },
             products: {
-                organization:[]
+                organization: []
             }
         };
 
         activate();
 
-        vm.onMissionsFiltered = function(selectedMissions){
+        vm.onMissionsFiltered = function (selectedMissions) {
             vm.selectedMissions_idList = _.map(selectedMissions, 'Id');
             applyFilters();
         }
 
-        vm.onFilterOptionClicked = function(option){
-            if(option){
+        vm.onFilterOptionClicked = function (option, dataSourceName) {
+            if (option) {
                 option.isSelected = !option.isSelected;
             }
+            applyFilters(dataSourceName);
+        }
+
+        vm.onChopCreated = function () {
             applyFilters();
         }
 
-        vm.onChopCreated = function(){
-            applyFilters();
+        function applyFilters(dataSourceName) {
+            filterChopProcesses();
+            filterProducts();
+
+            function filterChopProcesses() {
+                if (dataSourceName && dataSourceName !== 'chopProcesses') { return; }
+                if (!dataSources.chopProcesses.length) {
+                    vm.chopProcessesDataSource = [];
+                    return;
+                }
+                vm.chopProcessesDataSource =
+                    _.chain(dataSources.chopProcesses)
+                        .filter(shouldShowBasedOnSelectedMissions)
+                        .filter(shouldShowBasedOnSelectedChopStatuses)
+                        .value();
+            }
+
+            function filterProducts() {
+                if (dataSourceName && dataSourceName !== 'missionRelatedDocs') { return; }
+                if (!dataSources.missionRelatedDocs.length) {
+                    vm.missionProductsDataSource = {};
+                    return;
+                }
+                vm.missionProductsDataSource =
+                    _.chain(dataSources.missionRelatedDocs)
+                        .filter(shouldShowBasedOnSelectedMissions)
+                        .filter(shouldShowBasedOnSelectedOrganizations)
+                        .groupBy(function (item) { return item.Mission.FullName; })
+                        .value();
+            }
         }
 
-        function applyFilters(){
-            vm.missionProductsDataSource = 
-                _.chain(dataSources.missionRelatedDocs)
-                    .filter(shouldShowBasedOnSelectedMissions)
-                    .filter(shouldShowBasedOnSelectedOrganizations)
-                    .value();
-            
-            vm.chopProcessesDataSource = 
-                _.chain(dataSources.chopProcesses)
-                    .filter(shouldShowBasedOnSelectedMissions)
-                    .filter(shouldShowBasedOnSelectedChopStatuses)
-                    .value();
-        } 
-
-        function shouldShowBasedOnSelectedMissions(item){
-            if(vm.selectedMissions_idList.length === 0) { return false; }
+        function shouldShowBasedOnSelectedMissions(item) {
+            if (vm.selectedMissions_idList.length === 0) { return false; }
             return _.includes(vm.selectedMissions_idList, item.MissionId);
         }
 
-        function shouldShowBasedOnSelectedChopStatuses(item){
-            var selectedOptions = _.map(_.filter(vm.filterOptions.chopProcesses.overallChopStatus,{isSelected: true} ), 'key');
+        function shouldShowBasedOnSelectedChopStatuses(item) {
+            var selectedOptions = _.map(_.filter(vm.filterOptions.chopProcesses.overallChopStatus, { isSelected: true }), 'key');
             return _.includes(selectedOptions, item.chopProcessInfo.overallChopStatus);
         }
 
-        function shouldShowBasedOnSelectedOrganizations(item){
-            var selectedOptions = _.map(_.filter(vm.filterOptions.products.organization,{isSelected: true} ), 'key');
+        function shouldShowBasedOnSelectedOrganizations(item) {
+            var selectedOptions = _.map(_.filter(vm.filterOptions.products.organization, { isSelected: true }), 'key');
             return _.includes(selectedOptions, item.Organization);
         }
 
         function activate() {
             initTabs();
             $q.all([
-                    getMissionRelatedDocumentsWithTheirAssociatedChops(),
-                    getMissions()
-                ])
+                getMissionRelatedDocumentsWithTheirAssociatedChops(),
+                getMissions()
+            ])
                 .then(function (data) {
                     var docs = data[0];
                     dataSources.missionRelatedDocs = data[0];
-                    dataSources.chopProcesses = _.filter(dataSources.missionRelatedDocs, function(doc){ return !!doc.ChopProcess; });
+                    dataSources.chopProcesses = _.filter(dataSources.missionRelatedDocs, function (doc) { return !!doc.ChopProcess; });
                     buildFilterControlsForProducts();
                     buildFilterControlsForChopProcesses();
                     vm.missions = data[1];
@@ -3277,12 +3312,12 @@
                 });
         }
 
-        function buildFilterControlsForChopProcesses(){
+        function buildFilterControlsForChopProcesses() {
             buildStatusFilter();
 
-            function buildStatusFilter(){
+            function buildStatusFilter() {
                 var statuses = ["In Chop", "Approved", "Disapproved"];
-                vm.filterOptions.chopProcesses.overallChopStatus = _.map(statuses, function(status){
+                vm.filterOptions.chopProcesses.overallChopStatus = _.map(statuses, function (status) {
                     return {
                         key: status,
                         isSelected: true
@@ -3291,12 +3326,12 @@
             }
         }
 
-        function buildFilterControlsForProducts(){
+        function buildFilterControlsForProducts() {
             buildOrganizationFilter();
 
-            function buildOrganizationFilter(){
+            function buildOrganizationFilter() {
                 var uniqueOrgs = _.sortBy(_.uniq(_.map(dataSources.missionRelatedDocs, "Organization")));
-                vm.filterOptions.products.organization = _.map(uniqueOrgs, function(item){
+                vm.filterOptions.products.organization = _.map(uniqueOrgs, function (item) {
                     return {
                         key: item,
                         isSelected: true
@@ -3307,9 +3342,9 @@
 
         function initTabs() {
             var pivots = [
-                 { title: "Timeline" },
-                    { title: "Products" },
-                    { title: "Product Chop" }
+                { title: "Timeline" },
+                { title: "Products" },
+                { title: "Product Chop" }
             ];
 
             var selectedIndex = (!$stateParams.tabIndex || $stateParams.tabIndex >= pivots.length) ? 0 : $stateParams.tabIndex;
@@ -3327,35 +3362,35 @@
 
         }
 
-        function getMissions(){
+        function getMissions() {
             return MissionTrackerRepository.getByOrganization("").then(function (data) {
                 return _.map(data, function (item) { return new Mission(item); });
             })
         }
 
-        function getMissionRelatedDocumentsWithTheirAssociatedChops(){
+        function getMissionRelatedDocumentsWithTheirAssociatedChops() {
 
             return $q.all([
-                    MissionDocumentRepository.getMissionRelated(),
-                    DocumentChopsRepository.getAll()
-                ])
+                MissionDocumentRepository.getMissionRelated(),
+                DocumentChopsRepository.getAll()
+            ])
                 .then(function (data) {
                     var chopsJSON = data[1];
-                    var docs = _.map(data[0], function(item){ 
+                    var docs = _.map(data[0], function (item) {
                         var doc = new MissionDocument(item);
                         doc.relatedChops = getRelatedChops(doc, chopsJSON);
                         doc.refreshChopProcessInfo();
                         return doc;
                     });
-                    return docs;                                    
+                    return docs;
                 });
-            
-             function getRelatedChops(doc, chopsJSON) {
-                return _.filter(chopsJSON, function(docChop){
+
+            function getRelatedChops(doc, chopsJSON) {
+                return _.filter(chopsJSON, function (docChop) {
                     return parseInt(docChop.DocumentId, 10) === doc.Id;
                 });
             }
-        }    
+        }
     }
 })();
 
@@ -3386,7 +3421,7 @@
         }
     }
 
-    RfiController.$inject = ['$q', '$scope', '$stateParams','_', 'logger', 'RFI', 'RfiRepository', 'Mission', 'MissionTrackerRepository', 'ConfigRepository'];
+    RfiController.$inject = ['$q', '$scope', '$stateParams', '_', 'logger', 'RFI', 'RfiRepository', 'Mission', 'MissionTrackerRepository', 'ConfigRepository'];
     function RfiController($q, $scope, $stateParams, _, logger, RFI, RFIRepository, Mission, MissionTrackerRepository, ConfigRepository) {
         var vm = this;
         var rfiList = null;
@@ -3395,17 +3430,17 @@
         function activate() {
             initTabs();
             fetchData()
-                .then(function(data){
+                .then(function (data) {
                     rfiList = data;
                     buildFilterControlDataSource();
                     vm.applyFilters();
-                });  
+                });
         }
 
-        vm.getAction = function(item){
+        vm.getAction = function (item) {
             var action;
 
-            if(vm.tabConfig.selectedPivot.title === "My RFIs"){
+            if (vm.tabConfig.selectedPivot.title === "My RFIs") {
                 action = (item.Status === "Open") ? "Respond" : "Edit";
             } else {
                 action = (item.Status === "Open") ? "Respond" : "Reopen";
@@ -3414,18 +3449,18 @@
             return action;
         }
 
-        vm.goToEditForm = function(item){
+        vm.goToEditForm = function (item) {
             var url = _spPageContextInfo.webServerRelativeUrl + "/Lists/RFI/EditForm.aspx?ID=" + item.Id + "&Source=" + encodeURIComponent(document.location.href);
             var action = vm.getAction(item);
 
-            if(action !== "Edit"){
+            if (action !== "Edit") {
                 url += "&action=" + action;
             }
             window.location.href = url;
         }
 
-        vm.getButtonText = function(item){
-            
+        vm.getButtonText = function (item) {
+
             window.location.href = url;
         }
 
@@ -3436,53 +3471,53 @@
             "Manage RFIs": []
         };
 
-        $scope.$watch('vm.tabConfig.selectedPivot', function(){
+        $scope.$watch('vm.tabConfig.selectedPivot', function () {
             vm.applyFilters();
         });
 
-        vm.goToNewRfiForm = function(){
+        vm.goToNewRfiForm = function () {
             window.location.href = _spPageContextInfo.webServerRelativeUrl + "/Lists/Rfi/NewForm.aspx?&Source=" + encodeURIComponent(document.location.href);
         }
 
-        vm.applyFilters = function(clickedOpr){
-            if(clickedOpr){
+        vm.applyFilters = function (clickedOpr) {
+            if (clickedOpr) {
                 clickedOpr.isSelected = !clickedOpr.isSelected;
             }
-            
+
             var selectedOprs = _.chain(vm.filterControlDataSource)
-                                    .filter({ isSelected: true })
-                                    .map('key')
-                                    .value();
-            var filteredList = _.filter(rfiList, isRecommendedOprOneOfTheSelected); 
-            
-            dataSources["Open"] = _.filter(filteredList, {Status: "Open"});    
-            dataSources["Closed"] = _.filter(filteredList, {Status: "Closed"}); 
-            dataSources["My RFIs"] = _.filter(filteredList, {AuthorId: _spPageContextInfo.userId });
-            dataSources["Manage RFIs"] = _.filter(filteredList, isCurrentUserTaggedAsManagerForRfi); 
+                .filter({ isSelected: true })
+                .map('key')
+                .value();
+            var filteredList = _.filter(rfiList, isRecommendedOprOneOfTheSelected);
+
+            dataSources["Open"] = _.filter(filteredList, { Status: "Open" });
+            dataSources["Closed"] = _.filter(filteredList, { Status: "Closed" });
+            dataSources["My RFIs"] = _.filter(filteredList, { AuthorId: _spPageContextInfo.userId });
+            dataSources["Manage RFIs"] = _.filter(filteredList, isCurrentUserTaggedAsManagerForRfi);
 
             vm.selectedDataSource = dataSources[vm.tabConfig.selectedPivot.title]
 
-            function isCurrentUserTaggedAsManagerForRfi(item){
-                if(!item.ManageRFIId) { return false; }
+            function isCurrentUserTaggedAsManagerForRfi(item) {
+                if (!item.ManageRFIId) { return false; }
                 return _.includes(item.ManageRFIId.results, _spPageContextInfo.userId);
-            } 
+            }
 
-            function isRecommendedOprOneOfTheSelected(item){
+            function isRecommendedOprOneOfTheSelected(item) {
                 return _.includes(selectedOprs, item.RecommendedOPR);
-            } 
+            }
         }
 
-        vm.truncateText = function(str, length){
-            if(!str.length || str.length <= length ) { return str; }
+        vm.truncateText = function (str, length) {
+            if (!str.length || str.length <= length) { return str; }
             return str.substr(0, length) + "...";
         }
 
-        function buildFilterControlDataSource(){
+        function buildFilterControlDataSource() {
             vm.filterControlDataSource = _.chain(rfiList)
-                                            .groupBy('RecommendedOPR')
-                                            .map(function(items, groupName){ return { key: groupName, count: items.length, isSelected: true }; })
-                                            .sortBy(['key'])
-                                            .value();
+                .groupBy('RecommendedOPR')
+                .map(function (items, groupName) { return { key: groupName, count: items.length, isSelected: true }; })
+                .sortBy(['key'])
+                .value();
         }
 
         function initTabs() {
@@ -3511,7 +3546,7 @@
         function fetchData() {
             return RFIRepository.getAll()
                 .then(function (data) {
-                    return _.map(data, function (item) { return new RFI(item); })       
+                    return _.map(data, function (item) { return new RFI(item); })
                 })
         }
     }

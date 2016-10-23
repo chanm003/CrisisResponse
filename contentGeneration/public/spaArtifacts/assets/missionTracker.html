@@ -12,22 +12,26 @@
 </div>
 
 
-<!--TAB 2 CONTENT -->
+<!--TAB 2 CONTENT | orderBy:table.orderBy:!table.orderAsc-->
 <div class="ms-Grid" ng-show="vm.tabConfig.selectedPivot.title === 'Products'">
   <div class="ms-Grid-row">
     <div class="ms-Grid-col ms-u-sm10 ms-u-md10 ms-u-lg10">
+
       <uif-table>
         <uif-table-head>
           <uif-table-row>
-            <uif-table-header uif-order-by="TypeOfDocument">Document Type</uif-table-header>
+            <uif-table-header>Document Type</uif-table-header>
             <uif-table-header>File Name</uif-table-header>
             <uif-table-header>Organization</uif-table-header>
             <uif-table-header>Modified</uif-table-header>
             <uif-table-header>Modified By</uif-table-header>
           </uif-table-row>
         </uif-table-head>
-        <uif-table-body>
-          <uif-table-row ng-repeat="item in vm.missionProductsDataSource | orderBy:table.orderBy:!table.orderAsc">
+        <uif-table-body ng-repeat="(missionName, products) in vm.missionProductsDataSource">
+          <uif-table-row>
+            <uif-table-cell colspan="5">{{missionName}}</uif-table-cell>
+          </uif-table-row>
+          <uif-table-row ng-repeat="item in products">
             <uif-table-cell>{{item.TypeOfDocument}}</uif-table-cell>
             <uif-table-cell>{{item.File.Name}}</uif-table-cell>
             <uif-table-cell>{{item.Organization}}</uif-table-cell>
@@ -36,12 +40,13 @@
           </uif-table-row>
         </uif-table-body>
       </uif-table>
+  
     </div>
     <div class="ms-Grid-col ms-u-sm2 ms-u-md2 ms-u-lg2">
       <uif-contextual-menu uif-is-open="true" uif-multiselect="true" uif-close-on-click="false">
         <uif-contextual-menu-item uif-text="'Filter by Organization'" uif-type="header"></uif-contextual-menu-item>
         <uif-contextual-menu-item ng-repeat="item in vm.filterOptions.products.organization" uif-is-selected="item.isSelected"
-          ng-click="vm.onFilterOptionClicked(item, 'products')">
+          ng-click="vm.onFilterOptionClicked(item, 'missionRelatedDocs')">
           <uif-content>
             <span style="font-size:11px;" title="{{item.key}}">{{item.key}}</span>
           </uif-content>
