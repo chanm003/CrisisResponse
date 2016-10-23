@@ -2692,10 +2692,22 @@
 
         function generateShowAllSectionsMessage(){
             var parts = [
-                '<uif-message-banner uif-is-visible="!!selectedTab" uif-action-label="Show All Sections" uif-action="onTabClicked()">',
-                '   <uif-content> You are only looking at <b>one section</b> of the {{selectedStage.name}} routing sheet.  To see the other sections click the button.</uif-content>',
-                '</uif-message-banner>'
+                '<div class="ms-MessageBanner" ng-show="!!selectedTab">',
+                '   <div class="ms-MessageBanner-content">',
+                '       <div class="ms-MessageBanner-text">',
+                '           <div class="ms-MessageBanner-clipper">',
+                '               <span> You are only looking at </span><strong>one section</strong><span> of the {{selectedStage.name}} routing sheet. To see the other sections click the button.</span>',
+                '           </div>',
+                '       </div>',
+                '       <div class="ms-MessageBanner-action">',
+                '           <button class="ms-fontColor-neutralLight ms-Button ms-Button--primary" type="button" ng-click="onTabClicked()">',
+                '	            <span class="ms-Button-label"><span>Show All Sections</span></span>',
+                '           </button>',
+                '       </div>',
+                '   </div>',
+                '</div>'
             ].join('');
+
             return parts;
         }
 
