@@ -11,6 +11,11 @@ Question:
 - currently clicking on one of the subway nodes launches the dialog AND potentially changes the facepiles
 - should we always just fix the facepiles to the command that has the CONCH?
 
+Stop using _spPageContextInfo in childApp
+During wizard generation, when jocInBoxconfig is generated on-the-fly
+htmlPartialsFolder = "http://localhost:3000/spaArtifacts/assets"
+htmlPartialsFolder = vm.childWebURL + "/SitePages" (prod)
+
 =========================================================================
 DEPLOYMENT STEPS
 =========================================================================
@@ -42,3 +47,5 @@ Change to version 15.0.0.0 on all ASPX
 
 ret is undefined....documents how to patch the JS
 http://www.techmikael.com/2013/07/how-to-copy-files-between-sites-using.html
+http://sanderlesage.blogspot.de/2014/07/copy-file-cross-site-collection-csom-rest.html (patch no longer needed)
+https://technet.microsoft.com/en-us/library/dn762092(v=office.15).aspx
