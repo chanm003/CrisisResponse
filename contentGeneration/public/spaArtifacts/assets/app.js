@@ -3,7 +3,6 @@
     var globalConfig = {
         appErrorPrefix: '[Exercise Application Error] ',
         appTitle: 'Exercise Application',
-        baseUrl: 'http://localhost:3000/spaArtifacts/assets',
         showDebugToasts: true
     };
 
@@ -399,6 +398,12 @@
     function spContext($resource, $timeout, logger) {
         var service = this;
 
+        var defaultHeaders = {
+            'Accept': 'application/json;odata=verbose',
+            'Content-Type': 'application/json;odata=verbose',
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+
         service.SP2013REST = {
             selectForCommonDocumentFields: 'Id,Title,Created,Modified,AuthorId,EditorId,Author/Title,Editor/Title,File/CheckOutType,File/MajorVersion,File/Name,File/ServerRelativeUrl,File/TimeCreated,File/TimeLastModified',
             expandoForCommonDocumentFields: 'Author,Editor,File',
@@ -413,6 +418,7 @@
         service.getContextFromEditFormASPX = getContextFromEditFormASPX;
         service.getSelectedUsersFromPeoplePicker = getSelectedUsersFromPeoplePicker;
         service.getIdFromLookupField = getIdFromLookupField;
+        service.defaultHeaders = defaultHeaders;
 
         service.htmlHelpers = {};
         service.htmlHelpers.buildHeroButton = function (text, href, ngShowAttrValue) {
@@ -437,6 +443,7 @@
         init();
 
         function constructNgResourceForRESTCollection(opts) {
+            var defaultPostheaders = angular.extend({}, defaultHeaders, { 'X-RequestDigest': service.securityValidation });
             return $resource(_spPageContextInfo.webServerRelativeUrl + "/_api/web/lists/getbytitle('" + opts.listName + "')/items",
                 {},
                 {
@@ -446,23 +453,26 @@
                             '$select': opts.fieldsToSelect,
                             '$expand': opts.fieldsToExpand
                         },
-                        headers: {
-                            'Accept': 'application/json;odata=verbose;'
-                        }
+                        headers: defaultHeaders
                     },
                     post: {
                         method: 'POST',
-                        headers: {
-                            'Accept': 'application/json;odata=verbose',
-                            'Content-Type': 'application/json;odata=verbose;',
-                            'X-RequestDigest': service.securityValidation
-                        }
+                        headers: defaultPostheaders
                     }
                 });
         }
 
         function constructNgResourceForRESTResource(opts) {
             var ifMatchHeaderVal = (!!opts.item.__metadata && !!opts.item.__metadata.etag) ? opts.item.__metadata.etag : "*";
+            var defaultPostheaders = angular.extend({}, defaultHeaders, {
+                            'X-RequestDigest': service.securityValidation,
+                            'X-HTTP-Method': 'MERGE',
+                            'If-Match': ifMatchHeaderVal
+                        });
+            var httpDeleteHeaders = angular.extend({}, defaultHeaders, {
+                            'X-RequestDigest': service.securityValidation,
+                            'If-Match': '*'
+                        });
             return $resource(_spPageContextInfo.webServerRelativeUrl + "/_api/web/lists/getbytitle('" + opts.listName + "')/items(:itemId)",
                 { itemId: opts.item.Id },
                 {
@@ -472,28 +482,15 @@
                             '$select': opts.fieldsToSelect,
                             '$expand': opts.fieldsToExpand
                         },
-                        headers: {
-                            'Accept': 'application/json;odata=verbose;'
-                        }
+                        headers: defaultHeaders
                     },
                     post: {
                         method: 'POST',
-                        headers: {
-                            'Accept': 'application/json;odata=verbose;',
-                            'Content-Type': 'application/json;odata=verbose;',
-                            'X-RequestDigest': service.securityValidation,
-                            'X-HTTP-Method': 'MERGE',
-                            'If-Match': ifMatchHeaderVal
-                        }
+                        headers: defaultPostheaders
                     },
                     delete: {
                         method: 'DELETE',
-                        headers: {
-                            'Accept': 'application/json;odata=verbose;',
-                            'Content-Type': 'application/json;odata=verbose;',
-                            'X-RequestDigest': service.securityValidation,
-                            'If-Match': '*'
-                        }
+                        headers: httpDeleteHeaders
                     }
                 });
         }
@@ -589,10 +586,7 @@
             var siteContextInfoResource = $resource(_spPageContextInfo.webServerRelativeUrl + '/_api/contextinfo?$select=FormDigestValue', {}, {
                 post: {
                     method: 'POST',
-                    headers: {
-                        'Accept': 'application/json;odata=verbose;',
-                        'Content-Type': 'application/json;odata=verbose;'
-                    }
+                    headers: defaultHeaders
                 }
             });
 
@@ -1496,16 +1490,16 @@
             var fileUrl = webUrl + "/MissionDocuments/" + opts.FileLeafRef;
             var url = webUrl + "/_api/web/GetFileByServerRelativeUrl('" + fileUrl + "')/CheckIn(comment='',checkintype=2)";
 
+            var defaultPostheaders = angular.extend({}, spContext.defaultHeaders, {
+                            'X-RequestDigest': spContext.securityValidation,
+                            'X-HTTP-Method': 'MERGE',
+                            'If-Match': '*'
+                        });
+
             return $http({
                 method: "post",
                 url: url,
-                headers: {
-                    'Accept': 'application/json;odata=verbose;',
-                    'Content-Type': 'application/json;odata=verbose;',
-                    'X-RequestDigest': spContext.securityValidation,
-                    'X-HTTP-Method': 'MERGE',
-                    'If-Match': '*'
-                }
+                headers: defaultPostheaders
             })
                 .catch(function (response) {
                     if (!_.endsWith(response.data.error.message.value, "is not checked out.")) {
@@ -2268,7 +2262,7 @@
             controller: controller,
             controllerAs: 'vm',
             bindToController: true, //required in 1.3+ with controllerAs
-            templateUrl: config.baseUrl + '/current-operations-summary.html'
+            templateUrl: jocInBoxConfig.htmlTemplatesLocation + '/current-operations-summary.html'
         };
     }
 })();
@@ -3170,7 +3164,7 @@
                     state: 'editNav',
                     config: {
                         url: '/editNav',
-                        templateUrl: config.baseUrl + '/editnav.html',
+                        templateUrl: jocInBoxConfig.htmlTemplatesLocation + '/editnav.html',
                         controller: 'EditNavController',
                         controllerAs: 'vm',
                         title: 'Edit Navigation'
@@ -3205,7 +3199,7 @@
                     state: 'mission',
                     config: {
                         url: '/missiontracker/:tabIndex',
-                        templateUrl: config.baseUrl + '/missionTracker.html',
+                        templateUrl: jocInBoxConfig.htmlTemplatesLocation + '/missionTracker.html',
                         controller: 'MissionTrackerController',
                         controllerAs: 'vm',
                         title: 'Mission Tracker'
@@ -3413,7 +3407,7 @@
                     state: 'rfi',
                     config: {
                         url: '/rfi/:tabIndex',
-                        templateUrl: config.baseUrl + '/rfi.html',
+                        templateUrl: jocInBoxConfig.htmlTemplatesLocation + '/rfi.html',
                         controller: 'RfiController',
                         controllerAs: 'vm',
                         title: 'Request for Information'
@@ -3572,7 +3566,7 @@
                     state: 'sandbox',
                     config: {
                         url: '/sandbox',
-                        templateUrl: config.baseUrl + '/devsandbox.html',
+                        templateUrl: jocInBoxConfig.htmlTemplatesLocation + '/devsandbox.html',
                         controller: 'DeveloperSandboxController',
                         controllerAs: 'vm',
                         title: 'Developer Sandbox'

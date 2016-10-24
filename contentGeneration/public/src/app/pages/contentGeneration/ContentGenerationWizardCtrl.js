@@ -415,6 +415,8 @@
 
 			var content = [
 				'var jocInBoxConfig = jocInBoxConfig || {};',
+				//'jocInBoxConfig.htmlTemplatesLocation = "' + vm.childWebUrl + '/SitePages";',
+				'jocInBoxConfig.htmlTemplatesLocation = "http://localhost:3000/spaArtifacts/assets";',
 				'jocInBoxConfig.dashboards = ' + JSON.stringify(dashboards) + ";",
 				'jocInBoxConfig.missionTypes = ' + JSON.stringify(crisisResponseSchema.missionTypesMappedToDefaultApprovalAuthority) + ";"
 			].join('\n\n');
