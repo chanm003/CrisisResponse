@@ -207,6 +207,7 @@
 		}
 
 		function copyFile(opts) {
+			patchSpRequestExecutor();
 			var sourceExecutor = new SP.RequestExecutor(opts.sourceWebUrl);
 			var targetExecutor = new SP.RequestExecutor(opts.destinationWebUrl);
 			return getFormDigestForTargetSite(opts)
@@ -269,6 +270,92 @@
 				sourceExecutor.executeAsync(getFileAction);
 
 				return dfd.promise;
+			}
+
+			function patchSpRequestExecutor(){
+				SP.RequestExecutorInternalSharedUtility.BinaryDecode = function SP_RequestExecutorInternalSharedUtility$BinaryDecode(data) {
+				   var ret = '';
+				 
+				   if (data) {
+				      var byteArray = new Uint8Array(data);
+				 
+				      for (var i = 0; i < data.byteLength; i++) {
+				         ret = ret + String.fromCharCode(byteArray[i]);
+				      }
+				   }
+				   ;
+				   return ret;
+				};
+				 
+				SP.RequestExecutorUtility.IsDefined = function SP_RequestExecutorUtility$$1(data) {
+				   var nullValue = null;
+				 
+				   return data === nullValue || typeof data === 'undefined' || !data.length;
+				};
+				 
+				SP.RequestExecutor.ParseHeaders = function SP_RequestExecutor$ParseHeaders(headers) {
+				   if (SP.RequestExecutorUtility.IsDefined(headers)) {
+				      return null;
+				   }
+				   var result = {};
+				   var reSplit = new RegExp('\r?\n');
+				   var headerArray = headers.split(reSplit);
+				 
+				   for (var i = 0; i < headerArray.length; i++) {
+				      var currentHeader = headerArray[i];
+				 
+				      if (!SP.RequestExecutorUtility.IsDefined(currentHeader)) {
+				         var splitPos = currentHeader.indexOf(':');
+				 
+				         if (splitPos > 0) {
+				            var key = currentHeader.substr(0, splitPos);
+				            var value = currentHeader.substr(splitPos + 1);
+				 
+				            key = SP.RequestExecutorNative.trim(key);
+				            value = SP.RequestExecutorNative.trim(value);
+				            result[key.toUpperCase()] = value;
+				         }
+				      }
+				   }
+				   return result;
+				};
+				 
+				SP.RequestExecutor.internalProcessXMLHttpRequestOnreadystatechange = function SP_RequestExecutor$internalProcessXMLHttpRequestOnreadystatechange(xhr, requestInfo, timeoutId) {
+				   if (xhr.readyState === 4) {
+				      if (timeoutId) {
+				         window.clearTimeout(timeoutId);
+				      }
+				      xhr.onreadystatechange = SP.RequestExecutorNative.emptyCallback;
+				      var responseInfo = new SP.ResponseInfo();
+				 
+				      responseInfo.state = requestInfo.state;
+				      responseInfo.responseAvailable = true;
+				      if (requestInfo.binaryStringResponseBody) {
+				         responseInfo.body = SP.RequestExecutorInternalSharedUtility.BinaryDecode(xhr.response);
+				      }
+				      else {
+				         responseInfo.body = xhr.responseText;
+				      }
+				      responseInfo.statusCode = xhr.status;
+				      responseInfo.statusText = xhr.statusText;
+				      responseInfo.contentType = xhr.getResponseHeader('content-type');
+				      responseInfo.allResponseHeaders = xhr.getAllResponseHeaders();
+				      responseInfo.headers = SP.RequestExecutor.ParseHeaders(responseInfo.allResponseHeaders);
+				      if (xhr.status >= 200 && xhr.status < 300 || xhr.status === 1223) {
+				         if (requestInfo.success) {
+				            requestInfo.success(responseInfo);
+				         }
+				      }
+				      else {
+				         var error = SP.RequestExecutorErrors.httpError;
+				         var statusText = xhr.statusText;
+				 
+				         if (requestInfo.error) {
+				            requestInfo.error(responseInfo, error, statusText);
+				         }
+				      }
+				   }
+				};
 			}
 		}
 
