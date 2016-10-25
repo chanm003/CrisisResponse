@@ -1040,7 +1040,9 @@
                 //commander has disapproved, or marked as pending, so "conch" has not been passed to next commander on the route
                 return doc.chopProcessInfo.routeStages[indexCorrespondingToRouteStageWhereCommanderMadeDecision].name;
             } else {
-                return doc.chopProcessInfo.routeStages[indexCorrespondingToRouteStageWhereCommanderMadeDecision + 1].name;
+                var indexOfFinalStage = doc.chopProcessInfo.routeStages.length - 1;
+                var stage = doc.chopProcessInfo.routeStages[indexCorrespondingToRouteStageWhereCommanderMadeDecision + 1];
+                return (!!stage) ? stage.name :  doc.chopProcessInfo.routeStages[indexOfFinalStage].name;
             }
         }
 
