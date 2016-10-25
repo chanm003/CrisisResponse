@@ -564,7 +564,7 @@
 				'angular-sanitize.min.js',
 				'ngplus-overlay.js',
 				'moment.min.js',
-				'angular-ui-router.min.js',
+				'angular-route.min.js',
 				'notifications.min.js',
 				'angular-animate.min.js',
 				'ngOfficeUiFabric.min.js',

@@ -23,7 +23,7 @@
         'blocks.exception',
         'blocks.logger',
         'blocks.router',
-        'ui.router',
+        'ngRoute',
         'ngplus'
     ])
         .constant('_', extendLoDash(_))
@@ -41,10 +41,10 @@
         .config(configureExceptionModule);
 
     angular.module('blocks.router', [
-        'ui.router',
+        'ngRoute',
         'blocks.logger'
     ])
-        .provider('routerHelper', routerHelperProvider);
+        .config(registerRoutes);
 
     angular.module('blocks.logger', [])
         .factory('logger', loggerService);
@@ -123,13 +123,12 @@
         return SPUtility;
     }
 
-    configureCoreModule.$inject = ['$logProvider', '$sceDelegateProvider', 'exceptionHandlerProvider', 'routerHelperProvider', 'Lobibox'];
-    function configureCoreModule($logProvider, $sce, exceptionHandlerProvider, routerHelperProvider, Lobibox) {
+    configureCoreModule.$inject = ['$logProvider', '$sceDelegateProvider', 'exceptionHandlerProvider', 'Lobibox'];
+    function configureCoreModule($logProvider, $sce, exceptionHandlerProvider, Lobibox) {
         if ($logProvider.debugEnabled) {
             $logProvider.debugEnabled(true);
         }
         exceptionHandlerProvider.configure(globalConfig.appErrorPrefix);
-        routerHelperProvider.configure({ docTitle: globalConfig.appTitle + ': ' });
         Lobibox.notify.DEFAULTS = $.extend({}, Lobibox.notify.DEFAULTS, {
             iconSource: 'fontAwesome',
             sound: false,
@@ -269,96 +268,27 @@
         }
     }
 
-    routerHelperProvider.$inject = ['$locationProvider', '$stateProvider', '$urlRouterProvider'];
-    function routerHelperProvider($locationProvider, $stateProvider, $urlRouterProvider) {
-        /* jshint validthis:true */
-        var config = {
-            docTitle: undefined,
-            resolveAlways: {}
-        };
+    registerRoutes.$inject = ['$routeProvider'];
+    function registerRoutes($routeProvider){
 
-        if (!(window.history && window.history.pushState)) {
-            window.location.hash = '/';
-        }
-
-        //$locationProvider.html5Mode(true);
-
-        this.configure = function (cfg) {
-            angular.extend(config, cfg);
-        };
-
-        this.$get = RouterHelper;
-        RouterHelper.$inject = ['$rootScope', 'logger'];
-        /* @ngInject */
-        function RouterHelper($rootScope, logger) {
-            var handlingStateChangeError = false;
-            var hasOtherwise = false;
-            var stateCounts = {
-                errors: 0,
-                changes: 0
-            };
-
-            var service = {
-                configureStates: configureStates,
-                stateCounts: stateCounts
-            };
-
-            init();
-
-            return service;
-
-            ///////////////
-
-            function configureStates(states, otherwisePath) {
-                states.forEach(function (state) {
-                    state.config.resolve =
-                        angular.extend(state.config.resolve || {}, config.resolveAlways);
-                    $stateProvider.state(state.state, state.config);
-                });
-                if (otherwisePath && !hasOtherwise) {
-                    hasOtherwise = true;
-                    $urlRouterProvider.otherwise(otherwisePath);
-                }
-            }
-
-            function handleRoutingErrors() {
-                // Route cancellation:
-                // On routing error, go to the dashboard.
-                // Provide an exit clause if it tries to do it twice.
-                $rootScope.$on('$stateChangeError',
-                    function (event, toState, toParams, fromState, fromParams, error) {
-                        if (handlingStateChangeError) {
-                            return;
-                        }
-                        stateCounts.errors++;
-                        handlingStateChangeError = true;
-                        var destination = (toState &&
-                            (toState.title || toState.name || toState.loadedTemplateUrl)) ||
-                            'unknown target';
-                        var msg = 'Error routing to ' + destination + '. ' +
-                            (error.data || '') + '. <br/>' + (error.statusText || '') +
-                            ': ' + (error.status || '');
-                        logger.warning(msg, { data: [toState] });
-                    }
-                );
-            }
-
-            function init() {
-                handleRoutingErrors();
-                updateDocTitle();
-            }
-
-            function updateDocTitle() {
-                $rootScope.$on('$stateChangeSuccess',
-                    function (event, toState, toParams, fromState, fromParams) {
-                        stateCounts.changes++;
-                        handlingStateChangeError = false;
-                        var title = config.docTitle + ' ' + (toState.title || '');
-                        $rootScope.title = title; // data bind to <title>
-                    }
-                );
-            }
-        }
+        $routeProvider
+            .when('/missiontracker/:tabIndex?', {
+                templateUrl: jocInBoxConfig.htmlTemplatesLocation + '/missionTracker.html',
+                controller: 'MissionTrackerController as vm'
+            })
+            .when('/rfi/:tabIndex?', {
+                templateUrl: jocInBoxConfig.htmlTemplatesLocation + '/rfi.html',
+                controller: 'RfiController as vm'
+            })
+            .when('/editnav', {
+                templateUrl: jocInBoxConfig.htmlTemplatesLocation + '/editnav.html',
+                controller: 'EditNavController as vm'
+            })
+            .when('/sandbox', {
+                templateUrl: jocInBoxConfig.htmlTemplatesLocation + '/devsandbox.html',
+                controller: 'DeveloperSandboxController as vm'
+            })
+            .otherwise({redirectTo:'/missiontracker'});
     }
 
     ShellController.$inject = ['$rootScope', '$timeout', 'config', 'logger'];
@@ -3151,28 +3081,7 @@
 (function () {
     angular
         .module('app.core')
-        .run(registerEditNavRoute)
-        .controller('EditNavController', EditNavController);
-
-    registerEditNavRoute.$inject = ['config', 'routerHelper'];
-    function registerEditNavRoute(config, routerHelper) {
-        routerHelper.configureStates(getStates());
-
-        function getStates() {
-            return [
-                {
-                    state: 'editNav',
-                    config: {
-                        url: '/editNav',
-                        templateUrl: jocInBoxConfig.htmlTemplatesLocation + '/editnav.html',
-                        controller: 'EditNavController',
-                        controllerAs: 'vm',
-                        title: 'Edit Navigation'
-                    }
-                }
-            ];
-        }
-    }
+        .controller('EditNavController', EditNavController); 
 
     EditNavController.$inject = ['$q', '$timeout', '_', 'logger', 'ConfigRepository'];
     function EditNavController($q, $timeout, _, logger, ConfigRepository) {
@@ -3186,31 +3095,10 @@
     //nicer looking plugin found here but requires bootstrap: http://www.dijit.fr/demo/angular-weekly-scheduler/
     angular
         .module('app.core')
-        .run(registerMissionTrackerRoute)
         .controller('MissionTrackerController', MissionTrackerController);
 
-    registerMissionTrackerRoute.$inject = ['config', 'routerHelper'];
-    function registerMissionTrackerRoute(config, routerHelper) {
-        routerHelper.configureStates(getStates());
-
-        function getStates() {
-            return [
-                {
-                    state: 'mission',
-                    config: {
-                        url: '/missiontracker/:tabIndex',
-                        templateUrl: jocInBoxConfig.htmlTemplatesLocation + '/missionTracker.html',
-                        controller: 'MissionTrackerController',
-                        controllerAs: 'vm',
-                        title: 'Mission Tracker'
-                    }
-                }
-            ];
-        }
-    }
-
-    MissionTrackerController.$inject = ['$q', '$stateParams', '_', 'logger', 'DocumentChopsRepository', 'MissionDocument', 'MissionDocumentRepository', 'Mission', 'MissionTrackerRepository'];
-    function MissionTrackerController($q, $stateParams, _, logger, DocumentChopsRepository, MissionDocument, MissionDocumentRepository, Mission, MissionTrackerRepository) {
+    MissionTrackerController.$inject = ['$q', '$routeParams', '_', 'logger', 'DocumentChopsRepository', 'MissionDocument', 'MissionDocumentRepository', 'Mission', 'MissionTrackerRepository'];
+    function MissionTrackerController($q, $routeParams, _, logger, DocumentChopsRepository, MissionDocument, MissionDocumentRepository, Mission, MissionTrackerRepository) {
         var vm = this;
         var dataSources = {
             missionRelatedDocs: [],
@@ -3343,7 +3231,7 @@
                 { title: "Product Chop" }
             ];
 
-            var selectedIndex = (!$stateParams.tabIndex || $stateParams.tabIndex >= pivots.length) ? 0 : $stateParams.tabIndex;
+            var selectedIndex = (!$routeParams.tabIndex || $routeParams.tabIndex >= pivots.length) ? 0 : $routeParams.tabIndex;
 
             vm.tabConfig = {
                 selectedSize: "large",
@@ -3394,31 +3282,10 @@
 (function () {
     angular
         .module('app.core')
-        .run(registerRfiRoute)
         .controller('RfiController', RfiController);
 
-    registerRfiRoute.$inject = ['config', 'routerHelper'];
-    function registerRfiRoute(config, routerHelper) {
-        routerHelper.configureStates(getStates());
-
-        function getStates() {
-            return [
-                {
-                    state: 'rfi',
-                    config: {
-                        url: '/rfi/:tabIndex',
-                        templateUrl: jocInBoxConfig.htmlTemplatesLocation + '/rfi.html',
-                        controller: 'RfiController',
-                        controllerAs: 'vm',
-                        title: 'Request for Information'
-                    }
-                }
-            ];
-        }
-    }
-
-    RfiController.$inject = ['$q', '$scope', '$stateParams', '_', 'logger', 'RFI', 'RfiRepository', 'Mission', 'MissionTrackerRepository', 'ConfigRepository'];
-    function RfiController($q, $scope, $stateParams, _, logger, RFI, RFIRepository, Mission, MissionTrackerRepository, ConfigRepository) {
+    RfiController.$inject = ['$q', '$scope', '$routeParams', '_', 'logger', 'RFI', 'RfiRepository', 'Mission', 'MissionTrackerRepository', 'ConfigRepository'];
+    function RfiController($q, $scope, $routeParams, _, logger, RFI, RFIRepository, Mission, MissionTrackerRepository, ConfigRepository) {
         var vm = this;
         var rfiList = null;
         activate();
@@ -3524,7 +3391,7 @@
                 { title: "Manage RFIs" }
             ];
 
-            var selectedIndex = (!$stateParams.tabIndex || $stateParams.tabIndex >= pivots.length) ? 0 : $stateParams.tabIndex;
+            var selectedIndex = (!$routeParams.tabIndex || $routeParams.tabIndex >= pivots.length) ? 0 : $routeParams.tabIndex;
 
             vm.tabConfig = {
                 selectedSize: "large",
@@ -3553,31 +3420,10 @@
     'use strict';
     angular
         .module('app.core')
-        .run(registerRoute)
         .controller('DeveloperSandboxController', ControllerDefFunc);
 
-    registerRoute.$inject = ['config', 'routerHelper'];
-    function registerRoute(config, routerHelper) {
-        routerHelper.configureStates(getStates());
-
-        function getStates() {
-            return [
-                {
-                    state: 'sandbox',
-                    config: {
-                        url: '/sandbox',
-                        templateUrl: jocInBoxConfig.htmlTemplatesLocation + '/devsandbox.html',
-                        controller: 'DeveloperSandboxController',
-                        controllerAs: 'vm',
-                        title: 'Developer Sandbox'
-                    }
-                }
-            ];
-        }
-    }
-
-    ControllerDefFunc.$inject = ['$q', '$stateParams', '_', 'logger'];
-    function ControllerDefFunc($q, $stateParams, _, logger) {
+    ControllerDefFunc.$inject = ['$q', '$routeParams', '_', 'logger'];
+    function ControllerDefFunc($q, $routeParams, _, logger) {
         var vm = this;
 
         activate();
