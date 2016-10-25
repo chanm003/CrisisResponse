@@ -1955,14 +1955,8 @@
 
         function link(scope, elem, attrs) {
             scope.onStepClicked = function (stepName) {
-                /*
-                FACEPILE dialog listens to selectedRouteStage property -- do we want to rerender the facepile each time a user clicks a subway-node?
                 scope.document.chopProcessInfo.selectedRouteStage = _.find(scope.document.chopProcessInfo.routeStages, {name: stepName});
-                */
-                $rootScope.$broadcast("routing-process-visualization:nodeClicked", {
-                    stepName: stepName,
-                    document: scope.document
-                })
+                
             }
         }
     }
@@ -2478,6 +2472,53 @@
     }
 })();
 
+/* Directive: commanderDecisionButton */
+(function () {
+    angular
+        .module('app.core')
+        .directive('commanderDecisionButton', directiveDefinitionFunc);
+
+    function directiveDefinitionFunc($rootScope) {
+        var directiveDefinition = {
+            restrict: 'E',
+            scope: {
+                document: "="
+            },
+            link: link,
+            template: buildButtonHtml()
+        };
+        return directiveDefinition;
+
+        function buildButtonHtml() {
+            var parts = [
+            '<button ng-click="chopButtonClicked()" ng-if="document.chopProcessInfo.selectedRouteStage.cdrDecisions.length === 0" type="button" class="cdr-chop-button-no-decisions-yet">',
+            '   {{document.chopProcessInfo.selectedRouteStage.name}} CDR',
+            '</button>',
+            '<button ng-click="chopButtonClicked()" ng-if="document.chopProcessInfo.selectedRouteStage.cdrDecisions.length !== 0" type="button" class="cdr-chop-button">',
+            '   <span>',
+            '       <i ng-if="document.chopProcessInfo.selectedRouteStage.cdrDecisions[0].Verdict === \'Concur\'" class="fa fa-thumbs-up" style="color:green;font-size:1.4em;"></i>',
+            '       <i ng-if="document.chopProcessInfo.selectedRouteStage.cdrDecisions[0].Verdict === \'Nonconcur\'" class="fa fa-thumbs-down" style="color:red;font-size:1.4em;"></i>',
+            '       <i ng-if="document.chopProcessInfo.selectedRouteStage.cdrDecisions[0].Verdict === \'Pending\'" class="fa fa-hourglass-start" style="font-size:1.2em;"></i>',
+            '       {{document.chopProcessInfo.selectedRouteStage.name}} CDR',
+            '   </span>',
+            '</button>'
+            ].join('');
+            return parts;
+        }
+
+        function link(scope, elem, attrs) {
+            scope.chopButtonClicked = function(){
+                $rootScope.$broadcast("missionTracker:chopButtonClicked", {
+                    organization: scope.document.chopProcessInfo.selectedRouteStage.name,
+                    section: 'CDR',
+                    document: scope.document
+                });
+            }
+        }
+    }
+
+})();
+
 /* Directive: routingProcessParticipants */
 (function () {
     angular
@@ -2494,42 +2535,45 @@
                 document: "="
             },
             link: link,
-            template: buildFacePileHtml()
+            template: buildParticipantButtonsHtml()
         };
         return directiveDefinition;
 
-        function buildFacePileHtml() {
+        function buildParticipantButtonsHtml() {
             var parts = [
-                '<div class="ms-Facepile">',
-                '   <div class="ms-Facepile-members">',
-                '       <div class="ms-Facepile-itemBtn ms-Facepile-itemBtn--member">',
-                '           <div size="1" class="ms-Persona ms-Persona--xs">',
-                '               <div class="ms-Persona-imageArea">',
-                '                   <div ng-if="document.chopProcessInfo.selectedRouteStage.cdrDecisions[0].Verdict === \'Concur\'" class="ms-Persona-initials ms-Persona-initials--darkGreen"><i class="fa fa-thumbs-o-up"></i></div>',
-                '                   <div ng-if="document.chopProcessInfo.selectedRouteStage.cdrDecisions[0].Verdict === \'Nonconcur\'" class="ms-Persona-initials ms-Persona-initials--darkRed"><i class="fa fa-thumbs-o-down"></i></div>',
-                '                   <div ng-if="document.chopProcessInfo.selectedRouteStage.cdrDecisions[0].Verdict === \'Pending\'" class="ms-Persona-initials ms-Persona-initials--blue"><i class="fa fa-hourglass-start"></i></div>',
-                '                   <div ng-if="document.chopProcessInfo.selectedRouteStage.cdrDecisions.length === 0" class="ms-Persona-initials ms-Persona-initials--blue"><i class="ms-Facepile-addPersonIcon ms-Icon ms-Icon--chat"></i></div>',
-                '               </div>',
-                '           </div>',
-                '       </div>',
-                '       <div class="ms-Facepile-itemBtn ms-Facepile-itemBtn--member" ng-repeat="(sectionName, decisions) in document.chopProcessInfo.selectedRouteStage.staffSectionDecisions">',
-                '           <div size="1" class="ms-Persona ms-Persona--xs">',
-                '               <div class="ms-Persona-imageArea">',
-                '                   <div ng-if="decisions[0].Verdict === \'Concur\'" class="ms-Persona-initials ms-Persona-initials--darkGreen"><i class="fa fa-thumbs-o-up"></i></div>',
-                '                   <div ng-if="decisions[0].Verdict === \'Nonconcur\'" class="ms-Persona-initials ms-Persona-initials--darkRed"><i class="fa fa-thumbs-o-down"></i></div>',
-                '                   <div ng-if="decisions[0].Verdict === \'Pending\'" class="ms-Persona-initials ms-Persona-initials--blue"><i class="fa fa-hourglass-start"></i></div>',
-                '                   <div ng-if="decisions.length === 0" class="ms-Persona-initials ms-Persona-initials--blue"><i class="ms-Facepile-addPersonIcon ms-Icon ms-Icon--chat"></i></div>',
-                '               </div>',
-                '           </div>',
-                '       </div>',
-                '   </div>',
-                '</div>'
+                '<table>',
+                '   <tr>',
+                '       <td ng-click="chopButtonClicked(sectionName)" ng-repeat="(sectionName, decisions) in document.chopProcessInfo.selectedRouteStage.staffSectionDecisions" style="padding:0;">',
+                '           <button ng-if="decisions.length === 0" type="button" class="staff-chop-button-no-decisions-yet">',
+                '               {{tryToShorten(sectionName)}}',
+                '           </button>',
+                '           <button ng-if="decisions.length !== 0" type="button" class="staff-chop-button">',
+                '               <span>',
+                '                   <i ng-if="decisions[0].Verdict === \'Concur\'" class="fa fa-thumbs-up" style="color:green;font-size:1.4em;"></i>',
+                '                   <i ng-if="decisions[0].Verdict === \'Nonconcur\'" class="fa fa-thumbs-down" style="color:red;font-size:1.4em;"></i>',
+                '                   <i ng-if="decisions[0].Verdict === \'Pending\'" class="fa fa-hourglass-start" style="font-size:1.2em;"></i>',
+                '                   {{tryToShorten(sectionName)}}',
+                '               </span>',
+                '           </button>',
+                '       </td>',
+                '   </tr>',
+                '</table'
             ].join('');
             return parts;
         }
 
         function link(scope, elem, attrs) {
+            scope.tryToShorten = function(sectionName){
+                return sectionName.substr(sectionName.lastIndexOf('-')+1);;
+            }
 
+            scope.chopButtonClicked = function(sectionName){
+                $rootScope.$broadcast("missionTracker:chopButtonClicked", {
+                    organization: scope.document.chopProcessInfo.selectedRouteStage.name,
+                    section: sectionName,
+                    document: scope.document
+                });
+            }
         }
     }
 
@@ -2557,11 +2601,10 @@
         return directiveDefinition;
 
         function link(scope, elem, attrs) {
-            $rootScope.$on("routing-process-visualization:nodeClicked", function (evt, args) {
-                //args.document, stepName
+            $rootScope.$on("missionTracker:chopButtonClicked", function (evt, args) {
                 scope.document = args.document;
-                scope.selectedStage = _.find(scope.document.chopProcessInfo.routeStages, { name: args.stepName });
-                buildSignatureBlocks();
+                scope.selectedStage = _.find(scope.document.chopProcessInfo.routeStages, { name: args.organization });
+                buildSignatureBlocks(args.section);
                 scope.errors = scope.document.checkIfChoppingOutOfTurn(scope.selectedStage.name);
                 scope.showPanel = true;
             });
@@ -2598,8 +2641,8 @@
                 });
             }
 
-            function buildSignatureBlocks() {
-                scope.selectedTab = '';
+            function buildSignatureBlocks(section) {
+                scope.selectedTab = section;
                 var blocks = []
                 //add one for CDR
                 blocks.push({
@@ -2637,14 +2680,20 @@
             '                   <div class="form-header"><span class="ms-font-xl">{{block.title}}</span></div>',
             '                   <div class="ms-Grid">',
             '                       <div class="ms-Grid-row">',
-            '                           <div class="ms-Grid-col ms-u-md4">',
+            '                           <div class="ms-Grid-col ms-u-md12">',
             '                               <uif-textfield uif-label="Comments" ng-model="block.Comments" uif-multiline="true" ng-disabled="document.chopProcessInfo.lastKnownLocationAlongRoute !== selectedStage.name" />',
-            generateVerdictPicker(),
-            generateBlockErrorMessages(),
-            generateButtonsHtml(),
+                                            generateVerdictPicker(),
+                                            generateBlockErrorMessages(),
+                                            generateButtonsHtml(),
             '                           </div>',
-            '                           <div class="ms-Grid-col ms-u-md8">',
-            generatePreviousChopsHtml(),
+            '                       </div>',
+            '                   </div>',
+            '                   <br/>',
+            '                   <div class="form-header"><span class="ms-font-xl">Previous Comments</span></div>',
+            '                   <div class="ms-Grid">',
+            '                       <div class="ms-Grid-row">',
+            '                           <div class="ms-Grid-col ms-u-md12">',
+                                            generatePreviousChopsHtml(),
             '                           </div>',
             '                       </div>',
             '                   </div>',
@@ -2719,6 +2768,7 @@
         }
 
         function generateShowAllSectionsMessage() {
+            //NOT USED
             var parts = [
                 '<div class="ms-MessageBanner" ng-show="!!selectedTab">',
                 '   <div class="ms-MessageBanner-content">',
@@ -2736,16 +2786,17 @@
                 '</div>'
             ].join('');
 
-            return parts;
+            return "";
         }
 
         function generateTabsHtml() {
+            //NOT USED
             var parts = [
                 '<ul ng-if="signatureBlocks.length > 1 && !errors" class="ms-Pivot ms-Pivot--tabs ms-Pivot--large">',
                 '   <li class="ms-Pivot-link" ng-repeat="block in signatureBlocks" ng-click="onTabClicked(block)" ng-class="{\'is-selected\': block.signOnBehalfOf === selectedTab}">{{block.title}}</li>',
                 '</ul>'
             ].join('');
-            return parts;
+            return "";
         }
     }
 

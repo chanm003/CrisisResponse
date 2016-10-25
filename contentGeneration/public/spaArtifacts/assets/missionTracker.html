@@ -67,11 +67,11 @@
             <uif-table-header uif-order-by="Mission.FullName">Mission</uif-table-header>
             <uif-table-header uif-order-by="TypeOfDocument">Product</uif-table-header>
             <uif-table-header>Routing Process</uif-table-header>
-            <uif-table-header>CMDWITHCONCH</uif-table-header>
-            <uif-table-header>Choppers</uif-table-header>
+            <uif-table-header>Commander</uif-table-header>
+            <uif-table-header>Staff Sections</uif-table-header>
           </uif-table-row>
         </uif-table-head>
-        <uif-table-body>
+        <uif-table-body class="ms-Grid">
           <uif-table-row ng-repeat="item in vm.chopProcessesDataSource | orderBy:table.orderBy:!table.orderAsc">
             <uif-table-cell>{{item.Mission.FullName}}</uif-table-cell>
             <uif-table-cell>{{item.TypeOfDocument}}</uif-table-cell>
@@ -79,7 +79,7 @@
               <routing-process-visualization document="item"></routing-process-visualization>
             </uif-table-cell>
             <uif-table-cell style="white-space:nowrap;">
-              {{item.chopProcessInfo.requiresDecisionFrom}}
+              <commander-decision-button document="item"></commander-decision-button>
             </uif-table-cell>
             <uif-table-cell style="white-space:nowrap;">
               <routing-process-participants document="item"></routing-process-participants>

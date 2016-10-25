@@ -807,6 +807,7 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    margin-bottom: 10px;
 }
 
 .form-header span{
@@ -835,3 +836,19 @@
 .chop-comments .cmmnt .cmmnt-content header .userlink { font-weight: bold; }
 .border-top {border-top: 1px solid #ddd;} 
 .chop-comments .cmmnt p { margin-top:8px; margin-bottom:8px;}
+
+.cdr-chop-button-no-decisions-yet{
+  cursor:pointer;min-width:15px;color:#fff;background-color:#337ab7;border-color:#2e6da4;padding:1px 23px;font-size:12px;line-height:1.5;border-radius:3px;white-space:nowrap;margin:1px;
+}
+
+.cdr-chop-button{
+  cursor:pointer;min-width:15px;background-color:transparent;border-color:#ddd;padding:1px 23px 1px 5px;font-size:12px;line-height:1.5;border-radius:3px;white-space:nowrap;margin:1px;
+}
+
+.staff-chop-button-no-decisions-yet {
+  cursor:pointer;min-width:15px;color:#fff;background-color:#337ab7;border-color:#2e6da4;padding:1px 5px;font-size:12px;line-height:1.5;border-radius:3px;white-space:nowrap;margin:1px;
+}
+
+.staff-chop-button {
+  cursor:pointer;min-width:15px;background-color:transparent;border-color:#ddd;padding:1px 5px;font-size:12px;line-height:1.5;border-radius:3px;white-space:nowrap;margin:1px;
+}
