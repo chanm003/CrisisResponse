@@ -6,8 +6,6 @@
         showDebugToasts: true
     };
 
-    $(document).ready(bootstrapNgApplication);
-
     angular.module('singlePageApp', [
         'app.core',
         'app.data',
@@ -53,68 +51,6 @@
         'app.core'
     ])
         .controller('ShellController', ShellController);
-
-    function bootstrapNgApplication() {
-        var currentURL = window.location.pathname.toUpperCase();
-        var spPage = $("body");
-        if (_.includes(currentURL, '/SITEPAGES/SOCC.ASPX') || _.includes(currentURL, '/SITEPAGES/SOTG.ASPX')) {
-            spPage.attr('ng-controller', 'OrgDashboardAspxController as vm');
-            spPage.append(generateChopDialogHtml());
-        }
-
-        if (_.includes(currentURL, '/LISTS/MISSIONTRACKER/NEWFORM.ASPX') || _.includes(currentURL, '/LISTS/MISSIONTRACKER/EDITFORM.ASPX')) {
-            spPage.attr('ng-controller', 'MissionTrackerDataEntryAspxController as vm');
-        }
-
-        if (_.includes(currentURL, '/LISTS/RFI/NEWFORM.ASPX') || _.includes(currentURL, '/LISTS/RFI/EDITFORM.ASPX')) {
-            spPage.attr('ng-controller', 'RfiDataEntryAspxController as vm');
-        }
-
-        if (_.includes(currentURL, '/MISSIONDOCUMENTS/FORMS/EDITFORM.ASPX')) {
-            spPage.attr('ng-controller', 'MissionProductsDataEntryAspxController as vm');
-        }
-
-        addMenuDirective();
-        //BOOTSTRAP NG-APP
-        angular.element(document).ready(function () { angular.bootstrap(document, ['singlePageApp']); });
-
-        function addMenuDirective() {
-            spPage.find("#sideNavBox").prepend("<nav-menu></nav-menu>");
-        }
-
-        function generateChopDialogHtml() {
-            var html = [
-                '<uif-dialog uif-close="false" uif-overlay="light" uif-type="multiline" ng-show="vm.chopDialogCtx.show">',
-                '   <uif-dialog-header>',
-                '       <p class="ms-Dialog-title">',
-                '           Initiate Chop Process',
-                '       </p>',
-                '   </uif-dialog-header>',
-                '   <uif-dialog-inner>',
-                '       <uif-dialog-content>',
-                '           <uif-dialog-subtext>',
-                '               <span>Associate this document to a Mission:</span>',
-                '           </uif-dialog-subtext>',
-                '           <uif-dropdown ng-model="vm.chopDialogCtx.listItem.Mission.Id">',
-                '               <uif-dropdown-option ng-repeat="mission in vm.chopDialogCtx.missions" value="{{mission.Id}}" title="{{mission.Identifier}}">{{mission.Identifier}}</uif-dropdown-option>',
-                '           </uif-dropdown>',
-                '           <uif-message-bar uif-type="error" ng-show="vm.chopDialogCtx.isFormValid()">',
-                '               <uif-content>This is a required field</uif-content>',
-                '           </uif-message-bar>',
-                '       </uif-dialog-content>',
-                '       <uif-dialog-actions uif-position="right">',
-                '           <button class="ms-Dialog-action ms-Button ms-Button--primary" ng-click="vm.chopDialogCtx.submit()">',
-                '               <span class="ms-Button-label">Start Chop</span>',
-                '           </button>',
-                '           <button class="ms-Dialog-action ms-Button" ng-click="vm.chopDialogCtx.show = false">',
-                '               <span class="ms-Button-label">Cancel</span>',
-                '           </button>',
-                '       </uif-dialog-actions>',
-                '   </uif-dialog-inner>',
-                '</uif-dialog>'].join('');
-            return html;
-        }
-    }
 
     function configSPUtility() {
         SPUtility.Setup({
@@ -3531,6 +3467,71 @@
                 }
             ];
             return $q.when(staticData);
+        }
+    }
+})();
+
+(function () {
+    $(document).ready(bootstrapNgApplication);
+    function bootstrapNgApplication() {
+        var currentURL = window.location.pathname.toUpperCase();
+        var spPage = $("body");
+        if (_.includes(currentURL, '/SITEPAGES/SOCC.ASPX') || _.includes(currentURL, '/SITEPAGES/SOTG.ASPX')) {
+            spPage.attr('ng-controller', 'OrgDashboardAspxController as vm');
+            spPage.append(generateChopDialogHtml());
+        }
+
+        if (_.includes(currentURL, '/LISTS/MISSIONTRACKER/NEWFORM.ASPX') || _.includes(currentURL, '/LISTS/MISSIONTRACKER/EDITFORM.ASPX')) {
+            spPage.attr('ng-controller', 'MissionTrackerDataEntryAspxController as vm');
+        }
+
+        if (_.includes(currentURL, '/LISTS/RFI/NEWFORM.ASPX') || _.includes(currentURL, '/LISTS/RFI/EDITFORM.ASPX')) {
+            spPage.attr('ng-controller', 'RfiDataEntryAspxController as vm');
+        }
+
+        if (_.includes(currentURL, '/MISSIONDOCUMENTS/FORMS/EDITFORM.ASPX')) {
+            spPage.attr('ng-controller', 'MissionProductsDataEntryAspxController as vm');
+        }
+
+        addMenuDirective();
+        //BOOTSTRAP NG-APP
+        angular.bootstrap(document, ['singlePageApp']); 
+
+        function addMenuDirective() {
+            spPage.find("#sideNavBox").prepend("<nav-menu></nav-menu>");
+        }
+
+        function generateChopDialogHtml() {
+            var html = [
+                '<uif-dialog uif-close="false" uif-overlay="light" uif-type="multiline" ng-show="vm.chopDialogCtx.show">',
+                '   <uif-dialog-header>',
+                '       <p class="ms-Dialog-title">',
+                '           Initiate Chop Process',
+                '       </p>',
+                '   </uif-dialog-header>',
+                '   <uif-dialog-inner>',
+                '       <uif-dialog-content>',
+                '           <uif-dialog-subtext>',
+                '               <span>Associate this document to a Mission:</span>',
+                '           </uif-dialog-subtext>',
+                '           <uif-dropdown ng-model="vm.chopDialogCtx.listItem.Mission.Id">',
+                '               <uif-dropdown-option ng-repeat="mission in vm.chopDialogCtx.missions" value="{{mission.Id}}" title="{{mission.Identifier}}">{{mission.Identifier}}</uif-dropdown-option>',
+                '           </uif-dropdown>',
+                '           <uif-message-bar uif-type="error" ng-show="vm.chopDialogCtx.isFormValid()">',
+                '               <uif-content>This is a required field</uif-content>',
+                '           </uif-message-bar>',
+                '       </uif-dialog-content>',
+                '       <uif-dialog-actions uif-position="right">',
+                '           <button class="ms-Dialog-action ms-Button ms-Button--primary" ng-click="vm.chopDialogCtx.submit()">',
+                '               <span class="ms-Button-label">Start Chop</span>',
+                '           </button>',
+                '           <button class="ms-Dialog-action ms-Button" ng-click="vm.chopDialogCtx.show = false">',
+                '               <span class="ms-Button-label">Cancel</span>',
+                '           </button>',
+                '       </uif-dialog-actions>',
+                '   </uif-dialog-inner>',
+                '</uif-dialog>'].join('');
+            return html;
         }
     }
 })();
