@@ -1395,7 +1395,7 @@
 
         function getMissionRelated() {
             var dfd = $q.defer();
-            var qsParams = { $filter: "MissionId ne null" };
+            var qsParams = {};  //{ $filter: "MissionId ne null" };
             spContext.constructNgResourceForRESTCollection(ngResourceConstructParams).get(qsParams,
                 function (data) {
                     dfd.resolve(data.d.results);
