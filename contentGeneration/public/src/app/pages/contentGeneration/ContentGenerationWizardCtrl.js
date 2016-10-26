@@ -357,7 +357,7 @@
 					});
 				}
 
-				if (fieldGenDef.generationFlags.includeAirComponent) {
+				if (vm.optionalFeatures["Air Component"] && fieldGenDef.generationFlags.includeAirComponent) {
 					_.each(airComponents, function (org) {
 						choices.push(org.name);
 
@@ -367,13 +367,13 @@
 					});
 				}
 
-				if (fieldGenDef.generationFlags.includeCommunicationsComponent) {
+				if (vm.optionalFeatures["Communications Componen"] && fieldGenDef.generationFlags.includeCommunicationsComponent) {
 					_.each(communicationsComponents, function (org) {
 						choices.push(org.name);
 					});
 				}
 
-				if (fieldGenDef.generationFlags.includeExerciseControlGroup) {
+				if (vm.optionalFeatures["Exercise Control Group"] && fieldGenDef.generationFlags.includeExerciseControlGroup) {
 					_.each(exerciseControlGroups, function (org) {
 						choices.push(org.name);
 
