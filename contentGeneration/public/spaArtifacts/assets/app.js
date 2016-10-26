@@ -932,7 +932,11 @@
                 this.chopProcessInfo.requiresDecisionFrom = stageThatMustTakeAction.name;
                 this.chopProcessInfo.selectedRouteStage = stageThatMustTakeAction;
             }
-            this.chopProcessInfo.lastKnownLocationAlongRoute = findLastKnownLocationAlongRoute(this);
+            var lastKnownRouteStage = findLastKnownLocationAlongRoute(this);
+            this.chopProcessInfo.lastKnownLocationAlongRoute = lastKnownRouteStage.name;
+            if(!this.chopProcessInfo.selectedRouteStage){
+                this.chopProcessInfo.selectedRouteStage = lastKnownRouteStage;
+            }
         }
 
         function buildRouteStages(doc, jocInBoxConfig) {
@@ -1031,18 +1035,18 @@
 
             if (indexCorrespondingToRouteStageWhereCommanderMadeDecision === undefined) {
                 //not a single commander along the route has made a decisionLookup, so the first commander has the "conch"
-                return doc.chopProcessInfo.routeStages[0].name;
+                return doc.chopProcessInfo.routeStages[0];
             }
 
             var mostRecentCdrDecision = doc.chopProcessInfo.routeStages[indexCorrespondingToRouteStageWhereCommanderMadeDecision].cdrDecisions[0];
             var isFinalCommander = (indexCorrespondingToRouteStageWhereCommanderMadeDecision === doc.chopProcessInfo.routeStages.length);
             if (isFinalCommander || mostRecentCdrDecision.Verdict !== "Concur") {
                 //commander has disapproved, or marked as pending, so "conch" has not been passed to next commander on the route
-                return doc.chopProcessInfo.routeStages[indexCorrespondingToRouteStageWhereCommanderMadeDecision].name;
+                return doc.chopProcessInfo.routeStages[indexCorrespondingToRouteStageWhereCommanderMadeDecision];
             } else {
                 var indexOfFinalStage = doc.chopProcessInfo.routeStages.length - 1;
                 var stage = doc.chopProcessInfo.routeStages[indexCorrespondingToRouteStageWhereCommanderMadeDecision + 1];
-                return (!!stage) ? stage.name :  doc.chopProcessInfo.routeStages[indexOfFinalStage].name;
+                return (!!stage) ? stage:  doc.chopProcessInfo.routeStages[indexOfFinalStage];
             }
         }
 

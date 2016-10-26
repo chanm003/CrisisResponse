@@ -852,3 +852,9 @@
 .staff-chop-button {
   cursor:pointer;min-width:15px;background-color:transparent;border-color:#ddd;padding:1px 5px;font-size:12px;line-height:1.5;border-radius:3px;white-space:nowrap;margin:1px;
 }
+
+.cdr-chop-button-no-decisions-yet:hover, .staff-chop-button-no-decisions-yet:hover{
+    color: #fff;
+    background-color: #286090;
+    border-color: #204d74
+}
