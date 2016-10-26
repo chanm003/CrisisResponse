@@ -15,12 +15,20 @@
 
 <div class="ms-Grid">
   <div class="ms-Grid-row">
-    <div class="ms-Grid-col ms-u-sm10 ms-u-md10 ms-u-lg10">
+    <div class="ms-Grid-col ms-u-sm12 ms-u-md12 ms-u-lg12">
       <uif-button type="button" uif-type="hero" ng-click="vm.goToNewRfiForm()">
         <uif-icon uif-type="plus"></uif-icon> create a new RFI
       </uif-button>
-      
-      <uif-table>
+      <uif-contextual-menu ng-show="vm.filterControlDataSource.length" uif-is-open="true" uif-multiselect="true" uif-close-on-click="false" style="margin-left:20px;position:static;float:right;" class="ms-u-hiddenLgDown">
+        <uif-contextual-menu-item uif-text="'Filter by OPR'" uif-type="header"></uif-contextual-menu-item>
+        <uif-contextual-menu-item ng-repeat="item in vm.filterControlDataSource" uif-is-selected="item.isSelected" ng-click="vm.applyFilters(item)">
+          <uif-content>
+            <span style="float:right;">({{item.count}})</span>
+            <span style="font-size:11px;" title="{{item.key}}">{{vm.truncateText(item.key, 14)}}</span>
+          </uif-content>
+        </uif-contextual-menu-item>
+      </uif-contextual-menu>
+      <uif-table style="width:auto;">
         <uif-table-head>
           <uif-table-row>
             <uif-table-header>&nbsp;</uif-table-header>
@@ -56,17 +64,6 @@
           </uif-table-row>
         </uif-table-body>
       </uif-table>
-    </div>
-    <div class="ms-Grid-col ms-u-sm2 ms-u-md2 ms-u-lg2">
-      <uif-contextual-menu ng-show="vm.filterControlDataSource.length" uif-is-open="true" uif-multiselect="true" uif-close-on-click="false">
-        <uif-contextual-menu-item uif-text="'Filter by OPR'" uif-type="header"></uif-contextual-menu-item>
-        <uif-contextual-menu-item ng-repeat="item in vm.filterControlDataSource" uif-is-selected="item.isSelected" ng-click="vm.applyFilters(item)">
-          <uif-content>
-            <span style="float:right;">({{item.count}})</span>
-            <span style="font-size:11px;" title="{{item.key}}">{{vm.truncateText(item.key, 14)}}</span>
-          </uif-content>
-        </uif-contextual-menu-item>
-      </uif-contextual-menu>
     </div>
   </div>
 </div>

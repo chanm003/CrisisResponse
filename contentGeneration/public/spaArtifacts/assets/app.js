@@ -2545,9 +2545,7 @@
 
         function buildParticipantButtonsHtml() {
             var parts = [
-                '<table>',
-                '   <tr>',
-                '       <td ng-click="chopButtonClicked(sectionName)" ng-repeat="(sectionName, decisions) in document.chopProcessInfo.selectedRouteStage.staffSectionDecisions" style="padding:0;">',
+                '       <span ng-click="chopButtonClicked(sectionName)" ng-repeat="(sectionName, decisions) in document.chopProcessInfo.selectedRouteStage.staffSectionDecisions" style="padding:0;">',
                 '           <button ng-if="decisions.length === 0" type="button" class="staff-chop-button-no-decisions-yet">',
                 '               {{tryToShorten(sectionName)}}',
                 '           </button>',
@@ -2559,9 +2557,7 @@
                 '                   {{tryToShorten(sectionName)}}',
                 '               </span>',
                 '           </button>',
-                '       </td>',
-                '   </tr>',
-                '</table'
+                '       </span>'
             ].join('');
             return parts;
         }

@@ -1,89 +1,47 @@
-<div class="ms-MessageBanner">
-	<div class="ms-MessageBanner-content">
-		<div class="ms-MessageBanner-text">
-			<div class="ms-MessageBanner-clipper">
-				<span> You are only looking at </span><strong>one section</strong>
-				<span> of the SOCC routing sheet. To see the other sections click the button.</span>
-			</div>
-		</div>
-		<div class="ms-MessageBanner-action">
-			<button class="ms-fontColor-neutralLight ms-Button ms-Button--primary" type="button" ng-click="todo">
-         		<span class="ms-Button-label"><span class="ng-binding ng-scope">Show All Sections</span></span>
-       		</button>
-		</div>
-	</div>
-</div>
 
-<div class="ms-Grid">
-	<div class="ms-Grid-row">
-		<div class="ms-Grid-col ms-u-sm12 ms-u-md12 ms-u-lg12">
-			<uif-table>
-				<uif-table-head>
-					<uif-table-row>
-						<uif-table-header>Document Name</uif-table-header>
-						<uif-table-header>Routing Process</uif-table-header>
-					</uif-table-row>
-				</uif-table-head>
-				<uif-table-body>
-					<uif-table-row>
-						<uif-table-cell>TEST</uif-table-cell>
-						<uif-table-cell>
+<style>
+.mikelabel{
+	margin-right:5px; display:inline-block;padding: .2em .6em .3em;font-size: 75%;font-weight: 700;line-height: 1;color: #fff;text-align: center;white-space: nowrap;vertical-align: baseline;border-radius: .25em;background-color:#777;
+	
+}
+</style>
 
-							<div class="ms-Facepile">
-								<div class="ms-Facepile-members">
-									<div class="ms-Facepile-itemBtn ms-Facepile-itemBtn--member" title="Greta Lundberg">
-										<div size="1" class="ms-Persona ms-Persona--xs">
-											<div class="ms-Persona-imageArea">
-												<div class="ms-Persona-initials ms-Persona-initials--black"><i class="ms-Facepile-addPersonIcon ms-Icon ms-Icon--personAdd"></i></div>
-												<div class="ms-Image ms-Persona-image">
-													<img class="ms-Image-image ms-Image-image--cover is-fadeIn is-notLoaded">
-												</div>
-											</div>
-										</div>
-									</div>
-									<div class="ms-Facepile-itemBtn ms-Facepile-itemBtn--member" title="Greta Lundberg">
-										<div size="1" class="ms-Persona ms-Persona--xs">
-											<div class="ms-Persona-imageArea">
-												<div class="ms-Persona-initials ms-Persona-initials--darkGreen"><i class="fa fa-thumbs-o-up"></i></div>
+<div style="width:300px;">       <span class="mikelabel" ng-click="chopButtonClicked(sectionName)" >CJSOFT-RO - J1       </span><span class="mikelabel" ng-click="chopButtonClicked(sectionName)" >CJSOFT-RO - J2       </span><span class="mikelabel" ng-click="chopButtonClicked(sectionName)" >CJSOFT-RO - J33       </span><span class="mikelabel" ng-click="chopButtonClicked(sectionName)" >CJSOFT-RO - J35       </span><span class="mikelabel" ng-click="chopButtonClicked(sectionName)" >CJSOFT-RO - J39       </span><span class="mikelabel" ng-click="chopButtonClicked(sectionName)" >CJSOFT-RO - J4       </span><span class="mikelabel" ng-click="chopButtonClicked(sectionName)" >CJSOFT-RO - J6       </span><span class="mikelabel" ng-click="chopButtonClicked(sectionName)" >CJSOFT-RO - Legal       </span><span class="mikelabel" ng-click="chopButtonClicked(sectionName)" >CJSOFT-RO - Medical       </span><span class="mikelabel" ng-click="chopButtonClicked(sectionName)" >CJSOFT-RO - Public Affairs       </span>    </div>
 
-											</div>
-										</div>
-									</div>
-									<div class="ms-Facepile-itemBtn ms-Facepile-itemBtn--member" title="Greta Lundberg">
-										<div size="1" class="ms-Persona ms-Persona--xs">
-											<div class="ms-Persona-imageArea">
-												<div class="ms-Persona-initials ms-Persona-initials--darkRed"><i class="fa fa-thumbs-o-down"></i></div>>
-											</div>
-										</div>
-									</div>
-									<div class="ms-Facepile-itemBtn ms-Facepile-itemBtn--member" title="Greta Lundberg">
-										<div size="1" class="ms-Persona ms-Persona--xs">
-											<div class="ms-Persona-imageArea">
-												<div class="ms-Persona-initials ms-Persona-initials--blue"><i class="ms-Facepile-addPersonIcon ms-Icon ms-Icon--chat"></i></div>
-
-											</div>
-										</div>
-									</div>
-									<div class="ms-Facepile-itemBtn ms-Facepile-itemBtn--member" title="Greta Lundberg">
-										<div size="1" class="ms-Persona ms-Persona--xs">
-											<div class="ms-Persona-imageArea">
-												<div class="ms-Persona-initials ms-Persona-initials--blue"><i class="fa fa-hourglass-start"></i></div>>
-											</div>
-										</div>
-									</div>
-								</div>
-							</div>
-
-						</uif-table-cell>
-					</uif-table-row>
-				</uif-table-body>
-			</uif-table>
-		</div>
-	</div>
-	<div class="ms-Grid-row">
-		<div class="ms-Grid-col ms-u-sm12 ms-u-md12 ms-u-lg12">
-			<vertical-timeline items="vm.missionLifecycleEvents">
-				<vertical-timeline>
-		</div>
-	</div>
+<div style="width:300px;">
+	<span class="mikelabel">CJSOTF-RO - J1</span>
+	<span class="mikelabel">CJSOTF-RO - J1</span>
+	<span class="mikelabel">CJSOTF-RO - J1</span>
+	<span class="mikelabel">CJSOTF-RO - J1</span>
+	<span class="mikelabel">CJSOTF-RO - J1</span>
+	<span class="mikelabel">CJSOTF-RO - J1</span>
+	<span class="mikelabel">CJSOTF-RO - J1</span>
+	<span class="mikelabel">CJSOTF-RO - J1</span>
+	<span class="mikelabel">CJSOTF-RO - J1</span>
+	<span class="mikelabel">CJSOTF-RO - J1</span>
+	<span class="mikelabel">CJSOTF-RO - J1</span>
+	<span class="mikelabel">CJSOTF-RO - J1</span>
+	<span class="mikelabel">CJSOTF-RO - J1</span>
+	<span class="mikelabel">CJSOTF-RO - J1</span>
+	<span class="mikelabel">CJSOTF-RO - J1</span>
+	<span class="mikelabel">CJSOTF-RO - J1</span>
+	<span class="mikelabel">CJSOTF-RO - J1</span>
+	<span class="mikelabel">CJSOTF-RO - J1</span>
+	<span class="mikelabel">CJSOTF-RO - J1</span>
+	<span class="mikelabel">CJSOTF-RO - J1</span>
+	<span class="mikelabel">CJSOTF-RO - J1</span>
+	<span class="mikelabel">CJSOTF-RO - J1</span>
+	<span class="mikelabel">CJSOTF-RO - J1</span>
+	<span class="mikelabel">CJSOTF-RO - J1</span>
+	<span class="mikelabel">CJSOTF-RO - J1</span>
+	<span class="mikelabel">CJSOTF-RO - J1</span>
+	<span class="mikelabel">CJSOTF-RO - J1</span>
+	<span class="mikelabel">CJSOTF-RO - J1</span>
+	<span class="mikelabel">CJSOTF-RO - J1</span>
+	<span class="mikelabel">CJSOTF-RO - J1</span>
+	<span class="mikelabel">CJSOTF-RO - J1</span>
+	<span class="mikelabel">CJSOTF-RO - J1</span>
+	<span class="mikelabel">CJSOTF-RO - J1</span>
+	<span class="mikelabel">CJSOTF-RO - J1</span>
+	<span class="mikelabel">CJSOTF-RO - J1</span>
 </div>
