@@ -2798,7 +2798,7 @@
 
             msn.save()
                 .then(function () {
-                    window.location.href = _.getQueryStringParam("Source");
+                    $("input:button[value='Cancel'][id!='attachCancelButton']").eq(0).click();
                 })
                 .catch(function (error) {
                     alert(error);
@@ -3008,7 +3008,7 @@
             }
 
             function redirectToSource() {
-                window.location.href = _.getQueryStringParam("Source");
+                $("input:button[value='Cancel'][id!='attachCancelButton']").eq(0).click();
             }
 
             return false;
