@@ -224,7 +224,12 @@
                 templateUrl: jocInBoxConfig.htmlTemplatesLocation + '/devsandbox.html',
                 controller: 'DeveloperSandboxController as vm'
             })
-            .otherwise({redirectTo:'/missiontracker'});
+            .otherwise({
+                controller : function(){
+                    
+                }, 
+                template : '<uif-message-bar uif-type="error"><uif-content>404 Not Found (or currently under construction)</uif-content></uif-message-bar>'
+            });
     }
 
     ShellController.$inject = ['$rootScope', '$timeout', 'config', 'logger'];
