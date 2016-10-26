@@ -790,7 +790,7 @@
         MissionDocument.prototype.validate = function () {
             var errors = [];
 
-            var fileNameWithoutExtension = this.FileLeafRef.includes('.') ? this.FileLeafRef.split('.')[0] : this.FileLeafRef;
+            var fileNameWithoutExtension = _.includes(this.FileLeafRef, '.') ? this.FileLeafRef.substr(0, this.FileLeafRef.lastIndexOf('.')) : this.FileLeafRef;
             if (!fileNameWithoutExtension) {
                 errors.push("Name is a required field");
             }
