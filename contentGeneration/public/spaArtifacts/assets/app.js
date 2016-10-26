@@ -1398,7 +1398,8 @@
             var qsParams = {};  //{ $filter: "MissionId ne null" };
             spContext.constructNgResourceForRESTCollection(ngResourceConstructParams).get(qsParams,
                 function (data) {
-                    dfd.resolve(data.d.results);
+                    var missionRelated = _.filter(data.d.results, function(item){ return !!item.MissionId; });
+                    dfd.resolve(missionRelated);
                 },
                 function (error) {
                     dfd.reject(error);
