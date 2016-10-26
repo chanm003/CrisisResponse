@@ -3059,6 +3059,7 @@
                 var isChecked = this.checked;
                 if (isChecked) {
                     nextSixRows.show();
+                    nextSixRows.find('.ms-formlabel, .ms-formbody').show();
                 } else {
                     nextSixRows.hide();
                 }
