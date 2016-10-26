@@ -105,6 +105,7 @@
                                     <textarea placeholder="Description" class="form-control" ng-model="vm.siteInfo.description"></textarea>
                                 </div>
                             </div>
+                            <!--
                             <div class="col-md-4">
                                  <div class="form-group">
                                     <label>Select the parent web site</label>
@@ -117,6 +118,16 @@
                                         <input type="text" class="form-control with-primary-addon" placeholder="URL" ng-model="vm.siteInfo.acronym">
                                     </div>
                                     <span class="help-block sub-little-text">Should be abbreviation or short acronym e.g. TF16</span>
+                                </div>
+                            </div>
+                            -->
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>URL</label>
+                                    <div class="input-group">
+                                        <span class="input-group-addon input-group-addon-primary addon-left">{{ vm.serverLocation}}</span>
+                                        <input type="text" class="form-control with-primary-addon" placeholder="URL" ng-model="vm.siteInfo.userTypedUrl">
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -332,27 +343,13 @@
                         </div>
                     </ba-wizard-step>
                     <ba-wizard-step title="Finish">
-
+                            {{ vm.serverLocation + vm.siteInfo.parentWeb + (vm.siteInfo.parentWeb === '/' ? '' : '/') + vm.siteInfo.acronym}}
                     </ba-wizard-step>
                 </ba-wizard>
             </div>
         </div>
     </div>
     
-    <p>
-        {{vm.componentCommands}}
-    </p>
-    <p>
-        {{vm.taskGroups}}
-    </p>
-    <p>
-        {{vm.airComponents}}
-    </p>
-    <p>
-        {{vm.communicationsComponents}}
-    </p>
-    <p>
-        {{vm.exerciseControlGroups}}
-    </p>
+    
     
 </div>

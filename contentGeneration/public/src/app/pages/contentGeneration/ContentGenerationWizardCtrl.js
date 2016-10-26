@@ -7,7 +7,7 @@
 		.factory('menuSvc', menuSvc);
 
 	/** @ngInject */
-	function WizardCtrl($q, common, commonConfig, countriesSvc, menuSvc, sharepointUtilities) {
+	function WizardCtrl($q, $scope, common, commonConfig, countriesSvc, menuSvc, sharepointUtilities) {
 		var vm = this;
 
 		var defaults = {
@@ -22,8 +22,31 @@
 			name: "Trojan Footprint 16",
 			acronym: 'TF16',
 			parentWeb: _spPageContextInfo.webServerRelativeUrl,
-			description: "This is boilerplate text so I can just click Next, Next, Next..."
+			description: "This is boilerplate text so I can just click Next, Next, Next...",
+			userTypedUrl: _spPageContextInfo.webServerRelativeUrl + "/TF16"
 		};
+
+		
+		$scope.$watch("vm.siteInfo.userTypedUrl", function(newVal){
+			setParentWebAndAcronymBasedOnFreeFormUr();
+		});
+		
+
+		function setParentWebAndAcronymBasedOnFreeFormUr(){
+			var lastIndexOfForwardSlash = vm.siteInfo.userTypedUrl.lastIndexOf('/');
+			if(lastIndexOfForwardSlash === -1 ){
+				//direct parent of the root...
+				vm.siteInfo.parentWeb = "/"; 
+				vm.siteInfo.acronym = vm.siteInfo.userTypedUrl;
+			}  else {
+				vm.siteInfo.parentWeb = vm.siteInfo.userTypedUrl.substr(0, lastIndexOfForwardSlash);
+				vm.siteInfo.acronym = vm.siteInfo.userTypedUrl.substr(lastIndexOfForwardSlash+1);
+			}
+
+			if(vm.siteInfo.parentWeb[0] !== '/'){
+				vm.siteInfo.parentWeb = '/' + vm.siteInfo.parentWeb;
+			}
+		}
 
 		vm.optionalFeatures = {
 			"Air Component": true,
