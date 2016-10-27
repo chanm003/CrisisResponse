@@ -243,6 +243,185 @@ crisisResponseSchema.listDefs["Mission Tracker"] = {
 			}		
 		]
 };
+
+crisisResponseSchema.listDefs["Phonebook"] = {
+	Title: "Phonebook",
+		BaseTemplate: 'genericList',
+		shouldHideTitleField: true,
+		fieldsToCreate:[
+			{
+				//EXAMPLE: SINGLE LINE OF TEXT
+				Name: "TitleRole",
+				DisplayName: "Title/Role",
+				Type: "Text",
+				Required: "TRUE",
+				MaxLength: 255,
+				Default: ""							//(optional)
+			},
+			{
+				//EXAMPLE: SINGLE LINE OF TEXT
+				Name: "LastName",
+				DisplayName: "Last Name",
+				Type: "Text",
+				Required: "FALSE",
+				MaxLength: 255,
+				Default: ""							//(optional)
+			},
+			{
+				//EXAMPLE: SINGLE LINE OF TEXT
+				Name: "FirstName",
+				DisplayName: "First Name",
+				Type: "Text",
+				Required: "FALSE",
+				MaxLength: 255,
+				Default: ""							//(optional)
+			},
+			{
+				//EXAMPLE: Dropdown
+				Name: "Nation",
+				DisplayName: "Nation",
+				Type: "Choice",
+				Format:"Dropdown",
+				Required: "FALSE",
+				FillInChoice: "FALSE",
+				Choices: [],						//will be generated 
+				Default: ''							//(optional)
+			},
+			{
+				//EXAMPLE: SINGLE LINE OF TEXT
+				Name: "Rank",
+				DisplayName: "Rank",
+				Type: "Text",
+				Required: "FALSE",
+				MaxLength: 255,
+				Default: ""							//(optional)
+			},
+			{
+				//EXAMPLE: SINGLE LINE OF TEXT
+				Name: "ShiftWatch",
+				DisplayName: "Shift/Watch",
+				Type: "Text",
+				Required: "FALSE",
+				MaxLength: 255,
+				Description: "Day&#xD;&#xA;Night&#xD;&#xA;Midshift",
+				Default: ""							//(optional)
+			},
+			{
+				//EXAMPLE: SINGLE LINE OF TEXT
+				Name: "Location",
+				DisplayName: "Location",
+				Type: "Text",
+				Required: "FALSE",
+				MaxLength: 255,
+				Default: ""							//(optional)
+			},
+			{
+				//EXAMPLE: SINGLE LINE OF TEXT
+				Name: "BuildingNumber",
+				DisplayName: "Building Number",
+				Type: "Text",
+				Required: "FALSE",
+				MaxLength: 255,
+				Default: ""							//(optional)
+			},
+			{
+				//EXAMPLE: SINGLE LINE OF TEXT
+				Name: "BicesEmail",
+				DisplayName: "BICES Email",
+				Type: "Text",
+				Required: "FALSE",
+				MaxLength: 255,
+				Default: ""							//(optional)
+			},
+			{
+				//EXAMPLE: SINGLE LINE OF TEXT
+				Name: "SiprEmail",
+				DisplayName: "SIPR Email",
+				Type: "Text",
+				Required: "FALSE",
+				MaxLength: 255,
+				Default: ""							//(optional)
+			},
+			{
+				//EXAMPLE: SINGLE LINE OF TEXT
+				Name: "UnclassEmail",
+				DisplayName: "Unclass Email",
+				Type: "Text",
+				Required: "FALSE",
+				MaxLength: 255,
+				Default: ""							//(optional)
+			},
+			{
+				//EXAMPLE: SINGLE LINE OF TEXT
+				Name: "BicesPhone",
+				DisplayName: "BICES Phone",
+				Type: "Text",
+				Required: "FALSE",
+				MaxLength: 255,
+				Default: ""							//(optional)
+			},
+			{
+				//EXAMPLE: SINGLE LINE OF TEXT
+				Name: "BicesVtc",
+				DisplayName: "BICES VTC",
+				Type: "Text",
+				Required: "FALSE",
+				MaxLength: 255,
+				Default: ""							//(optional)
+			},
+			{
+				//EXAMPLE: SINGLE LINE OF TEXT
+				Name: "CellPhone",
+				DisplayName: "Cell Phone",
+				Type: "Text",
+				Required: "FALSE",
+				MaxLength: 255,
+				Default: ""							//(optional)
+			},
+			{
+				//EXAMPLE: SINGLE LINE OF TEXT
+				Name: "OtherPhone",
+				DisplayName: "Other Phone",
+				Type: "Text",
+				Required: "FALSE",
+				MaxLength: 255,
+				Default: ""							//(optional)
+			},
+			{
+				//EXAMPLE: Dropdown
+				Name: "Organization",
+				DisplayName: "Organization",
+				Type: "Choice",
+				Format:"Dropdown",
+				Required: "FALSE",
+				FillInChoice: "TRUE",
+				Choices: [],						//will be generated 
+				Default: ''							//(optional)
+			},
+			{
+				//EXAMPLE: Dropdown
+				Name: "KeyLeader",
+				DisplayName: "Key Leader",
+				Type: "Choice",
+				Format:"Dropdown",
+				Required: "FALSE",
+				FillInChoice: "FALSE",
+				Choices: ['No', 'Yes'],						//will be generated 
+				Default: 'No'							//(optional)
+			},
+			{
+				//EXAMPLE: MULTIPLE LINE OF TEXT
+				Name: "Comments",
+				DisplayName: "Comments",
+				Type: "Note",
+				Required: "FALSE",
+				NumLines: 6,
+				RichText: "FALSE",						//RECOMMENDED
+				AppendOnly: "FALSE"						//VERSIONING MUST BE TURNED ON, otherwise specifie "FALSE"
+				
+			}		
+		]
+};
 	
 crisisResponseSchema.listDefs["Mission Documents"] = {
 	Title: "Mission Documents",
@@ -1330,6 +1509,19 @@ crisisResponseSchema.organizationalChoiceFields = [
 			includeExerciseControlGroup: false,
 			includeAirComponent: true,
 			includeCommunicationsComponent: false
+		}
+	},
+	{
+		listName: "Phonebook",
+		fieldName: "Organization",
+		generationFlags: {
+			includeComponentCommands: true,
+			includeTaskGroups: true,
+			includeStaffSections: true,
+			includeNotionals: false,
+			includeExerciseControlGroup: true,
+			includeAirComponent: true,
+			includeCommunicationsComponent: true
 		}
 	},
 	{

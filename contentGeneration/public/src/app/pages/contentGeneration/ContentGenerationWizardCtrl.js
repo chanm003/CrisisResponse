@@ -26,7 +26,6 @@
 			userTypedUrl: _spPageContextInfo.webServerRelativeUrl + "/TF16"
 		};
 
-		
 		$scope.$watch("vm.siteInfo.userTypedUrl", function(newVal){
 			setParentWebAndAcronymBasedOnFreeFormUr();
 		});
@@ -132,6 +131,7 @@
 					createConfigList(),
 					createMissionList(),
 					createMessageTrafficList(),
+					createPhonebookList(),
 					createWatchLogList(),
 					createDocumentChopsList()
 				]);
@@ -190,6 +190,14 @@
 				//DEPENDENCIES: Mission Tracker
 				var listSchemaDef = crisisResponseSchema.listDefs["Mission Documents"];
 				listSchemaDef.webUrl = vm.childWebUrl;
+				return sharepointUtilities.createList(listSchemaDef);
+			}
+
+			function createPhonebookList() {
+				//DEPENDENCIES: None
+				var listSchemaDef = crisisResponseSchema.listDefs["Phonebook"];
+				listSchemaDef.webUrl = vm.childWebUrl;
+				_.find(crisisResponseSchema.listDefs["Phonebook"].fieldsToCreate, {Name: "Nation"}).Choices = _.map(vm.countries, 'name');
 				return sharepointUtilities.createList(listSchemaDef);
 			}
 
@@ -608,7 +616,7 @@
 			}
 
 			//phonebook
-			var phoneBookUrl = childWebUrl + "/Lists/Roster"
+			var phoneBookUrl = childWebUrl + "/Lists/Phonebook"
 			nodes.push(generateChildMenuNode(generateRandomId(), "Phonebook", nodeId_infoSupport, {url: phoneBookUrl }));
 
 			return nodes;
