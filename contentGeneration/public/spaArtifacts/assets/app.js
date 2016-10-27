@@ -454,15 +454,19 @@
         }
 
         function refreshSecurityValidation() {
-            var siteContextInfoResource = $resource(_spPageContextInfo.webServerRelativeUrl + '/_api/contextinfo?$select=FormDigestValue', {}, {
-                post: {
-                    method: 'POST',
-                    headers: defaultHeaders
-                }
-            });
+            SP.SOD.executeOrDelayUntilScriptLoaded(performHttpPost, 'sp.js');
+            
+            function performHttpPost(){
+                var siteContextInfoResource = $resource(_spPageContextInfo.webServerRelativeUrl + '/_api/contextinfo?$select=FormDigestValue', {}, {
+                    post: {
+                        method: 'POST',
+                        headers: defaultHeaders
+                    }
+                });
 
-            // request validation
-            siteContextInfoResource.post({}, success, fail);
+                // request validation
+                siteContextInfoResource.post({}, success, fail);
+            }
 
             function success(data) {
                 // obtain security digest timeout & value & store in service
