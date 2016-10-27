@@ -224,6 +224,10 @@
                 templateUrl: jocInBoxConfig.htmlTemplatesLocation + '/devsandbox.html',
                 controller: 'DeveloperSandboxController as vm'
             })
+            .when('/currentops', {
+                templateUrl: jocInBoxConfig.htmlTemplatesLocation + '/projection-scrollable.html',
+                controller: 'ProjectionScrollableAspxController as vm'
+            })
             .otherwise({
                 controller : function(){
                     
@@ -3478,6 +3482,27 @@
                 }
             ];
             return $q.when(staticData);
+        }
+    }
+})();
+
+/* Controller: ProjectionScrollableAspxController */
+(function () {
+    angular
+        .module('app.core')
+        .controller('ProjectionScrollableAspxController', ControllerDefFunc);
+
+    ControllerDefFunc.$inject = ['_', 'Mission', 'MissionTrackerRepository'];
+    function ControllerDefFunc(_, Mission, MissionTrackerRepository) {
+        var vm = this;
+        vm.message = "mike"
+
+        vm.scrollButtonClicked = function(){
+            alert('scroll');
+        }
+
+        vm.stopButtonClicked = function(){
+            alert('stop');
         }
     }
 })();
