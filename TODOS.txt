@@ -16,6 +16,9 @@ During wizard generation, when jocInBoxconfig is generated on-the-fly
 htmlPartialsFolder = "http://localhost:3000/spaArtifacts/assets"
 htmlPartialsFolder = vm.childWebURL + "/SitePages" (prod)
 
+Should say "Show Completed Missions" not "Show Past Missions"
+
+
 =========================================================================
 DEPLOYMENT STEPS
 =========================================================================

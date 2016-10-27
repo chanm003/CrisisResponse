@@ -1668,6 +1668,43 @@
     }
 })();
 
+/* Data Repository: Watch Log */
+(function () {
+    angular.module('app.data')
+        .service('WatchLogRepository', WatchLogRepository)
+    WatchLogRepository.$inject = ['$http', '$q', '$resource', 'exception', 'logger', 'spContext'];
+    function WatchLogRepository($http, $q, $resource, exception, logger, spContext) {
+        var service = {
+            getByOrganization: getByOrganization
+        };
+
+        var fieldsToSelect = [
+            spContext.SP2013REST.selectForCommonListFields,
+            "ActionTaken,Initials,Significant,DTG,Organization,EventDetails"
+        ].join(',');
+
+        var fieldsToExpand = [
+            spContext.SP2013REST.expandoForCommonListFields
+        ].join(',');
+
+        var ngResourceConstructParams = {
+            fieldsToSelect: fieldsToSelect,
+            fieldsToExpand: fieldsToExpand,
+            listName: 'Watch Log'
+        };
+
+        function getByOrganization() {
+            var qsParams = {}; //{$filter:"FavoriteNumber eq 8"};
+            return spContext.constructNgResourceForRESTCollection(ngResourceConstructParams).get(qsParams).$promise
+                .then(function (response) {
+                    return response.d.results;
+                });
+        }
+
+        return service;
+    }
+})();
+
 /* Directive: navTree */
 (function () {
     angular
@@ -3492,10 +3529,33 @@
         .module('app.core')
         .controller('ProjectionScrollableAspxController', ControllerDefFunc);
 
-    ControllerDefFunc.$inject = ['_', 'Mission', 'MissionTrackerRepository'];
-    function ControllerDefFunc(_, Mission, MissionTrackerRepository) {
+    ControllerDefFunc.$inject = ['$q', '$routeParams','_', 'Mission', 'MissionTrackerRepository', 'WatchLogRepository'];
+    function ControllerDefFunc($q, $routeParams,_, Mission, MissionTrackerRepository, WatchLogRepository) {
         var vm = this;
-        vm.message = "mike"
+        
+        init();
+
+        function buildOrgChoicesDropdown(){
+            var options = [];
+            _.each(jocInBoxConfig.dashboards, function(props, cmdName){  
+                if(props.orgType === "Component Command" || props.orgType === "Air Component"){
+                    options.push(cmdName);
+                }
+            });
+            vm.orgChoices = options;
+            //set default option
+            vm.selectedOrg = ($routeParams.org) ? $routeParams.org : vm.orgChoices[0];
+        }
+
+        function init(){
+            buildOrgChoicesDropdown();
+            $q.all([
+                WatchLogRepository.getByOrganization($routeParams.org)
+            ])
+            .then(function(data){
+                vm.watchLogItems = data[0]
+            })
+        }
 
         vm.scrollButtonClicked = function(){
             alert('scroll');
