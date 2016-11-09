@@ -1693,8 +1693,16 @@
             listName: 'Watch Log'
         };
 
-        function getByOrganization() {
-            var qsParams = {}; //{$filter:"FavoriteNumber eq 8"};
+        function getByOrganization(org) {
+            //Significant eq 'Yes' and Organization eq 'SOTG 10'
+            var odataFilter = "Significant eq 'Yes'";
+            if(org){
+                odataFilter += "and Organization eq '" + org + "'";
+            }
+            var qsParams = {
+                $filter: odataFilter,
+                $orderby: 'DateTimeGroup desc'
+            }; 
             return spContext.constructNgResourceForRESTCollection(ngResourceConstructParams).get(qsParams).$promise
                 .then(function (response) {
                     return response.d.results;
@@ -3531,7 +3539,10 @@
 
     ControllerDefFunc.$inject = ['$q', '$routeParams','_', 'Mission', 'MissionTrackerRepository', 'WatchLogRepository'];
     function ControllerDefFunc($q, $routeParams,_, Mission, MissionTrackerRepository, WatchLogRepository) {
+        var cutOffToBeConsideredNew = moment().add(-(3), 'hours');
+        
         var vm = this;
+        vm.isNew = isNew;
         
         init();
 
@@ -3555,6 +3566,10 @@
             .then(function(data){
                 vm.watchLogItems = data[0]
             })
+        }
+
+        function isNew(item){
+            return moment(item.Created) > cutOffToBeConsideredNew;
         }
 
         vm.scrollButtonClicked = function(){
