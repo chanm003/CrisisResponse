@@ -1593,6 +1593,7 @@
     CalendarRepository.$inject = ['$http', '$q', '$resource', 'exception', 'logger', 'spContext'];
     function CalendarRepository($http, $q, $resource, exception, logger, spContext) {
         var service = {
+            getBattleRhythmNext24: getBattleRhythmNext24,
             getEvents: getEvents
         };
         return service;
@@ -1604,11 +1605,39 @@
                 "end": moment.utc(xmlNode.attr("ows_EndDate")),
                 "title": xmlNode.attr("ows_Title"),
                 "location": xmlNode.attr("ows_Location"),
+                "category": cleanupMultiChoice(xmlNode.attr("ows_Category")),
+                "created": xmlNode.attr("ows_Created"),
                 "allDay": xmlNode.attr("ows_fAllDayEvent") == 1 ? true : false,
                 "url": _spPageContextInfo.webServerRelativeUrl + "/Lists/Calendar/DispForm.aspx?ID=" + itemID + '&Source=' + window.location,
                 "isRecurrence": xmlNode.attr("ows_fRecurrence") == 1 ? true : false,
                 "organization": xmlNode.attr("ows_Organization")
+            };
+
+            function cleanupMultiChoice(xmlAttrValue){
+                /**
+                 *  converts string:
+                 *      ;#Battle Rhythm;#Briefing;#
+                 *  to an array
+                 *      ["Battle Rhythm", "Briefing"]
+                 * */
+                if(!xmlAttrValue){
+                    return [];
+                }
+                return _.filter(xmlAttrValue.split(';#'))
             }
+        }
+
+        function getBattleRhythmNext24(org){
+            moment.relativeTimeThreshold('h', 24);
+            var now = moment.utc();
+            var nowPlus24Hours = moment.utc().add(24, 'hours');
+            return getEvents(moment.utc().startOf('week'), moment.utc().endOf('week'), 'week', org).then(function(items){
+                var filteredItems = _.filter(items, function(item){
+                    return _.includes(item.category, "Battle Rhythm") && item.start.isSameOrBefore(nowPlus24Hours) && item.end.isSameOrAfter(now);
+                });
+
+                return _.chain(filteredItems).value();
+            });
         }
 
         function getEvents(start, end, intervalUnit, organizationFilter) {
@@ -1638,7 +1667,7 @@
             */
 
             var getListItemsSoap =
-                "<soap:Envelope xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xmlns:xsd='http://www.w3.org/2001/XMLSchema' xmlns:soap='http://schemas.xmlsoap.org/soap/envelope/'><soap:Body><GetListItemChangesSinceToken xmlns='http://schemas.microsoft.com/sharepoint/soap/'><listName>Calendar</listName><viewName></viewName><query><Query><Where><DateRangesOverlap><FieldRef Name='EventDate' /><FieldRef Name='EndDate' /><FieldRef Name='RecurrenceID' /><Value Type='DateTime'>" + camlIntervals[intervalUnit] + "</Value></DateRangesOverlap></Where><OrderBy><FieldRef Name='EventDate' /></OrderBy></Query></query><viewFields><ViewFields><FieldRef Name='ID' /><FieldRef Name='Title' /><FieldRef Name='EventDate' /><FieldRef Name='EndDate' /><FieldRef Name='Location' /><FieldRef Name='Description' /><FieldRef Name='Category' /><FieldRef Name='fRecurrence' /><FieldRef Name='RecurrenceData' /><FieldRef Name='fAllDayEvent' /><FieldRef Name='Organization' /></ViewFields></viewFields><rowLimit>300</rowLimit><queryOptions><QueryOptions><CalendarDate>"
+                "<soap:Envelope xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xmlns:xsd='http://www.w3.org/2001/XMLSchema' xmlns:soap='http://schemas.xmlsoap.org/soap/envelope/'><soap:Body><GetListItemChangesSinceToken xmlns='http://schemas.microsoft.com/sharepoint/soap/'><listName>Calendar</listName><viewName></viewName><query><Query><Where><DateRangesOverlap><FieldRef Name='EventDate' /><FieldRef Name='EndDate' /><FieldRef Name='RecurrenceID' /><Value Type='DateTime'>" + camlIntervals[intervalUnit] + "</Value></DateRangesOverlap></Where><OrderBy><FieldRef Name='EventDate' /></OrderBy></Query></query><viewFields><ViewFields><FieldRef Name='ID' /><FieldRef Name='Title' /><FieldRef Name='EventDate' /><FieldRef Name='EndDate' /><FieldRef Name='Location' /><FieldRef Name='Description' /><FieldRef Name='Category' /><FieldRef Name='fRecurrence' /><FieldRef Name='RecurrenceData' /><FieldRef Name='fAllDayEvent' /><FieldRef Name='Organization' /><FieldRef Name='Created' /></ViewFields></viewFields><rowLimit>300</rowLimit><queryOptions><QueryOptions><CalendarDate>"
                 + camlCalendarDate + "</CalendarDate><ExpandRecurrence>TRUE</ExpandRecurrence><RecurrenceOrderBy>TRUE</RecurrenceOrderBy><DatesInUtc>True</DatesInUtc><ViewAttributes Scope='RecursiveAll'/></QueryOptions></queryOptions></GetListItemChangesSinceToken></soap:Body></soap:Envelope>";
 
             return $http({
@@ -1665,6 +1694,50 @@
                     return events;
                 });
         }
+    }
+})();
+
+/* Data Repository: CCIR */
+(function () {
+    angular.module('app.data')
+        .service('CCIRRepository', repository)
+    repository.$inject = ['$http', '$q', '$resource', 'exception', 'logger', 'spContext'];
+    function repository($http, $q, $resource, exception, logger, spContext) {
+        var service = {
+            getByOrganization: getByOrganization
+        };
+
+        var fieldsToSelect = [
+            spContext.SP2013REST.selectForCommonListFields,
+            "Category,Status,Number"
+        ].join(',');
+
+        var fieldsToExpand = [
+            spContext.SP2013REST.expandoForCommonListFields
+        ].join(',');
+
+        var ngResourceConstructParams = {
+            fieldsToSelect: fieldsToSelect,
+            fieldsToExpand: fieldsToExpand,
+            listName: 'CCIR'
+        };
+
+        function getByOrganization(org) {
+            //only care about red or yellow CCIRs
+            var odataFilter = "Status ne 'Green'";
+            if(org){
+                odataFilter += "and Organization eq '" + org + "'";
+            }
+            var qsParams = {
+                $filter: odataFilter
+            }; 
+            return spContext.constructNgResourceForRESTCollection(ngResourceConstructParams).get(qsParams).$promise
+                .then(function (response) {
+                    return response.d.results;
+                });
+        }
+
+        return service;
     }
 })();
 
@@ -3537,8 +3610,8 @@
         .module('app.core')
         .controller('ProjectionScrollableAspxController', ControllerDefFunc);
 
-    ControllerDefFunc.$inject = ['$q', '$routeParams','_', 'Mission', 'MissionTrackerRepository', 'WatchLogRepository'];
-    function ControllerDefFunc($q, $routeParams,_, Mission, MissionTrackerRepository, WatchLogRepository) {
+    ControllerDefFunc.$inject = ['$q', '$routeParams','_', 'CalendarRepository', 'CCIRRepository', 'MissionTrackerRepository', 'WatchLogRepository'];
+    function ControllerDefFunc($q, $routeParams,_, CalendarRepository, CCIRRepository, MissionTrackerRepository, WatchLogRepository) {
         var cutOffToBeConsideredNew = moment().add(-(3), 'hours');
         
         var vm = this;
@@ -3561,15 +3634,29 @@
         function init(){
             buildOrgChoicesDropdown();
             $q.all([
-                WatchLogRepository.getByOrganization($routeParams.org)
+                CCIRRepository.getByOrganization($routeParams.org),
+                WatchLogRepository.getByOrganization($routeParams.org),
+                CalendarRepository.getBattleRhythmNext24($routeParams.org)
             ])
             .then(function(data){
-                vm.watchLogItems = data[0]
+                vm.ccirItemsGroupedByCategory = _.groupBy(data[0], 'Category');
+                vm.watchLogItems = data[1];
+                vm.calendarItems = _.map(data[2], function(item){
+                    item.start = moment.utc(item.start);
+                    item.end = moment.utc(item.end);
+                    
+                    item.comments = (item.location) ? "Location: " + item.location + ", ": "";
+                    var fromNowString = item.start.fromNow();
+                    var verb = (_.includes(fromNowString, 'ago')) ? "started" : "will start";
+                    item.comments += verb + " " + fromNowString;
+
+                    return item;
+                });
             })
         }
 
-        function isNew(item){
-            return moment(item.Created) > cutOffToBeConsideredNew;
+        function isNew(createdTimeStamp){
+            return moment(createdTimeStamp).isAfter(cutOffToBeConsideredNew);
         }
 
         vm.scrollButtonClicked = function(){

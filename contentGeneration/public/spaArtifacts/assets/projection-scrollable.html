@@ -25,6 +25,9 @@
         border-collapse: separate;
         border-spacing: 0;
         border-bottom: solid 1px #111111;
+        border-left-width: 0px;
+        border-top-width: 0px;
+        border-right-width: 0px;
         color: #444;
         box-sizing: content-box;
         width: 100%;
@@ -38,10 +41,21 @@
         box-sizing: content-box;
     }
     table.currentops td{
-        border: solid 1px #dddddd;
+        border-right: solid 1px #dddddd;
+        border-top: solid 1px #dddddd;
         padding: 8px 10px;
         border-spacing: 0;
         border-collapse: separate;
+    }
+
+    table.currentops td:first-child{
+        border-left: solid 1px #dddddd;
+    }
+
+    table.currentops tr.group{
+        background-color: rgb(209,207,208);
+        color:black;
+        font-weight:bold;
     }
 
     .newbtn {
@@ -62,6 +76,30 @@
     }
 </style>
 <div class="appContainer" style="margin-top:40px;padding:10px;">
+    <h2>CCIR</h2>
+    <table class="currentops">
+        <thead>
+            <tr>
+                <th>Requirement</th>
+                <th>Status</th>
+                <th>Title</th>
+            </tr>
+        </thead>
+        <tbody ng-repeat="(category, items) in vm.ccirItemsGroupedByCategory">
+            <tr class="group">
+                <td colspan="3">{{category}}</td>
+            </tr>
+            <tr ng-repeat="item in items">
+                <td>{{item.Category.charAt(0)}}{{item.Number}}</td>
+                <td>
+                    <i ng-if="item.Status==='Yellow'" style="color:yellow;" class="fa fa-circle fa-2x"></i>
+                    <i ng-if="item.Status==='Red'" style="color:red;" class="fa fa-circle fa-2x"></i>
+                </td>
+                <td>{{item.Title}} <a class="newbtn" ng-show="vm.isNew(item.Created)">New</a></td>
+            </tr>
+        </tbody>
+    </table>
+
     <h2>Watch Log</h2>
     <table class="currentops">
         <thead>
@@ -77,11 +115,31 @@
             <tr ng-repeat="item in vm.watchLogItems">
                 <td>{{item.DTG}}</td>
                 <td>{{item.Organization}}</td>
-                <td>{{item.Title}} <a class="newbtn" ng-show="vm.isNew(item)">New</a></td>
+                <td>{{item.Title}} <a class="newbtn" ng-show="vm.isNew(item.Created)">New</a></td>
                 <td>{{item.ActionTaken}}</td>
                 <td>{{item.Initials}}</td>
             </tr>
         </tbody>
     </table>
-    {{vm.watchLogItems}}
+
+    <h2>Battle Rhythm (Next 24 Hours)</h2>
+    <table class="currentops">
+        <thead>
+            <tr>
+                <th>Start</th>
+                <th>End</th>
+                <th>Title</th>
+                <th>Comments</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="item in vm.calendarItems">
+                <td>{{item.start.format("DD MMM YY HHmm[Z]").toUpperCase()}}</td>
+                <td>{{item.end.format("DD MMM YY HHmm[Z]").toUpperCase()}}</td>
+                <td>{{item.title}} <a class="newbtn" ng-show="vm.isNew(item.created)">New</a></td>
+                <td>{{item.comments}}</td>
+            </tr>
+        </tbody>
+    </table>
+    {{vm.calendarItems}}
 </div>
