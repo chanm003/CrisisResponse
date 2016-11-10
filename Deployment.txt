@@ -1,0 +1,18 @@
+At the base of a subsite create a document libary called "generator"
+Three folders and one file get pasted into the general folder:
+spArtifacts
+src
+vendor
+index.aspx
+
+Modify src\app\pages\contentGeeneration\ContentGenerationWizardCtrl.js 
+//'jocInBoxConfig.htmlTemplatesLocation = "' + vm.childWebUrl + '/SitePages";',
+'jocInBoxConfig.htmlTemplatesLocation = "http://localhost:3000/spaArtifacts/assets";'
+
+Modify src\app\common\common.js 
+this.settings = {baseUrl: 'http://localhost:3000', cdn: 'http://localhost:3000/spaArtifacts/assets' };
+this.settings = {baseUrl: _spPageContextInfo.webServerRelativeUrl + '/generator', cdn: '~site/SitePages'};
+
+Modify spaArtifacts\assets\app.css, paste at top:
+Uncomment the CSS files....       
+

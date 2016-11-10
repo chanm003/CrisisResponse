@@ -185,6 +185,7 @@
                 <td>
                     {{item.Identifier}}
                     <span style="color:#777;size:0.85em;">({{item.ObjectiveName}} <span ng-show="item.OperationName">, {{item.OperationName}}</span>)</span> 
+                    <i ng-if="item.relatedDocs.length" class="fa fa-paperclip fa-lg"></i>
                     <a class="newbtn" ng-show="vm.isNew(item.Created)">New</a>
                 </td>
                 <td>{{item.ParticipatingOrganizations.results.join('; ')}}</td>

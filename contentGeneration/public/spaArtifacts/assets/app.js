@@ -1393,9 +1393,13 @@
                 });
         }
 
-        function getAll() {
+        function getAll(){
+            return getItems();
+        }
+
+        function getItems(params) {
             var dfd = $q.defer();
-            var qsParams = {}; //{$filter:"FavoriteNumber eq 8"};
+            var qsParams = params || {}; //{$filter:"FavoriteNumber eq 8"};
             spContext.constructNgResourceForRESTCollection(ngResourceConstructParams).get(qsParams,
                 function (data) {
                     dfd.resolve(data.d.results);
@@ -1407,17 +1411,12 @@
         }
 
         function getMissionRelated() {
-            var dfd = $q.defer();
-            var qsParams = {};  //{ $filter: "MissionId ne null" };
-            spContext.constructNgResourceForRESTCollection(ngResourceConstructParams).get(qsParams,
-                function (data) {
-                    var missionRelated = _.filter(data.d.results, function(item){ return !!item.MissionId; });
-                    dfd.resolve(missionRelated);
-                },
-                function (error) {
-                    dfd.reject(error);
-                });
-            return dfd.promise;
+            //FOLLOWING does not work on-premise: { $filter: "MissionId ne null" };
+            return getItems()
+                        .then(function(results){
+                            var missionRelated = _.filter(results, function(item){ return !!item.MissionId; });
+                            return missionRelated;
+                        });
         }
 
         function getById(id) {
@@ -3659,10 +3658,10 @@
         .module('app.core')
         .controller('ProjectionScrollableAspxController', ControllerDefFunc);
 
-    ControllerDefFunc.$inject = ['$q', '$routeParams','_', 'CalendarRepository', 'CCIRRepository', 'MessageTrafficRepository', 'MissionTrackerRepository', 'WatchLogRepository'];
-    function ControllerDefFunc($q, $routeParams,_, CalendarRepository, CCIRRepository, MessageTrafficRepository, MissionTrackerRepository, WatchLogRepository) {
+    ControllerDefFunc.$inject = ['$q', '$routeParams','_', 'CalendarRepository', 'CCIRRepository', 'MessageTrafficRepository','MissionDocumentRepository', 'MissionTrackerRepository', 'WatchLogRepository'];
+    function ControllerDefFunc($q, $routeParams,_, CalendarRepository, CCIRRepository, MessageTrafficRepository, MissionDocumentRepository, MissionTrackerRepository, WatchLogRepository) {
         var cutOffToBeConsideredNew = moment().add(-(3), 'hours');
-        
+
         var vm = this;
         vm.isNew = isNew;
         
@@ -3687,7 +3686,8 @@
                 WatchLogRepository.getByOrganization($routeParams.org),
                 CalendarRepository.getBattleRhythmNext24($routeParams.org),
                 MessageTrafficRepository.getSignificantItemsCreatedInLast24Hours($routeParams.org),
-                MissionTrackerRepository.getOpenMissionsByApprovalChain($routeParams.org)
+                MissionTrackerRepository.getOpenMissionsByApprovalChain($routeParams.org),
+                MissionDocumentRepository.getMissionRelated()
             ])
             .then(function(data){
                 vm.ccirItemsGroupedByCategory = _.groupBy(data[0], 'Category');
@@ -3704,7 +3704,13 @@
                     return item;
                 });
                 vm.messageTraffic = data[3];
-                vm.missionGroupings = groupMissions(data[4]);
+
+                var missions = data[4];
+                var missionRelatedDocs = data[5];
+                _.each(missions, function(item){
+                    item.relatedDocs = _.filter(missionRelatedDocs, {MissionId: item.Id});
+                });
+                vm.missionGroupings = groupMissions(missions);    
             })
         }
 
