@@ -165,5 +165,34 @@
             </tr>
         </tbody>
     </table>
-    {{vm.messageTraffic}}
+
+    <h2>Mission Tracker</h2>
+    <table class="currentops">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Exercise Group</th>
+                <th>Expected Execution</th>
+                <th>Expected Termination</th>
+                <th>Comments</th>
+            </tr>
+        </thead>
+        <tbody ng-repeat="missionGroup in vm.missionGroupings">
+            <tr class="group" ng-show="missionGroup.items.length">
+                <td colspan="5">{{missionGroup.name}}</td>
+            </tr>
+            <tr ng-repeat="item in missionGroup.items">
+                <td>
+                    {{item.Identifier}}
+                    <span style="color:#777;size:0.85em;">({{item.ObjectiveName}} <span ng-show="item.OperationName">, {{item.OperationName}}</span>)</span> 
+                    <a class="newbtn" ng-show="vm.isNew(item.Created)">New</a>
+                </td>
+                <td>{{item.ParticipatingOrganizations.results.join('; ')}}</td>
+                <td>{{item.ExpectedExecution.format("DD MMM YY HHmm[Z]").toUpperCase()}}</td>
+                <td>{{item.ExpectedTermination.format("DD MMM YY HHmm[Z]").toUpperCase()}}</td>
+                <td>{{item.Comments}}</td>
+            </tr>
+        </tbody>
+    </table>
+    {{vm.missionGroupings}}
 </div>

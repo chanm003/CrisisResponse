@@ -1514,6 +1514,7 @@
     function MissionTrackerRepository($http, $q, $resource, exception, logger, spContext) {
         var service = {
             getByOrganization: getByOrganization,
+            getOpenMissionsByApprovalChain: getOpenMissionsByApprovalChain,
             save: save
         };
 
@@ -1551,17 +1552,44 @@
                 });
         }
 
-        function getByOrganization(orgFilter) {
+        function getByOrganization(org){
+            return getItems()
+                        .then(function(results){
+                            if (org) {
+                                results = _.filter(results, function (item) {
+                                    return item.Organization === org || _.includes(item.ParticipatingOrganizations.results, org);
+                                })
+                            }
+                            return results;
+                        });
+        }
+
+        function getOpenMissionsByApprovalChain(org){
+            return getItems({$filter:"Status ne 'Mission Closed'"})
+                        .then(function(results){
+                            if (org) {
+                                results = _.filter(results, function (item) {
+                                    var sequenceOfReviewers = _.find(jocInBoxConfig.dashboards[item.Organization].routes, {name: item.ApprovalAuthority}).sequence;
+                                    return _.includes(sequenceOfReviewers, org);
+                                })
+                            }
+                            results = _.map(results, decorateMission);
+                            return results;
+                        });
+
+            function decorateMission(item){
+                item.ExpectedExecution = moment.utc(item.ExpectedExecution);
+                item.ExpectedTermination = moment.utc(item.ExpectedTermination);
+                return item;
+            }
+        }
+
+        function getItems() {
             var dfd = $q.defer();
             var qsParams = {}; //{$filter:"FavoriteNumber eq 8"};
             spContext.constructNgResourceForRESTCollection(ngResourceConstructParams).get(qsParams,
                 function (data) {
                     var queryResults = data.d.results;
-                    if (orgFilter) {
-                        queryResults = _.filter(queryResults, function (item) {
-                            return item.Organization === orgFilter || _.includes(item.ParticipatingOrganizations.results, orgFilter);
-                        })
-                    }
                     dfd.resolve(queryResults);
                 },
                 function (error) {
@@ -3658,7 +3686,8 @@
                 CCIRRepository.getByOrganization($routeParams.org),
                 WatchLogRepository.getByOrganization($routeParams.org),
                 CalendarRepository.getBattleRhythmNext24($routeParams.org),
-                MessageTrafficRepository.getSignificantItemsCreatedInLast24Hours($routeParams.org)
+                MessageTrafficRepository.getSignificantItemsCreatedInLast24Hours($routeParams.org),
+                MissionTrackerRepository.getOpenMissionsByApprovalChain($routeParams.org)
             ])
             .then(function(data){
                 vm.ccirItemsGroupedByCategory = _.groupBy(data[0], 'Category');
@@ -3675,7 +3704,40 @@
                     return item;
                 });
                 vm.messageTraffic = data[3];
+                vm.missionGroupings = groupMissions(data[4]);
             })
+        }
+
+        function groupMissions(missions){
+            var groupings = [
+                { name: "Initial Targeting" },
+                { name: "JPG Assigned" },
+                { name: "COA Approved" },
+                { name: "CONOP Received - In Chop" },
+
+                { name: "CONOP Disapproved" },	
+
+                { name: "CONOP Approved" },
+                { name: "FRAGO In-Chop" },
+                { name: "FRAGO Released" },
+                { name: "EXORD Released" },
+
+                { name: "Mission In Progress" },
+
+                { name: "Return to Base" },		
+                { name: "QuickLook" },	
+                { name: "StoryBoard" },
+                { name: "OPSUM" },
+
+                { name: "Mission Closed" }
+            ];
+
+            _.map(groupings, function(group){
+                group.items = _.filter(missions, {Status: group.name});
+                return group;
+            });
+
+            return groupings;
         }
 
         function isNew(createdTimeStamp){
