@@ -1444,7 +1444,7 @@
     function MessageTrafficRepository($http, $q, $resource, exception, logger, spContext) {
         var service = {
             getAll: getAll,
-            getItemsCreatedInLast24Hours: getItemsCreatedInLast24Hours,
+            getSignificantItemsCreatedInLast24Hours: getSignificantItemsCreatedInLast24Hours,
             save: save
         };
 
@@ -1467,8 +1467,8 @@
             return getItems();
         }
 
-        function getItemsCreatedInLast24Hours(org){
-            return getItems({$filter: "Created gt '" + moment.utc().add(-24, 'hours').toISOString() + "'"})
+        function getSignificantItemsCreatedInLast24Hours(org){
+            return getItems({$filter: "Significant eq 'Yes' and Created gt '" + moment.utc().add(-24, 'hours').toISOString() + "'"})
                 .then(function(items){
                     if(org){
                        return _.filter(items, function(item){
@@ -1654,7 +1654,10 @@
                     return _.includes(item.category, "Battle Rhythm") && item.start.isSameOrBefore(nowPlus24Hours) && item.end.isSameOrAfter(now);
                 });
 
-                return _.chain(filteredItems).value();
+                return _.chain(filteredItems)
+                            .sortBy('end')
+                            .sortBy('start')
+                            .value();
             });
         }
 
@@ -3655,7 +3658,7 @@
                 CCIRRepository.getByOrganization($routeParams.org),
                 WatchLogRepository.getByOrganization($routeParams.org),
                 CalendarRepository.getBattleRhythmNext24($routeParams.org),
-                MessageTrafficRepository.getItemsCreatedInLast24Hours($routeParams.org)
+                MessageTrafficRepository.getSignificantItemsCreatedInLast24Hours($routeParams.org)
             ])
             .then(function(data){
                 vm.ccirItemsGroupedByCategory = _.groupBy(data[0], 'Category');
