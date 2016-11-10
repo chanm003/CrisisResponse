@@ -1444,6 +1444,7 @@
     function MessageTrafficRepository($http, $q, $resource, exception, logger, spContext) {
         var service = {
             getAll: getAll,
+            getItemsCreatedInLast24Hours: getItemsCreatedInLast24Hours,
             save: save
         };
 
@@ -1463,7 +1464,24 @@
         };
 
         function getAll() {
-            var qsParams = {}; //{$filter:"FavoriteNumber eq 8"};
+            return getItems();
+        }
+
+        function getItemsCreatedInLast24Hours(org){
+            return getItems({$filter: "Created gt '" + moment.utc().add(-24, 'hours').toISOString() + "'"})
+                .then(function(items){
+                    if(org){
+                       return _.filter(items, function(item){
+                            return item.OriginatorSender === org || _.includes(item.Receiver.results, org);
+                        }); 
+                    } else{
+                        return items;
+                    }
+                });
+        }
+
+        function getItems(params) {
+            var qsParams = params || {}; //{$filter:"FavoriteNumber eq 8"};
             return spContext.constructNgResourceForRESTCollection(ngResourceConstructParams).get(qsParams).$promise
                 .then(function (response) {
                     return response.d.results;
@@ -3610,8 +3628,8 @@
         .module('app.core')
         .controller('ProjectionScrollableAspxController', ControllerDefFunc);
 
-    ControllerDefFunc.$inject = ['$q', '$routeParams','_', 'CalendarRepository', 'CCIRRepository', 'MissionTrackerRepository', 'WatchLogRepository'];
-    function ControllerDefFunc($q, $routeParams,_, CalendarRepository, CCIRRepository, MissionTrackerRepository, WatchLogRepository) {
+    ControllerDefFunc.$inject = ['$q', '$routeParams','_', 'CalendarRepository', 'CCIRRepository', 'MessageTrafficRepository', 'MissionTrackerRepository', 'WatchLogRepository'];
+    function ControllerDefFunc($q, $routeParams,_, CalendarRepository, CCIRRepository, MessageTrafficRepository, MissionTrackerRepository, WatchLogRepository) {
         var cutOffToBeConsideredNew = moment().add(-(3), 'hours');
         
         var vm = this;
@@ -3636,7 +3654,8 @@
             $q.all([
                 CCIRRepository.getByOrganization($routeParams.org),
                 WatchLogRepository.getByOrganization($routeParams.org),
-                CalendarRepository.getBattleRhythmNext24($routeParams.org)
+                CalendarRepository.getBattleRhythmNext24($routeParams.org),
+                MessageTrafficRepository.getItemsCreatedInLast24Hours($routeParams.org)
             ])
             .then(function(data){
                 vm.ccirItemsGroupedByCategory = _.groupBy(data[0], 'Category');
@@ -3652,6 +3671,7 @@
 
                     return item;
                 });
+                vm.messageTraffic = data[3];
             })
         }
 

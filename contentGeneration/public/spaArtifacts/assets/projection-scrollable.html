@@ -141,5 +141,29 @@
             </tr>
         </tbody>
     </table>
-    {{vm.calendarItems}}
+
+    <h2>Message Traffic (Last 24 hours)</h2>
+    <table class="currentops">
+        <thead>
+            <tr>
+                <th>DTG</th>
+                <th>Title</th>
+                <th>Originator/Sender</th>
+                <th>Receiver</th>
+                <th>Task/Info</th>
+                <th>Initials</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="item in vm.messageTraffic">
+                <td>{{item.DTG}}</td>
+                <td>{{item.Title}} <a class="newbtn" ng-show="vm.isNew(item.Created)">New</a></td>
+                <td>{{item.OriginatorSender}}</td>
+                <td>{{item.Receiver.results.join('; ')}}</td>
+                <td>{{item.TaskInfo}}</td>
+                <td>{{item.Initials}}</td>
+            </tr>
+        </tbody>
+    </table>
+    {{vm.messageTraffic}}
 </div>
