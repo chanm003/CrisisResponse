@@ -185,7 +185,7 @@
                 <td>
                     {{item.Identifier}}
                     <span style="color:#777;size:0.85em;">({{item.ObjectiveName}} <span ng-show="item.OperationName">, {{item.OperationName}}</span>)</span> 
-                    <i ng-if="item.relatedDocs.length" class="fa fa-paperclip fa-lg"></i>
+                    <i ng-if="item.relatedDocs.length" class="fa fa-paperclip fa-lg" ng-click="vm.showMissionDocs(item)" style="cursor:pointer;"></i>
                     <a class="newbtn" ng-show="vm.isNew(item.Created)">New</a>
                 </td>
                 <td>{{item.ParticipatingOrganizations.results.join('; ')}}</td>
@@ -195,5 +195,30 @@
             </tr>
         </tbody>
     </table>
-    {{vm.missionGroupings}}
+    
 </div>
+
+<uif-dialog uif-close="false" uif-overlay="light" uif-type="multiline" ng-show="vm.missionDocsDialog.show">
+    <uif-dialog-header>
+        <p class="ms-Dialog-title">
+            Related Documents
+        </p>
+    </uif-dialog-header>
+    <uif-dialog-inner>
+        <uif-dialog-content>
+            <uif-dialog-subtext>
+                <span>{{vm.missionDocsDialog.header}}:</span>
+                <ul>
+                    <li ng-repeat="item in vm.missionDocsDialog.documents">
+                        <uif-link ng-href="{{item.File.ServerRelativeUrl}}">{{item.TypeOfDocument}}</uif-link>
+                    </li>
+                </ul>
+            </uif-dialog-subtext>
+        </uif-dialog-content>
+        <uif-dialog-actions uif-position="right">
+            <button class="ms-Dialog-action ms-Button" ng-click="vm.missionDocsDialog.show = false" type="button">
+                <span class="ms-Button-label">Cancel</span>
+            </button>
+        </uif-dialog-actions>
+    </uif-dialog-inner>
+</uif-dialog>

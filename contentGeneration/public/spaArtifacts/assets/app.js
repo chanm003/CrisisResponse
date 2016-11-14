@@ -3665,6 +3665,7 @@
 
         var vm = this;
         vm.isNew = isNew;
+        vm.showMissionDocs = showMissionDocs;
         
         init();
 
@@ -3751,6 +3752,14 @@
             return moment(createdTimeStamp).isAfter(cutOffToBeConsideredNew);
         }
 
+        function showMissionDocs(mission){
+            vm.missionDocsDialog = {
+                show: true,
+                documents: mission.relatedDocs,
+                header: "Documents for " + mission.Identifier
+            };
+        }
+
         vm.scrollButtonClicked = function(){
             alert('scroll');
         }
@@ -3815,7 +3824,7 @@
                 '           <button class="ms-Dialog-action ms-Button ms-Button--primary" ng-click="vm.chopDialogCtx.submit()">',
                 '               <span class="ms-Button-label">Start Chop</span>',
                 '           </button>',
-                '           <button class="ms-Dialog-action ms-Button" ng-click="vm.chopDialogCtx.show = false">',
+                '           <button class="ms-Dialog-action ms-Button" ng-click="vm.chopDialogCtx.show = false" type="button">',
                 '               <span class="ms-Button-label">Cancel</span>',
                 '           </button>',
                 '       </uif-dialog-actions>',
