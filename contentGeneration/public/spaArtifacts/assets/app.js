@@ -1796,7 +1796,7 @@
     WatchLogRepository.$inject = ['$http', '$q', '$resource', 'exception', 'logger', 'spContext'];
     function WatchLogRepository($http, $q, $resource, exception, logger, spContext) {
         var service = {
-            getByOrganization: getByOrganization
+            getSignificantItemsCreatedInLast24Hours: getSignificantItemsCreatedInLast24Hours
         };
 
         var fieldsToSelect = [
@@ -1814,11 +1814,12 @@
             listName: 'Watch Log'
         };
 
-        function getByOrganization(org) {
+        function getSignificantItemsCreatedInLast24Hours(org) {
+            
             //Significant eq 'Yes' and Organization eq 'SOTG 10'
-            var odataFilter = "Significant eq 'Yes'";
+            var odataFilter = "Significant eq 'Yes' and Created gt '" + moment.utc().add(-24, 'hours').toISOString() + "'";
             if(org){
-                odataFilter += "and Organization eq '" + org + "'";
+                odataFilter += " and Organization eq '" + org + "'";
             }
             var qsParams = {
                 $filter: odataFilter,
@@ -3683,7 +3684,7 @@
             buildOrgChoicesDropdown();
             $q.all([
                 CCIRRepository.getByOrganization($routeParams.org),
-                WatchLogRepository.getByOrganization($routeParams.org),
+                WatchLogRepository.getSignificantItemsCreatedInLast24Hours($routeParams.org),
                 CalendarRepository.getBattleRhythmNext24($routeParams.org),
                 MessageTrafficRepository.getSignificantItemsCreatedInLast24Hours($routeParams.org),
                 MissionTrackerRepository.getOpenMissionsByApprovalChain($routeParams.org),
