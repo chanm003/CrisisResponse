@@ -1230,6 +1230,7 @@
     function RfiRepository($http, $q, $resource, exception, logger, spContext) {
         var service = {
             getAll: getAll,
+            getOpenHighPriority: getOpenHighPriority,
             save: save
         };
 
@@ -1251,17 +1252,30 @@
             listName: 'RFI'
         };
 
-        function getAll() {
+        function getAll(){
+            return getItems();
+        }
+
+        function getItems(params) {
+            var qsParams = params || {}; //{$filter:"FavoriteNumber eq 8"};
             var dfd = $q.defer();
-            var qsParams = {}; //{$filter:"FavoriteNumber eq 8"};
             spContext.constructNgResourceForRESTCollection(ngResourceConstructParams).get(qsParams,
                 function (data) {
-                    dfd.resolve(data.d.results);
+                    dfd.resolve(_.map(data.d.results, function(item){
+                        item.LTIOV = moment(item.LTIOV);
+                        item.DateOpened = moment(item.DateOpened);
+                        return item;
+                    }));
                 },
                 function (error) {
                     dfd.reject(error);
                 });
             return dfd.promise;
+        }
+
+        function getOpenHighPriority(){
+            var params = {$filter:"Priority eq 'Immediate (< 24 hrs)' and Status eq 'Open'"};
+            return getItems(params);
         }
 
         function convertToFieldLookupValue(lookupID) {
@@ -1583,9 +1597,9 @@
             }
         }
 
-        function getItems() {
+        function getItems(params) {
+            var qsParams = params || {}; //{$filter:"FavoriteNumber eq 8"};
             var dfd = $q.defer();
-            var qsParams = {}; //{$filter:"FavoriteNumber eq 8"};
             spContext.constructNgResourceForRESTCollection(ngResourceConstructParams).get(qsParams,
                 function (data) {
                     var queryResults = data.d.results;
@@ -3659,8 +3673,8 @@
         .module('app.core')
         .controller('ProjectionScrollableAspxController', ControllerDefFunc);
 
-    ControllerDefFunc.$inject = ['$q', '$routeParams','_', 'CalendarRepository', 'CCIRRepository', 'MessageTrafficRepository','MissionDocumentRepository', 'MissionTrackerRepository', 'WatchLogRepository'];
-    function ControllerDefFunc($q, $routeParams,_, CalendarRepository, CCIRRepository, MessageTrafficRepository, MissionDocumentRepository, MissionTrackerRepository, WatchLogRepository) {
+    ControllerDefFunc.$inject = ['$q', '$routeParams','_', 'CalendarRepository', 'CCIRRepository', 'MessageTrafficRepository','MissionDocumentRepository', 'MissionTrackerRepository', 'WatchLogRepository', 'RfiRepository'];
+    function ControllerDefFunc($q, $routeParams,_, CalendarRepository, CCIRRepository, MessageTrafficRepository, MissionDocumentRepository, MissionTrackerRepository, WatchLogRepository,  RFIRepository) {
         var cutOffToBeConsideredNew = moment().add(-(3), 'hours');
 
         var vm = this;
@@ -3689,7 +3703,8 @@
                 CalendarRepository.getBattleRhythmNext24($routeParams.org),
                 MessageTrafficRepository.getSignificantItemsCreatedInLast24Hours($routeParams.org),
                 MissionTrackerRepository.getOpenMissionsByApprovalChain($routeParams.org),
-                MissionDocumentRepository.getMissionRelated()
+                MissionDocumentRepository.getMissionRelated(),
+                RFIRepository.getOpenHighPriority()
             ])
             .then(function(data){
                 vm.ccirItemsGroupedByCategory = _.groupBy(data[0], 'Category');
@@ -3712,7 +3727,9 @@
                 _.each(missions, function(item){
                     item.relatedDocs = _.filter(missionRelatedDocs, {MissionId: item.Id});
                 });
-                vm.missionGroupings = groupMissions(missions);    
+                vm.missionGroupings = groupMissions(missions);
+
+                vm.openRFIs = data[6];    
             })
         }
 
