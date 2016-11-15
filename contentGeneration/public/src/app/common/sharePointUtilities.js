@@ -657,8 +657,23 @@
 					// tolower is in OData spec, but not SP2013 REST https://msdn.microsoft.com/en-us/library/office/fp142385(v=office.15).aspx#bk_supported
                     url: _spPageContextInfo.webServerRelativeUrl + "/_api/web/siteusers?$filter=substringof('%QUERY', Title)",
                     wildcard: '%QUERY',
-                    transform: function (response) {
-                        return response.value;
+                    transport: function (opts, onSuccess, onError) {
+                        $.ajax({
+								url: opts.url,
+								headers:{
+									'Accept': 'application/json;odata=verbose',
+            						'Content-Type': 'application/json;odata=verbose'	
+								}
+							})
+							.done(onQuerySucceeded)
+							.fail(onQueryFailed);
+						
+						function onQuerySucceeded(data, status, req){
+							onSuccess(data.d.results);
+						}
+						function onQueryFailed(req, status, errorMsg){
+							onError(errorMsg);
+						}
                     }
                 }
             });
