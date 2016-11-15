@@ -7,12 +7,11 @@
                         <tr>
                             <td style="width:99%">&nbsp;</td>
                             <td nowrap>
-                                <select ng-options="org as org for org in vm.orgChoices" ng-model="vm.selectedOrg"></select>
+                                <select ng-options="org as org for org in vm.orgChoices" ng-model="vm.selectedOrg" ng-change="vm.onOrgSelected()"></select>
                             </td>
                             <td>|</td>
-                            <td><a ng-click="vm.scrollButtonClicked()" style="text-decoration:underline;cursor:pointer;">Scroll</a></td>
-                            <td>|</td>
-                            <td><a ng-click="vm.stopButtonClicked()" style="text-decoration:underline;cursor:pointer;">Stop</a></td>
+                            <td><a ng-click="vm.scrollButtonClicked()" style="text-decoration:underline;cursor:pointer;" ng-hide="vm.scrollStarted">Scroll</a></td>
+                            <td><a ng-click="vm.stopButtonClicked()" style="text-decoration:underline;cursor:pointer;" ng-show="vm.scrollStarted">Stop</a></td>
                         </tr>
                     </table>
                 </td>
@@ -31,6 +30,7 @@
         color: #444;
         box-sizing: content-box;
         width: 100%;
+        margin-bottom: 20px;
     }
     table.currentops th{
         background-color: rgb(0, 114, 198);
@@ -74,8 +74,12 @@
         padding: 3px 10px 3px 10px;
         text-decoration: none !important;
     }
+
+    .scrollableSummary h2{
+        margin-bottom:10px;
+    }
 </style>
-<div class="appContainer" style="margin-top:40px;padding:10px;">
+<div class="scrollableSummary" style="margin-top:40px;padding:10px;">
     <h2>CCIR</h2>
     <table class="currentops">
         <thead>

@@ -42,7 +42,8 @@
         'ngRoute',
         'blocks.logger'
     ])
-        .config(registerRoutes);
+        .config(registerRoutes)
+        .run(listenForFrouteChanges)
 
     angular.module('blocks.logger', [])
         .factory('logger', loggerService);
@@ -202,6 +203,15 @@
             var data = (opts && opts.data) || "";
             $log.warn('Warning: ' + message, data);
         }
+    }
+
+    listenForFrouteChanges.$inject = ['$rootScope', '$window'];
+    function listenForFrouteChanges($rootScope, $window){
+        $rootScope.$on("$routeChangeStart", function(event, next, current) {
+            if(next.originalPath === '/currentops'){
+                //$window.location.reload(true);
+            }
+        });
     }
 
     registerRoutes.$inject = ['$routeProvider'];
@@ -3673,13 +3683,15 @@
         .module('app.core')
         .controller('ProjectionScrollableAspxController', ControllerDefFunc);
 
-    ControllerDefFunc.$inject = ['$q', '$routeParams','_', 'CalendarRepository', 'CCIRRepository', 'MessageTrafficRepository','MissionDocumentRepository', 'MissionTrackerRepository', 'WatchLogRepository', 'RfiRepository'];
-    function ControllerDefFunc($q, $routeParams,_, CalendarRepository, CCIRRepository, MessageTrafficRepository, MissionDocumentRepository, MissionTrackerRepository, WatchLogRepository,  RFIRepository) {
+    ControllerDefFunc.$inject = ['$location','$q', '$routeParams','_', 'CalendarRepository', 'CCIRRepository', 'MessageTrafficRepository','MissionDocumentRepository', 'MissionTrackerRepository', 'WatchLogRepository', 'RfiRepository'];
+    function ControllerDefFunc($location, $q, $routeParams,_, CalendarRepository, CCIRRepository, MessageTrafficRepository, MissionDocumentRepository, MissionTrackerRepository, WatchLogRepository,  RFIRepository) {
         var cutOffToBeConsideredNew = moment().add(-(3), 'hours');
 
+        var timer = null;
         var vm = this;
         vm.isNew = isNew;
         vm.showMissionDocs = showMissionDocs;
+        vm.onOrgSelected = onOrgSelected;
         
         init();
 
@@ -3697,7 +3709,14 @@
 
         function init(){
             buildOrgChoicesDropdown();
-            $q.all([
+            refreshData().then(function(){
+                listenForWindowScrolling();
+                startScrolling();
+            });
+        }
+
+        function refreshData(){
+            return $q.all([
                 CCIRRepository.getByOrganization($routeParams.org),
                 WatchLogRepository.getSignificantItemsCreatedInLast24Hours($routeParams.org),
                 CalendarRepository.getBattleRhythmNext24($routeParams.org),
@@ -3730,7 +3749,9 @@
                 vm.missionGroupings = groupMissions(missions);
 
                 vm.openRFIs = data[6];    
-            })
+                //scroll to top...
+                document.body.scrollTop = document.documentElement.scrollTop = 0;
+            });
         }
 
         function groupMissions(missions){
@@ -3777,12 +3798,57 @@
             };
         }
 
+        function startScrolling() {
+            if(!vm.scrollStarted){ return; }
+            timer = setInterval(scrollPage, 30);
+
+            function scrollPage(){
+                window.scroll(0, getCurrentPosition());
+            }
+
+            function getCurrentPosition() {
+                var currentPos;
+                if (document.all) {
+                    currentPos = document.documentElement.scrollTop + 1;
+                } else {
+                    currentPos = window.pageYOffset + 1;
+                }
+                return currentPos;
+            }
+        }
+
+        function stopScrolling(){
+            clearInterval(timer);
+        }
+
+        function listenForWindowScrolling(){
+            $(window).bind('scroll', function(){
+                if(isUserAtBottomOfPage()){
+                    refreshData();
+                }
+            });
+
+            function isUserAtBottomOfPage() {
+                return $(window).scrollTop() + $(window).height() == $(document).height();
+            }
+        }
+
+        function onOrgSelected(){
+            //$location.path('/currentops').search({'org': vm.selectedOrg});
+            vm.scrollStarted = false;
+            stopScrolling();
+            var url = _spPageContextInfo.webServerRelativeUrl + "/SitePages/projectionScrollable.aspx/#/currentops?org=" + vm.selectedOrg;
+            window.location.href = url;
+        }
+
         vm.scrollButtonClicked = function(){
-            alert('scroll');
+            vm.scrollStarted = true;
+            startScrolling();
         }
 
         vm.stopButtonClicked = function(){
-            alert('stop');
+            vm.scrollStarted = false;
+            stopScrolling();
         }
     }
 })();
