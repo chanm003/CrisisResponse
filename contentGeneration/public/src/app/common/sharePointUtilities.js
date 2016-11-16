@@ -447,6 +447,18 @@
 				});
 				defaultView.update();
 
+				//create additional views
+				_.each(opts.viewsToCreate, function (viewDef) {
+					var vci = new SP.ViewCreationInformation();
+					vci.set_title(viewDef.title);
+					vci.set_viewFields(viewDef.viewFields);
+					var camlQuery = new SP.CamlQuery();
+					camlQuery.set_viewXml(viewDef.query);
+					vci.set_query(camlQuery);
+					vci.set_viewTypeKind(viewDef.viewTypeKind);
+					createdList.get_views().add(vci);
+				});
+
 				//batch, setup, and send the request
 				ctx.load(createdList);
 				_.each(createdFields, function (createdField) {

@@ -595,6 +595,26 @@ crisisResponseSchema.listDefs["Mission Documents"] = {
 			Default: "",							//(optional)
 			Hidden: "TRUE"
 		}
+	],
+	viewsToCreate:[
+		{
+			title: 'INTEL',
+			viewFields: ['DocIcon', 'Organization', 'LinkFilename', 'Mission', 'Modified', 'Editor'],
+			query: '<GroupBy Collapse="FALSE" GroupLimit="30"><FieldRef Name="Organization"/></GroupBy><OrderBy><FieldRef Name="ID" Ascending="FALSE"/></OrderBy><Where><Or><Or><Contains><FieldRef Name="TypeOfDocument"/><Value Type="Text">INTSUM</Value></Contains><Contains><FieldRef Name="TypeOfDocument"/><Value Type="Text">INTREP</Value></Contains></Or><Contains><FieldRef Name="TypeOfDocument"/><Value Type="Text">HUMINT</Value></Contains></Or></Where>',
+			viewTypeKind: 0 
+		},
+		{
+			title: 'SITREP',
+			viewFields: ['DocIcon', 'Organization', 'LinkFilename', 'Mission', 'Modified', 'Editor'],
+			query: '<GroupBy Collapse="FALSE" GroupLimit="30"><FieldRef Name="Organization"/></GroupBy><OrderBy><FieldRef Name="ID" Ascending="FALSE"/></OrderBy><Where><Contains><FieldRef Name="TypeOfDocument"/><Value Type="Text">SITREP</Value></Contains></Where>',
+			viewTypeKind: 0 
+		},
+		{
+			title: 'Template',
+			viewFields: ['DocIcon', 'Organization', 'LinkFilename', 'Modified', 'Editor'],
+			query: '<GroupBy Collapse="FALSE" GroupLimit="30"><FieldRef Name="Organization"/></GroupBy><OrderBy><FieldRef Name="LinkFilename"/></OrderBy><Where><Contains><FieldRef Name="TypeOfDocument"/><Value Type="Text">Template</Value></Contains></Where>',
+			viewTypeKind: 0 
+		}
 	]
 }; 
 
