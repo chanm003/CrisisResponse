@@ -598,6 +598,12 @@
 			action.set_sequence(1000 + sequenceCounter + 100);
 			action.update();
 
+			/**
+			 * Deactivate Minimal Download Strategy (hashes do not seem to play nice with Angular on IE browsers)
+			 */
+			var guid = new SP.Guid("{87294C72-F260-42f3-A41B-981A2FFCE37A}");
+            var featDef = childWeb.get_features().remove(guid, true);
+
 			ctx.executeQueryAsync(
 				Function.createDelegate(this, onQuerySucceeded),
 				Function.createDelegate(this, onQueryFailed)
