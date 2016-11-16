@@ -22,6 +22,7 @@
 			getFilesFromFolder: getFilesFromFolder,
 			provisionListViewWebparts: provisionListViewWebparts,
 			provisionScriptEditorWebparts: provisionScriptEditorWebparts,
+			setWelcomePage: setWelcomePage,
 			updateChoiceFields: updateChoiceFields
 		};
 
@@ -919,6 +920,35 @@
 
 			//returning promise chain that caller can resolve...
 			return scriptEditorWebpartsChain;
+		}
+
+		function setWelcomePage(webUrl, welcomePageUrl){
+			welcomePageUrl = welcomePageUrl || 'SitePages/Home.aspx';
+
+			var dfd = $q.defer();
+			var ctx = new SP.ClientContext(webUrl);
+			var spWeb = ctx.get_web();
+			var rootFolder = spWeb.get_rootFolder();
+			ctx.load(rootFolder);
+			rootFolder.set_welcomePage(welcomePageUrl);
+			rootFolder.update();
+
+			ctx.executeQueryAsync(
+				Function.createDelegate(this, onQuerySucceeded),
+				Function.createDelegate(this, onQueryFailed)
+			);
+
+			return dfd.promise;
+
+			function onQuerySucceeded() {
+				logger.logSuccess('Set home page to: (' + welcomePageUrl + ')', null, 'sharepointUtilities service, setWelcomePage()');
+				dfd.resolve();
+			}
+
+			function onQueryFailed(sender, args) {
+				logger.logError('Request failed: ' + args.get_message(), args.get_stackTrace(), 'sharepointUtilities service, setWelcomePage()');
+				dfd.reject();
+			}
 		}
 
 		function updateChoiceField(opts) {

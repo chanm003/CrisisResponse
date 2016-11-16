@@ -83,7 +83,8 @@
 		vm.onOrganizationsIdentified = function () {
 			return createCoreLists()
 				.then(provisionComponentCommandPage)
-				.then(provisionTaskGroupPage);
+				.then(provisionTaskGroupPage)
+				.then(setWelcomePage);
 		}
 
 		vm.onAdditionalFeaturesCollected = function () {
@@ -397,6 +398,10 @@
 
 
 			}
+		}
+
+		function setWelcomePage(){
+			return sharepointUtilities.setWelcomePage(vm.childWebUrl, 'SitePages/socc.aspx?org='+ vm.componentCommands[0].name);
 		}
 
 		function generateJocInBoxConfigFile() {
