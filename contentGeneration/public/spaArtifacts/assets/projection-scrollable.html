@@ -1,85 +1,12 @@
-<div id="hdWrap">
-    <div id="hd">
-        <table style="width:100%;margin:0;padding:0" cellpadding="0" cellspacing="0">
-            <tr>
-                <td colspan="2">
-                    <table cellspacing="4" cellpadding="0" style="width:100%">
-                        <tr>
-                            <td style="width:99%">&nbsp;</td>
-                            <td nowrap>
-                                <select ng-options="org as org for org in vm.orgChoices" ng-model="vm.selectedOrg" ng-change="vm.onOrgSelected()"></select>
-                            </td>
-                            <td>|</td>
-                            <td><a ng-click="vm.scrollButtonClicked()" style="text-decoration:underline;cursor:pointer;" ng-hide="vm.scrollStarted">Scroll</a></td>
-                            <td><a ng-click="vm.stopButtonClicked()" style="text-decoration:underline;cursor:pointer;" ng-show="vm.scrollStarted">Stop</a></td>
-                        </tr>
-                    </table>
-                </td>
-            </tr>
-        </table>
+<div id="hdWrap" style="position:fixed;top:0;left:0;width:100%;height:55px;z-index:10;background-color:#fff;border-bottom: solid 1px rgba(205, 197, 197, 0.86);">
+    <div id="hd" style="padding:10px;">
+        <uif-button uif-type="primary" type="button" ng-click="vm.scrollButtonClicked()" style="float:right;">
+            {{vm.scrollStarted ? "Stop Scrolling" : "Start Scrolling"}}
+        </uif-button>
+        <h1>{{vm.selectedOrg}} Current Operations Summary <span ng-show="vm.lastRefreshedTime" class="ms-fontWeight-light ms-fontSize-m">(Last refreshed {{vm.lastRefreshedTime}})</span></h1>
     </div>
 </div>
-<style>
-    table.currentops {
-        border-collapse: separate;
-        border-spacing: 0;
-        border-bottom: solid 1px #111111;
-        border-left-width: 0px;
-        border-top-width: 0px;
-        border-right-width: 0px;
-        color: #444;
-        box-sizing: content-box;
-        width: 100%;
-        margin-bottom: 20px;
-    }
-    table.currentops th{
-        background-color: rgb(0, 114, 198);
-        color:white;
-        font-weight:bold;
-        border-bottom: solid 1px #111111;
-        padding: 10px 18px;
-        box-sizing: content-box;
-    }
-    table.currentops td{
-        border-right: solid 1px #dddddd;
-        border-top: solid 1px #dddddd;
-        padding: 8px 10px;
-        border-spacing: 0;
-        border-collapse: separate;
-    }
-
-    table.currentops td:first-child{
-        border-left: solid 1px #dddddd;
-    }
-
-    table.currentops tr.group{
-        background-color: rgb(209,207,208);
-        color:black;
-        font-weight:bold;
-    }
-
-    .newbtn {
-        background: #0eb85e;
-        background-image: -webkit-linear-gradient(top, #0eb85e, #4a9624);
-        background-image: -moz-linear-gradient(top, #0eb85e, #4a9624);
-        background-image: -ms-linear-gradient(top, #0eb85e, #4a9624);
-        background-image: -o-linear-gradient(top, #0eb85e, #4a9624);
-        background-image: linear-gradient(to bottom, #0eb85e, #4a9624);
-        -webkit-border-radius: 14;
-        -moz-border-radius: 14;
-        border-radius: 14px;
-        font-family: Arial;
-        color: #ffffff !important;
-        font-size: 12px;
-        padding: 3px 10px 3px 10px;
-        text-decoration: none !important;
-    }
-
-    .scrollableSummary h2{
-        margin-bottom:10px;
-    }
-</style>
-<div class="scrollableSummary" style="margin-top:40px;padding:10px;">
+<div class="scrollableSummary" style="margin-top:55px;padding:10px;">
     <h2>CCIR</h2>
     <table class="currentops">
         <thead>

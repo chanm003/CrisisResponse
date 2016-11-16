@@ -24,20 +24,6 @@
 	      		display: none!important;
 	    	}    
     	</style>
-    	<style type="text/css">
-			#hdWrap {
-				position:fixed;
-				top:0;
-				left:0;
-				width:100%;
-				height:40px;
-				z-index:10;
-				background-color:#fff;
-			}
-			#hd {
-				padding:10px;
-			}
-		</style>
 	    <SharePoint:ScriptLink name="MicrosoftAjax.js" OnDemand="true" runat="server" Localizable="false" LoadAfterUI="false"/>
 		<SharePoint:ScriptLink name="sp.core.js" OnDemand="true" runat="server" Localizable="false" LoadAfterUI="false"/>
 		<SharePoint:ScriptLink name="sp.js" OnDemand="true" runat="server" Localizable="false" LoadAfterUI="false"/>

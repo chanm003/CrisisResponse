@@ -572,8 +572,8 @@
 
 			//ops summaries for component commands and air component
 			var nodeId_currentOpsSummary = generateRandomId();
-			var currentOpsSummaryBaseUrl = childWebUrl + "/SitePages/projectionScrollable.aspx";
-			nodes.push(generateChildMenuNode(nodeId_currentOpsSummary, "Current Operations Summary", nodeId_battlespace, {url: currentOpsSummaryBaseUrl}));		
+			var currentOpsSummaryBaseUrl = childWebUrl + "/SitePages/projectionScrollable.aspx/#/currentops";
+			nodes.push(generateChildMenuNode(nodeId_currentOpsSummary, "Current Operations Summary", nodeId_battlespace, {url: currentOpsSummaryBaseUrl, target: "_blank"}));		
 			_.each(componentCommands, function (org) {
 				var url = currentOpsSummaryBaseUrl + "?org=" + org.name;
 				nodes.push(generateChildMenuNode(generateRandomId(), org.name, nodeId_currentOpsSummary, {url: url}));

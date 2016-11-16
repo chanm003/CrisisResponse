@@ -858,3 +858,62 @@
     background-color: #286090;
     border-color: #204d74
 }
+
+table.currentops {
+        border-collapse: separate;
+        border-spacing: 0;
+        border-bottom: solid 1px #111111;
+        border-left-width: 0px;
+        border-top-width: 0px;
+        border-right-width: 0px;
+        color: #444;
+        box-sizing: content-box;
+        width: 100%;
+        margin-bottom: 20px;
+    }
+    table.currentops th{
+        background-color: rgb(0, 114, 198);
+        color:white;
+        font-weight:bold;
+        border-bottom: solid 1px #111111;
+        padding: 10px 18px;
+        box-sizing: content-box;
+    }
+    table.currentops td{
+        border-right: solid 1px #dddddd;
+        border-top: solid 1px #dddddd;
+        padding: 8px 10px;
+        border-spacing: 0;
+        border-collapse: separate;
+    }
+
+    table.currentops td:first-child{
+        border-left: solid 1px #dddddd;
+    }
+
+    table.currentops tr.group{
+        background-color: rgb(209,207,208);
+        color:black;
+        font-weight:bold;
+    }
+
+    .newbtn {
+        background: #0eb85e;
+        background-image: -webkit-linear-gradient(top, #0eb85e, #4a9624);
+        background-image: -moz-linear-gradient(top, #0eb85e, #4a9624);
+        background-image: -ms-linear-gradient(top, #0eb85e, #4a9624);
+        background-image: -o-linear-gradient(top, #0eb85e, #4a9624);
+        background-image: linear-gradient(to bottom, #0eb85e, #4a9624);
+        -webkit-border-radius: 14;
+        -moz-border-radius: 14;
+        border-radius: 14px;
+        font-family: Arial;
+        color: #ffffff !important;
+        font-size: 12px;
+        padding: 3px 10px 3px 10px;
+        text-decoration: none !important;
+    }
+
+    .scrollableSummary h2{
+        margin-bottom:10px;
+    }

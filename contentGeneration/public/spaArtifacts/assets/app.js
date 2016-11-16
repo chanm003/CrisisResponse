@@ -208,9 +208,7 @@
     listenForFrouteChanges.$inject = ['$rootScope', '$window'];
     function listenForFrouteChanges($rootScope, $window){
         $rootScope.$on("$routeChangeStart", function(event, next, current) {
-            if(next.originalPath === '/currentops'){
-                //$window.location.reload(true);
-            }
+    
         });
     }
 
@@ -3691,24 +3689,11 @@
         var vm = this;
         vm.isNew = isNew;
         vm.showMissionDocs = showMissionDocs;
-        vm.onOrgSelected = onOrgSelected;
         
         init();
 
-        function buildOrgChoicesDropdown(){
-            var options = [];
-            _.each(jocInBoxConfig.dashboards, function(props, cmdName){  
-                if(props.orgType === "Component Command" || props.orgType === "Air Component"){
-                    options.push(cmdName);
-                }
-            });
-            vm.orgChoices = options;
-            //set default option
-            vm.selectedOrg = ($routeParams.org) ? $routeParams.org : vm.orgChoices[0];
-        }
-
         function init(){
-            buildOrgChoicesDropdown();
+            vm.selectedOrg = $routeParams.org;
             refreshData().then(function(){
                 listenForWindowScrolling();
                 startScrolling();
@@ -3726,6 +3711,7 @@
                 RFIRepository.getOpenHighPriority()
             ])
             .then(function(data){
+                vm.lastRefreshedTime = moment.utc().format('DD MMM YY HHmm[Z]').toUpperCase();
                 vm.ccirItemsGroupedByCategory = _.groupBy(data[0], 'Category');
                 vm.watchLogItems = data[1];
                 vm.calendarItems = _.map(data[2], function(item){
@@ -3833,22 +3819,14 @@
             }
         }
 
-        function onOrgSelected(){
-            //$location.path('/currentops').search({'org': vm.selectedOrg});
-            vm.scrollStarted = false;
-            stopScrolling();
-            var url = _spPageContextInfo.webServerRelativeUrl + "/SitePages/projectionScrollable.aspx/#/currentops?org=" + vm.selectedOrg;
-            window.location.href = url;
-        }
-
         vm.scrollButtonClicked = function(){
-            vm.scrollStarted = true;
-            startScrolling();
-        }
+            vm.scrollStarted = !vm.scrollStarted;
 
-        vm.stopButtonClicked = function(){
-            vm.scrollStarted = false;
-            stopScrolling();
+            if(vm.scrollStarted){
+                startScrolling();
+            } else {
+                stopScrolling();
+            }
         }
     }
 })();
