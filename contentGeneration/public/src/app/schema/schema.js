@@ -1126,6 +1126,18 @@ crisisResponseSchema.listDefs["Calendar"] = {
 			Required: "FALSE",
 			Format: "Hyperlink"								
 		}
+	],
+	viewsToCreate:[
+		{
+			title: 'Academics',
+			query: '<Where><Eq><FieldRef Name="Category"/><Value Type="Text">Academics</Value></Eq></Where>',
+			viewTypeKind:524288
+		},
+		{
+			title: 'VTC',
+			query: '<Where><Eq><FieldRef Name="Category"/><Value Type="Text">VTC</Value></Eq></Where>',
+			viewTypeKind:524288
+		}
 	]
 };
 

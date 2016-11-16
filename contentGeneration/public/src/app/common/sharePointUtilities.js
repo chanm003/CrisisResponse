@@ -451,11 +451,18 @@
 				_.each(opts.viewsToCreate, function (viewDef) {
 					var vci = new SP.ViewCreationInformation();
 					vci.set_title(viewDef.title);
-					vci.set_viewFields(viewDef.viewFields);
-					var camlQuery = new SP.CamlQuery();
-					camlQuery.set_viewXml(viewDef.query);
-					vci.set_query(camlQuery);
 					vci.set_viewTypeKind(viewDef.viewTypeKind);
+
+					if(viewDef.viewFields){
+						vci.set_viewFields(viewDef.viewFields);
+					}
+
+					if(viewDef.query){
+						var camlQuery = new SP.CamlQuery();
+						camlQuery.set_viewXml(viewDef.query);
+						vci.set_query(camlQuery);
+					}
+					
 					createdList.get_views().add(vci);
 				});
 
