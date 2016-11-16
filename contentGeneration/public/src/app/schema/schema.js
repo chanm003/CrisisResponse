@@ -1232,7 +1232,7 @@ crisisResponseSchema.webpartPageDefs['Component Command Page'] = {
 				},
 				{
 					attributes: {name: 'Description', type: 'string'},
-					innerText: 'ongoing missions (click checkbox to show past missions)'
+					innerText: 'ongoing missions (click checkbox to show completed missions)'
 				}
 			],
 			zoneName: 'Right',

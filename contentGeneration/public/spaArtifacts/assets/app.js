@@ -2373,7 +2373,7 @@
                 orientation: 'top'
             };
 
-            scope.showPastMissions = false;
+            scope.showCompletedMissions = false;
             scope.statusColorLegend = [
                 { name: "Initial Targeting", cssStyle: 'background-color:#FFFF00; border-color: #FFFF00; color: #000;' }, //yellow,black
                 { name: "JPG Assigned", cssStyle: 'background-color:#FFFF00; border-color: #FFFF00; color: #000;' }, //yellow,black
@@ -2399,7 +2399,7 @@
 
 
 
-            scope.$watch('showPastMissions', function () {
+            scope.$watch('showCompletedMissions', function () {
                 renderTimeline();
             });
 
@@ -2415,7 +2415,7 @@
 
                 var now = moment();
                 scope.missionsToShow = _.filter(scope.missions, function (item) {
-                    return scope.showPastMissions || (!item.ExpectedTermination || moment(item.ExpectedTermination) > now);
+                    return scope.showCompletedMissions || item.Status !== 'Mission Closed';
                 });
 
                 scope.onMissionsFiltered({ missions: scope.missionsToShow });
@@ -2486,8 +2486,8 @@
         }
 
         function buildCheckboxHtml() {
-            var html = '<uif-choicefield-option uif-type="checkbox" value="value1" ng-model="showPastMissions" ng-true-value="true" ng-false-value="false"> Show Past Missions</uif-choicefield-option>';
-            //var html = '<input type="checkbox" ng-model="showPastMissions"> <label>Show Past Missions</label>';
+            var html = '<uif-choicefield-option uif-type="checkbox" value="value1" ng-model="showCompletedMissions" ng-true-value="true" ng-false-value="false"> Show Closed Missions</uif-choicefield-option>';
+            //var html = '<input type="checkbox" ng-model="showCompletedMissions"> <label>Show Closed Missions</label>';
             return html;
         }
 
@@ -2497,7 +2497,7 @@
         }
 
         function buildMessageBarHtml() {
-            return '<uif-message-bar ng-show="missionsToShow.length === 0"> <uif-content>No {{showPastMissions ? "past/ongoing" : "ongoing" }} {{selectedOrg}} missions</uif-content> </uif-message-bar>';
+            return '<uif-message-bar ng-show="missionsToShow.length === 0"> <uif-content>No {{showCompletedMissions ? "closed/completed" : "ongoing" }} {{selectedOrg}} missions</uif-content> </uif-message-bar>';
         }
     }
 })();

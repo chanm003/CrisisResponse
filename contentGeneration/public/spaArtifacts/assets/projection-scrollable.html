@@ -3,7 +3,7 @@
         <uif-button uif-type="primary" type="button" ng-click="vm.scrollButtonClicked()" style="float:right;">
             {{vm.scrollStarted ? "Stop Scrolling" : "Start Scrolling"}}
         </uif-button>
-        <h1>{{vm.selectedOrg}} Current Operations Summary <span ng-show="vm.lastRefreshedTime" class="ms-fontWeight-light ms-fontSize-m">(Last refreshed {{vm.lastRefreshedTime}})</span></h1>
+        <h1>{{vm.selectedOrg}} Current Operations Summary <span ng-show="vm.lastRefreshedTime" class="ms-fontWeight-light ms-fontSize-m">Last refreshed {{vm.lastRefreshedTime}} <i class="fa fa-clock-o" aria-hidden="true"></i></span></h1>
     </div>
 </div>
 <div class="scrollableSummary" style="margin-top:55px;padding:10px;">
