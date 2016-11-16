@@ -13,6 +13,7 @@
     function registerCustomizations() {
         SP.SOD.executeFunc("clienttemplates.js", "SPClientTemplates", function () {
             customizeFieldRendering();
+            registerPreRenderEvent();
             registerPostRenderEvent();
             $(document).ready(customizeCalloutsForDocumentLibrary);
         });
@@ -425,6 +426,12 @@
             }
         }
 
+        function modifyListViewWebpartsFooter(ctx) {
+            if(ctx.ListTemplate === "101"){
+                ctx.ListSchema.NoListItem = "There are no files to show in this view";
+            }
+        }
+
         function modifyListFormsPostRender(ctx){
             customizeRfiForm(ctx);
             customizeMissionTrackerForm(ctx);
@@ -554,6 +561,17 @@
                     OnPostRender: function (ctx) {
                         modifyListViewWebpartsPostRender(ctx);
                         modifyListFormsPostRender(ctx);
+                    }
+                }
+            });
+
+        }   
+
+        function registerPreRenderEvent() {
+            SPClientTemplates.TemplateManager.RegisterTemplateOverrides({
+                Templates: {
+                    OnPreRender: function (ctx) {
+                        modifyListViewWebpartsFooter(ctx);
                     }
                 }
             });
