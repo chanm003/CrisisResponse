@@ -127,6 +127,7 @@
 
 			function createStandaloneLists() {
 				return $q.all([
+					createAARList(),
 					createCalendarList(),
 					createCcirList(),
 					createConfigList(),
@@ -143,6 +144,13 @@
 					createRFIList(),
 					createMissionDocumentsLibrary(),
 				]);
+			}
+
+			function createAARList() {
+				//DEPENDENCIES: None
+				var listSchemaDef = crisisResponseSchema.listDefs["AAR"];
+				listSchemaDef.webUrl = vm.childWebUrl;
+				return sharepointUtilities.createList(listSchemaDef);
 			}
 
 			function createCalendarList() {
@@ -569,6 +577,10 @@
 			//battlespace root
 			nodes.push(generateChildMenuNode(nodeId_battlespace, "Battlespace Applications", "rootNode", {}));
 
+			//AAR
+			var aarUrl = childWebUrl + "/Lists/AAR";
+			nodes.push(generateChildMenuNode(generateRandomId(), "AAR", nodeId_battlespace, {url: aarUrl}));
+
 			//comms
 			if(selectedOptions["Communications Component"]){
 				var commsUrl = childWebUrl + "/SitePages/comms.aspx?org=" + communicationsComponents[0].name;
@@ -597,6 +609,15 @@
 			var rfiUrl = childWebUrl + "/SitePages/app.aspx/#/rfi/";
 			nodes.push(generateChildMenuNode(generateRandomId(), "RFI", nodeId_battlespace, {url: rfiUrl}));
 
+			//SITREP
+			var sitrepUrl = childWebUrl + "/MissionDocuments/Forms/SITREP.aspx";
+			nodes.push(generateChildMenuNode(generateRandomId(), "SITREP", nodeId_battlespace, {url: sitrepUrl}));
+
+			//INTEL
+			var intelUrl = childWebUrl + "/MissionDocuments/Forms/INTEL.aspx";
+			nodes.push(generateChildMenuNode(generateRandomId(), "INTEL", nodeId_battlespace, {url: intelUrl}));
+
+
 			return nodes;
 		}
 
@@ -623,6 +644,10 @@
 			//phonebook
 			var phoneBookUrl = childWebUrl + "/Lists/Phonebook"
 			nodes.push(generateChildMenuNode(generateRandomId(), "Phonebook", nodeId_infoSupport, {url: phoneBookUrl }));
+
+			//templates
+			var templatesUrl = childWebUrl + "/MissionDocuments/Forms/Template.aspx";
+			nodes.push(generateChildMenuNode(generateRandomId(), "Templates", nodeId_infoSupport, {url: templatesUrl}));
 
 			return nodes;
 		}

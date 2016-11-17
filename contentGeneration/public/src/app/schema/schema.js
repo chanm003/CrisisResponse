@@ -16,6 +16,65 @@ crisisResponseSchema.missionTypesMappedToDefaultApprovalAuthority = {
 	"SUP: Support Patrol (log, etc)": ""
 }
 
+crisisResponseSchema.listDefs["AAR"] = {
+	Title: "AAR",
+	BaseTemplate: 'genericList',
+	shouldHideTitleField: false,
+	fieldsToCreate:[
+		{
+			//EXAMPLE: DateTime
+			Name: "Date",
+			DisplayName: "Date",
+			Type: "DateTime",
+			Required: "TRUE",
+			Format: "DateOnly", 			//please use either 'DateOnly' or 'DateTime'
+			Default: ''						//(optional)	
+		},
+		{
+			//EXAMPLE: MULTIPLE LINE OF TEXT
+			Name: "Observation",
+			DisplayName: "Observation",
+			Type: "Note",
+			Required: "TRUE",
+			NumLines: 6,
+			RichText: "FALSE",						//RECOMMENDED
+			AppendOnly: "FALSE"						//VERSIONING MUST BE TURNED ON, otherwise specifie "FALSE"			
+		},
+		{
+			//EXAMPLE: MULTIPLE LINE OF TEXT
+			Name: "Insight",
+			DisplayName: "Insight",
+			Type: "Note",
+			Required: "FALSE",
+			NumLines: 6,
+			RichText: "FALSE",						//RECOMMENDED
+			AppendOnly: "FALSE"						//VERSIONING MUST BE TURNED ON, otherwise specifie "FALSE"
+		},
+		{
+			//EXAMPLE: MULTIPLE LINE OF TEXT
+			Name: "Lesson",
+			DisplayName: "Lesson",
+			Type: "Note",
+			Required: "FALSE",
+			NumLines: 6,
+			RichText: "FALSE",						//RECOMMENDED
+			AppendOnly: "FALSE"						//VERSIONING MUST BE TURNED ON, otherwise specifie "FALSE"
+		},
+		{
+			//EXAMPLE: Dropdown
+			Name: "Organization",
+			DisplayName: "Organization",
+			Type: "Choice",
+			Format:"Dropdown",
+			Required: "TRUE",
+			FillInChoice: "FALSE",
+			Description: 'Identify the organization you are associated with',
+			Choices: [],						//will be generated
+			Default: ''							//(optional)
+		}						
+	]
+};
+
 crisisResponseSchema.listDefs["Config"] = {
 	Title: "Config",
 	BaseTemplate: 'genericList',
@@ -1426,6 +1485,19 @@ crisisResponseSchema.webpartPageDefs['Task Group Page'] = {
 }
 
 crisisResponseSchema.organizationalChoiceFields = [
+	{
+		listName: "AAR",
+		fieldName: "Organization",
+		generationFlags: {
+			includeComponentCommands: true,
+			includeTaskGroups: true,
+			includeStaffSections: true,
+			includeNotionals: false,
+			includeExerciseControlGroup: true,
+			includeAirComponent: true,
+			includeCommunicationsComponent: false
+		}
+	},
 	{
 		listName: "Calendar",
 		fieldName: "Organization",

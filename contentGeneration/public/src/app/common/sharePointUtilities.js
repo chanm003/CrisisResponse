@@ -997,7 +997,7 @@
 			return dfd.promise;
 
 			function onQuerySucceeded() {
-				logger.logSuccess('Choice fields (' + _.pluck(opts.fieldsToUpdate, 'fieldName') + ') updated in the lists ' + opts.listName, null, 'sharepointUtilities service, updateChoiceFields()');
+				logger.logSuccess('Choice fields (' + _.pluck(opts.fieldsToUpdate, 'fieldName') + ') updated in the list ' + opts.listName, null, 'sharepointUtilities service, updateChoiceFields()');
 				dfd.resolve();
 			}
 
