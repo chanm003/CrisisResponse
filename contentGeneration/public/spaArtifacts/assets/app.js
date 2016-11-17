@@ -1,4 +1,4 @@
-(function () {
+(function ($, _) {
     'use strict';
     var globalConfig = {
         appErrorPrefix: '[Exercise Application Error] ',
@@ -266,10 +266,10 @@
             }, 1000);
         }
     }
-})();
+})(jocInBoxConfig.noConflicts.jQuery, jocInBoxConfig.noConflicts.lodash);
 
 /* Module: app.data and app.models */
-(function () {
+(function ($, _) {
     angular.module('app.models', []);
     angular.module('app.data', ['app.models'])
         .service('spContext', spContext)
@@ -501,10 +501,10 @@
 
         }
     }
-})();
+})(jocInBoxConfig.noConflicts.jQuery, jocInBoxConfig.noConflicts.lodash);
 
 /* Model: RFI */
-(function () {
+(function ($, _) {
     angular.module('app.models')
         .factory('RFI', RfiModel);
 
@@ -648,10 +648,10 @@
 
         return RFI;
     }
-})();
+})(jocInBoxConfig.noConflicts.jQuery, jocInBoxConfig.noConflicts.lodash);
 
 /* Model: Message Traffic */
-(function () {
+(function ($, _) {
     angular.module('app.models')
         .factory('MessageTraffic', MessageTrafficModel);
 
@@ -728,10 +728,10 @@
 
         return MessageTraffic;
     }
-})();
+})(jocInBoxConfig.noConflicts.jQuery, jocInBoxConfig.noConflicts.lodash);
 
 /* Model: Mission Document */
-(function () {
+(function ($, _) {
     angular.module('app.models')
         .factory('MissionDocument', MissionDocumentModel);
 
@@ -1009,10 +1009,10 @@
 
         return MissionDocument;
     }
-})();
+})(jocInBoxConfig.noConflicts.jQuery, jocInBoxConfig.noConflicts.lodash);
 
 /* Model: Mission Tracker */
-(function () {
+(function ($, _) {
     angular.module('app.models')
         .factory('Mission', MissionModel);
 
@@ -1125,10 +1125,10 @@
 
         return Mission;
     }
-})();
+})(jocInBoxConfig.noConflicts.jQuery, jocInBoxConfig.noConflicts.lodash);
 
 /* Data Repository: Config */
-(function () {
+(function ($, _) {
     angular.module('app.data')
         .service('ConfigRepository', ConfigRepository)
     ConfigRepository.$inject = ['$http', '$q', '$resource', 'exception', 'logger', 'spContext'];
@@ -1183,10 +1183,10 @@
 
         return service;
     }
-})();
+})(jocInBoxConfig.noConflicts.jQuery, jocInBoxConfig.noConflicts.lodash);
 
 /* Data Repository: Document Chops */
-(function () {
+(function ($, _) {
     angular.module('app.data')
         .service('DocumentChopsRepository', DocumentChopsRepository)
     DocumentChopsRepository.$inject = ['$http', '$q', '$resource', 'exception', 'logger', 'spContext'];
@@ -1228,10 +1228,10 @@
 
         return service;
     }
-})();
+})(jocInBoxConfig.noConflicts.jQuery, jocInBoxConfig.noConflicts.lodash);
 
 /* Data Repository: RFI */
-(function () {
+(function ($, _) {
     angular.module('app.data')
         .service('RfiRepository', RfiRepository);
     RfiRepository.$inject = ['$http', '$q', '$resource', 'exception', 'logger', 'spContext'];
@@ -1358,10 +1358,10 @@
 
         return service;
     }
-})();
+})(jocInBoxConfig.noConflicts.jQuery, jocInBoxConfig.noConflicts.lodash);
 
 /* Data Repository: Mission Documents */
-(function () {
+(function ($, _) {
     angular.module('app.data')
         .service('MissionDocumentRepository', MissionDocumentRepository);
     MissionDocumentRepository.$inject = ['$http', '$q', '$resource', 'exception', 'logger', 'spContext'];
@@ -1455,10 +1455,10 @@
 
         return service;
     }
-})();
+})(jocInBoxConfig.noConflicts.jQuery, jocInBoxConfig.noConflicts.lodash);
 
 /* Data Repository: Message Traffic */
-(function () {
+(function ($, _) {
     angular.module('app.data')
         .service('MessageTrafficRepository', MessageTrafficRepository);
     MessageTrafficRepository.$inject = ['$http', '$q', '$resource', 'exception', 'logger', 'spContext'];
@@ -1525,10 +1525,10 @@
 
         return service;
     }
-})();
+})(jocInBoxConfig.noConflicts.jQuery, jocInBoxConfig.noConflicts.lodash);
 
 /* Data Repository: Mission Tracker */
-(function () {
+(function ($, _) {
     angular.module('app.data')
         .service('MissionTrackerRepository', MissionTrackerRepository)
     MissionTrackerRepository.$inject = ['$http', '$q', '$resource', 'exception', 'logger', 'spContext'];
@@ -1651,10 +1651,10 @@
 
         return service;
     }
-})();
+})(jocInBoxConfig.noConflicts.jQuery, jocInBoxConfig.noConflicts.lodash);
 
 /* Data Repository: Calendar */
-(function () {
+(function ($, _) {
     angular.module('app.data')
         .service('CalendarRepository', CalendarRepository)
     CalendarRepository.$inject = ['$http', '$q', '$resource', 'exception', 'logger', 'spContext'];
@@ -1765,10 +1765,10 @@
                 });
         }
     }
-})();
+})(jocInBoxConfig.noConflicts.jQuery, jocInBoxConfig.noConflicts.lodash);
 
 /* Data Repository: CCIR */
-(function () {
+(function ($, _) {
     angular.module('app.data')
         .service('CCIRRepository', repository)
     repository.$inject = ['$http', '$q', '$resource', 'exception', 'logger', 'spContext'];
@@ -1809,10 +1809,10 @@
 
         return service;
     }
-})();
+})(jocInBoxConfig.noConflicts.jQuery, jocInBoxConfig.noConflicts.lodash);
 
 /* Data Repository: Watch Log */
-(function () {
+(function ($, _) {
     angular.module('app.data')
         .service('WatchLogRepository', WatchLogRepository)
     WatchLogRepository.$inject = ['$http', '$q', '$resource', 'exception', 'logger', 'spContext'];
@@ -1855,10 +1855,10 @@
 
         return service;
     }
-})();
+})(jocInBoxConfig.noConflicts.jQuery, jocInBoxConfig.noConflicts.lodash);
 
 /* Directive: navTree */
-(function () {
+(function ($, _) {
     angular
         .module('app.core')
         .directive('navTree', generateDirectiveDef);
@@ -1976,10 +1976,10 @@
             return '<p><uif-button type="button" ng-click="onSaveClicked()" uif-type="primary">Save Changes</uif-button></p>';
         }
     }
-})();
+})(jocInBoxConfig.noConflicts.jQuery, jocInBoxConfig.noConflicts.lodash);
 
 /* Directive: exerciseCalendar */
-(function () {
+(function ($, _) {
     angular
         .module('app.core')
         .directive('exerciseCalendar', exerciseCalendar);
@@ -2031,10 +2031,10 @@
         }
     }
 
-})();
+})(jocInBoxConfig.noConflicts.jQuery, jocInBoxConfig.noConflicts.lodash);
 
 /* Directive: verticalTimeline */
-(function () {
+(function ($, _) {
     angular
         .module('app.core')
         .directive('verticalTimeline', verticalTimeline);
@@ -2064,10 +2064,10 @@
         return directiveDefinition;
     }
 
-})();
+})(jocInBoxConfig.noConflicts.jQuery, jocInBoxConfig.noConflicts.lodash);
 
 /* Directive: routingProcessVisualization */
-(function () {
+(function ($, _) {
     angular
         .module('app.core')
         .directive('routingProcessVisualization', routingProcessVisualization);
@@ -2104,10 +2104,10 @@
         }
     }
 
-})();
+})(jocInBoxConfig.noConflicts.jQuery, jocInBoxConfig.noConflicts.lodash);
 
 /* Directive: rfibutton */
-(function () {
+(function ($, _) {
     angular
         .module('app.core')
         .directive('rfibutton', rfibutton);
@@ -2136,10 +2136,10 @@
         }
     }
 
-})();
+})(jocInBoxConfig.noConflicts.jQuery, jocInBoxConfig.noConflicts.lodash);
 
 /* Directive: initiatechopbutton */
-(function () {
+(function ($, _) {
     angular
         .module('app.core')
         .directive('initiatechopbutton', initiatechopbutton);
@@ -2249,10 +2249,10 @@
         }
     }
 
-})();
+})(jocInBoxConfig.noConflicts.jQuery, jocInBoxConfig.noConflicts.lodash);
 
 /* Directive: includeReplace */
-(function () {
+(function ($, _) {
     /**USAGE
      * <div ng-include src="dynamicTemplatePath" include-replace></div>
      */
@@ -2267,10 +2267,10 @@
                 }
             };
         });
-})();
+})(jocInBoxConfig.noConflicts.jQuery, jocInBoxConfig.noConflicts.lodash);
 
 /* Directive: scrollableCurrentOpsSummary */
-(function () {
+(function ($, _) {
     angular
         .module('app.core')
         .directive('scrollableCurrentOpsSummary', scrollableCurrentOpsSummary);
@@ -2334,10 +2334,10 @@
             templateUrl: jocInBoxConfig.htmlTemplatesLocation + '/current-operations-summary.html'
         };
     }
-})();
+})(jocInBoxConfig.noConflicts.jQuery, jocInBoxConfig.noConflicts.lodash);
 
 /* Directive: missionTimeline */
-(function () {
+(function ($, _) {
     angular
         .module('app.core')
         .directive('missionTimeline', missionTimeline);
@@ -2500,10 +2500,10 @@
             return '<uif-message-bar ng-show="missionsToShow.length === 0"> <uif-content>No {{showCompletedMissions ? "closed/completed" : "ongoing" }} {{selectedOrg}} missions</uif-content> </uif-message-bar>';
         }
     }
-})();
+})(jocInBoxConfig.noConflicts.jQuery, jocInBoxConfig.noConflicts.lodash);
 
 /* Directive: navMenu */
-(function () {
+(function ($, _) {
     angular
         .module('app.core')
         .directive('navMenu', generateDirectiveDef);
@@ -2613,10 +2613,10 @@
             return parts;
         }
     }
-})();
+})(jocInBoxConfig.noConflicts.jQuery, jocInBoxConfig.noConflicts.lodash);
 
 /* Directive: commanderDecisionButton */
-(function () {
+(function ($, _) {
     angular
         .module('app.core')
         .directive('commanderDecisionButton', directiveDefinitionFunc);
@@ -2660,10 +2660,10 @@
         }
     }
 
-})();
+})(jocInBoxConfig.noConflicts.jQuery, jocInBoxConfig.noConflicts.lodash);
 
 /* Directive: routingProcessParticipants */
-(function () {
+(function ($, _) {
     angular
         .module('app.core')
         .directive('routingProcessParticipants', directiveDefinitionFunc);
@@ -2716,10 +2716,10 @@
         }
     }
 
-})();
+})(jocInBoxConfig.noConflicts.jQuery, jocInBoxConfig.noConflicts.lodash);
 
 /* Directive: routingSheet */
-(function () {
+(function ($, _) {
     angular
         .module('app.core')
         .directive('routingSheet', directiveDefinitionFunc);
@@ -2939,10 +2939,10 @@
         }
     }
 
-})();
+})(jocInBoxConfig.noConflicts.jQuery, jocInBoxConfig.noConflicts.lodash);
 
 /* Controller: OrgDashboardAspxController */
-(function () {
+(function ($, _) {
     angular
         .module('app.core')
         .controller('OrgDashboardAspxController', OrgDashboardAspxController);
@@ -2961,10 +2961,10 @@
     }
 
 
-})();
+})(jocInBoxConfig.noConflicts.jQuery, jocInBoxConfig.noConflicts.lodash);
 
 /* Controller: MissionTrackerDataEntryAspxController*/
-(function () {
+(function ($, _) {
     angular
         .module('app.core')
         .controller('MissionTrackerDataEntryAspxController', controller);
@@ -3072,10 +3072,10 @@
             }
         }
     }
-})();
+})(jocInBoxConfig.noConflicts.jQuery, jocInBoxConfig.noConflicts.lodash);
 
 /* Controller: RfiDataEntryAspxController*/
-(function () {
+(function ($, _) {
     angular
         .module('app.core')
         .controller('RfiDataEntryAspxController', controller);
@@ -3160,10 +3160,10 @@
 
 
     }
-})();
+})(jocInBoxConfig.noConflicts.jQuery, jocInBoxConfig.noConflicts.lodash);
 
 /* Controller: MissionProductsDataEntryAspxController*/
-(function () {
+(function ($, _) {
     angular
         .module('app.core')
         .controller('MissionProductsDataEntryAspxController', controller);
@@ -3268,10 +3268,10 @@
             })
         }
     }
-})();
+})(jocInBoxConfig.noConflicts.jQuery, jocInBoxConfig.noConflicts.lodash);
 
 /* Controller: EditNavController with route for SPA */
-(function () {
+(function ($, _) {
     angular
         .module('app.core')
         .controller('EditNavController', EditNavController); 
@@ -3280,10 +3280,10 @@
     function EditNavController($q, $timeout, _, logger, ConfigRepository) {
         var vm = this;
     }
-})();
+})(jocInBoxConfig.noConflicts.jQuery, jocInBoxConfig.noConflicts.lodash);
 
 /* Controller: MissionTrackerController with route for SPA*/
-(function () {
+(function ($, _) {
     'use strict';
     //nicer looking plugin found here but requires bootstrap: http://www.dijit.fr/demo/angular-weekly-scheduler/
     angular
@@ -3469,10 +3469,10 @@
             }
         }
     }
-})();
+})(jocInBoxConfig.noConflicts.jQuery, jocInBoxConfig.noConflicts.lodash);
 
 /* Controller: RfiController with route for SPA*/
-(function () {
+(function ($, _) {
     angular
         .module('app.core')
         .controller('RfiController', RfiController);
@@ -3606,10 +3606,10 @@
                 })
         }
     }
-})();
+})(jocInBoxConfig.noConflicts.jQuery, jocInBoxConfig.noConflicts.lodash);
 
 /* Controller: SandboxController with route for SPA*/
-(function () {
+(function ($, _) {
     'use strict';
     angular
         .module('app.core')
@@ -3673,10 +3673,10 @@
             return $q.when(staticData);
         }
     }
-})();
+})(jocInBoxConfig.noConflicts.jQuery, jocInBoxConfig.noConflicts.lodash);
 
 /* Controller: ProjectionScrollableAspxController */
-(function () {
+(function ($, _) {
     angular
         .module('app.core')
         .controller('ProjectionScrollableAspxController', ControllerDefFunc);
@@ -3829,9 +3829,9 @@
             }
         }
     }
-})();
+})(jocInBoxConfig.noConflicts.jQuery, jocInBoxConfig.noConflicts.lodash);
 
-(function () {
+(function ($, _) {
     $(document).ready(bootstrapNgApplication);
     function bootstrapNgApplication() {
         var currentURL = window.location.pathname.toUpperCase();
@@ -3894,4 +3894,4 @@
             return html;
         }
     }
-})();
+})(jocInBoxConfig.noConflicts.jQuery, jocInBoxConfig.noConflicts.lodash);

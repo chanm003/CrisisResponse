@@ -5,7 +5,7 @@
  * POSSIBLE ISSUES with Minimal Download Strategy, should we be register templates differently....
  * https://blogs.msdn.microsoft.com/sridhara/2013/02/08/register-csr-override-on-mds-enabled-sharepoint-2013-site/
  */
-(function () {
+(function ($,_) {
     $(document).ready(overrideCalendarListForm);
     RegisterModuleInit("SitePages/displayTemplates.js", registerCustomizations); // CSR-override for MDS enabled site
     registerCustomizations(); //CSR-override for MDS disabled site (because we need to call the entry point function in this case whereas it is not needed for anonymous functions)
@@ -654,5 +654,5 @@
             formbodyCell.children("span.ms-metadata").hide();
         }
     }
-})();
+})(jocInBoxConfig.noConflicts.jQuery, jocInBoxConfig.noConflicts.lodash);
 

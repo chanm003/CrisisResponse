@@ -9,7 +9,7 @@
  * Author: John Papa and Dan Wahlin
  * Project: https://github.com/AngularPlus
  */
-(function () {
+(function ($) {
     'use strict';
 
     var overlayApp = angular.module('ngplus', []);
@@ -69,7 +69,7 @@
 
             function init() {
                 wireUpHttpInterceptor();
-                if (window.jQuery) wirejQueryInterceptor();
+                if ($) wirejQueryInterceptor();
                 overlayContainer = document.getElementById('ngplus-overlay-container');
             }
 
@@ -175,4 +175,4 @@
             }();
         }
     }
-}());
+}(jQuery || _jQuery));

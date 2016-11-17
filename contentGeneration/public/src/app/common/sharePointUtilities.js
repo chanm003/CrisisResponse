@@ -568,12 +568,6 @@
 			childWeb.update();
 
 			var userCustomActions = childWeb.get_userCustomActions();
-			var action = userCustomActions.add();
-			action.set_location("ScriptLink");
-			action.set_title('jocInBoxConfig.js');
-			action.set_scriptSrc('~site/SitePages/jocInBoxConfig.js');
-			action.set_sequence(1000);
-			action.update();
 			var vendorFiles = [
 				'jquery.min.js',
 				'lodash.min.js',
@@ -602,6 +596,13 @@
 				action.set_sequence(1000 + sequenceCounter);
 				action.update();
 			});
+
+			var action = userCustomActions.add();
+			action.set_location("ScriptLink");
+			action.set_title('jocInBoxConfig.js');
+			action.set_scriptSrc('~site/SitePages/jocInBoxConfig.js');
+			action.set_sequence(1000 + sequenceCounter + 1);
+			action.update();
 
 			var action = userCustomActions.add();
 			action.set_location("ScriptLink");

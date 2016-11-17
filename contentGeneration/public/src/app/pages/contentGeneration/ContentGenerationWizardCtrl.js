@@ -448,6 +448,7 @@
 
 			var content = [
 				'var jocInBoxConfig = jocInBoxConfig || {};',
+				'jocInBoxConfig.noConflicts = { jQuery: $.noConflict(), lodash: _.noConflict() };',
 				//'jocInBoxConfig.htmlTemplatesLocation = "' + vm.childWebUrl + '/SitePages";',
 				'jocInBoxConfig.htmlTemplatesLocation = "http://localhost:3000/spaArtifacts/assets";',
 				'jocInBoxConfig.dashboards = ' + JSON.stringify(dashboards) + ";",
