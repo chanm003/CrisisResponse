@@ -370,10 +370,10 @@
 				var containsLookupFields = _.some(opts.fieldsToCreate, function (fieldDef) { return _.contains(["Lookup", "LookupMulti"], fieldDef.Type); });
 
 				if (containsLookupFields) {
-					console.log('extra network call to get dependent lists');
+					console.log('extra network call to get dependent lists for ' + opts.Title + ' list');
 					return getLists(opts.webUrl);
 				} else {
-					console.log('no dependencies');
+					console.log('no dependencies for ' + opts.Title + ' list');
 					return $q.when(dependentLists);
 				}
 			}

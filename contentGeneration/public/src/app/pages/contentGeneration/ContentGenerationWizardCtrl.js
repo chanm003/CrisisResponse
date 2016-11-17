@@ -123,28 +123,17 @@
 		init();
 
 		function createCoreLists() {
-			return createStandaloneLists().then(createChildLists);
-
-			function createStandaloneLists() {
-				return $q.all([
-					createAARList(),
-					createCalendarList(),
-					createCcirList(),
-					createConfigList(),
-					createMissionList(),
-					createMessageTrafficList(),
-					createPhonebookList(),
-					createWatchLogList(),
-					createDocumentChopsList()
-				]);
-			}
-
-			function createChildLists() {
-				return $q.all([
-					createRFIList(),
-					createMissionDocumentsLibrary(),
-				]);
-			}
+			return createAARList()
+						.then(createCalendarList)
+						.then(createCcirList)
+						.then(createConfigList)
+						.then(createMissionList)
+						.then(createMessageTrafficList)
+						.then(createPhonebookList)
+						.then(createWatchLogList)
+						.then(createDocumentChopsList)
+						.then(createRFIList)
+						.then(createMissionDocumentsLibrary);
 
 			function createAARList() {
 				//DEPENDENCIES: None
