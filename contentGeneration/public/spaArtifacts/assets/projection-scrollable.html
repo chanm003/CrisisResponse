@@ -26,7 +26,9 @@
                     <i ng-if="item.Status==='Yellow'" style="color:yellow;" class="fa fa-circle fa-2x"></i>
                     <i ng-if="item.Status==='Red'" style="color:red;" class="fa fa-circle fa-2x"></i>
                 </td>
-                <td>{{item.Title}} <a class="newbtn" ng-show="vm.isNew(item.Created)">New</a></td>
+                <td>{{item.Title}} 
+                    <span ng-show="vm.isNew(item.Created)" class="ms-newdocument-iconouter"><img class="ms-newdocument-icon" src="/_layouts/15/images/spcommon.png?rev=44" alt="new" title="new"></span>
+                </td>
             </tr>
         </tbody>
     </table>
@@ -46,7 +48,7 @@
             <tr ng-repeat="item in vm.watchLogItems">
                 <td>{{item.DTG}}</td>
                 <td>{{item.Organization}}</td>
-                <td>{{item.Title}} <a class="newbtn" ng-show="vm.isNew(item.Created)">New</a></td>
+                <td>{{item.Title}} <span ng-show="vm.isNew(item.Created)" class="ms-newdocument-iconouter"><img class="ms-newdocument-icon" src="/_layouts/15/images/spcommon.png?rev=44" alt="new" title="new"></span></td>
                 <td>{{item.ActionTaken}}</td>
                 <td>{{item.Initials}}</td>
             </tr>
@@ -67,7 +69,7 @@
             <tr ng-repeat="item in vm.calendarItems">
                 <td>{{item.start.format("DD MMM YY HHmm[Z]").toUpperCase()}}</td>
                 <td>{{item.end.format("DD MMM YY HHmm[Z]").toUpperCase()}}</td>
-                <td>{{item.title}} <a class="newbtn" ng-show="vm.isNew(item.created)">New</a></td>
+                <td>{{item.title}} <span ng-show="vm.isNew(item.Created)" class="ms-newdocument-iconouter"><img class="ms-newdocument-icon" src="/_layouts/15/images/spcommon.png?rev=44" alt="new" title="new"></span></td>
                 <td>{{item.comments}}</td>
             </tr>
         </tbody>
@@ -88,7 +90,7 @@
         <tbody>
             <tr ng-repeat="item in vm.messageTraffic">
                 <td>{{item.DTG}}</td>
-                <td>{{item.Title}} <a class="newbtn" ng-show="vm.isNew(item.Created)">New</a></td>
+                <td>{{item.Title}} <span ng-show="vm.isNew(item.Created)" class="ms-newdocument-iconouter"><img class="ms-newdocument-icon" src="/_layouts/15/images/spcommon.png?rev=44" alt="new" title="new"></span></td>
                 <td>{{item.OriginatorSender}}</td>
                 <td>{{item.Receiver.results.join('; ')}}</td>
                 <td>{{item.TaskInfo}}</td>
@@ -117,7 +119,7 @@
                     {{item.Identifier}}
                     <span style="color:#777;size:0.85em;">({{item.ObjectiveName}} <span ng-show="item.OperationName">, {{item.OperationName}}</span>)</span> 
                     <i ng-if="item.relatedDocs.length" class="fa fa-paperclip fa-lg" ng-click="vm.showMissionDocs(item)" style="cursor:pointer;"></i>
-                    <a class="newbtn" ng-show="vm.isNew(item.Created)">New</a>
+                    <span ng-show="vm.isNew(item.Created)" class="ms-newdocument-iconouter"><img class="ms-newdocument-icon" src="/_layouts/15/images/spcommon.png?rev=44" alt="new" title="new"></span>
                 </td>
                 <td>{{item.ParticipatingOrganizations.results.join('; ')}}</td>
                 <td>{{item.ExpectedExecution.format("DD MMM YY HHmm[Z]").toUpperCase()}}</td>
@@ -146,7 +148,7 @@
                 <td>{{item.PocOrganization}}</td>
                 <td>{{item.RecommendedOPR}}</td>
                 <td>{{item.RfiTrackingNumber}}</td>
-                <td>{{item.Title}} <a class="newbtn" ng-show="vm.isNew(item.Created)">New</a></td>
+                <td>{{item.Title}} <span ng-show="vm.isNew(item.Created)" class="ms-newdocument-iconouter"><img class="ms-newdocument-icon" src="/_layouts/15/images/spcommon.png?rev=44" alt="new" title="new"></span></td>
                 <td>{{item.LTIOV.format("DD MMM YY HHmm[Z]").toUpperCase()}}</td>
                 <td>{{item.Status}}</td>
                 <td>{{item.DateOpened.format("DD MMM YY HHmm[Z]").toUpperCase()}}</td>
