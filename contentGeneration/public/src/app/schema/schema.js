@@ -534,15 +534,11 @@ crisisResponseSchema.listDefs["Mission Documents"] = {
 		{
 			//EXAMPLE: Calculated
 			Name: 'DailyProductDate',
-			DisplayName: 'DailyProductDate',
-			Type: "Calculated",
-			Required: 'TRUE',
-			Format: 'DateTime',
-			ResultType: 'DateTime',
-			ReadOnly: 'TRUE',
-			Formula: '=VALUE(TEXT(DATE(MID(Title,1,4),MID(Title,5,2),MID(Title,7,2)),"mm/dd/yyyy"))',
-			FieldRefs: ['Title'],
-			Description: 'Only applicable to Air Component.   Formula returns &quot;error;#256&quot; unless Title field starts with YYYYMMDD e.g. 20160915 AIR DOCTRINE'		
+			DisplayName: 'Daily Product Date',
+			Type: "DateTime",
+			Required: "FALSE",
+			Format: "DateOnly", 
+			Description: ''		
 		},
 		{
 			//EXAMPLE: DateTime

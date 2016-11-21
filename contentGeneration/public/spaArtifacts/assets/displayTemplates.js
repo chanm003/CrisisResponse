@@ -515,7 +515,7 @@
                     hideSoacRelatedRows(fieldName);
 
                     function hideSoacRelatedRows(fieldName){
-                        if(fieldName !== "FlaggedForSoacDailyUpdate"){ return; }
+                        if(!_.includes(["FlaggedForSoacDailyUpdate", "DailyProductDate"], fieldName)){ return; }
                         //logic for hiding  is based on querystring
                         var hideColumnsPertinentToSOAC = true
                         var org = _.extractOrgFromQueryString();
