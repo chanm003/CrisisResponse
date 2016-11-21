@@ -2854,7 +2854,7 @@
         }
 
         function generateButtonsHtml() {
-            return '<uif-button type="button" uif-type="primary" ng-click="saveChop(block)" ng-disabled="document.chopProcessInfo.lastKnownLocationAlongRoute !== selectedStage.name">Chop</uif-button>';
+            return '<uif-button type="button" uif-type="primary" ng-click="saveChop(block)" ng-disabled="document.chopProcessInfo.lastKnownLocationAlongRoute !== selectedStage.name">Save</uif-button>';
         }
 
         function generateChoppingOutOfSequenceError() {
@@ -2875,7 +2875,7 @@
                 '<uif-choicefield-group ng-model="block.Verdict" ng-disabled="document.chopProcessInfo.lastKnownLocationAlongRoute !== selectedStage.name">',
                 '   <uif-choicefield-option uif-type="radio" value="Concur">Concur</uif-choicefield-option>',
                 '   <uif-choicefield-option uif-type="radio" value="Nonconcur">Nonconcur</uif-choicefield-option>',
-                '   <uif-choicefield-option uif-type="radio" value="Pending">Pending</uif-choicefield-option>',
+                '   <uif-choicefield-option uif-type="radio" value="Pending">In Chop</uif-choicefield-option>',
                 '</uif-choicefield-group>'
             ].join('');
             return parts;
