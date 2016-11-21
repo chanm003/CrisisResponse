@@ -1212,7 +1212,7 @@ crisisResponseSchema.webpartPageDefs['Component Command Page'] = {
 					innerText: 'Lists/WatchLog'
 				}
 			],
-			viewName: 'LVWP SOCC.aspx Watch Log',
+			viewName: 'SOCC Watch Log',
 			viewFields: ['Attachments', 'DTG', 'LinkTitle', 'EventDetails', 'ActionTaken', 'Initials', 'Significant'],
 			viewCAML: '<OrderBy><FieldRef Name="DateTimeGroup" Ascending="FALSE"/></OrderBy><Where><Contains><FieldRef Name="Organization"/><Value Type="Text">{orgQsParam}</Value></Contains></Where>',
 			zoneName: 'Top',
@@ -1230,7 +1230,7 @@ crisisResponseSchema.webpartPageDefs['Component Command Page'] = {
 					innerText: 'Inbound Messages'
 				}
 			],
-			viewName: 'LVWP SOCC.aspx Inbound Messages',
+			viewName: 'SOCC Inbound Messages',
 			viewFields: ['Attachments', 'DTG', 'OriginatorSender', 'LinkTitle', 'LinkToMissionDocument', 'Initials', 'Significant'],
 			viewCAML: '<OrderBy><FieldRef Name="DateTimeGroup" Ascending="FALSE"/></OrderBy><Where><Contains><FieldRef Name="Receiver"/><Value Type="Text">{orgQsParam}</Value></Contains></Where>',
 			zoneName: 'Left',
@@ -1248,7 +1248,7 @@ crisisResponseSchema.webpartPageDefs['Component Command Page'] = {
 					innerText: 'Outbound Messages'
 				}
 			],
-			viewName: 'LVWP SOCC.aspx Outbound Messages',
+			viewName: 'SOCC Outbound Messages',
 			viewFields: ['DTG', 'Receiver', 'LinkTitle', 'LinkToMissionDocument', 'Initials', 'Significant'],
 			viewCAML: '<OrderBy><FieldRef Name="DateTimeGroup" Ascending="FALSE"/></OrderBy><Where><Contains><FieldRef Name="OriginatorSender"/><Value Type="Text">{orgQsParam}</Value></Contains></Where>',
 			zoneName: 'Left',
@@ -1266,7 +1266,7 @@ crisisResponseSchema.webpartPageDefs['Component Command Page'] = {
 					innerText: 'Request for Information'
 				}
 			],
-			viewName: 'LVWP SOCC.aspx RFI',
+			viewName: 'SOCC RFI',
 			viewFields: ['ActionsHtml', 'LinkTitle', 'Priority', 'LTIOV'],
 			viewCAML: '<GroupBy Collapse="FALSE" GroupLimit="30"><FieldRef Name="RecommendedOPR"/></GroupBy><OrderBy><FieldRef Name="LTIOV"/><FieldRef Name="PrioritySort"/></OrderBy><Where><And><Contains><FieldRef Name="RecommendedOPR"/><Value Type="Text">{orgQsParam}</Value></Contains><Eq><FieldRef Name="Status"/><Value Type="Text">Open</Value></Eq></And></Where>',
 			zoneName: 'Left',
@@ -1284,7 +1284,7 @@ crisisResponseSchema.webpartPageDefs['Component Command Page'] = {
 					innerText: 'Documents'
 				}
 			],
-			viewName: 'LVWP SOCC.aspx Documents',
+			viewName: 'SOCC Documents',
 			viewFields: ['DocIcon', 'LinkFilename', 'Modified', 'Editor', 'ChopProcess'],
 			viewCAML: '<GroupBy Collapse="FALSE" GroupLimit="30"><FieldRef Name="TypeOfDocument"/><FieldRef Name="Organization"/></GroupBy><OrderBy><FieldRef Name="FileLeafRef"/></OrderBy><Where><Contains><FieldRef Name="Organization"/><Value Type="Text">{orgQsParam}</Value></Contains></Where>',
 			zoneName: 'Right',
@@ -1302,7 +1302,7 @@ crisisResponseSchema.webpartPageDefs['Component Command Page'] = {
 					innerText: 'CCIR'
 				}
 			],
-			viewName: 'LVWP SOCC.aspx CCIR',
+			viewName: 'SOCC CCIR',
 			viewFields: ['Number', 'LinkTitle', 'Status', 'Description'],
 			viewCAML: '<GroupBy Collapse="TRUE" GroupLimit="30"><FieldRef Name="Category"/></GroupBy><OrderBy><FieldRef Name="Number"/></OrderBy><Where><Contains><FieldRef Name="Organization"/><Value Type="Text">{orgQsParam}</Value></Contains></Where>',
 			zoneName: 'Bottom',
@@ -1363,7 +1363,7 @@ crisisResponseSchema.webpartPageDefs['Task Group Page'] = {
 					innerText: 'Lists/WatchLog'
 				}
 			],
-			viewName: 'LVWP SOTG.aspx Watch Log',
+			viewName: 'SOTG Watch Log',
 			viewFields: ['Attachments', 'DTG', 'LinkTitle', 'EventDetails', 'ActionTaken', 'Initials', 'Significant'],
 			viewCAML: '<OrderBy><FieldRef Name="DateTimeGroup" Ascending="FALSE"/></OrderBy><Where><Contains><FieldRef Name="Organization"/><Value Type="Text">{orgQsParam}</Value></Contains></Where>',
 			zoneName: 'Top',
@@ -1381,7 +1381,7 @@ crisisResponseSchema.webpartPageDefs['Task Group Page'] = {
 					innerText: 'Inbound Messages'
 				}
 			],
-			viewName: 'LVWP SOTG.aspx Inbound Messages',
+			viewName: 'SOTG Inbound Messages',
 			viewFields: ['Attachments', 'DTG', 'OriginatorSender', 'LinkTitle', 'LinkToMissionDocument', 'Initials', 'Significant'],
 			viewCAML: '<OrderBy><FieldRef Name="DateTimeGroup" Ascending="FALSE"/></OrderBy><Where><Contains><FieldRef Name="Receiver"/><Value Type="Text">{orgQsParam}</Value></Contains></Where>',
 			zoneName: 'Left',
@@ -1399,7 +1399,7 @@ crisisResponseSchema.webpartPageDefs['Task Group Page'] = {
 					innerText: 'Outbound Messages'
 				}
 			],
-			viewName: 'LVWP SOTG.aspx Outbound Messages',
+			viewName: 'SOTG Outbound Messages',
 			viewFields: ['DTG', 'Receiver', 'LinkTitle', 'LinkToMissionDocument', 'Initials', 'Significant'],
 			viewCAML: '<OrderBy><FieldRef Name="DateTimeGroup" Ascending="FALSE"/></OrderBy><Where><Contains><FieldRef Name="OriginatorSender"/><Value Type="Text">{orgQsParam}</Value></Contains></Where>',
 			zoneName: 'Left',
@@ -1417,7 +1417,7 @@ crisisResponseSchema.webpartPageDefs['Task Group Page'] = {
 					innerText: 'Request for Information'
 				}
 			],
-			viewName: 'LVWP SOTG.aspx RFI',
+			viewName: 'SOTG RFI',
 			viewFields: ['ActionsHtml', 'LinkTitle', 'Priority', 'LTIOV'],
 			viewCAML: '<OrderBy><FieldRef Name="LTIOV"/></OrderBy><Where><And><Contains><FieldRef Name="RecommendedOPR"/><Value Type="Text">{orgQsParam}</Value></Contains><Eq><FieldRef Name="Status"/><Value Type="Text">Open</Value></Eq></And></Where>',
 			zoneName: 'Left',
@@ -1435,7 +1435,7 @@ crisisResponseSchema.webpartPageDefs['Task Group Page'] = {
 					innerText: 'Documents'
 				}
 			],
-			viewName: 'LVWP SOTG.aspx Documents',
+			viewName: 'SOTG Documents',
 			viewFields: ['DocIcon', 'LinkFilename', 'Modified', 'Editor', 'ChopProcess'],
 			viewCAML: '<GroupBy Collapse="FALSE" GroupLimit="30"><FieldRef Name="TypeOfDocument"/></GroupBy><OrderBy><FieldRef Name="FileLeafRef"/></OrderBy><Where><Contains><FieldRef Name="Organization"/><Value Type="Text">{orgQsParam}</Value></Contains></Where>',
 			zoneName: 'Right',

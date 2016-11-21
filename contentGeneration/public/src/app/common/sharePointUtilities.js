@@ -538,11 +538,13 @@
 			parentWeb.update();
 
         	/*
-			Ensure child navigation inherits from parent web
-			inheritFromParentWeb: 3 */
+			/_layouts/15/AreaNavigationSettings.aspx
+			"Display the same navigation items as the perent site" (inheritFromParentWeb: 3)
+			"Display navigation items below the current site" (portalProvider: 1)
+			*/
 			var webNavSettings = new SP.Publishing.Navigation.WebNavigationSettings(ctx, childWeb);
 			var navigation = webNavSettings.get_globalNavigation();
-			navigation.set_source(3);
+			navigation.set_source(1);
 			webNavSettings.update();
 
 			/*

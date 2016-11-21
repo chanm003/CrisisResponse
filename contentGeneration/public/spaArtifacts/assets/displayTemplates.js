@@ -411,7 +411,7 @@
             }
 
             function hideToolbarForInboundMessages(ctx, webPartDiv) {
-                //ASSUMPTION: List Views for web part looks like "LVWP SOCC.aspx Inbound Messages"
+                //ASSUMPTION: List Views for web part looks has title with the string "Inbound Messages"
                 if (_.includes(ctx.viewTitle, 'Inbound Messages')) {
                     webPartDiv.find("table[id^='Hero-']").remove();
                 }
