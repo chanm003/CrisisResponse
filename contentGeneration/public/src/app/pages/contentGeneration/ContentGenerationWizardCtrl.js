@@ -583,7 +583,7 @@
 			nodes.push(generateChildMenuNode(nodeId_currentOpsSummary, "Current Operations Summary", nodeId_battlespace, {url: currentOpsSummaryBaseUrl, target: "_blank"}));		
 			_.each(componentCommands, function (org) {
 				var url = currentOpsSummaryBaseUrl + "?org=" + org.name;
-				nodes.push(generateChildMenuNode(generateRandomId(), org.name, nodeId_currentOpsSummary, {url: url}));
+				nodes.push(generateChildMenuNode(generateRandomId(), org.name, nodeId_currentOpsSummary, {url: url, target: "_blank"}));
 			});
 			if(selectedOptions["Air Component"]){
 				var currentOpsSummaryAirName = airComponents[0].name;
