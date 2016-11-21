@@ -2957,7 +2957,14 @@
         vm.selectedOrg = (_.getQueryStringParam("org") || "");
         MissionTrackerRepository.getByOrganization(vm.selectedOrg).then(function (data) {
             vm.missions = _.map(data, function (item) { return new Mission(item); });
-        })
+        });
+
+        setPageHeader(vm.selectedOrg);
+
+        function setPageHeader(text){
+            var header = angular.element("#DeltaPlaceHolderPageTitleInTitleArea");
+            header.text(header.text() + " - " + text);
+        }
     }
 
 
