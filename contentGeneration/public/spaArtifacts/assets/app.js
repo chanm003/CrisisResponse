@@ -2439,7 +2439,7 @@
                 timeline.setItems(items);
                 timeline.on('click', function (props) {
                     if (props.what === 'group-label' || props.what === 'item') {
-                        var url = _spPageContextInfo.webServerRelativeUrl + '/Lists/MissionTracker/DispForm.aspx?ID=' + props.group + "&Source=" + document.location.href;
+                        var url = _spPageContextInfo.webServerRelativeUrl + '/Lists/MissionTracker/DispForm.aspx?ID=' + props.group + "&Source=" + encodeURIComponent(document.location.href);
                         document.location.href = url;
                         //window.open(url , '_blank');    
                     }
