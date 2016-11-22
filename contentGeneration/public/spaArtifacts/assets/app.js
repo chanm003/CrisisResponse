@@ -236,6 +236,10 @@
                 templateUrl: jocInBoxConfig.htmlTemplatesLocation + '/projection-scrollable.html',
                 controller: 'ProjectionScrollableAspxController as vm'
             })
+            .when('/helpdesk/:tabIndex?', {
+                templateUrl: jocInBoxConfig.htmlTemplatesLocation + '/helpdesk.html',
+                controller: 'HelpDeskController as vm'
+            })
             .otherwise({
                 controller : function(){
                     
@@ -1848,6 +1852,44 @@
                 $orderby: 'DateTimeGroup desc'
             }; 
             return spContext.constructNgResourceForRESTCollection(ngResourceConstructParams).get(qsParams).$promise
+                .then(function (response) {
+                    return response.d.results;
+                });
+        }
+
+        return service;
+    }
+})(jocInBoxConfig.noConflicts.jQuery, jocInBoxConfig.noConflicts.lodash);
+
+/* Data Repository: Help Desk */
+(function ($, _) {
+    angular.module('app.data')
+        .service('HelpDeskRepository', repository)
+    repository.$inject = ['$http', '$q', '$resource', 'exception', 'logger', 'spContext'];
+    function repository($http, $q, $resource, exception, logger, spContext) {
+        var service = {
+            getAll: getAll
+        };
+
+        var fieldsToSelect = [
+            spContext.SP2013REST.selectForCommonListFields,
+            "Details,CustomerId,Organization,Location,TelephoneNumber,Priority,RequestType,AssignedToId,Comments,Status,ResolutionType,ResolutionDate,PriortyNumber",
+            "Customer/Title,AssignedTo/Title"
+        ].join(',');
+
+        var fieldsToExpand = [
+            spContext.SP2013REST.expandoForCommonListFields,
+            'Customer,AssignedTo'
+        ].join(',');
+
+        var ngResourceConstructParams = {
+            fieldsToSelect: fieldsToSelect,
+            fieldsToExpand: fieldsToExpand,
+            listName: 'Help Desk'
+        };
+
+        function getAll() {
+            return spContext.constructNgResourceForRESTCollection(ngResourceConstructParams).get({}).$promise
                 .then(function (response) {
                     return response.d.results;
                 });
@@ -3837,6 +3879,62 @@
         }
     }
 })(jocInBoxConfig.noConflicts.jQuery, jocInBoxConfig.noConflicts.lodash);
+
+/* Controller: HelpDeskController with route for SPA*/
+(function ($, _) {
+    angular
+        .module('app.core')
+        .controller('HelpDeskController', ControllerDefFunc);
+
+    ControllerDefFunc.$inject = ['$q', '$scope', '$routeParams', '_', 'logger', 'HelpDeskRepository'];
+    function ControllerDefFunc($q, $scope, $routeParams, _, logger, HelpDeskRepository) {
+        var vm = this;
+
+        vm.goToNewHelpDeskForm = function () {
+            window.location.href = _spPageContextInfo.webServerRelativeUrl + "/Lists/HelpDesk/NewForm.aspx?&Source=" + encodeURIComponent(document.location.href);
+        }
+
+        activate();
+
+        function activate() {
+            initTabs();
+            fetchData();
+        }
+
+        function initTabs() {
+            var pivots = [
+                { title: "Open - Help Desk" },
+                { title: "Open - Portal/KM" },
+                { title: "Hold" },
+                { title: "Resolved" },
+                { title: "My Requests" }
+            ];
+
+            var selectedIndex = (!$routeParams.tabIndex || $routeParams.tabIndex >= pivots.length) ? 0 : $routeParams.tabIndex;
+
+            vm.tabConfig = {
+                selectedSize: "large",
+                selectedType: "tabs",
+                pivots: pivots,
+                selectedPivot: pivots[selectedIndex],
+                menuOpened: false
+            }
+            vm.openMenu = function () {
+                vm.tabConfig.menuOpened = !vm.tabConfig.menuOpened;
+            }
+
+        }
+
+        function fetchData(){
+            HelpDeskRepository.getAll()
+                .then(function(data){
+                    vm.tickets = data;
+                });
+
+        }
+    }
+})(jocInBoxConfig.noConflicts.jQuery, jocInBoxConfig.noConflicts.lodash);
+
 
 (function ($, _) {
     $(document).ready(bootstrapNgApplication);
