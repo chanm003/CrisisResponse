@@ -88,7 +88,8 @@
 		}
 
 		vm.onAdditionalFeaturesCollected = function () {
-			return modifyChoiceFields()
+			return createHelpDeskSystem() 
+				.then(modifyChoiceFields)  
 				.then(generateJocInBoxConfigFile)
 				.then(generateMenuItems)
 				.then(provisionAssetsToSitePagesLibrary);
@@ -212,6 +213,16 @@
 				listSchemaDef.webUrl = vm.childWebUrl;
 				return sharepointUtilities.createList(listSchemaDef);
 			}
+		}
+
+		function createHelpDeskSystem(){
+			/** 
+			 * for now, create the "Help Desk" list every time
+			 * otherwise modifyChoiceFields will fail when it tries to update the Organization field in a list that does not exist... 
+			*/
+			var listSchemaDef = crisisResponseSchema.listDefs["Help Desk"];
+			listSchemaDef.webUrl = vm.childWebUrl;
+			return sharepointUtilities.createList(listSchemaDef);
 		}
 
 		function generateDefaults() {

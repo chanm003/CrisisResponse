@@ -303,6 +303,156 @@ crisisResponseSchema.listDefs["Mission Tracker"] = {
 		]
 };
 
+crisisResponseSchema.listDefs["Help Desk"] = {
+	Title: "Help Desk",
+	BaseTemplate: 'genericList',
+	enableVersioning: false,
+	shouldHideTitleField: false,
+	fieldsToCreate:[
+		{
+			//EXAMPLE: MULTIPLE LINE OF TEXT
+			Name: "Details",
+			DisplayName: "Details",
+			Type: "Note",
+			Required: "FALSE",
+			NumLines: 12,
+			RichText: "FALSE",						//RECOMMENDED
+			AppendOnly: "FALSE"						//VERSIONING MUST BE TURNED ON, otherwise specifie "FALSE"	
+		},
+		{
+			//EXAMPLE: Person or Group 
+			Name: "Customer",
+			DisplayName: "Customer",
+			Type: "User",
+			Required: "TRUE",
+			Description: "",
+			UserSelectionMode: "PeopleOnly",	//please specify either 'PeopleOnly' or 'PeopleAndGroups'
+			ShowField: 'ImnName'				//Name with presence	
+		},
+		{
+			//EXAMPLE: Dropdown
+			Name: "Organization",
+			DisplayName: "Organization",
+			Type: "Choice",
+			Format:"Dropdown",
+			Required: "TRUE",
+			FillInChoice: "FALSE",
+			Choices: [],						//will be generated 
+			Default: ''							//(optional)
+		},
+		{
+			//EXAMPLE: SINGLE LINE OF TEXT
+			Name: "Location",
+			DisplayName: "Location",
+			Type: "Text",
+			Required: "FALSE",
+			MaxLength: 255,
+			Default: ""							//(optional)		
+		},
+		{
+			//EXAMPLE: SINGLE LINE OF TEXT
+			Name: "TelephoneNumber",
+			DisplayName: "Telephone #",
+			Type: "Text",
+			Required: "TRUE",
+			MaxLength: 30,
+			Description: "Please supply your telephone number",
+			Default: ""							//(optional)		
+		},
+		{
+			//EXAMPLE: Dropdown
+			Name: "Priority",
+			DisplayName: "Priority",
+			Type: "Choice",
+			Format:"Dropdown",
+			Required: "TRUE",
+			FillInChoice: "FALSE",
+			Description: "Please prioritize the issue/request",
+			Choices: ["(1) High", "(2) Normal", "(3) Low"],						
+			Default: ''							//(optional)
+		},
+		{
+			//EXAMPLE: Dropdown
+			Name: "RequestType",
+			DisplayName: "Request Type",
+			Type: "Choice",
+			Format:"Dropdown",
+			Required: "TRUE",
+			FillInChoice: "FALSE",
+			Description: "Please categorize the request",
+			Choices: ["Access Request", "Portal Development/KM", "Support", "Security", "Maintenance"],
+			Default: ''							//(optional)
+		},
+		{
+			//EXAMPLE: Person or Group 
+			Name: "AssignedTo",
+			DisplayName: "Assigned To",
+			Type: "User",
+			Required: "FALSE",
+			Description: "",
+			UserSelectionMode: "PeopleOnly",	//please specify either 'PeopleOnly' or 'PeopleAndGroups'
+			ShowField: 'ImnName',				//Name with presence	
+			ShowInNewForm: "FALSE"
+		},
+		{
+			//EXAMPLE: MULTIPLE LINE OF TEXT
+			Name: "Comments",
+			DisplayName: "Comments",
+			Type: "Note",
+			Required: "FALSE",
+			NumLines: 6,
+			RichText: "FALSE",						//RECOMMENDED
+			AppendOnly: "FALSE",					//VERSIONING MUST BE TURNED ON, otherwise specifie "FALSE"	
+			ShowInNewForm: "FALSE"
+		},
+		{
+			//EXAMPLE: Dropdown
+			Name: "Status",
+			DisplayName: "Status",
+			Type: "Choice",
+			Format:"Dropdown",
+			Required: "TRUE",
+			FillInChoice: "FALSE",
+			Description: "",
+			Choices: ["Initiated", "Engaged", "Hold", "Resolved"],
+			Default: 'Initiated',							//(optional)
+			ShowInNewForm: "FALSE"
+		},
+		{
+			//EXAMPLE: Dropdown
+			Name: "ResolutionType",
+			DisplayName: "Resolution Type",
+			Type: "Choice",
+			Format:"Dropdown",
+			Required: "FALSE",
+			FillInChoice: "FALSE",
+			Description: "",
+			Choices: ["Positive", "Neutral", "Negative"],
+			Default: '',							//(optional)
+			ShowInNewForm: "FALSE"
+		},
+		{
+			//EXAMPLE: DateTime
+			Name: "ResolutionDate",
+			DisplayName: "Resolution Date",
+			Type: "DateTime",
+			Required: "FALSE",
+			Format: "DateOnly", 					//please use either 'DateOnly' or 'DateTime'
+			Default: '',						//(optional)	
+			ShowInNewForm: "FALSE"
+		},
+		{
+			//EXAMPLE: Number
+			Name: "PriortyNumber",
+			DisplayName: "Priority #",
+			Type: "Number",
+			Required: "FALSE",
+			Decimals: 0,
+			ShowInNewForm: "FALSE"		
+		}
+	]
+};
+
 crisisResponseSchema.listDefs["Phonebook"] = {
 	Title: "Phonebook",
 		BaseTemplate: 'genericList',
@@ -1517,6 +1667,19 @@ crisisResponseSchema.organizationalChoiceFields = [
 			includeNotionals: false,
 			includeExerciseControlGroup: false,
 			includeAirComponent: false,
+			includeCommunicationsComponent: false
+		}
+	},
+	{
+		listName: "Help Desk",
+		fieldName: "Organization",
+		generationFlags: {
+			includeComponentCommands: true,
+			includeTaskGroups: true,
+			includeStaffSections: true,
+			includeNotionals: false,
+			includeExerciseControlGroup: true,
+			includeAirComponent: true,
 			includeCommunicationsComponent: false
 		}
 	},
