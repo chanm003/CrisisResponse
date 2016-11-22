@@ -1873,7 +1873,7 @@
 
         var fieldsToSelect = [
             spContext.SP2013REST.selectForCommonListFields,
-            "Details,CustomerId,Organization,Location,TelephoneNumber,Priority,RequestType,AssignedToId,Comments,Status,ResolutionType,ResolutionDate,PriortyNumber",
+            "Details,CustomerId,Organization,Location,TelephoneNumber,Priority,RequestType,AssignedToId,Comments,Status,ResolutionType,ResolutionDate,PriorityNumber",
             "Customer/Title,AssignedTo/Title"
         ].join(',');
 
@@ -1891,8 +1891,14 @@
         function getAll() {
             return spContext.constructNgResourceForRESTCollection(ngResourceConstructParams).get({}).$promise
                 .then(function (response) {
-                    return response.d.results;
+                    return _.map(response.d.results, remap);
                 });
+        }
+
+        function remap(item){
+            item.ResolutionDate = moment.utc(item.ResolutionDate);
+            item.Created = moment.utc(item.Created);
+            return item;
         }
 
         return service;
@@ -3894,9 +3900,14 @@
     ControllerDefFunc.$inject = ['$q', '$scope', '$routeParams', '_', 'logger', 'HelpDeskRepository'];
     function ControllerDefFunc($q, $scope, $routeParams, _, logger, HelpDeskRepository) {
         var vm = this;
+        var pivots;
 
         vm.goToNewHelpDeskForm = function () {
-            window.location.href = _spPageContextInfo.webServerRelativeUrl + "/Lists/HelpDesk/NewForm.aspx?&Source=" + encodeURIComponent(document.location.href);
+            window.location.href = _spPageContextInfo.webServerRelativeUrl + "/Lists/HelpDesk/NewForm.aspx?Source=" + encodeURIComponent(document.location.href);
+        }
+
+        vm.goToTicket = function(item){
+            window.location.href = _spPageContextInfo.webServerRelativeUrl + "/Lists/HelpDesk/EditForm.aspx?ID="+ item.Id +"&Source=" + encodeURIComponent(document.location.href);
         }
 
         activate();
@@ -3907,12 +3918,48 @@
         }
 
         function initTabs() {
-            var pivots = [
-                { title: "Open - Help Desk" },
-                { title: "Open - Portal/KM" },
-                { title: "Hold" },
-                { title: "Resolved" },
-                { title: "My Requests" }
+            pivots = [
+                { 
+                    title: "Open - Help Desk", 
+                    groupByFieldName: "Status", 
+                    items: [],
+                    filterFunc: function(item){
+                        return item.RequestType !== "Portal Development/KM" && (_.includes(["Initiated", "Engaged"], item.Status));
+                    } 
+                },
+                { 
+                    title: "Open - Portal/KM", 
+                    groupByFieldName: 
+                    "Status", 
+                    items: [],
+                    filterFunc: function(item){
+                        return item.RequestType === "Portal Development/KM" && (_.includes(["Initiated", "Engaged"], item.Status));
+                    } 
+                },
+                { 
+                    title: "Hold", 
+                    groupByFieldName: "RequestType", 
+                    items: [],
+                    filterFunc: function(item){
+                        return item.Status === "Hold";
+                    }
+                },
+                { 
+                    title: "Resolved", 
+                    groupByFieldName: "RequestType", 
+                    items: [],
+                    filterFunc: function(item){
+                        return item.Status === "Resolved";
+                    }
+                },
+                { 
+                    title: "My Requests", 
+                    groupByFieldName: "Status", 
+                    items: [],
+                    filterFunc: function(item){
+                        return item.AuthorId === _spPageContextInfo.userId;
+                    }
+                }
             ];
 
             var selectedIndex = (!$routeParams.tabIndex || $routeParams.tabIndex >= pivots.length) ? 0 : $routeParams.tabIndex;
@@ -3928,14 +3975,33 @@
                 vm.tabConfig.menuOpened = !vm.tabConfig.menuOpened;
             }
 
+            $scope.$watch('vm.tabConfig.selectedPivot', function(pivot){
+                setCurrentDataSource(pivot);
+            })
+        }
+
+        function setCurrentDataSource(selected){
+            vm.ticketsDataSource = selected.items;
+            vm.groupByFieldName = _.startCase(selected.groupByFieldName);
         }
 
         function fetchData(){
             HelpDeskRepository.getAll()
                 .then(function(data){
-                    vm.tickets = data;
+                   createDataSources(data);
+                   var dataSource = _.find(pivots, {title: vm.tabConfig.selectedPivot.title});
+                   setCurrentDataSource(dataSource);
                 });
 
+        }
+
+        function createDataSources(data){
+            _.each(pivots, function(pivot){
+                pivot.items = _.chain(data)
+                    .filter(pivot.filterFunc)
+                    .groupBy(pivot.groupByFieldName)
+                    .value();
+            });
         }
     }
 })(jocInBoxConfig.noConflicts.jQuery, jocInBoxConfig.noConflicts.lodash);

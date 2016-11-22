@@ -443,7 +443,7 @@ crisisResponseSchema.listDefs["Help Desk"] = {
 		},
 		{
 			//EXAMPLE: Number
-			Name: "PriortyNumber",
+			Name: "PriorityNumber",
 			DisplayName: "Priority #",
 			Type: "Number",
 			Required: "FALSE",
