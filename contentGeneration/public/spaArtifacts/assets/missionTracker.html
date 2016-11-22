@@ -20,6 +20,7 @@
       <uif-table>
         <uif-table-head>
           <uif-table-row>
+            <uif-table-header style="width:1px"></uif-table-header>
             <uif-table-header>Document Type</uif-table-header>
             <uif-table-header>File Name</uif-table-header>
             <uif-table-header>Organization</uif-table-header>
@@ -29,13 +30,16 @@
         </uif-table-head>
         <uif-table-body ng-repeat="(missionName, products) in vm.missionProductsDataSource">
           <uif-table-row>
-            <uif-table-cell colspan="5">{{missionName}}</uif-table-cell>
+            <uif-table-cell colspan="6" style="padding:0;">
+              <div style="border-bottom:dashed 1px #777;padding:3px 5px;"><span class="ms-fontColor-neutralTertiary ms-fontWeight-semibold">Mission:</span> <span class="ms-fontWeight-semibold">{{missionName}}</span> ({{products.length}})</span></div>
+            </uif-table-cell>
           </uif-table-row>
           <uif-table-row ng-repeat="item in products">
+            <uif-table-cell></uif-table-cell>
             <uif-table-cell>{{item.TypeOfDocument}}</uif-table-cell>
-            <uif-table-cell>{{item.File.Name}}</uif-table-cell>
+            <uif-table-cell><a ng-click="vm.openDocument(item)" style="text-decoration:underline;cursor:pointer;" class="ms-fontColor-themePrimary">{{item.File.Name}}</a></uif-table-cell>
             <uif-table-cell>{{item.Organization}}</uif-table-cell>
-            <uif-table-cell>{{item.Modified}}</uif-table-cell>
+            <uif-table-cell>{{item.Modified.format('DD MMM YY HHmm').toUpperCase()}}</uif-table-cell>
             <uif-table-cell>{{item.Editor.Title}}</uif-table-cell>
           </uif-table-row>
         </uif-table-body>
@@ -83,14 +87,16 @@
         <uif-table-body class="ms-Grid">
           <uif-table-row ng-repeat="item in vm.chopProcessesDataSource | orderBy:table.orderBy:!table.orderAsc">
             <uif-table-cell>{{item.Mission.FullName}}</uif-table-cell>
-            <uif-table-cell>{{item.TypeOfDocument}}</uif-table-cell>
+            <uif-table-cell>
+              <a ng-click="vm.openDocument(item)" style="text-decoration:underline;cursor:pointer;" class="ms-fontColor-themePrimary">{{item.TypeOfDocument}}</a>
+            </uif-table-cell>
             <uif-table-cell style="white-space:nowrap;">
               <routing-process-visualization document="item"></routing-process-visualization>
             </uif-table-cell>
             <uif-table-cell style="vertical-align:top;">
               <commander-decision-button document="item"></commander-decision-button>
             </uif-table-cell>
-            <uif-table-cell>
+            <uif-table-cell style="vertical-align:top;">
               <routing-process-participants document="item"></routing-process-participants>
             </uif-table-cell>
           </uif-table-row>

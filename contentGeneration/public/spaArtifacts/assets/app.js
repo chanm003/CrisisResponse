@@ -292,7 +292,7 @@
         }
 
         service.SP2013REST = {
-            selectForCommonDocumentFields: 'Id,Title,Created,Modified,AuthorId,EditorId,Author/Title,Editor/Title,File/CheckOutType,File/MajorVersion,File/Name,File/ServerRelativeUrl,File/TimeCreated,File/TimeLastModified',
+            selectForCommonDocumentFields: 'ServerRedirectedEmbedUrl,Id,Title,Created,Modified,AuthorId,EditorId,Author/Title,Editor/Title,File/CheckOutType,File/MajorVersion,File/Name,File/ServerRelativeUrl,File/TimeCreated,File/TimeLastModified',
             expandoForCommonDocumentFields: 'Author,Editor,File',
             selectForCommonListFields: 'Attachments,Id,Title,Created,Modified,AuthorId,EditorId,Author/Title,Editor/Title',
             expandoForCommonListFields: 'Author,Editor'
@@ -3372,6 +3372,11 @@
 
         vm.onChopCreated = function () {
             applyFilters();
+        }
+
+        vm.openDocument = function(item){
+            var url = (item.ServerRedirectedEmbedUrl) ? item.ServerRedirectedEmbedUrl : item.File.ServerRelativeUrl;
+            window.open(url, "_blank");
         }
 
         function applyFilters(dataSourceName) {
