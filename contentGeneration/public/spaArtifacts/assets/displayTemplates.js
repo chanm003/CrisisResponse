@@ -390,7 +390,7 @@
                 var wpPages = [
                     '/sitepages/comms.aspx',
                     '/sitepages/excon.aspx',
-                    '/sitepages/soatg.aspx',
+                    '/sitepages/soac.aspx',
                     '/sitepages/socc.aspx',
                     '/sitepages/sotg.aspx'
                 ];
