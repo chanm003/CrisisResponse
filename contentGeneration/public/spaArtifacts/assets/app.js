@@ -550,13 +550,13 @@
         function remap(item, propName) {
             var funcMap = {
                 "Created": function (item, propName) {
-                    return moment(item[propName]);
+                    return moment.utc(item[propName]);
                 },
                 "DateClosed": function (item, propName) {
-                    return moment(item[propName]);
+                    return moment.utc(item[propName]);
                 },
                 "LTIOV": function (item, propName) {
-                    return moment(item[propName]);
+                    return moment.utc(item[propName]);
                 }
             }
 
@@ -766,10 +766,10 @@
             function remap(item, propName) {
                 var funcMap = {
                     "Created": function (item, propName) {
-                        return moment(item[propName]);
+                        return moment.utc(item[propName]);
                     },
                     "Modified": function (item, propName) {
-                        return moment(item[propName]);
+                        return moment.utc(item[propName]);
                     }
                 }
 
@@ -1275,7 +1275,7 @@
                 function (data) {
                     dfd.resolve(_.map(data.d.results, function(item){
                         item.LTIOV = moment(item.LTIOV);
-                        item.DateOpened = moment(item.DateOpened);
+                        item.Created = moment(item.Created);
                         return item;
                     }));
                 },
@@ -2414,6 +2414,9 @@
                 start: moment(),
                 end: moment().add(15, 'days'),
                 editable: false,
+                moment: function(date){
+                    return vis.moment(date).utc();
+                },
                 margin: {
                     item: 5, // minimal margin between items
                     axis: 3   // minimal margin between items and the axis
@@ -2474,8 +2477,8 @@
                         return {
                             id: item.Id,
                             group: item.Id,
-                            start: moment(item.ExpectedExecution),
-                            end: moment(item.ExpectedTermination),
+                            start: moment.utc(item.ExpectedExecution),
+                            end: moment.utc(item.ExpectedTermination),
                             style: _.find(scope.statusColorLegend, { name: item.Status }).cssStyle,
                             title: item.buildOnHoverText()
                         };
@@ -3439,8 +3442,8 @@
                 getMissions()
             ])
                 .then(function (data) {
-                    var docs = data[0];
-                    dataSources.missionRelatedDocs = data[0];
+                    var docs = _.map(data[0], function (item) { return new MissionDocument(item); })
+                    dataSources.missionRelatedDocs = docs;
                     dataSources.chopProcesses = _.filter(dataSources.missionRelatedDocs, function (doc) { return !!doc.ChopProcess; });
                     buildFilterControlsForProducts();
                     buildFilterControlsForChopProcesses();
@@ -3741,8 +3744,8 @@
         .module('app.core')
         .controller('ProjectionScrollableAspxController', ControllerDefFunc);
 
-    ControllerDefFunc.$inject = ['$location','$q', '$routeParams','_', 'CalendarRepository', 'CCIRRepository', 'MessageTrafficRepository','MissionDocumentRepository', 'MissionTrackerRepository', 'WatchLogRepository', 'RfiRepository'];
-    function ControllerDefFunc($location, $q, $routeParams,_, CalendarRepository, CCIRRepository, MessageTrafficRepository, MissionDocumentRepository, MissionTrackerRepository, WatchLogRepository,  RFIRepository) {
+    ControllerDefFunc.$inject = ['$location','$q', '$routeParams','_', 'CalendarRepository', 'CCIRRepository', 'MessageTrafficRepository','MissionDocumentRepository', 'MissionTrackerRepository', 'WatchLogRepository', 'RfiRepository', 'RFI'];
+    function ControllerDefFunc($location, $q, $routeParams,_, CalendarRepository, CCIRRepository, MessageTrafficRepository, MissionDocumentRepository, MissionTrackerRepository, WatchLogRepository,  RFIRepository, RFI) {
         var cutOffToBeConsideredNew = moment().add(-(3), 'hours');
 
         var timer = null;
@@ -3794,7 +3797,7 @@
                 });
                 vm.missionGroupings = groupMissions(missions);
 
-                vm.openRFIs = data[6];    
+                vm.openRFIs = _.map(data[6], function (item) { return new RFI(item); })
                 //scroll to top...
                 document.body.scrollTop = document.documentElement.scrollTop = 0;
             });

@@ -151,7 +151,7 @@
                 <td>{{item.Title}} <span ng-show="vm.isNew(item.Created)" class="ms-newdocument-iconouter"><img class="ms-newdocument-icon" src="/_layouts/15/images/spcommon.png?rev=44" alt="new" title="new"></span></td>
                 <td>{{item.LTIOV.format("DD MMM YY HHmm[Z]").toUpperCase()}}</td>
                 <td>{{item.Status}}</td>
-                <td>{{item.DateOpened.format("DD MMM YY HHmm[Z]").toUpperCase()}}</td>
+                <td>{{item.Created.format("DD MMM YY HHmm[Z]").toUpperCase()}}</td>
             </tr>
         </tbody>
     </table>

@@ -52,7 +52,7 @@
             <uif-table-cell>{{item.AssignedTo.Title}}</uif-table-cell>
             <uif-table-cell ng-show="vm.tabConfig.selectedPivot.title === 'Resolved' || vm.tabConfig.selectedPivot.title === 'My Requests'">{{item.ResolutionType}}</uif-table-cell>
             <uif-table-cell ng-show="vm.tabConfig.selectedPivot.title === 'Resolved' || vm.tabConfig.selectedPivot.title === 'My Requests'"><span ng-show="item.ResolutionDate.isValid()">{{item.ResolutionDate.format('DD MMM YY').toUpperCase()}}</span></uif-table-cell>
-            <uif-table-cell>{{item.Created.format('DD MMM YY HHmm').toUpperCase()}}</uif-table-cell>
+            <uif-table-cell>{{item.Created.format('DD MMM YY HHmm[Z]').toUpperCase()}}</uif-table-cell>
             <uif-table-cell>{{item.Author.Title}}</uif-table-cell>
           </uif-table-row>
         </uif-table-body>
