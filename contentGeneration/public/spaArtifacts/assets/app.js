@@ -1815,6 +1815,42 @@
     }
 })(jocInBoxConfig.noConflicts.jQuery, jocInBoxConfig.noConflicts.lodash);
 
+/* Data Repository: Communications Status */
+(function ($, _) {
+    angular.module('app.data')
+        .service('CommunicationsStatusRepository', repository)
+    repository.$inject = ['$http', '$q', '$resource', 'exception', 'logger', 'spContext'];
+    function repository($http, $q, $resource, exception, logger, spContext) {
+        var service = {
+            getAll: getAll
+        };
+
+        var fieldsToSelect = [
+            spContext.SP2013REST.selectForCommonListFields,
+            "Package,SortOrder,UnclassData,BicesData,SecretData,TacsatData,HfData,UnclassPhone,BicesPhone,SecretPhone,TacsatRadio,HfRadio,BicesVtc,SecretVtc,TsVtc,Comments"
+        ].join(',');
+
+        var fieldsToExpand = [
+            spContext.SP2013REST.expandoForCommonListFields
+        ].join(',');
+
+        var ngResourceConstructParams = {
+            fieldsToSelect: fieldsToSelect,
+            fieldsToExpand: fieldsToExpand,
+            listName: 'Communications Status'
+        };
+
+        function getAll(org) {
+            return spContext.constructNgResourceForRESTCollection(ngResourceConstructParams).get({$orderby:"SortOrder"}).$promise
+                .then(function (response) {
+                    return response.d.results;
+                });
+        }
+
+        return service;
+    }
+})(jocInBoxConfig.noConflicts.jQuery, jocInBoxConfig.noConflicts.lodash);
+
 /* Data Repository: Watch Log */
 (function ($, _) {
     angular.module('app.data')
@@ -2992,6 +3028,89 @@
 
 })(jocInBoxConfig.noConflicts.jQuery, jocInBoxConfig.noConflicts.lodash);
 
+/* Directive: commStatusTracker */
+(function ($, _) {
+    angular
+        .module('app.core')
+        .directive('commStatusTracker', directiveDefFunc);
+
+    directiveDefFunc.$inject = ['CommunicationsStatusRepository', 'spContext'];
+    function directiveDefFunc(CommunicationsStatusRepository, spContext) {
+        /* 
+        USAGE: <comm-status-tracker></comm-status-tracker>
+        */
+        var directiveDefinition = {
+            link: link,
+            restrict: 'E',
+            scope: {
+            },
+            template: '<table ng-click="goToEditableGrid()" class="commStatusTable" border="1"><thead>'+buildFirstHeaderRow()+buildSecondHeaderRow()+'<thead><tbody>'+ buildTableRows() +'</tbody></table>'
+        };
+        
+
+        return directiveDefinition;
+
+        function link(scope, elem, attrs) {
+            CommunicationsStatusRepository.getAll()
+                .then(function(data){
+                    scope.items = createDataSource(data);
+                });
+
+            scope.goToEditableGrid = function(){
+                window.location.href = _spPageContextInfo.webServerRelativeUrl + "/Lists/CommunicationsStatus/EditableGrid.aspx";
+            }
+        }
+
+        
+        function createDataSource(data){
+            var sequenceOfCells = ["UnclassData", "BicesData", "SecretData", "TacsatData", "HfData", "UnclassPhone", "BicesPhone", "SecretPhone", "TacsatRadio", "HfRadio", "BicesVtc", "SecretVtc", "TsVtc"];
+            //array {class: "FMC", innerText: "FMC"}
+            return _.map(data, function(item){
+                return {
+                    element: item.Package,
+                    statusCells: buildStatuses(item),
+                    comments: item.Comments
+                };
+            });
+           
+            function buildStatuses(item){
+                return _.map(sequenceOfCells, function(propName){
+                    var val = item[propName];
+
+                    if(_.includes(['FMC', 'Planned', 'Degraded', 'NMC', 'Standby'], val)){
+                        return { "class": val, "innerText": val};
+                    } else if(moment(val).isValid()){
+                        //user filled in their own value with a date-like-string
+                        return { "class": "Planned", "innerText": val };
+                    } else {
+                        //user left field blank or status is "N/A" or user entered a string that is not date-like
+                        return { "class": "NA", "innerText": "NA" };
+                    }
+                }); 
+            }
+        }
+
+        function buildFirstHeaderRow(){
+            return '<tr><th></th><th colspan="5">DATA</th><th colspan="5">VOICE</th><th colspan="3">VTC</th><th></th></tr>'
+        }
+
+        function buildSecondHeaderRow(){
+            return '<tr><th>Element</th><th>UNCLASS</th><th>BICES</th><th>SECRET</th><th>TACSAT</th><th>HF</th><th>UNCLASS</th><th>BICES</th><th>SECRET</th><th>TACSAT</th><th>HF</th><th>BICES</th><th>SECRET</th><th>TS</th><th>Comments</th></tr>'
+        }
+
+        function buildTableRows(){
+            var parts = [
+                '<tr ng-repeat="item in items">',
+                '   <td>{{item.element}}</td>',
+                '   <td ng-repeat="cell in item.statusCells" ng-class="cell.class">{{cell.innerText}}</td>',
+                '   <td>{{item.comments}}</td>',
+                '</tr>'
+            ].join('');
+            return parts;
+        }
+    }
+})(jocInBoxConfig.noConflicts.jQuery, jocInBoxConfig.noConflicts.lodash);
+
 /* Controller: OrgDashboardAspxController */
 (function ($, _) {
     angular
@@ -3010,6 +3129,27 @@
             vm.missions = _.map(data, function (item) { return new Mission(item); });
         });
 
+        setPageHeader(vm.selectedOrg);
+
+        function setPageHeader(text){
+            var header = angular.element("#DeltaPlaceHolderPageTitleInTitleArea");
+            header.text(header.text() + " - " + text);
+        }
+    }
+
+
+})(jocInBoxConfig.noConflicts.jQuery, jocInBoxConfig.noConflicts.lodash);
+
+/* Controller: CommsAspxController */
+(function ($, _) {
+    angular
+        .module('app.core')
+        .controller('CommsAspxController', ControllerDefFunc);
+
+    ControllerDefFunc.$inject = ['_'];
+    function ControllerDefFunc(_) {
+        var vm = this;
+        vm.selectedOrg = (_.getQueryStringParam("org") || "");
         setPageHeader(vm.selectedOrg);
 
         function setPageHeader(text){
@@ -4030,6 +4170,10 @@
 
         if (_.includes(currentURL, '/MISSIONDOCUMENTS/FORMS/EDITFORM.ASPX')) {
             spPage.attr('ng-controller', 'MissionProductsDataEntryAspxController as vm');
+        }
+
+        if (_.includes(currentURL, '/SITEPAGES/COMMS.ASPX')) {
+            spPage.attr('ng-controller', 'CommsAspxController as vm');
         }
 
         addMenuDirective();

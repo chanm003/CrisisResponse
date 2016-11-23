@@ -932,3 +932,61 @@ table.currentops tr.group{
     background-color: #777;
     border-radius: 10px;
 }
+
+.commStatusTable {
+  width: 100%;
+  cursor:pointer;
+  border-collapse: collapse;
+}
+
+.commStatusTable th{
+  text-align: center;
+}
+
+.commStatusTable th, .commStatusTable td{
+  padding: 5px;
+  font-size: 1.2em;
+  width: 80px;
+}
+
+td.FMC{
+	background-color:green;
+	color:white;
+	font-weight: bold;
+  text-align:center;
+}
+
+td.Degraded{
+	background-color:yellow;
+	color:black;
+	font-weight: bold;
+  text-align:center;
+}
+
+td.NMC{
+	background-color:red;
+	color:black;
+	font-weight: bold;
+  text-align:center;
+}
+
+td.Planned{
+	background-color:navy;
+	color:white;
+	font-weight: bold;
+  text-align:center;
+}
+
+td.Standby{
+	background-color: aqua;
+	color:black;
+	font-weight: bold;
+  text-align:center;
+}
+
+td.NA{
+	background-color: lightgrey;
+	color:lightgrey;
+	text-align:center;
+}
+
