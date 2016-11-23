@@ -7,7 +7,7 @@
 <meta charset="utf-8">
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<title>Admmin Tool</title>
+		<title>Site Creation Wizard</title>
 
 
 		<link rel="shortcut icon" href="/_layouts/15/images/favicon.ico?rev=23" type="image/vnd.microsoft.com" />
