@@ -6,9 +6,15 @@
  * https://blogs.msdn.microsoft.com/sridhara/2013/02/08/register-csr-override-on-mds-enabled-sharepoint-2013-site/
  */
 (function ($,_) {
+    ExecuteOrDelayUntilScriptLoaded(disableDragAndDrop, "DragDrop.js");
     $(document).ready(overrideCalendarListForm);
     RegisterModuleInit("SitePages/displayTemplates.js", registerCustomizations); // CSR-override for MDS enabled site
     registerCustomizations(); //CSR-override for MDS disabled site (because we need to call the entry point function in this case whereas it is not needed for anonymous functions)
+
+    function disableDragAndDrop(){
+        g_uploadType = DragDropMode.NOTSUPPORTED;
+        SPDragDropManager.DragDropMode = DragDropMode.NOTSUPPORTED;
+    }
 
     function registerCustomizations() {
         SP.SOD.executeFunc("clienttemplates.js", "SPClientTemplates", function () {
@@ -338,7 +344,7 @@
             if(webPartDiv){
                 addExpandCollapseButtons(ctx, webPartDiv);
                 disableNavigationToSharepointLists(ctx, webPartDiv);
-                hideToolbarForInboundMessages(ctx, webPartDiv);
+                hideToolbarForSpecificWebparts(ctx, webPartDiv);
                 ensureUploadFormIsNotDialog(ctx, webPartDiv);
             }
             function addExpandCollapseButtons(ctx, webPartDiv) {
@@ -410,9 +416,9 @@
                 }
             }
 
-            function hideToolbarForInboundMessages(ctx, webPartDiv) {
+            function hideToolbarForSpecificWebparts(ctx, webPartDiv) {
                 //ASSUMPTION: List Views for web part looks has title with the string "Inbound Messages"
-                if (_.includes(ctx.viewTitle, 'Inbound Messages')) {
+                if (_.includes(ctx.viewTitle, 'Inbound Messages') || _.includes(ctx.viewTitle, 'Daily Products')) {
                     webPartDiv.find("table[id^='Hero-']").remove();
                 }
             }
