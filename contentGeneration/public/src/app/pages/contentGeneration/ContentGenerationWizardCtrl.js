@@ -89,6 +89,7 @@
 
 		vm.onAdditionalFeaturesCollected = function () {
 			return createHelpDeskSystem() 
+				.then(createSoacApp)
 				.then(modifyChoiceFields)
 				.then(createCommsApp)  
 				.then(generateJocInBoxConfigFile)
@@ -238,6 +239,16 @@
 			return sharepointUtilities.createList(listSchemaDef).then(provisionCommunicationsComponentPage);
 		}
 
+		function createSoacApp(){
+			if(!vm.optionalFeatures["Air Component"]){
+				//SKIP this step
+				return $q.when({});
+			}
+
+			//no extra lists required at this time
+			return provisionAirComponentPage();
+		}
+
 		function generateDefaults() {
 			vm.componentCommands = [
 				{ name: "SOCC", country: _.find(vm.countries, { code: "US" }), staffSections: defaults.staffSectionsForCombatantCommand.slice() /* by value copy for primitives only */ }
@@ -307,6 +318,12 @@
 				})
 				return $q.all(promises);
 			}
+		}
+
+		function provisionAirComponentPage() {
+			return provisionWebPartPage({
+				webpartPageDefinitionName: 'Air Component Page'
+			});
 		}
 
 		function provisionCommunicationsComponentPage() {

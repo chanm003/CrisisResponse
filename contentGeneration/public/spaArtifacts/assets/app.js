@@ -4158,7 +4158,7 @@
     function bootstrapNgApplication() {
         var currentURL = window.location.pathname.toUpperCase();
         var spPage = $("body");
-        if (_.includes(currentURL, '/SITEPAGES/SOCC.ASPX') || _.includes(currentURL, '/SITEPAGES/SOTG.ASPX')) {
+        if (_.includes(currentURL, '/SITEPAGES/SOCC.ASPX') || _.includes(currentURL, '/SITEPAGES/SOTG.ASPX') || _.includes(currentURL, '/SITEPAGES/SOAC.ASPX')) {
             spPage.attr('ng-controller', 'OrgDashboardAspxController as vm');
             spPage.append(generateChopDialogHtml());
         }

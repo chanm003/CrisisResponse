@@ -1801,7 +1801,7 @@ crisisResponseSchema.webpartPageDefs['Task Group Page'] = {
 				},
 				{
 					attributes: {name: 'Description', type: 'string'},
-					innerText: 'ongoing missions (click checkbox to show past missions)'
+					innerText: 'ongoing missions (click checkbox to show closed missions)'
 				}
 			],
 			zoneName: 'Right',
@@ -1866,6 +1866,157 @@ crisisResponseSchema.webpartPageDefs['Communications Component Page'] = {
 				}
 			],
 			zoneName: 'Top',
+			zoneIndex: 0
+		}
+	]
+}
+
+crisisResponseSchema.webpartPageDefs['Air Component Page'] = {
+	folderName: 'SitePages',
+	aspxFileName: 'soac.aspx',
+	listviewWebparts: [
+		{
+			listTitle: 'Watch Log',
+			webPartProperties: [
+				{
+					attributes: {name: 'ListUrl', type: 'string'},
+					innerText: 'Lists/WatchLog'
+				}
+			],
+			viewName: 'SOAC Watch Log',
+			viewFields: ['Attachments', 'DTG', 'LinkTitle', 'EventDetails', 'ActionTaken', 'Initials', 'Significant'],
+			viewCAML: '<OrderBy><FieldRef Name="DateTimeGroup" Ascending="FALSE"/></OrderBy><Where><Contains><FieldRef Name="Organization"/><Value Type="Text">{orgQsParam}</Value></Contains></Where>',
+			zoneName: 'Left',
+			zoneIndex: 0
+		},
+		{
+			listTitle: 'RFI',
+			webPartProperties: [
+				{
+					attributes: {name: 'ListUrl', type: 'string'},
+					innerText: 'Lists/RFI'
+				},
+				{
+					attributes: {name: 'Title', type: 'string'},
+					innerText: 'Request for Information'
+				}
+			],
+			viewName: 'SOAC RFI',
+			viewFields: ['ActionsHtml', 'LinkTitle', 'Priority', 'LTIOV'],
+			viewCAML: '<OrderBy><FieldRef Name="LTIOV"/></OrderBy><Where><And><Contains><FieldRef Name="RecommendedOPR"/><Value Type="Text">{orgQsParam}</Value></Contains><Eq><FieldRef Name="Status"/><Value Type="Text">Open</Value></Eq></And></Where>',
+			zoneName: 'Left',
+			zoneIndex: 10
+		},
+		{
+			listTitle: 'Message Traffic',
+			webPartProperties: [
+				{
+					attributes: {name: 'ListUrl', type: 'string'},
+					innerText: 'Lists/MessageTraffic'
+				},
+				{
+					attributes: {name: 'Title', type: 'string'},
+					innerText: 'Inbound Messages'
+				}
+			],
+			viewName: 'SOAC Inbound Messages',
+			viewFields: ['Attachments', 'DTG', 'OriginatorSender', 'LinkTitle', 'LinkToMissionDocument', 'Initials', 'Significant'],
+			viewCAML: '<OrderBy><FieldRef Name="DateTimeGroup" Ascending="FALSE"/></OrderBy><Where><Contains><FieldRef Name="Receiver"/><Value Type="Text">{orgQsParam}</Value></Contains></Where>',
+			zoneName: 'Left',
+			zoneIndex: 20
+		},
+		{
+			listTitle: 'Message Traffic',
+			webPartProperties: [
+				{
+					attributes: {name: 'ListUrl', type: 'string'},
+					innerText: 'Lists/MessageTraffic'
+				},
+				{
+					attributes: {name: 'Title', type: 'string'},
+					innerText: 'Outbound Messages'
+				}
+			],
+			viewName: 'SOAC Outbound Messages',
+			viewFields: ['DTG', 'Receiver', 'LinkTitle', 'LinkToMissionDocument', 'Initials', 'Significant'],
+			viewCAML: '<OrderBy><FieldRef Name="DateTimeGroup" Ascending="FALSE"/></OrderBy><Where><Contains><FieldRef Name="OriginatorSender"/><Value Type="Text">{orgQsParam}</Value></Contains></Where>',
+			zoneName: 'Left',
+			zoneIndex: 30
+		},
+		{
+			listTitle: 'Mission Documents',
+			webPartProperties: [
+				{
+					attributes: {name: 'ListUrl', type: 'string'},
+					innerText: 'MissionDocuments'
+				},
+				{
+					attributes: {name: 'Title', type: 'string'},
+					innerText: 'Daily Products'
+				}
+			],
+			viewName: 'SOAC Daily Products',
+			viewFields: ['DocIcon', 'LinkFilename', 'TypeOfDocument', 'Organization', 'ChopProcess'],
+			viewCAML: '<OrderBy><FieldRef Name="ID" Ascending="FALSE"/></OrderBy><Where><And><And><Eq><FieldRef Name="FlaggedForSoacDailyUpdate" /><Value Type="Text">Yes</Value></Eq><Eq><FieldRef Name="DailyProductDate" /><Value Type="DateTime"><Today /></Value></Eq></And><Contains><FieldRef Name="Organization"/><Value Type="Text">{orgQsParam}</Value></Contains></And></Where>',
+			zoneName: 'Right',
+			zoneIndex: 0
+		},
+		{
+			listTitle: 'Mission Documents',
+			webPartProperties: [
+				{
+					attributes: {name: 'ListUrl', type: 'string'},
+					innerText: 'MissionDocuments'
+				},
+				{
+					attributes: {name: 'Title', type: 'string'},
+					innerText: 'Documents'
+				}
+			],
+			viewName: 'SOAC Documents',
+			viewFields: ['DocIcon', 'LinkFilename', 'Modified', 'Editor', 'ChopProcess'],
+			viewCAML: '<GroupBy Collapse="FALSE" GroupLimit="30"><FieldRef Name="Organization"/><FieldRef Name="TypeOfDocument"/></GroupBy><OrderBy><FieldRef Name="FileLeafRef"/></OrderBy><Where><Contains><FieldRef Name="Organization"/><Value Type="Text">{orgQsParam}</Value></Contains></Where>',
+			zoneName: 'Right',
+			zoneIndex: 1
+		}
+	],
+	scriptEditorWebparts: [
+		{
+			name: 'Gantt Mission Tracker',
+			webPartProperties: [
+				{
+					attributes: {name: 'Content', type: 'string'},
+					innerText: '&lt;mission-timeline missions="vm.missions" selected-org="vm.selectedOrg" show-new-item-link="true"&gt;&lt;/mission-timeline&gt;'
+				},
+				{
+					attributes: {name: 'Title', type: 'string'},
+					innerText: 'Mission Tracker'
+				},
+				{
+					attributes: {name: 'Description', type: 'string'},
+					innerText: 'ongoing missions (click checkbox to show closed missions)'
+				}
+			],
+			zoneName: 'Right',
+			zoneIndex: 2
+		},
+		{
+			name: 'Full Calendar',
+			webPartProperties: [
+				{
+					attributes: {name: 'Content', type: 'string'},
+					innerText: '&lt;exercise-calendar&gt;&lt;/exercise-calendar&gt;'
+				},
+				{
+					attributes: {name: 'Title', type: 'string'},
+					innerText: 'Calendar'
+				},
+				{
+					attributes: {name: 'Description', type: 'string'},
+					innerText: 'Battle Rhythm, Academics, VTC&apos;s, Briefings'
+				}
+			],
+			zoneName: 'Bottom',
 			zoneIndex: 0
 		}
 	]
