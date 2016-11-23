@@ -749,6 +749,7 @@
                 this.TypeOfDocument = undefined; //string
                 this.MissionId = undefined; //integer or null
                 this.FlaggedForSoacDailyUpdate = undefined; //string or null
+                this.DailyProductDate = undefined; //string (ISO) or null "2016-08-01T07:00:00Z"
                 this.ChopProcess = undefined; //string (ISO) or null "2016-08-01T07:00:00Z"
                 this.VersionBeingChopped = undefined; //integer or null
                 this.ChopRouteSequence = undefined; //string or null
@@ -1452,6 +1453,7 @@
         }
 
         function save(item) {
+            spContext.makeMomentRESTCompliant(item, "DailyProductDate");
             var constructParams = angular.extend({}, { item: item }, ngResourceConstructParams);
             var restResource = spContext.constructNgResourceForRESTResource(constructParams);
             return restResource.post(item).$promise;
@@ -3442,6 +3444,7 @@
             doc.TypeOfDocument = SPUtility.GetSPFieldByInternalName("TypeOfDocument").GetValue();
             doc.MissionId = spContext.getIdFromLookupField("Mission");
             doc.FlaggedForSoacDailyUpdate = SPUtility.GetSPFieldByInternalName("FlaggedForSoacDailyUpdate").GetValue();
+            doc.DailyProductDate = moment.utc(SPUtility.GetSPFieldByInternalName("DailyProductDate").GetValue().toString());
             doc.Id = _.getQueryStringParam("ID");
             return doc;
         }
