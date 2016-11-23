@@ -89,7 +89,8 @@
 
 		vm.onAdditionalFeaturesCollected = function () {
 			return createHelpDeskSystem() 
-				.then(modifyChoiceFields)  
+				.then(modifyChoiceFields)
+				.then(createCommsApp)  
 				.then(generateJocInBoxConfigFile)
 				.then(generateMenuItems)
 				.then(provisionAssetsToSitePagesLibrary);
@@ -225,6 +226,18 @@
 			return sharepointUtilities.createList(listSchemaDef);
 		}
 
+		function createCommsApp(){
+			if(!vm.optionalFeatures["Communications Component"]){
+				//SKIP this step
+				return $q.when({});
+			}
+
+			var listSchemaDef = crisisResponseSchema.listDefs["Communications Status"];
+			listSchemaDef.webUrl = vm.childWebUrl;
+
+			return sharepointUtilities.createList(listSchemaDef).then(provisionCommunicationsComponentPage);
+		}
+
 		function generateDefaults() {
 			vm.componentCommands = [
 				{ name: "SOCC", country: _.find(vm.countries, { code: "US" }), staffSections: defaults.staffSectionsForCombatantCommand.slice() /* by value copy for primitives only */ }
@@ -294,6 +307,12 @@
 				})
 				return $q.all(promises);
 			}
+		}
+
+		function provisionCommunicationsComponentPage() {
+			return provisionWebPartPage({
+				webpartPageDefinitionName: 'Communications Component Page'
+			});
 		}
 
 		function provisionComponentCommandPage() {
@@ -384,7 +403,7 @@
 					});
 				}
 
-				if (vm.optionalFeatures["Communications Componen"] && fieldGenDef.generationFlags.includeCommunicationsComponent) {
+				if (vm.optionalFeatures["Communications Component"] && fieldGenDef.generationFlags.includeCommunicationsComponent) {
 					_.each(communicationsComponents, function (org) {
 						choices.push(org.name);
 					});

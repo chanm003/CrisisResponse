@@ -94,6 +94,205 @@ crisisResponseSchema.listDefs["Config"] = {
 	]
 };
 
+crisisResponseSchema.commStatuses = ['FMC', 'Degraded', 'NMC', 'Planned', 'Standby', 'N/A'];
+crisisResponseSchema.listDefs["Communications Status"] = {
+	Title: "Communications Status",
+	BaseTemplate: 'genericList',
+	shouldHideTitleField: true,
+	fieldsToCreate:[
+		{
+			//EXAMPLE: SINGLE LINE OF TEXT
+			Name: "Package",
+			DisplayName: "Package",
+			Type: "Text",
+			Required: "TRUE",
+			MaxLength: 15,
+			Default: "",							//(optional)
+			Description: ""
+		},
+		{
+			//EXAMPLE: Number
+			Name: "SortOrder",
+			DisplayName: "Sort Order",
+			Type: "Number",
+			Required: "TRUE"	
+		},
+		{
+			//EXAMPLE: Dropdown
+			Name: "UnclassData",
+			DisplayName: "UNCLASS Data",
+			Type: "Choice",
+			Format:"Dropdown",
+			Required: "FALSE",
+			FillInChoice: "TRUE",
+			Description: '',
+			Choices: crisisResponseSchema.commStatuses,
+			Default: ''							//(optional)
+		},
+		{
+			//EXAMPLE: Dropdown
+			Name: "BicesData",
+			DisplayName: "BICES Data",
+			Type: "Choice",
+			Format:"Dropdown",
+			Required: "FALSE",
+			FillInChoice: "TRUE",
+			Description: '',
+			Choices: crisisResponseSchema.commStatuses,
+			Default: ''							//(optional)
+		},
+		{
+			//EXAMPLE: Dropdown
+			Name: "SecretData",
+			DisplayName: "SECRET Data",
+			Type: "Choice",
+			Format:"Dropdown",
+			Required: "FALSE",
+			FillInChoice: "TRUE",
+			Description: '',
+			Choices: crisisResponseSchema.commStatuses,
+			Default: ''							//(optional)
+		},
+		{
+			//EXAMPLE: Dropdown
+			Name: "TacsatData",
+			DisplayName: "TACSAT Data",
+			Type: "Choice",
+			Format:"Dropdown",
+			Required: "FALSE",
+			FillInChoice: "TRUE",
+			Description: '',
+			Choices: crisisResponseSchema.commStatuses,
+			Default: ''							//(optional)
+		},	
+		{
+			//EXAMPLE: Dropdown
+			Name: "HfData",
+			DisplayName: "HF Data",
+			Type: "Choice",
+			Format:"Dropdown",
+			Required: "FALSE",
+			FillInChoice: "TRUE",
+			Description: '',
+			Choices: crisisResponseSchema.commStatuses,
+			Default: ''							//(optional)
+		},
+		{
+			//EXAMPLE: Dropdown
+			Name: "UnclassPhone",
+			DisplayName: "UNCLASS Phone",
+			Type: "Choice",
+			Format:"Dropdown",
+			Required: "FALSE",
+			FillInChoice: "TRUE",
+			Description: '',
+			Choices: crisisResponseSchema.commStatuses,
+			Default: ''							//(optional)
+		},
+		{
+			//EXAMPLE: Dropdown
+			Name: "BicesPhone",
+			DisplayName: "BICES Phone",
+			Type: "Choice",
+			Format:"Dropdown",
+			Required: "FALSE",
+			FillInChoice: "TRUE",
+			Description: '',
+			Choices: crisisResponseSchema.commStatuses,
+			Default: ''							//(optional)
+		},
+		{
+			//EXAMPLE: Dropdown
+			Name: "SecretPhone",
+			DisplayName: "SECRET Phone",
+			Type: "Choice",
+			Format:"Dropdown",
+			Required: "FALSE",
+			FillInChoice: "TRUE",
+			Description: '',
+			Choices: crisisResponseSchema.commStatuses,
+			Default: ''							//(optional)
+		},
+		{
+			//EXAMPLE: Dropdown
+			Name: "TacsatRadio",
+			DisplayName: "TACSAT Radio",
+			Type: "Choice",
+			Format:"Dropdown",
+			Required: "FALSE",
+			FillInChoice: "TRUE",
+			Description: '',
+			Choices: crisisResponseSchema.commStatuses,
+			Default: ''							//(optional)
+		},
+		{
+			//EXAMPLE: Dropdown
+			Name: "HfRadio",
+			DisplayName: "HF Radio",
+			Type: "Choice",
+			Format:"Dropdown",
+			Required: "FALSE",
+			FillInChoice: "TRUE",
+			Description: '',
+			Choices: crisisResponseSchema.commStatuses,
+			Default: ''							//(optional)
+		},
+		{
+			//EXAMPLE: Dropdown
+			Name: "BicesVtc",
+			DisplayName: "BICES VTC",
+			Type: "Choice",
+			Format:"Dropdown",
+			Required: "FALSE",
+			FillInChoice: "TRUE",
+			Description: '',
+			Choices: crisisResponseSchema.commStatuses,
+			Default: ''							//(optional)
+		},
+		{
+			//EXAMPLE: Dropdown
+			Name: "SecretVtc",
+			DisplayName: "SECRET VTC",
+			Type: "Choice",
+			Format:"Dropdown",
+			Required: "FALSE",
+			FillInChoice: "TRUE",
+			Description: '',
+			Choices: crisisResponseSchema.commStatuses,
+			Default: ''							//(optional)
+		},
+		{
+			//EXAMPLE: Dropdown
+			Name: "TsVtc",
+			DisplayName: "TS VTC",
+			Type: "Choice",
+			Format:"Dropdown",
+			Required: "FALSE",
+			FillInChoice: "TRUE",
+			Description: '',
+			Choices: crisisResponseSchema.commStatuses,
+			Default: ''							//(optional)
+		},
+		{
+			//EXAMPLE: MULTIPLE LINE OF TEXT
+			Name: "Comments",
+			DisplayName: "Comments",
+			Type: "Note",
+			Required: "FALSE",
+			NumLines: 6,
+			RichText: "FALSE",						//RECOMMENDED
+			AppendOnly: "FALSE"						//VERSIONING MUST BE TURNED ON, otherwise specifie "FALSE"
+		}					
+	],
+	viewsToCreate:[
+		{
+			title: 'EditableGrid',
+			viewFields: ['Package', 'SortOrder', 'UnclassData', 'BicesData', 'SecretData', 'TacsatData', 'HfData', 'UnclassPhone', 'BicesPhone', 'SecretPhone', 'TacsatRadio', 'HfRadio', 'BicesVtc', 'SecretVtc', 'TsVtc', 'Comments'],
+			viewTypeKind: 2048 
+		}
+	]
+};
+
 crisisResponseSchema.listDefs["DocumentChops"] = {
 	Title: "DocumentChops",
 	BaseTemplate: 'genericList',
@@ -1625,6 +1824,48 @@ crisisResponseSchema.webpartPageDefs['Task Group Page'] = {
 				}
 			],
 			zoneName: 'Bottom',
+			zoneIndex: 0
+		}
+	]
+}
+
+crisisResponseSchema.webpartPageDefs['Communications Component Page'] = {
+	folderName: 'SitePages',
+	aspxFileName: 'comms.aspx',
+	listviewWebparts: [
+		{
+			listTitle: 'Watch Log',
+			webPartProperties: [
+				{
+					attributes: {name: 'ListUrl', type: 'string'},
+					innerText: 'Lists/WatchLog'
+				}
+			],
+			viewName: 'Comms Watch Log',
+			viewFields: ['Attachments', 'DTG', 'LinkTitle', 'EventDetails', 'ActionTaken', 'Initials', 'Significant'],
+			viewCAML: '<OrderBy><FieldRef Name="DateTimeGroup" Ascending="FALSE"/></OrderBy><Where><Contains><FieldRef Name="Organization"/><Value Type="Text">{orgQsParam}</Value></Contains></Where>',
+			zoneName: 'Bottom',
+			zoneIndex: 0
+		}
+	],
+	scriptEditorWebparts: [
+		{
+			name: 'Comm Status Tracker',
+			webPartProperties: [
+				{
+					attributes: {name: 'Content', type: 'string'},
+					innerText: '&lt;comm-status-tracker&gt;&lt;/comm-status-tracker&gt;'
+				},
+				{
+					attributes: {name: 'Title', type: 'string'},
+					innerText: 'Overall Communications Status'
+				},
+				{
+					attributes: {name: 'Description', type: 'string'},
+					innerText: 'Track status of communication packages'
+				}
+			],
+			zoneName: 'Top',
 			zoneIndex: 0
 		}
 	]
