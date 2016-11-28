@@ -3827,6 +3827,63 @@
 
         activate();
 
+        vm.createGroup = function(){
+            var opts = {
+                webUrl: _spPageContextInfo.webServerRelativeUrl,
+                groupName: "SP-" + Math.random().toString(),
+                groupDescription: "Created by wizard to support site: " + _spPageContextInfo.webServerRelativeUrl,
+                loginNames: [
+                    'i:0#.f|membership|mike@chanm003.onmicrosoft.com'
+                ],
+                resources: [
+                    {
+                        type: "SP.List",
+                        listName: "DocumentChops"
+                    }
+                ]
+            };
+            createGroup(opts);
+        }
+
+        function createGroup(opts){
+            var ctx = new SP.ClientContext(opts.webUrl);
+
+	        //create group
+            var gci = new SP.GroupCreationInformation();
+            gci.set_title(opts.groupName);
+            gci.set_description(opts.groupDescription);
+            var createdGroup = ctx.get_web().get_siteGroups().add(gci);
+
+            //add users to group
+            _.each(opts.loginNames, function(loginName){
+                var user = ctx.get_web().get_siteUsers().getByLoginName(loginName); 
+                createdGroup.get_users().addUser(user);     
+            });
+
+            //permission
+            var collRoleDefinitionBinding = SP.RoleDefinitionBindingCollection.newObject(ctx);
+            collRoleDefinitionBinding.add(ctx.get_web().get_roleDefinitions().getByType(SP.RoleType.contributor));
+
+            //resource
+            _.each(opts.resources, function(resource){
+                if(resource.type === "SP.List"){
+                    resource.spObject = ctx.get_web().get_lists().getByTitle(resource.listName);
+                }
+                resource.spObject.breakRoleInheritance(true);  
+                resource.spObject.get_roleAssignments().add(createdGroup, collRoleDefinitionBinding); 
+            });
+
+            ctx.executeQueryAsync(Function.createDelegate(this, onQuerySucceeded), Function.createDelegate(this, onQueryFailed));
+
+            function onQuerySucceeded(){
+                console.log(opts.resources);
+            }
+
+            function onQueryFailed(a, b, c){
+                console.log('failed');
+            }
+        }
+    
         function activate() {
             $q.all([
                 getDataForVerticalTimeline(),
