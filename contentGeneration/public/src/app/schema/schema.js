@@ -1,6 +1,7 @@
 ﻿var crisisResponseSchema = crisisResponseSchema || {};
 crisisResponseSchema.listDefs = {};
 crisisResponseSchema.webpartPageDefs = {};
+crisisResponseSchema.docTypes = ['Administrative', 'Annex', 'ASR Air Support Request', 'Base Orders', 'Battle Drills', 'Battle Rhythm', 'Brief', 'Campaign Plan', 'CivMil Civil Military Operations', 'COA Course of Action', 'Collection Management', 'COMMSTAT Communications Status', 'Concept of Support', 'CONOP Concept of Operations', 'CUB Commanders Update Brief', 'Daily Tasking Order', 'Distribution List', 'DISUM Daily Intelligence Summary', 'DOWNREP', 'EBO Evidence Based Operations', 'Execution Checklist', 'EXORD Executive Order', 'FRAGO Fragmentary Order', 'Geopspatial', 'GRINTSUM Graphical Intelligence Summary', 'HUMINT Human Intelligence', 'Images', 'Information Operations', 'INTREP Intelligence Report', 'INTSUM Intelligence Summary', 'IO Input Output', 'LOGSITREP Logistics Situational', 'Meteorology and Oceanography', 'MISREP Mission Report', 'Mission Analysis', 'MSEL Master Scenario Events List', 'OPORD Operation Order', 'OPSUM Operations Summary', 'Orders', 'PED Portable Electronic Device', 'PERSTAT Personnel Status', 'Planning', 'Post Mitigation', 'PRCC Personnel Recovery Coordination Center', 'PIR Priority Intelligence Requirements', 'Reference', 'ROE Rules of Engagement', 'RTB Return to Base', 'SIGACTS Significant Activities', 'SITREP Situational Report', 'Storyboard', 'Strategic Communications', 'Survey', 'Targeting', 'Target Intel Packets', 'Targets Submission', 'Targets References', 'Template', 'WARNORD Warning Order', 'Working Paper'];
 
 crisisResponseSchema.missionTypesMappedToDefaultApprovalAuthority = {
 	"AO: Airfield Operation": "", 
@@ -856,7 +857,7 @@ crisisResponseSchema.listDefs["Mission Documents"] = {
 			Format:"Dropdown",
 			Required: "TRUE",
 			FillInChoice: "FALSE",
-			Choices: ['Administrative', 'Annex', 'ASR Air Support Request', 'Base Orders', 'Battle Drills', 'Battle Rhythm', 'Brief', 'Campaign Plan', 'CivMil Civil Military Operations', 'COA Course of Action', 'Collection Management', 'COMMSTAT Communications Status', 'Concept of Support', 'CONOP Concept of Operations', 'CUB Commanders Update Brief', 'Daily Tasking Order', 'Distribution List', 'DISUM Daily Intelligence Summary', 'DOWNREP', 'EBO Evidence Based Operations', 'Execution Checklist', 'EXORD Executive Order', 'FRAGO Fragmentary Order', 'Geopspatial', 'GRINTSUM Graphical Intelligence Summary', 'HUMINT Human Intelligence', 'Images', 'Information Operations', 'INTREP Intelligence Report', 'INTSUM Intelligence Summary', 'IO Input Output', 'LOGSITREP Logistics Situational', 'Meteorology and Oceanography', 'MISREP Mission Report', 'Mission Analysis', 'MSEL Master Scenario Events List', 'OPORD Operation Order', 'OPSUM Operations Summary', 'Orders', 'PED Portable Electronic Device', 'PERSTAT Personnel Status', 'Planning', 'Post Mitigation', 'PRCC Personnel Recovery Coordination Center', 'PIR Priority Intelligence Requirements', 'Reference', 'ROE Rules of Engagement', 'RTB Return to Base', 'SIGACTS Significant Activities', 'SITREP Situational Report', 'Storyboard', 'Strategic Communications', 'Survey', 'Targeting', 'Target Intel Packets', 'Targets Submission', 'Targets References', 'Template', 'WARNORD Warning Order', 'Working Paper'], 
+			Choices: crisisResponseSchema.docTypes, 
 			Default: ''							//(optional)
 		},
 		{
@@ -1545,6 +1546,254 @@ crisisResponseSchema.listDefs["Calendar"] = {
 	]
 };
 
+crisisResponseSchema.listDefs["EXCON Documents"] = {
+	Title: "EXCON Documents",
+	BaseTemplate: 'documentLibrary',
+	enableVersioning: true,
+	shouldHideTitleField: false,
+	fieldsToCreate:[
+		{
+			//EXAMPLE: Dropdown
+			Name: "TypeOfDocument",
+			DisplayName: "Type of Document",
+			Type: "Choice",
+			Format:"Dropdown",
+			Required: "TRUE",
+			FillInChoice: "FALSE",
+			Choices: crisisResponseSchema.docTypes, 
+			Default: ''							//(optional)
+		},
+		{
+			//EXAMPLE: Dropdown
+			Name: "Subject",
+			DisplayName: "Subject",
+			Type: "Choice",
+			Format:"Dropdown",
+			Required: "FALSE",
+			FillInChoice: "FALSE",
+			Choices: ['Operations', 'Intelligence', 'Communications', 'Logistics'], 
+			Default: ''							//(optional)
+		},
+		{
+			//EXAMPLE: Dropdown
+			Name: "DraftFinal",
+			DisplayName: "Draft/Final",
+			Type: "Choice",
+			Format:"Dropdown",
+			Required: "TRUE",
+			FillInChoice: "FALSE",
+			Choices: ['Draft', 'Final'], 
+			Default: ''							//(optional)
+		}
+	]
+}
+
+crisisResponseSchema.listDefs["EXCON Watch Log"] = {
+	Title: "EXCON Watch Log",
+	BaseTemplate: 'genericList',
+	enableVersioning: false,
+	shouldHideTitleField: false,
+	fieldsToCreate:[
+		{
+			//EXAMPLE: DateTime
+			Name: "DateTimeGroup",
+			DisplayName: "Date Time Group",
+			Type: "DateTime",
+			Required: "TRUE",
+			Format: "DateTime", 					//please use either 'DateOnly' or 'DateTime'
+			Default: ''						//(optional)	
+		},
+		{
+			//EXAMPLE: MULTIPLE LINE OF TEXT
+			Name: "EventDetails",
+			DisplayName: "Event Details",
+			Type: "Note",
+			Required: "FALSE",
+			NumLines: 6,
+			RichText: "FALSE",						//RECOMMENDED
+			AppendOnly: "FALSE"						//VERSIONING MUST BE TURNED ON, otherwise specifie "FALSE"	
+		},
+		{
+			//EXAMPLE: SINGLE LINE OF TEXT
+			Name: "ActionTaken",
+			DisplayName: "Action Taken",
+			Type: "Text",
+			Required: "FALSE",
+			MaxLength: 255,
+			Default: ""							//(optional)		
+		},
+		{
+			//EXAMPLE: SINGLE LINE OF TEXT
+			Name: "Initials",
+			DisplayName: "Initials",
+			Type: "Text",
+			Required: "TRUE",
+			MaxLength: 5,
+			Default: ""							//(optional)		
+		},
+		{
+			//EXAMPLE: Calculated
+			Name: 'DTG',
+			DisplayName: 'DTG',
+			Type: "Calculated",
+			Required: 'TRUE',
+			ResultType: 'Text',
+			ReadOnly: 'TRUE',
+			Formula: '=UPPER(TEXT([Date Time Group],"ddHHmm")&amp;"Z"&amp;(TEXT([Date Time Group],"MMMyy")))',
+			FieldRefs: ['DateTimeGroup']		
+		}
+	]
+};
+
+crisisResponseSchema.listDefs["Inject"] = {
+	Title: "Inject",
+	BaseTemplate: 'genericList',
+	enableVersioning: false,
+	shouldHideTitleField: false,
+	fieldsToCreate:[
+		{
+			//EXAMPLE: Dropdown
+			Name: "Status",
+			DisplayName: "Status",
+			Type: "Choice",
+			Format:"Dropdown",
+			Required: "TRUE",
+			FillInChoice: "FALSE",
+			Choices: ['Pending', 'Completed'],						//will be generated
+			Description: '',
+			Default: 'Pending',							//(optional)
+			ShowInNewForm: "FALSE",
+			ShowInEditForm: "FALSE"
+		},
+		{
+			//EXAMPLE: DateTime
+			Name: "DateTimeGroup",
+			DisplayName: "Date Time Group",
+			Type: "DateTime",
+			Required: "TRUE",
+			Format: "DateTime", 					//please use either 'DateOnly' or 'DateTime'
+			Default: ''						//(optional)	
+		},
+		{
+			//EXAMPLE: MULTIPLE LINE OF TEXT
+			Name: "TaskInfo",
+			DisplayName: "Task/Info",
+			Type: "Note",
+			Required: "FALSE",
+			NumLines: 6,
+			RichText: "FALSE",						//RECOMMENDED
+			AppendOnly: "FALSE"						//VERSIONING MUST BE TURNED ON, otherwise specifie "FALSE"	
+		},
+		{
+			//EXAMPLE: SINGLE LINE OF TEXT
+			Name: "DeskResponsible",
+			DisplayName: "Desk Responsible",
+			Type: "Text",
+			Required: "FALSE",
+			MaxLength: 255,
+			Default: "",							//(optional)		
+			Description: "Belly Button for coordination"
+		},
+		{
+			//EXAMPLE: Dropdown
+			Name: "OriginatorSender",
+			DisplayName: "Originator/Sender",
+			Type: "Choice",
+			Format:"Dropdown",
+			Required: "TRUE",
+			FillInChoice: "FALSE",
+			Choices: [],						//will be generated
+			Description: 'Inject Originator',
+			Default: ''							//(optional)
+		},
+		{
+			//EXAMPLE: Checkboxes
+			Name: "Receiver",
+			DisplayName: "Receiver",
+			Type: "MultiChoice",
+			Required: "TRUE",
+			Description: "First command message is released to",
+			FillInChoice: "FALSE",
+			Choices: [],						//will be generated
+			Default: ''						//(optional)
+		},
+		{
+			//EXAMPLE: SINGLE LINE OF TEXT
+			Name: "IIRNumber",
+			DisplayName: "IIR No.",
+			Type: "Text",
+			Required: "FALSE",
+			MaxLength: 255,
+			Default: "",							//(optional)		
+			Description: ""
+		},
+		{
+			//EXAMPLE: Checkboxes
+			Name: "ReviewedForRelease",
+			DisplayName: "Reviewed for Release",
+			Type: "MultiChoice",
+			Required: "TRUE",
+			Description: "",
+			FillInChoice: "FALSE",
+			Choices: ['MSEL Manager'],						//will be generated
+			Default: ''						//(optional)
+		},
+		{
+			//EXAMPLE: SINGLE LINE OF TEXT
+			Name: "TgtEvt",
+			DisplayName: "Tgt/Evt",
+			Type: "Text",
+			Required: "FALSE",
+			MaxLength: 255,
+			Default: "",							//(optional)		
+			Description: ""
+		},
+		{
+			//EXAMPLE: DateTime
+			Name: "TgtEvtDate",
+			DisplayName: "Tgt/Evt Date",
+			Type: "DateTime",
+			Required: "FALSE",
+			Format: "DateTime", 					//please use either 'DateOnly' or 'DateTime'
+			Default: ''						//(optional)	
+		},
+		{
+			//EXAMPLE: Checkboxes
+			Name: "ReportType",
+			DisplayName: "Report Type",
+			Type: "MultiChoice",
+			Required: "FALSE",
+			Description: "",
+			FillInChoice: "FALSE",
+			Choices: ['INTSUM', 'INTREP', 'IIR', 'SITREP', 'OPREP', 'Operation'],						//will be generated
+			Default: ''						//(optional)
+		},
+		{
+			//EXAMPLE: Calculated
+			Name: 'ActionsHtml',
+			DisplayName: 'Actions',
+			Type: "Calculated",
+			Required: 'TRUE',
+			ResultType: 'Text',
+			ReadOnly: 'TRUE',
+			Formula: '=""',
+			FieldRefs: [],
+			Description: 'This is just a placeholder read-only column.   Below formula serves no actual purpose.  JSLink will rerender as a button or some other control-depending on list title.'		
+		},
+		{
+			//EXAMPLE: Calculated
+			Name: 'DTG',
+			DisplayName: 'DTG',
+			Type: "Calculated",
+			Required: 'TRUE',
+			ResultType: 'Text',
+			ReadOnly: 'TRUE',
+			Formula: '=UPPER(TEXT([Date Time Group],"ddHHmm")&amp;"Z"&amp;(TEXT([Date Time Group],"MMMyy")))',
+			FieldRefs: ['DateTimeGroup']		
+		}		
+	]
+}
+
 crisisResponseSchema.webpartPageDefs['Component Command Page'] = {
 	folderName: 'SitePages',
 	aspxFileName: 'socc.aspx',
@@ -2022,6 +2271,121 @@ crisisResponseSchema.webpartPageDefs['Air Component Page'] = {
 	]
 }
 
+crisisResponseSchema.webpartPageDefs['Exercise Conductor Page'] = {
+	folderName: 'SitePages',
+	aspxFileName: 'excon.aspx',
+	listviewWebparts: [
+		{
+			listTitle: 'EXCON Watch Log',
+			webPartProperties: [
+				{
+					attributes: {name: 'ListUrl', type: 'string'},
+					innerText: 'Lists/EXCONWatchLog'
+				},
+				{
+					attributes: {name: 'Title', type: 'string'},
+					innerText: 'Watch Log'
+				}
+			],
+			viewName: 'EXCON Watch Log',
+			viewFields: ['Attachments', 'DTG', 'LinkTitle', 'EventDetails', 'ActionTaken', 'Initials'],
+			viewCAML: '<OrderBy><FieldRef Name="DateTimeGroup" Ascending="FALSE"/></OrderBy>',
+			zoneName: 'Left',
+			zoneIndex: 0
+		},
+		{
+			listTitle: 'Message Traffic',
+			webPartProperties: [
+				{
+					attributes: {name: 'ListUrl', type: 'string'},
+					innerText: 'Lists/MessageTraffic'
+				},
+				{
+					attributes: {name: 'Title', type: 'string'},
+					innerText: 'Inbound Messages'
+				}
+			],
+			viewName: 'EXCON Inbound Messages',
+			viewFields: ['Attachments', 'DTG', 'OriginatorSender', 'LinkTitle', 'LinkToMissionDocument', 'Initials', 'Significant'],
+			viewCAML: '<OrderBy><FieldRef Name="DateTimeGroup" Ascending="FALSE"/></OrderBy><Where><Contains><FieldRef Name="Receiver"/><Value Type="Text">{orgQsParam}</Value></Contains></Where>',
+			zoneName: 'Left',
+			zoneIndex: 10
+		},
+		{
+			listTitle: 'Message Traffic',
+			webPartProperties: [
+				{
+					attributes: {name: 'ListUrl', type: 'string'},
+					innerText: 'Lists/MessageTraffic'
+				},
+				{
+					attributes: {name: 'Title', type: 'string'},
+					innerText: 'Outbound Messages'
+				}
+			],
+			viewName: 'EXCON Outbound Messages',
+			viewFields: ['DTG', 'Receiver', 'LinkTitle', 'LinkToMissionDocument', 'Initials', 'Significant'],
+			viewCAML: '<OrderBy><FieldRef Name="DateTimeGroup" Ascending="FALSE"/></OrderBy><Where><Contains><FieldRef Name="OriginatorSender"/><Value Type="Text">{orgQsParam}</Value></Contains></Where>',
+			zoneName: 'Left',
+			zoneIndex: 20
+		},
+		{
+			listTitle: 'RFI',
+			webPartProperties: [
+				{
+					attributes: {name: 'ListUrl', type: 'string'},
+					innerText: 'Lists/RFI'
+				},
+				{
+					attributes: {name: 'Title', type: 'string'},
+					innerText: 'Request for Information'
+				}
+			],
+			viewName: 'EXCON RFI',
+			viewFields: ['ActionsHtml', 'LinkTitle', 'Priority', 'LTIOV'],
+			viewCAML: '<OrderBy><FieldRef Name="LTIOV"/></OrderBy><Where><And><Contains><FieldRef Name="RecommendedOPR"/><Value Type="Text">{orgQsParam}</Value></Contains><Eq><FieldRef Name="Status"/><Value Type="Text">Open</Value></Eq></And></Where>',
+			zoneName: 'Left',
+			zoneIndex: 30
+		},
+		{
+			listTitle: 'EXCON Documents',
+			webPartProperties: [
+				{
+					attributes: {name: 'ListUrl', type: 'string'},
+					innerText: 'ExconDocuments'
+				},
+				{
+					attributes: {name: 'Title', type: 'string'},
+					innerText: 'Documents'
+				}
+			],
+			viewName: 'EXCON Documents',
+			viewFields: ['DocIcon', 'LinkFilename', 'Modified', 'Editor'],
+			viewCAML: '<GroupBy Collapse="FALSE" GroupLimit="30"><FieldRef Name="TypeOfDocument"/></GroupBy><OrderBy><FieldRef Name="FileLeafRef"/></OrderBy>',
+			zoneName: 'Right',
+			zoneIndex: 1
+		},
+		{
+			listTitle: 'Inject',
+			webPartProperties: [
+				{
+					attributes: {name: 'ListUrl', type: 'string'},
+					innerText: 'Lists/Inject'
+				},
+				{
+					attributes: {name: 'Title', type: 'string'},
+					innerText: 'Inject'
+				}
+			],
+			viewName: 'EXCON Inject',
+			viewFields: ['Attachments', 'ActionsHtml', 'DTG','LinkTitle', 'OriginatorSender', 'Receiver', 'DeskResponsible', 'TaskInfo', 'ReviewedForRelease', 'IIRNumber', 'TgtEvt', 'TgtEvtDate'],
+			viewCAML: '<OrderBy><FieldRef Name="DateTimeGroup"/></OrderBy><Where><Eq><FieldRef Name="Status"/><Value Type="Text">Pending</Value></Eq></Where>',
+			zoneName: 'Bottom',
+			zoneIndex: 0
+		}
+	]
+}
+
 crisisResponseSchema.organizationalChoiceFields = [
 	{
 		listName: "AAR",
@@ -2071,6 +2435,32 @@ crisisResponseSchema.organizationalChoiceFields = [
 			includeStaffSections: true,
 			includeNotionals: false,
 			includeExerciseControlGroup: true,
+			includeAirComponent: true,
+			includeCommunicationsComponent: false
+		}
+	},
+	{
+		listName: "Inject",
+		fieldName: "OriginatorSender",
+		generationFlags: {
+			includeComponentCommands: false,
+			includeTaskGroups: false,
+			includeStaffSections: false,
+			includeNotionals: true,
+			includeExerciseControlGroup: true,
+			includeAirComponent: false,
+			includeCommunicationsComponent: false
+		}
+	},
+	{
+		listName: "Inject",
+		fieldName: "Receiver",
+		generationFlags: {
+			includeComponentCommands: true,
+			includeTaskGroups: true,
+			includeStaffSections: false,
+			includeNotionals: false,
+			includeExerciseControlGroup: false,
 			includeAirComponent: true,
 			includeCommunicationsComponent: false
 		}

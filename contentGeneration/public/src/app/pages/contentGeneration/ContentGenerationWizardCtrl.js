@@ -87,9 +87,11 @@
 				.then(setWelcomePage);
 		}
 
+
 		vm.onAdditionalFeaturesCollected = function () {
 			return createHelpDeskSystem() 
 				.then(createSoacApp)
+				.then(createExconApp)
 				.then(modifyChoiceFields)
 				.then(createCommsApp)  
 				.then(generateJocInBoxConfigFile)
@@ -247,6 +249,42 @@
 
 			//no extra lists required at this time
 			return provisionAirComponentPage();
+		}
+
+		function createExconApp(){
+			if(!vm.optionalFeatures["Exercise Control Group"]){
+				//SKIP this step
+				return $q.when({});
+			}
+
+			function createDocumentLibrary(){
+				var listSchemaDef = crisisResponseSchema.listDefs["EXCON Documents"];
+				listSchemaDef.webUrl = vm.childWebUrl;
+				return sharepointUtilities.createList(listSchemaDef);
+			}
+
+			function createInjectList(){
+				var listSchemaDef = crisisResponseSchema.listDefs["Inject"];
+				listSchemaDef.webUrl = vm.childWebUrl;
+				return sharepointUtilities.createList(listSchemaDef);
+			}
+
+			function createWatchLogList(){
+				var listSchemaDef = crisisResponseSchema.listDefs["EXCON Watch Log"];
+				listSchemaDef.webUrl = vm.childWebUrl;
+				return sharepointUtilities.createList(listSchemaDef);
+			}
+
+			function provisionExconPage() {
+				return provisionWebPartPage({
+					webpartPageDefinitionName: 'Exercise Conductor Page'
+				});
+			}
+
+			return createWatchLogList()
+						.then(createDocumentLibrary)
+						.then(createInjectList)
+						.then(provisionExconPage);
 		}
 
 		function generateDefaults() {
