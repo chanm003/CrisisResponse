@@ -3839,6 +3839,10 @@
                     {
                         type: "SP.List",
                         listName: "DocumentChops"
+                    },
+                    {
+                        type: "SP.File",
+                        serverRelativeUrl: _spPageContextInfo.webServerRelativeUrl + "SitePages/socc.aspx"
                     }
                 ]
             };
@@ -3868,6 +3872,8 @@
             _.each(opts.resources, function(resource){
                 if(resource.type === "SP.List"){
                     resource.spObject = ctx.get_web().get_lists().getByTitle(resource.listName);
+                } else{
+                    resource.spObject = ctx.get_web().getFileByServerRelativeUrl(resource.serverRelativeUrl).get_listItemAllFields();
                 }
                 resource.spObject.breakRoleInheritance(true);  
                 resource.spObject.get_roleAssignments().add(createdGroup, collRoleDefinitionBinding); 

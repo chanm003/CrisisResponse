@@ -14,6 +14,7 @@
 			createOrUpdateFile: createOrUpdateFile,
 			createList: createList,
 			createListItem: createListItem,
+			createSharepointGroup: createSharepointGroup,
 			createSite: createSite,
 			createTypeaheadDataSourceForSiteUsersList: createTypeaheadDataSourceForSiteUsersList,
 			deleteFiles: deleteFiles,
@@ -490,6 +491,7 @@
 		}
 
 		function createListItem(opts){
+
 			var dfd = $q.defer();
 			var ctx = new SP.ClientContext(opts.webUrl);
 			var spWeb = ctx.get_web();
@@ -517,6 +519,81 @@
 
 			function onQueryFailed(sender, args) {
 				logger.logError('Request failed: ' + args.get_message(), args.get_stackTrace(), 'sharepointUtilities service, createListItem()');
+				dfd.reject();
+			}
+		}
+
+		function createSharepointGroup(opts){
+			var dfd = $q.defer();
+			var ctx = new SP.ClientContext(opts.webUrl);
+
+	        //create group
+            var gci = new SP.GroupCreationInformation();
+            gci.set_title(opts.groupName);
+            gci.set_description(opts.groupDescription);
+            var createdGroup = ctx.get_web().get_siteGroups().add(gci);
+
+			//modify group settings
+			createdGroup.set_allowMembersEditMembership(true);
+			createdGroup.update();
+
+            //add users to group
+            _.each(opts.loginNames, function(loginName){
+                var user = ctx.get_web().get_siteUsers().getByLoginName(loginName); 
+                createdGroup.get_users().addUser(user);     
+            });
+
+			if(opts.permissionLevel){
+				//permission
+				var collRoleDefinitionBinding = SP.RoleDefinitionBindingCollection.newObject(ctx);
+				collRoleDefinitionBinding.add(ctx.get_web().get_roleDefinitions().getByType(opts.permissionLevel));
+
+				//resource
+				_.each(opts.resources, function(resource){
+					if(resource.type === "SP.List"){
+						resource.spObject = ctx.get_web().get_lists().getByTitle(resource.listName);
+					} else if (resource.type === "SP.File"){
+						//SP.File not securable object, so we get the associated list item
+						resource.spObject = ctx.get_web().getFileByServerRelativeUrl(resource.serverRelativeUrl).get_listItemAllFields();
+					}
+					resource.spObject.breakRoleInheritance(false);  
+					resource.spObject.get_roleAssignments().add(createdGroup, collRoleDefinitionBinding); 
+				});
+			}
+
+           	ctx.executeQueryAsync(
+				Function.createDelegate(this, onQuerySucceeded),
+				Function.createDelegate(this, onQueryFailed)
+			);
+
+			return dfd.promise;
+
+			function onQuerySucceeded() {
+				var roleTypeEnum = {
+					0: "None",
+					1: "Guest",
+					2: "Reader",
+					3: "Contributor",
+					4: "Designer",
+					5: "Administrator"
+				};
+
+				_.each(opts.resources, function(resource){
+					var resourceName = "";
+					if(resource.type === "SP.List"){
+						resourceName = resource.listName;
+					} else if (resource.type === "SP.File"){
+						resourceName = resource.serverRelativeUrl
+					}
+					var msg = "Broke permissions on '" + resourceName + "' and granted '" + roleTypeEnum[opts.permissionLevel] + "' to the group '" + opts.groupName + "'"; 
+					logger.logSuccess(msg, null, 'sharepointUtilities service, createSharepointGroup()');
+				});
+				
+				dfd.resolve();
+			}
+
+			function onQueryFailed(sender, args) {
+				logger.logError('Request failed: ' + args.get_message(), args.get_stackTrace(), 'sharepointUtilities service, createSharepointGroup()');
 				dfd.reject();
 			}
 		}

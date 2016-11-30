@@ -281,10 +281,41 @@
 				});
 			}
 
+			function customizePermissions(){
+				var opts = {
+					webUrl: vm.childWebUrl,
+                	groupName: vm.siteInfo.name + " EXCON",
+                	groupDescription: "Created by wizard to support site: " + vm.childWebUrl,
+					permissionLevel: SP.RoleType.contributor,
+					loginNames: _.map(vm.exerciseControlGroups[0].selectedUsers, function(user){ return user.LoginName; }),
+					resources: [
+						{
+							type: "SP.List",
+							listName: "EXCON Watch Log"
+						},
+						{
+							type: "SP.List",
+							listName: "Inject"
+						},
+						{
+							type: "SP.List",
+							listName: "EXCON Documents"
+						},
+						{
+							type: "SP.File",
+							serverRelativeUrl: vm.childWebUrl + "/SitePages/excon.aspx"
+						}
+					]
+				};
+
+				return sharepointUtilities.createSharepointGroup(opts);
+			}
+
 			return createWatchLogList()
 						.then(createDocumentLibrary)
 						.then(createInjectList)
-						.then(provisionExconPage);
+						.then(provisionExconPage)
+						.then(customizePermissions);
 		}
 
 		function generateDefaults() {
