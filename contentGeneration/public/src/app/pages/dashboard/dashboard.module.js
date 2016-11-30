@@ -14,6 +14,8 @@
         .state('dashboard', {
           url: '/dashboard',
           templateUrl: commonConfigProvider.settings.baseUrl + '/src/app/pages/dashboard/dashboard.html',
+          controller: 'DashboardCtrl',
+          controllerAs: 'vm',
           title: 'Dashboard',
           sidebarMeta: {
             icon: 'ion-android-home',

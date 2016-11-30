@@ -116,6 +116,7 @@
 	<script src="src/app/common/sharePointUtilities.js"></script>
 	
 	<script src="src/app/pages/dashboard/dashboard.module.js"></script>
+		<script src="src/app/pages/dashboard/DashboardCtrl.js"></script>
 		<script src="src/app/pages/dashboard/dashboardCalendar/DashboardCalendarCtrl.js"></script>
 		<script src="src/app/pages/dashboard/dashboardCalendar/dashboardCalendar.directive.js"></script>
 		

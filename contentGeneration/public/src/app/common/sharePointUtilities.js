@@ -21,6 +21,7 @@
 			deleteLists: deleteLists,
 			getLists: getLists,
 			getFilesFromFolder: getFilesFromFolder,
+			getSharepointGroups: getSharepointGroups,
 			provisionListViewWebparts: provisionListViewWebparts,
 			provisionScriptEditorWebparts: provisionScriptEditorWebparts,
 			setWelcomePage: setWelcomePage,
@@ -991,6 +992,17 @@
 				logger.logError('Request failed: ' + args.get_message(), args.get_stackTrace(), 'sharepointUtilities service, getLists()');
 				dfd.reject();
 			}
+		}
+
+		function getSharepointGroups(opts){
+			var url = "/_api/web/siteGroups?$filter=substringof('"+ opts.keyword +"', Title)&$expand=Users,Owner&$select=Id,Title,Description,Owner/Title,Owner/Email&$orderby=Title";
+			return $http({
+					url: url,
+					headers: { "Accept": "application/json;odata=verbose" } 
+				})
+				.then(function(response){
+					return response.data.d.results;
+				});
 		}
 
 		function provisionListViewWebparts(webpartPageDef) {

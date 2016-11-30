@@ -1,0 +1,40 @@
+<div class="table-responsive">
+  <table class="table">
+    <tr>
+      <th>Title</th>
+      <th>Description</th>
+      <th>Owner</th>
+      <th>Members</th>
+      <th></th>
+    </tr>
+    <tr ng-repeat="group in vm.spGroups">
+      <td style="text-align:left;">{{group.Title}}</td>
+      <td>{{group.Description}}</td>
+      <td>
+        <a class="email-link " ng-href="mailto:{{group.Owner.Email}}">{{group.Owner.Title}}</a>
+      </td>
+      <td>{{group.Users.results.length}}</td>
+      <td>
+        <div class="btn-group dropdown" uib-dropdown="" dropdown-append-to-body="">
+          <button type="button" class="btn btn-info">Manage</button>
+          <button type="button" class="btn btn-info dropdown-toggle" uib-dropdown-toggle="" aria-haspopup="true" aria-expanded="true">
+            <span class="caret"></span>
+          </button>
+          <ul class="dropdown-menu" uib-dropdown-menu role="menu" aria-labelledby="single-button">
+            <li role="menuitem">
+              <a href="#" ng-click="vm.goToGroupMembersPage(group)">Manage Members</a>
+            </li>
+            <li role="menuitem">
+              <a href="#" ng-click="vm.goToGroupSettingsPage(group)">Edit Group Settings</a>
+            </li>
+            <li role="menuitem">
+              <a href="#" ng-click="vm.goToGroupPermissionsPage(group)">View Permissions</a>
+            </li>
+          </ul>
+        </div>
+        <button type="button" class="btn btn-danger"  data-toggle="modal" ng-click="vm.openConfirmDeleteModal(group)">Delete</button>
+      </td>
+    </tr>
+
+  </table>
+</div>
