@@ -662,6 +662,14 @@
     position:relative;
 }
 
+#jocboxmenu ul li ul{
+    width:240px;
+}
+
+#jocboxmenu ul li ul li{
+    width:240px;
+}
+
 #jocboxmenu ul li:hover{
   /*on hover of level-one, make position relative*/
   position:relative;   
@@ -690,7 +698,7 @@
 #jocboxmenu ul li:hover ul li:hover ul{
     /*on hover of level-one and two, show level-three menu*/
     display:block;
-    left:180px;
+    left:240px;
     top:0;
 }
 
@@ -713,23 +721,36 @@
     line-height: 34px;
 }
 
-#jocboxmenu span.menu-label-when-flag {
+span.menu-label-when-flag {
   margin-left: 36px;
   white-space: nowrap;
   overflow:hidden;
   display:block;
-  width: 105px;
   text-overflow:ellipsis;
 }
 
-#jocboxmenu span.menu-label-when-no-flag {
+#jocboxmenu ul li a span span.flag span.menu-label-when-flag{
+  width: 105px;
+}
+
+#jocboxmenu ul li ul li a span span.flag span.menu-label-when-flag{
+  width: 165px;
+}
+
+span.menu-label-when-no-flag {
     white-space: nowrap;
     overflow:hidden;
     display:block;
-    width: 140px;
     text-overflow:ellipsis;
 }
 
+#jocboxmenu ul li a span span.noflag span.menu-label-when-no-flag {
+  width: 140px;
+}
+
+#jocboxmenu ul li ul li a span span.noflag span.menu-label-when-no-flag {
+  width: 200px;
+}
 
 /*#endregion Sidebar Menu */
 
