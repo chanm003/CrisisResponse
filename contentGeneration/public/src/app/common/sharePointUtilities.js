@@ -699,6 +699,15 @@
 			action.set_sequence(1000 + sequenceCounter + 100);
 			action.update();
 
+			var siteActionMenuItem = userCustomActions.add();
+			siteActionMenuItem.set_location('Microsoft.SharePoint.StandardMenu');
+			siteActionMenuItem.set_group('SiteActions');
+			siteActionMenuItem.set_sequence(101);
+			siteActionMenuItem.set_title('Configure Sidebar Menu');
+			siteActionMenuItem.set_description('Customize the left navigation.');
+			siteActionMenuItem.set_url('~site/SitePages/app.aspx/#/editnav');
+			siteActionMenuItem.update();
+
 			/**
 			 * Deactivate Minimal Download Strategy (hashes do not seem to play nice with Angular on IE browsers)
 			 */
