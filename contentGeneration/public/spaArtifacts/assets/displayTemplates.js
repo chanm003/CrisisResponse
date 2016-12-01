@@ -65,6 +65,8 @@
                     if (ctx.ListTitle === "RFI") {
                         var buttonText = (ctx.CurrentItem.Status === "Open") ? "Respond" : "Reopen";
                         html = "<a class='custombtn' rfibutton data-id='" + ctx.CurrentItem.ID + "'>" + buttonText + "</a>";
+                    } else if (ctx.ListTitle === "Inject") {
+                        html = "<a class='custombtn' injectbutton data-id='" + ctx.CurrentItem.ID + "'>Inject</a>";
                     }
                     return STSHtmlDecode(html);
                 }
