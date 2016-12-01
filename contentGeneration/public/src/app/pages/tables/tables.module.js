@@ -10,6 +10,7 @@
 
   /** @ngInject */
   function routeConfig($stateProvider, $urlRouterProvider, commonConfigProvider) {
+    /*
     $stateProvider
         .state('tables', {
           url: '/tables',
@@ -38,6 +39,7 @@
         });
 
     $urlRouterProvider.when('/tables','/tables/basic');
+    */
   }
 
 })();
