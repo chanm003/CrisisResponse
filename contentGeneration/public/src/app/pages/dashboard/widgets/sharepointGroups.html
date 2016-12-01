@@ -1,5 +1,8 @@
 <div class="table-responsive">
-  <table class="table">
+  <div class="alert bg-info" ng-hide="vm.spGroups && vm.spGroups.length">
+    No 'EXCON' groups found in the current site collection.
+  </div>
+  <table class="table" ng-hide="!vm.spGroups.length">
     <tr>
       <th>Title</th>
       <th>Description</th>

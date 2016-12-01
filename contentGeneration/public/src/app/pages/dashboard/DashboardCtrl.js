@@ -9,9 +9,18 @@
     function DashboardCtrl($q, $scope, $uibModal, common, commonConfig, sharepointUtilities) {
         var vm = this;
 
-        sharepointUtilities.getSharepointGroups({ keyword: 'EXCON' }).then(function (data) {
-            vm.spGroups = data;
-        });
+        refreshData();
+
+        function refreshData(){
+            return sharepointUtilities.getSharepointGroups({ keyword: 'EXCON' }).then(function (data) {
+                vm.spGroups = data;
+                return data;
+            });
+        }
+
+        function deleteSharePointGroup(group){
+            return sharepointUtilities.deleteSharepointGroup({webUrl: '/', groupID: group.Id});
+        }
 
         vm.goToGroupMembersPage = function (group) {
             var url = '/_layouts/15/people.aspx?MembershipGroupId=' + group.Id;
@@ -43,9 +52,8 @@
             });
 
             modalInstance.result
-                .then(function(group){
-                    console.log(group);
-                });
+                .then(deleteSharePointGroup)
+                .then(refreshData);
         }
     }
 

@@ -19,6 +19,7 @@
 			createTypeaheadDataSourceForSiteUsersList: createTypeaheadDataSourceForSiteUsersList,
 			deleteFiles: deleteFiles,
 			deleteLists: deleteLists,
+			deleteSharepointGroup: deleteSharepointGroup,
 			getLists: getLists,
 			getFilesFromFolder: getFilesFromFolder,
 			getSharepointGroups: getSharepointGroups,
@@ -852,6 +853,29 @@
 
 			function onQueryFailed(sender, args) {
 				logger.logError('Request failed: ' + args.get_message(), args.get_stackTrace(), 'sharepointUtilities service, deleteLists()');
+				dfd.reject();
+			}
+		}
+
+		function deleteSharepointGroup(opts){
+			var dfd = $q.defer();
+			var ctx = new SP.ClientContext(opts.webUrl);
+			var spWeb = ctx.get_web();
+			var groups = spWeb.get_siteGroups();
+			groups.removeById(opts.groupID);
+
+			ctx.executeQueryAsync(
+				Function.createDelegate(this, onQuerySucceeded),
+				Function.createDelegate(this, onQueryFailed)
+			);
+			return dfd.promise;
+
+			function onQuerySucceeded() {
+				dfd.resolve();
+			}
+
+			function onQueryFailed(sender, args) {
+				logger.logError('Request failed: ' + args.get_message(), args.get_stackTrace(), 'sharepointUtilities service, deleteSharepointGroup()');
 				dfd.reject();
 			}
 		}
