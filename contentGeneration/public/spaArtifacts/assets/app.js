@@ -2230,7 +2230,7 @@
         .module('app.core')
         .directive('initiatechopbutton', initiatechopbutton);
 
-    function initiatechopbutton($q, logger, Mission, MissionDocument, MissionDocumentRepository, MissionTrackerRepository) {
+    function initiatechopbutton($rootScope, $q, logger, Mission, MissionDocument, MissionDocumentRepository, MissionTrackerRepository) {
         /* 
        SP2013 display template will render ChopProcess column (anytime it appears in LVWP) as:
            <a class="custombtn" initiatechopbutton="" data-id="1" data-chop-process='10/7/2016 19:08'>Chop</a>
@@ -2261,7 +2261,7 @@
             $elem.removeAttr("data-chop-process");
 
 
-            scope.listItemID = tempID
+            scope.listItemID = parseInt(tempID, 10);
             scope.btnClass = tempClass;
             scope.chopProcessTimestamp = chopProcessTimestamp;
             scope.getHoverText = function () {
@@ -2274,55 +2274,16 @@
 
             scope.openChopDialog = function () {
                 if (!!scope.chopProcessTimestamp) { return; }
-                if (!scope.chopDialogCtx) {
-                    alert("Chopping process should be initiated from Component Command or Task Group pages")
-                    return;
-                }
-                //fetch missions, fetch Mission document properties
-                //on success set three properties on chopDialogCtx (show, missions, listItem)
-                $q.all([
-                    MissionDocumentRepository.getById(scope.listItemID),
-                    MissionTrackerRepository.getByOrganization(_.getQueryStringParam("org") || '')
-                ])
-                    .then(function (data) {
-                        scope.chopDialogCtx.listItem = new MissionDocument(data[0]);
-                        scope.chopDialogCtx.missions = _.map(data[1], function (item) { return new Mission(item); });
-                        scope.chopDialogCtx.show = true;
-                        scope.chopDialogCtx.submitButtonClicked = false;
-                        scope.chopDialogCtx.submit = submit;
-                        scope.chopDialogCtx.isFormValid = isFormValid;
-                        scope.chopDialogCtx.getSelectedMission = getSelectedMission;
-                    });
+               
+                $rootScope.$broadcast("LVWP:initiatechopButtonClicked", {
+                    documentID: scope.listItemID,
+                    organization: _.getQueryStringParam("org") || ''
+                });
             }
 
-            function isFormValid() {
-                return !scope.chopDialogCtx.listItem.Mission.Id && scope.chopDialogCtx.submitButtonClicked;
-            }
-
-            function getSelectedMission() {
-                //two-way binding from ng-office UI dropdown binds the mission.Id dropdownOption to the Mission Document's Mission.Id  
-                var selectedMission = _.find(scope.chopDialogCtx.missions, { Id: parseInt(scope.chopDialogCtx.listItem.Mission.Id, 10) });
-                return selectedMission;
-            }
-
-            function submit() {
-                scope.chopDialogCtx.submitButtonClicked = true;
-                if (scope.chopDialogCtx.isFormValid()) { return; }
-
-                var selectedMission = scope.chopDialogCtx.getSelectedMission();
-                var orgConfig = jocInBoxConfig.dashboards[selectedMission.Organization];
-
-                scope.chopDialogCtx.listItem.deriveRouteSequence(selectedMission, orgConfig);
-
-                if (scope.chopDialogCtx.listItem.ChopRouteSequence) {
-                    scope.chopDialogCtx.listItem.initiateChop().then(onChopStartedSuccessfully);
-                } else {
-                    alert(selectedMission.Organization + 'does not have a configured route sequence for "' + selectedMission.ApprovalAuthority + '"');
-                }
-
-                function onChopStartedSuccessfully(item) {
-                    scope.chopProcessTimestamp = item.ChopProcess;
-                    scope.chopDialogCtx.show = false;
+            $rootScope.$on("LVWP:chopProcessSuccessfullyInitiated", function (evt, args) {
+                if(args.documentID === scope.listItemID){
+                    scope.chopProcessTimestamp = args.timestamp;    
                     var missionTrackerUrl = _spPageContextInfo.webServerRelativeUrl + "/SitePages/app.aspx/#/missiontracker/2";
                     logger.success('Track the process using the <a href="' + missionTrackerUrl + '" style="text-decoration:underline;color:white;">Mission Tracker</a>', {
                         title: "Chop Process initiated",
@@ -2330,11 +2291,125 @@
                         delay: false
                     });
                 }
+            });
+            
+        }
+    }
 
+})(jocInBoxConfig.noConflicts.jQuery, jocInBoxConfig.noConflicts.lodash);
+
+/* Directive: chopdialog */
+(function ($, _) {
+    angular
+        .module('app.core')
+        .directive('chopdialog', directiveDefinitionFunc);
+
+    function directiveDefinitionFunc($q, $rootScope, logger, Mission, MissionDocument, MissionDocumentRepository, MissionTrackerRepository) {
+        /* 
+        USAGE: <chopdialog></chopdialog>
+        SIMPLY listens for an event
+        */
+        var directiveDefinition = {
+            restrict: 'E',
+            link: link,
+            scope: {
+            },
+            template: generateChopDialogHtml()
+        };
+        return directiveDefinition;
+
+        function link(scope, elem, attrs) {
+            scope.closeModal = function(){
+                scope.showModal = false;
+            };
+
+            scope.isFormValid = function() {
+                return scope.listItem && !scope.listItem.Mission.Id && scope.submitButtonClicked;
+            }
+
+            scope.submit = function() {
+                scope.submitButtonClicked = true;
+                if (scope.isFormValid()) { return; }
+
+                var selectedMission = getSelectedMission();
+                var orgConfig = jocInBoxConfig.dashboards[selectedMission.Organization];
+
+                scope.listItem.deriveRouteSequence(selectedMission, orgConfig);
+
+                if (scope.listItem.ChopRouteSequence) {
+                    scope.listItem.initiateChop().then(onChopStartedSuccessfully);
+                } else {
+                    alert(selectedMission.Organization + ' does not have a configured route sequence for "' + selectedMission.ApprovalAuthority + '"');
+                }
+
+                function onChopStartedSuccessfully(item) {
+                    scope.showModal = false;
+                    $rootScope.$broadcast("LVWP:chopProcessSuccessfullyInitiated", {
+                        timestamp: item.ChopProcess,
+                        documentID: item.Id
+                    });    
+                }
+
+            }
+
+            $rootScope.$on("LVWP:initiatechopButtonClicked", function (evt, args) {
+                $q.all([
+                    MissionDocumentRepository.getById(args.documentID),
+                    MissionTrackerRepository.getByOrganization(args.organization)
+                ])
+                    .then(function (data) {
+                        scope.listItem = new MissionDocument(data[0]);
+                        scope.missions = _.map(data[1], function (item) { return new Mission(item); });
+                        scope.showModal = true;
+                        scope.submitButtonClicked = false;
+                        
+                        //scope.submit = submit;
+                        //scope.getSelectedMission = getSelectedMission;
+                    });
+
+
+            });
+
+            function getSelectedMission() {
+                //two-way binding from ng-office UI dropdown binds the mission.Id dropdownOption to the Mission Document's Mission.Id  
+                var selectedMission = _.find(scope.missions, { Id: parseInt(scope.listItem.Mission.Id, 10) });
+                return selectedMission;
             }
         }
     }
 
+    function generateChopDialogHtml() {
+            var html = [
+                '<uif-dialog uif-close="false" uif-overlay="light" uif-type="multiline" ng-show="showModal">',
+                '   <uif-dialog-header>',
+                '       <p class="ms-Dialog-title">',
+                '           Initiate Chop Process',
+                '       </p>',
+                '   </uif-dialog-header>',
+                '   <uif-dialog-inner>',
+                '       <uif-dialog-content>',
+                '           <uif-dialog-subtext>',
+                '               <span>Associate this document to a Mission:</span>',
+                '           </uif-dialog-subtext>',
+                '           <uif-dropdown ng-model="listItem.Mission.Id">',
+                '               <uif-dropdown-option ng-repeat="mission in missions" value="{{mission.Id}}" title="{{mission.Identifier}}">{{mission.Identifier}}</uif-dropdown-option>',
+                '           </uif-dropdown>',
+                '           <uif-message-bar uif-type="error" ng-show="isFormValid()">',
+                '               <uif-content>This is a required field</uif-content>',
+                '           </uif-message-bar>',
+                '       </uif-dialog-content>',
+                '       <uif-dialog-actions uif-position="right">',
+                '           <button class="ms-Dialog-action ms-Button ms-Button--primary" ng-click="submit()">',
+                '               <span class="ms-Button-label">Start Chop</span>',
+                '           </button>',
+                '           <button class="ms-Dialog-action ms-Button" ng-click="closeModal()" type="button">',
+                '               <span class="ms-Button-label">Cancel</span>',
+                '           </button>',
+                '       </uif-dialog-actions>',
+                '   </uif-dialog-inner>',
+                '</uif-dialog>'].join('');
+            return html;
+        }
 })(jocInBoxConfig.noConflicts.jQuery, jocInBoxConfig.noConflicts.lodash);
 
 /* Directive: includeReplace */
@@ -4223,7 +4298,7 @@
         var spPage = $("body");
         if (_.includes(currentURL, '/SITEPAGES/SOCC.ASPX') || _.includes(currentURL, '/SITEPAGES/SOTG.ASPX') || _.includes(currentURL, '/SITEPAGES/SOAC.ASPX')) {
             spPage.attr('ng-controller', 'OrgDashboardAspxController as vm');
-            spPage.append(generateChopDialogHtml());
+            spPage.append("<chopdialog></chopdialog>");
         }
 
         if (_.includes(currentURL, '/LISTS/MISSIONTRACKER/NEWFORM.ASPX') || _.includes(currentURL, '/LISTS/MISSIONTRACKER/EDITFORM.ASPX')) {
@@ -4250,37 +4325,6 @@
             spPage.find("#sideNavBox").prepend("<nav-menu></nav-menu>");
         }
 
-        function generateChopDialogHtml() {
-            var html = [
-                '<uif-dialog uif-close="false" uif-overlay="light" uif-type="multiline" ng-show="vm.chopDialogCtx.show">',
-                '   <uif-dialog-header>',
-                '       <p class="ms-Dialog-title">',
-                '           Initiate Chop Process',
-                '       </p>',
-                '   </uif-dialog-header>',
-                '   <uif-dialog-inner>',
-                '       <uif-dialog-content>',
-                '           <uif-dialog-subtext>',
-                '               <span>Associate this document to a Mission:</span>',
-                '           </uif-dialog-subtext>',
-                '           <uif-dropdown ng-model="vm.chopDialogCtx.listItem.Mission.Id">',
-                '               <uif-dropdown-option ng-repeat="mission in vm.chopDialogCtx.missions" value="{{mission.Id}}" title="{{mission.Identifier}}">{{mission.Identifier}}</uif-dropdown-option>',
-                '           </uif-dropdown>',
-                '           <uif-message-bar uif-type="error" ng-show="vm.chopDialogCtx.isFormValid()">',
-                '               <uif-content>This is a required field</uif-content>',
-                '           </uif-message-bar>',
-                '       </uif-dialog-content>',
-                '       <uif-dialog-actions uif-position="right">',
-                '           <button class="ms-Dialog-action ms-Button ms-Button--primary" ng-click="vm.chopDialogCtx.submit()">',
-                '               <span class="ms-Button-label">Start Chop</span>',
-                '           </button>',
-                '           <button class="ms-Dialog-action ms-Button" ng-click="vm.chopDialogCtx.show = false" type="button">',
-                '               <span class="ms-Button-label">Cancel</span>',
-                '           </button>',
-                '       </uif-dialog-actions>',
-                '   </uif-dialog-inner>',
-                '</uif-dialog>'].join('');
-            return html;
-        }
+        
     }
 })(jocInBoxConfig.noConflicts.jQuery, jocInBoxConfig.noConflicts.lodash);
