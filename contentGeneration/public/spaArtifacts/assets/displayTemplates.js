@@ -66,7 +66,7 @@
                         var buttonText = (ctx.CurrentItem.Status === "Open") ? "Respond" : "Reopen";
                         html = "<a class='custombtn' rfibutton data-id='" + ctx.CurrentItem.ID + "'>" + buttonText + "</a>";
                     } else if (ctx.ListTitle === "Inject") {
-                        html = "<a class='custombtn' injectbutton data-id='" + ctx.CurrentItem.ID + "'>Inject</a>";
+                        html = "<a class='custombtn' injectbutton data-id='" + ctx.CurrentItem.ID + "' data-receivers='" + ctx.CurrentItem.Receiver.join(';') + "' title='Publish this scenario to " + ctx.CurrentItem.Receiver.join(', ') + "'>Inject</a>";
                     }
                     return STSHtmlDecode(html);
                 }
@@ -104,9 +104,9 @@
                     var html;
                     if (ctx.ListTitle === "Mission Documents") {
                         if (!ctx.CurrentItem.ChopProcess) {
-                            html = "<a class='custombtn' initiatechopbutton chop-dialog-ctx='vm.chopDialogCtx' data-id='" + ctx.CurrentItem.ID + "'>Chop</a>";
+                            html = "<a class='custombtn' initiatechopbutton data-id='" + ctx.CurrentItem.ID + "'>Chop</a>";
                         } else {
-                            html = "<a class='disabled-custombtn' initiatechopbutton chop-dialog-ctx='vm.chopDialogCtx' data-chop-process='" + ctx.CurrentItem.ChopProcess + "' data-id='" + ctx.CurrentItem.ID + "'>Chop</a>";
+                            html = "<a class='disabled-custombtn' initiatechopbutton data-chop-process='" + ctx.CurrentItem.ChopProcess + "' data-id='" + ctx.CurrentItem.ID + "'>Chop</a>";
                         }
                     }
                     return STSHtmlDecode(html);

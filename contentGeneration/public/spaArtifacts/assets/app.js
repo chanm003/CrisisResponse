@@ -2238,7 +2238,6 @@
         var directiveDefinition = {
             restrict: 'A',
             scope: {
-                chopDialogCtx: '='
             },
             link: link,
             replace: true,
@@ -2428,6 +2427,141 @@
                 }
             };
         });
+})(jocInBoxConfig.noConflicts.jQuery, jocInBoxConfig.noConflicts.lodash);
+
+/* Directive: injectbutton */
+(function ($, _) {
+    angular
+        .module('app.core')
+        .directive('injectbutton', injectbutton);
+
+    function injectbutton($rootScope, $q, logger, Mission, MissionDocument, MissionDocumentRepository, MissionTrackerRepository) {
+        /* 
+           <a class="custombtn" injectbutton="" data-id="1" data-receivers='SOTG 10;SOTG 30'>Inject</a>
+       */
+        var directiveDefinition = {
+            restrict: 'A',
+            scope: {
+            },
+            link: link,
+            replace: true,
+            template: generateChopButtonHtml()
+        };
+        return directiveDefinition;
+
+        function generateChopButtonHtml() {
+            return "<a ng-click='openInjectDialog()'>Inject</a>";
+        }
+
+        function link(scope, elem, attrs) {
+            var $elem = $(elem);
+
+            var tempClass = $elem.attr("class");
+            var tempID = $elem.attr("data-id");
+            var receivers = $elem.attr("data-receivers");
+           
+            $elem.removeAttr("data-id");
+            $elem.removeAttr("data-receivers");
+
+            scope.listItemID = parseInt(tempID, 10);
+            
+            scope.openInjectDialog = function () {               
+                $rootScope.$broadcast("LVWP:injectButtonClicked", {
+                    ID: scope.listItemID,
+                    receivers: receivers
+                });
+            }
+
+            $rootScope.$on("LVWP:scenarioSuccessfullyPublished", function (evt, args) {
+                if(args.ID === scope.listItemID){
+                    scope.chopProcessTimestamp = args.timestamp;    
+                    var missionTrackerUrl = _spPageContextInfo.webServerRelativeUrl + "/SitePages/app.aspx/#/missiontracker/2";
+                    logger.success('Track the process using the <a href="' + missionTrackerUrl + '" style="text-decoration:underline;color:white;">Mission Tracker</a>', {
+                        title: "Chop Process initiated",
+                        alwaysShowToEnduser: true,
+                        delay: false
+                    });
+                }
+            });
+            
+        }
+    }
+
+})(jocInBoxConfig.noConflicts.jQuery, jocInBoxConfig.noConflicts.lodash);
+
+/* Directive: publishscenariodialog */
+(function ($, _) {
+    angular
+        .module('app.core')
+        .directive('publishscenariodialog', directiveDefinitionFunc);
+
+    function directiveDefinitionFunc($q, $rootScope, logger, Mission, MissionDocument, MissionDocumentRepository, MissionTrackerRepository) {
+        /* 
+        USAGE: <publishscenariodialog></publishscenariodialog>
+        SIMPLY listens for an event
+        */
+        var directiveDefinition = {
+            restrict: 'E',
+            link: link,
+            scope: {
+            },
+            template: generateDialogHtml()
+        };
+        return directiveDefinition;
+
+        function link(scope, elem, attrs) {
+            scope.closeModal = function(){
+                scope.showModal = false;
+            };
+
+
+            scope.submit = function() {
+                //.then(onScenarioPublishedSuccessfully);
+
+                function onScenarioPublishedSuccessfully(item) {
+                    scope.showModal = false;
+                    $rootScope.$broadcast("LVWP:scenarioSuccessfullyPublished", {
+                        ID: item.Id
+                    });    
+                }
+
+            }
+
+            $rootScope.$on("LVWP:injectButtonClicked", function (evt, args) {
+                scope.showModal = true;
+                scope.receivers = args.receivers;
+            });
+
+        }
+    }
+
+    function generateDialogHtml() {
+            var html = [
+                '<uif-dialog uif-close="false" uif-overlay="light" uif-type="multiline" ng-show="showModal">',
+                '   <uif-dialog-header>',
+                '       <p class="ms-Dialog-title">',
+                '           MSEL Inject Confirmation',
+                '       </p>',
+                '   </uif-dialog-header>',
+                '   <uif-dialog-inner>',
+                '       <uif-dialog-content>',
+                '           <uif-dialog-subtext>',
+                '               <span>Are you sure this scenario is ready to be published to the following recipient(s)?</span>',
+                '           </uif-dialog-subtext>',
+                '           <uif-textfield uif-label="Receiver" ng-model="receivers" uif-description="" uif-multiline="true" ng-disabled="true"/>',
+                '       </uif-dialog-content>',
+                '       <uif-dialog-actions uif-position="right">',
+                '           <button class="ms-Dialog-action ms-Button ms-Button--primary" ng-click="submit()">',
+                '               <span class="ms-Button-label">Yes, Inject</span>',
+                '           </button>',
+                '           <button class="ms-Dialog-action ms-Button" ng-click="closeModal()" type="button">',
+                '               <span class="ms-Button-label">Cancel</span>',
+                '           </button>',
+                '       </uif-dialog-actions>',
+                '   </uif-dialog-inner>',
+                '</uif-dialog>'].join('');
+            return html;
+        }
 })(jocInBoxConfig.noConflicts.jQuery, jocInBoxConfig.noConflicts.lodash);
 
 /* Directive: scrollableCurrentOpsSummary */
@@ -3197,9 +3331,6 @@
     OrgDashboardAspxController.$inject = ['_', 'Mission', 'MissionTrackerRepository'];
     function OrgDashboardAspxController(_, Mission, MissionTrackerRepository) {
         var vm = this;
-        vm.chopDialogCtx = {
-            show: false
-        }
 
         vm.selectedOrg = (_.getQueryStringParam("org") || "");
         MissionTrackerRepository.getByOrganization(vm.selectedOrg).then(function (data) {
@@ -4299,6 +4430,10 @@
         if (_.includes(currentURL, '/SITEPAGES/SOCC.ASPX') || _.includes(currentURL, '/SITEPAGES/SOTG.ASPX') || _.includes(currentURL, '/SITEPAGES/SOAC.ASPX')) {
             spPage.attr('ng-controller', 'OrgDashboardAspxController as vm');
             spPage.append("<chopdialog></chopdialog>");
+        }
+
+        if (_.includes(currentURL, '/SITEPAGES/EXCON.ASPX') ) {
+            spPage.append("<publishscenariodialog></publishscenariodialog>");
         }
 
         if (_.includes(currentURL, '/LISTS/MISSIONTRACKER/NEWFORM.ASPX') || _.includes(currentURL, '/LISTS/MISSIONTRACKER/EDITFORM.ASPX')) {
