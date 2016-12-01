@@ -18,7 +18,7 @@
           controllerAs: 'vm',
           title: 'Content Generation',
           sidebarMeta: {
-            icon: 'ion-android-home',
+            icon: 'ion-android-cloud',
             order: 10,
           },
         });
