@@ -281,8 +281,8 @@
             //simply requiring this singleton runs it initialization code..
         }]);
 
-    spContext.$inject = ['$resource', '$timeout', 'logger'];
-    function spContext($resource, $timeout, logger) {
+    spContext.$inject = ['$http', '$resource', '$timeout', 'logger'];
+    function spContext($http, $resource, $timeout, logger) {
         var service = this;
 
         var defaultHeaders = {
@@ -306,6 +306,7 @@
         service.getSelectedUsersFromPeoplePicker = getSelectedUsersFromPeoplePicker;
         service.getIdFromLookupField = getIdFromLookupField;
         service.defaultHeaders = defaultHeaders;
+        service.copyFile = copyFile;
 
         service.htmlHelpers = {};
         service.htmlHelpers.buildHeroButton = function (text, href, ngShowAttrValue) {
@@ -380,6 +381,16 @@
                         headers: httpDeleteHeaders
                     }
                 });
+        }
+
+        function copyFile(webUrl, source, destination){
+            var url =  webUrl + "/_api/web/getfilebyserverrelativeurl('"+source+"')/copyto(strnewurl='"+destination+"',boverwrite=false)";
+            var headers = angular.extend({}, service.defaultHeaders, {'X-RequestDigest': service.securityValidation});
+            return $http({
+                method: "post",
+                url: url,
+                headers: headers
+            });
         }
 
         function getContextFromEditFormASPX() {
@@ -1235,6 +1246,42 @@
     }
 })(jocInBoxConfig.noConflicts.jQuery, jocInBoxConfig.noConflicts.lodash);
 
+/* Data Repository: Inject */
+(function ($, _) {
+    angular.module('app.data')
+        .service('InjectRepository', repositoryFunc)
+    repositoryFunc.$inject = ['$http', '$q', '$resource', 'exception', 'logger', 'spContext'];
+    function repositoryFunc($http, $q, $resource, exception, logger, spContext) {
+        var service = {
+            getById: getById        
+        };
+
+        var fieldsToSelect = [
+            spContext.SP2013REST.selectForCommonListFields,
+            "Status,DateTimeGroup,TaskInfo,DeskResponsible,OriginatorSender,Receiver,IIRNumber,ReviewedForRelease,TgtEvt,TgtEvtDate,ReportType"
+        ].join(',');
+
+        var fieldsToExpand = [
+            spContext.SP2013REST.expandoForCommonListFields,
+            "AttachmentFiles"
+        ].join(',');
+
+        var ngResourceConstructParams = {
+            fieldsToSelect: fieldsToSelect,
+            fieldsToExpand: fieldsToExpand,
+            listName: 'Inject'
+        };
+
+        function getById(id) {
+            var constructParams = angular.extend({}, { item: { Id: id } }, ngResourceConstructParams);
+            var restResource = spContext.constructNgResourceForRESTResource(constructParams);
+            return restResource.get({}).$promise.then(function (response) { return response.d; });
+        }
+
+        return service;
+    }
+})(jocInBoxConfig.noConflicts.jQuery, jocInBoxConfig.noConflicts.lodash);
+
 /* Data Repository: RFI */
 (function ($, _) {
     angular.module('app.data')
@@ -1470,6 +1517,7 @@
     MessageTrafficRepository.$inject = ['$http', '$q', '$resource', 'exception', 'logger', 'spContext'];
     function MessageTrafficRepository($http, $q, $resource, exception, logger, spContext) {
         var service = {
+            createFolderForMessageTrafficAttachments: createFolderForMessageTrafficAttachments,
             getAll: getAll,
             getSignificantItemsCreatedInLast24Hours: getSignificantItemsCreatedInLast24Hours,
             save: save
@@ -1489,6 +1537,34 @@
             fieldsToExpand: fieldsToExpand,
             listName: 'Message Traffic'
         };
+
+        function createFolderForMessageTrafficAttachments(listItemId){
+            var dfd = $q.defer();
+            var ctx = SP.ClientContext.get_current();
+            var web = ctx.get_web();
+            
+            var attachmentRootFolderUrl = _spPageContextInfo.webServerRelativeUrl + "/Lists/MessageTraffic/Attachments";
+            var attachmentsFolderForList = web.getFolderByServerRelativeUrl(attachmentRootFolderUrl);
+
+            var  attachmentsFolderForListItem =  attachmentsFolderForList.get_folders().add("_" + listItemId);
+            attachmentsFolderForListItem.moveTo(attachmentRootFolderUrl + '/' + listItemId);
+
+            ctx.executeQueryAsync(Function.createDelegate(this, onQuerySucceeded), Function.createDelegate(this, onQueryFailed));
+            return dfd.promise;
+
+            function onQuerySucceeded(){
+                dfd.resolve();
+            }
+
+            function onQueryFailed(sender, args){
+                var msg = args.get_message();
+                if(_.includes(msg, 'destination already exists')){
+                    dfd.resolve();
+                } else{
+                    dfd.reject(msg);
+                }
+            }
+        }
 
         function getAll() {
             return getItems();
@@ -2473,13 +2549,11 @@
             }
 
             $rootScope.$on("LVWP:scenarioSuccessfullyPublished", function (evt, args) {
-                if(args.ID === scope.listItemID){
-                    scope.chopProcessTimestamp = args.timestamp;    
+                if(args.injectItem.Id === scope.listItemID){  
                     var missionTrackerUrl = _spPageContextInfo.webServerRelativeUrl + "/SitePages/app.aspx/#/missiontracker/2";
-                    logger.success('Track the process using the <a href="' + missionTrackerUrl + '" style="text-decoration:underline;color:white;">Mission Tracker</a>', {
-                        title: "Chop Process initiated",
-                        alwaysShowToEnduser: true,
-                        delay: false
+                    logger.success('MSEL Inject will now appear as "Inbound Message" for the following: ' + args.generatedMessageTrafficItem.Receiver.results.join(', ') , {
+                        title: "Scenario published",
+                        alwaysShowToEnduser: true
                     });
                 }
             });
@@ -2495,7 +2569,7 @@
         .module('app.core')
         .directive('publishscenariodialog', directiveDefinitionFunc);
 
-    function directiveDefinitionFunc($q, $rootScope, logger, Mission, MissionDocument, MissionDocumentRepository, MissionTrackerRepository) {
+    function directiveDefinitionFunc($q, $rootScope, logger, InjectRepository, MessageTraffic, MessageTrafficRepository, spContext) {
         /* 
         USAGE: <publishscenariodialog></publishscenariodialog>
         SIMPLY listens for an event
@@ -2514,24 +2588,86 @@
                 scope.showModal = false;
             };
 
-
             scope.submit = function() {
-                //.then(onScenarioPublishedSuccessfully);
+                scope.processingTransaction = true;
 
-                function onScenarioPublishedSuccessfully(item) {
+                publishScenario(scope.injectListItemId)
+                    .then(onScenarioPublishedSuccessfully)
+                    .finally(function(){
+                        scope.processingTransaction = false;    
+                    });
+
+                function onScenarioPublishedSuccessfully(transaction) {
                     scope.showModal = false;
-                    $rootScope.$broadcast("LVWP:scenarioSuccessfullyPublished", {
-                        ID: item.Id
-                    });    
+                    $rootScope.$broadcast("LVWP:scenarioSuccessfullyPublished", transaction);    
                 }
-
             }
 
             $rootScope.$on("LVWP:injectButtonClicked", function (evt, args) {
                 scope.showModal = true;
                 scope.receivers = args.receivers;
+                scope.injectListItemId = args.ID;
             });
+        }
 
+        function publishScenario(injectListItemId){
+            return retrieveInjectItem(injectListItemId)
+                .then(generateMessageTrafficItem)
+                .then(createFolderToHoldAttachments)
+                .then(copyAttachments);
+
+            function retrieveInjectItem(id){
+                var transaction = {
+                    injectItem: null,
+                    generatedMessageTrafficItem: null
+                }; 
+                return InjectRepository.getById(injectListItemId)
+                            .then(function(data){
+                                transaction.injectItem = data;
+                                return transaction;
+                            });
+            }
+
+            function generateMessageTrafficItem(transaction){
+                var newMsg = new MessageTraffic();
+                newMsg.Title = transaction.injectItem.Title;
+                newMsg.TaskInfo = transaction.injectItem.TaskInfo;
+                newMsg.OriginatorSender = transaction.injectItem.OriginatorSender;
+                newMsg.Receiver = transaction.injectItem.Receiver.results; 
+                newMsg.DateTimeGroup = moment.utc(transaction.injectItem.DateTimeGroup);
+                newMsg.Significant = "No";
+                newMsg.Initials = "EXCON";   
+
+                return newMsg.save()
+                        .then(function(data){
+                            transaction.generatedMessageTrafficItem = data.d;
+                            return transaction;
+                        });
+            }
+
+            function createFolderToHoldAttachments(transaction){
+                return MessageTrafficRepository.createFolderForMessageTrafficAttachments(transaction.generatedMessageTrafficItem.Id)
+                    .then(function(){
+                        return transaction;
+                    });
+            }
+
+            function copyAttachments(transaction){
+                if(!transaction.injectItem.AttachmentFiles.results){
+                    return $q.when(transaction);
+                }
+
+                var promises = [];
+                _.each(transaction.injectItem.AttachmentFiles.results, function(item){
+                    var source = item.ServerRelativeUrl;
+                    var destination = _spPageContextInfo.webServerRelativeUrl + "/Lists/MessageTraffic/Attachments/" + transaction.generatedMessageTrafficItem.Id + "/" + item.FileName;
+                    promises.push(spContext.copyFile(_spPageContextInfo.webServerRelativeUrl, source, destination));    
+                });
+
+                return $q.all(promises).then(function(){
+                    return transaction;
+                });
+            }
         }
     }
 
@@ -2551,7 +2687,7 @@
                 '           <uif-textfield uif-label="Receiver" ng-model="receivers" uif-description="" uif-multiline="true" ng-disabled="true"/>',
                 '       </uif-dialog-content>',
                 '       <uif-dialog-actions uif-position="right">',
-                '           <button class="ms-Dialog-action ms-Button ms-Button--primary" ng-click="submit()">',
+                '           <button class="ms-Dialog-action ms-Button ms-Button--primary" ng-disabled="processingTransaction" ng-click="submit()">',
                 '               <span class="ms-Button-label">Yes, Inject</span>',
                 '           </button>',
                 '           <button class="ms-Dialog-action ms-Button" ng-click="closeModal()" type="button">',
@@ -4034,67 +4170,9 @@
         activate();
 
         vm.createGroup = function(){
-            var opts = {
-                webUrl: _spPageContextInfo.webServerRelativeUrl,
-                groupName: "SP-" + Math.random().toString(),
-                groupDescription: "Created by wizard to support site: " + _spPageContextInfo.webServerRelativeUrl,
-                loginNames: [
-                    'i:0#.f|membership|mike@chanm003.onmicrosoft.com'
-                ],
-                resources: [
-                    {
-                        type: "SP.List",
-                        listName: "DocumentChops"
-                    },
-                    {
-                        type: "SP.File",
-                        serverRelativeUrl: _spPageContextInfo.webServerRelativeUrl + "SitePages/socc.aspx"
-                    }
-                ]
-            };
-            createGroup(opts);
         }
 
-        function createGroup(opts){
-            var ctx = new SP.ClientContext(opts.webUrl);
-
-	        //create group
-            var gci = new SP.GroupCreationInformation();
-            gci.set_title(opts.groupName);
-            gci.set_description(opts.groupDescription);
-            var createdGroup = ctx.get_web().get_siteGroups().add(gci);
-
-            //add users to group
-            _.each(opts.loginNames, function(loginName){
-                var user = ctx.get_web().get_siteUsers().getByLoginName(loginName); 
-                createdGroup.get_users().addUser(user);     
-            });
-
-            //permission
-            var collRoleDefinitionBinding = SP.RoleDefinitionBindingCollection.newObject(ctx);
-            collRoleDefinitionBinding.add(ctx.get_web().get_roleDefinitions().getByType(SP.RoleType.contributor));
-
-            //resource
-            _.each(opts.resources, function(resource){
-                if(resource.type === "SP.List"){
-                    resource.spObject = ctx.get_web().get_lists().getByTitle(resource.listName);
-                } else{
-                    resource.spObject = ctx.get_web().getFileByServerRelativeUrl(resource.serverRelativeUrl).get_listItemAllFields();
-                }
-                resource.spObject.breakRoleInheritance(true);  
-                resource.spObject.get_roleAssignments().add(createdGroup, collRoleDefinitionBinding); 
-            });
-
-            ctx.executeQueryAsync(Function.createDelegate(this, onQuerySucceeded), Function.createDelegate(this, onQueryFailed));
-
-            function onQuerySucceeded(){
-                console.log(opts.resources);
-            }
-
-            function onQueryFailed(a, b, c){
-                console.log('failed');
-            }
-        }
+        
     
         function activate() {
             $q.all([
