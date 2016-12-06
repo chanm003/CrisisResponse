@@ -21,6 +21,7 @@
             customizeFieldRendering();
             registerPreRenderEvent();
             registerPostRenderEvent();
+            registerOverrideHeader();
             $(document).ready(customizeCalloutsForDocumentLibrary);
         });
 
@@ -562,6 +563,22 @@
                 }
             }
         }
+
+        function registerOverrideHeader() {
+            SPClientTemplates.TemplateManager.RegisterTemplateOverrides({
+                Templates: {
+                     Header: showViewSelectorMenu
+                }
+            });
+
+            function showViewSelectorMenu(renderCtx, columnNames){
+                if(_.includes(ctx.listUrlDir, '/Lists/Inject')){
+                    ClientPivotControl.prototype.SurfacedPivotCount = 4;
+                    renderCtx.ListSchema.RenderViewSelectorPivotMenuAsync = "True";
+                }
+                return RenderHeaderTemplate(renderCtx, columnNames);   
+            }
+         }
 
         function registerPostRenderEvent() {
             SPClientTemplates.TemplateManager.RegisterTemplateOverrides({

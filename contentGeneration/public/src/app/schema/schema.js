@@ -1791,6 +1791,13 @@ crisisResponseSchema.listDefs["Inject"] = {
 			Formula: '=UPPER(TEXT([Date Time Group],"ddHHmm")&amp;"Z"&amp;(TEXT([Date Time Group],"MMMyy")))',
 			FieldRefs: ['DateTimeGroup']		
 		}		
+	],
+	viewsToCreate:[
+		{
+			title: 'Completed',
+			query: '<OrderBy><FieldRef Name="DateTimeGroup"/></OrderBy><Where><Eq><FieldRef Name="Status"/><Value Type="Text">Completed</Value></Eq></Where>',
+			viewTypeKind: 0
+		}
 	]
 }
 
@@ -2377,7 +2384,7 @@ crisisResponseSchema.webpartPageDefs['Exercise Conductor Page'] = {
 					innerText: 'Inject'
 				}
 			],
-			viewName: 'EXCON Inject',
+			viewName: 'Pending',
 			viewFields: ['Attachments', 'ActionsHtml', 'DTG','LinkTitle', 'OriginatorSender', 'Receiver', 'DeskResponsible', 'TaskInfo', 'ReviewedForRelease', 'IIRNumber', 'TgtEvt', 'TgtEvtDate'],
 			viewCAML: '<OrderBy><FieldRef Name="DateTimeGroup"/></OrderBy><Where><Eq><FieldRef Name="Status"/><Value Type="Text">Pending</Value></Eq></Where>',
 			zoneName: 'Bottom',
