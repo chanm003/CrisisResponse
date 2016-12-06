@@ -67,7 +67,9 @@
                         var buttonText = (ctx.CurrentItem.Status === "Open") ? "Respond" : "Reopen";
                         html = "<a class='custombtn' rfibutton data-id='" + ctx.CurrentItem.ID + "'>" + buttonText + "</a>";
                     } else if (ctx.ListTitle === "Inject") {
-                        html = "<a class='custombtn' injectbutton data-id='" + ctx.CurrentItem.ID + "' data-receivers='" + ctx.CurrentItem.Receiver.join(';') + "' title='Publish this scenario to " + ctx.CurrentItem.Receiver.join(', ') + "'>Inject</a>";
+                        var injectButtonClass = (ctx.CurrentItem.Status === 'Completed') ? 'disabled-custombtn' : 'custombtn';
+                        html = "<a class='"+injectButtonClass+"' injectbutton data-id='" + ctx.CurrentItem.ID + "' data-status='" + ctx.CurrentItem.Status + 
+                            "' data-receivers='" + ctx.CurrentItem.Receiver.join(';') + "' title='Publish this scenario to " + ctx.CurrentItem.Receiver.join(', ') + "'>Inject</a>";
                     }
                     return STSHtmlDecode(html);
                 }

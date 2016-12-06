@@ -1253,7 +1253,8 @@
     repositoryFunc.$inject = ['$http', '$q', '$resource', 'exception', 'logger', 'spContext'];
     function repositoryFunc($http, $q, $resource, exception, logger, spContext) {
         var service = {
-            getById: getById        
+            getById: getById,
+            save: save        
         };
 
         var fieldsToSelect = [
@@ -1276,6 +1277,12 @@
             var constructParams = angular.extend({}, { item: { Id: id } }, ngResourceConstructParams);
             var restResource = spContext.constructNgResourceForRESTResource(constructParams);
             return restResource.get({}).$promise.then(function (response) { return response.d; });
+        }
+
+        function save(item) {
+            var constructParams = angular.extend({}, { item: item }, ngResourceConstructParams);
+            var restResource = spContext.constructNgResourceForRESTResource(constructParams);
+            return restResource.post(item).$promise;
         }
 
         return service;
@@ -2521,12 +2528,12 @@
             },
             link: link,
             replace: true,
-            template: generateChopButtonHtml()
+            template: generateButtonHtml()
         };
         return directiveDefinition;
 
-        function generateChopButtonHtml() {
-            return "<a ng-click='openInjectDialog()'>Inject</a>";
+        function generateButtonHtml() {
+            return "<a ng-class='getButtonClass()' title='{{getHoverText()}}' ng-click='openInjectDialog()'>Inject</a>";
         }
 
         function link(scope, elem, attrs) {
@@ -2535,12 +2542,20 @@
             var tempClass = $elem.attr("class");
             var tempID = $elem.attr("data-id");
             var receivers = $elem.attr("data-receivers");
+            var status = $elem.attr("data-status");
            
+            $elem.removeClass(tempClass);
             $elem.removeAttr("data-id");
             $elem.removeAttr("data-receivers");
+            $elem.removeAttr("data-status");
 
             scope.listItemID = parseInt(tempID, 10);
+            scope.status = status;
             
+            scope.getButtonClass = function () {
+                return (scope.status === 'Completed') ? 'disabled-custombtn' : 'custombtn';
+            }
+
             scope.openInjectDialog = function () {               
                 $rootScope.$broadcast("LVWP:injectButtonClicked", {
                     ID: scope.listItemID,
@@ -2550,7 +2565,7 @@
 
             $rootScope.$on("LVWP:scenarioSuccessfullyPublished", function (evt, args) {
                 if(args.injectItem.Id === scope.listItemID){  
-                    var missionTrackerUrl = _spPageContextInfo.webServerRelativeUrl + "/SitePages/app.aspx/#/missiontracker/2";
+                    scope.status = args.injectItem.Status;
                     logger.success('MSEL Inject will now appear as "Inbound Message" for the following: ' + args.generatedMessageTrafficItem.Receiver.results.join(', ') , {
                         title: "Scenario published",
                         alwaysShowToEnduser: true
@@ -2614,7 +2629,8 @@
             return retrieveInjectItem(injectListItemId)
                 .then(generateMessageTrafficItem)
                 .then(createFolderToHoldAttachments)
-                .then(copyAttachments);
+                .then(copyAttachments)
+                .then(updateStatusForInjectItem);
 
             function retrieveInjectItem(id){
                 var transaction = {
@@ -2668,6 +2684,24 @@
                     return transaction;
                 });
             }
+
+            function updateStatusForInjectItem(transaction){
+                
+                var postData = {
+                    Id: transaction.injectItem.Id, 
+                    Status: "Completed",
+                    __metadata : {
+                        type: "SP.Data.InjectListItem"
+                    }
+                };
+                return InjectRepository
+                    .save(postData)
+                    .then(function(data){
+                        transaction.injectItem.Status = data.Status;
+                        return transaction;
+                    });    
+            }
+
         }
     }
 
