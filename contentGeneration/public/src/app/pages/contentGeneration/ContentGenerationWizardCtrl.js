@@ -20,32 +20,9 @@
 		vm.siteInfo = {
 			cdn: commonConfig.settings.cdn,
 			name: "Trojan Footprint 16",
-			acronym: 'TF16',
-			parentWeb: _spPageContextInfo.webServerRelativeUrl,
 			description: "This is boilerplate text so I can just click Next, Next, Next...",
 			userTypedUrl: _spPageContextInfo.webServerRelativeUrl + "/TF16"
-		};
-
-		$scope.$watch("vm.siteInfo.userTypedUrl", function(newVal){
-			setParentWebAndAcronymBasedOnFreeFormUr();
-		});
-		
-
-		function setParentWebAndAcronymBasedOnFreeFormUr(){
-			var lastIndexOfForwardSlash = vm.siteInfo.userTypedUrl.lastIndexOf('/');
-			if(lastIndexOfForwardSlash === -1 ){
-				//direct parent of the root...
-				vm.siteInfo.parentWeb = "/"; 
-				vm.siteInfo.acronym = vm.siteInfo.userTypedUrl;
-			}  else {
-				vm.siteInfo.parentWeb = vm.siteInfo.userTypedUrl.substr(0, lastIndexOfForwardSlash);
-				vm.siteInfo.acronym = vm.siteInfo.userTypedUrl.substr(lastIndexOfForwardSlash+1);
-			}
-
-			if(vm.siteInfo.parentWeb[0] !== '/'){
-				vm.siteInfo.parentWeb = '/' + vm.siteInfo.parentWeb;
-			}
-		}
+		};		
 
 		vm.optionalFeatures = {
 			"Air Component": true,
@@ -75,9 +52,44 @@
 
 		vm.typeaheadDataSourceForSelectableUsers = sharepointUtilities.createTypeaheadDataSourceForSiteUsersList();
 
+		function generateWizardStepError(msg){
+			var dfd = $q.defer();
+			setTimeout(function(){
+				dfd.reject(msg);
+				common.logger.logError(msg);
+			}, 1000);
+			return dfd.promise;
+		}
+
 		vm.onSiteInfoCollected = function () {
-			vm.childWebUrl = vm.siteInfo.parentWeb + "/" + vm.siteInfo.acronym;
+
+			if(!vm.siteInfo.name || !vm.siteInfo.userTypedUrl){
+				return generateWizardStepError('"Site Name" and "URL" are both required fields');
+			}
+			
+			parseUserTypedUrl();
+
+			if(!vm.childWebUrl){
+				var error = '"' + vm.siteInfo.userTypedUrl + '" is not a valid URL for a new site.  The URL for the new site should ';
+				error += '(1) should begin with a slash and (2) contain at least two characters';
+				return generateWizardStepError(error);
+			}
+			
+			
 			return sharepointUtilities.createSite(vm.siteInfo);
+
+			function parseUserTypedUrl(){
+				var url = vm.siteInfo.userTypedUrl;
+				if(url.endsWith('/')){
+					url = url.substr(0, url.length-1)
+				}
+				
+				if(url.length >= 2 && vm.siteInfo.userTypedUrl.startsWith('/')){
+					vm.siteInfo.parentWeb = url.substr(0, url.lastIndexOf('/'));
+					vm.siteInfo.acronym = url.substr(url.lastIndexOf('/')+1);
+					vm.childWebUrl = vm.siteInfo.parentWeb + "/" + vm.siteInfo.acronym;
+				}
+			}
 		}
 
 		vm.onOrganizationsIdentified = function () {
