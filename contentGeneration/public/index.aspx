@@ -74,7 +74,7 @@
 		</div>	
 	</form>
 	
-	
+	<script src="src/app/pages/contentGeneration/wizard.defaults.js"></script>
 
 	<script src="vendor/jquery/dist/jquery.js"></script>
 	<script src="vendor/underscore/underscore-min.js" type="text/javascript"></script>

@@ -10,48 +10,6 @@
 	function WizardCtrl($q, $scope, common, commonConfig, countriesSvc, menuSvc, sharepointUtilities) {
 		var vm = this;
 
-		var defaults = {
-			staffSectionsForCombatantCommand: ["J1", "J2", "J33", "J35", "J39", "J4", "J6", "Legal", "Medical", "Public Affairs"],
-			staffSectionsForAirComponent: ["A1", "A2", "A3 Director of Operations", "A33 Current Operations", "A35 Plans", "A4", "A5", "A6", "A7", "Airspace", "Command Group", "FAD", "FIRES", "PRCC", "Special Staff"]
-		};
-
-		vm.childWebUrl = "";
-		vm.serverLocation = document.location.protocol + '//' + document.location.host;
-		vm.siteInfo = {
-			cdn: commonConfig.settings.cdn,
-			name: "Trojan Footprint 16",
-			description: "This is boilerplate text so I can just click Next, Next, Next...",
-			userTypedUrl: _spPageContextInfo.webServerRelativeUrl + "/TF16"
-		};		
-
-		vm.optionalFeatures = {
-			"Air Component": true,
-			"Communications Component": true,
-			"Exercise Control Group": true,
-			"Help Desk Ticketing System": true
-		}
-
-		/* BEGIN TEMP STUFF for reference*/
-		vm.deleteLists = function () {
-			sharepointUtilities.deleteLists({
-				webUrl: vm.childWebUrl,
-				listTitles: ['Calendar', 'CCIR', "Mission Documents", 'Mission Tracker', 'Message Traffic', 'RFI', 'Watch Log']
-			});
-
-			var serverRelativeFileUrls = _.map(['socc.aspx', 'sotg.aspx'], function (sitepageFile) {
-				return vm.childWebUrl + "/SitePages/" + sitepageFile;
-			})
-
-			sharepointUtilities.deleteFiles({
-				webUrl: vm.childWebUrl,
-				fileUrls: serverRelativeFileUrls
-			});
-
-		}
-		/* END TEMP STUFF for reference */
-
-		vm.typeaheadDataSourceForSelectableUsers = sharepointUtilities.createTypeaheadDataSourceForSiteUsersList();
-
 		function generateWizardStepError(msg){
 			var dfd = $q.defer();
 			setTimeout(function(){
@@ -99,7 +57,6 @@
 				.then(setWelcomePage);
 		}
 
-
 		vm.onAdditionalFeaturesCollected = function () {
 			return createHelpDeskSystem() 
 				.then(createSoacApp)
@@ -115,7 +72,7 @@
 			vm.componentCommands.push({
 				name: "",
 				country: null,
-				staffSections: defaults.staffSectionsForCombatantCommand.slice()  //by value copy for primitives only
+				staffSections: wizard.defaults["Staff Sections for Component Command"].slice()  //by value copy for primitives only
 			});
 		}
 
@@ -330,33 +287,70 @@
 						.then(customizePermissions);
 		}
 
-		function generateDefaults() {
-			vm.componentCommands = [
-				{ name: "SOCC", country: _.find(vm.countries, { code: "US" }), staffSections: defaults.staffSectionsForCombatantCommand.slice() /* by value copy for primitives only */ }
-			];
-
-			vm.taskGroups = [
-				{ name: "SOTG 10", country: vm.countries[getRandom(vm.countries.length)], type: "Land" },
-				{ name: "SOMTG 20", country: vm.countries[getRandom(vm.countries.length)], type: "Maritime" },
-				{ name: "SOLTG 30", country: vm.countries[getRandom(vm.countries.length)], type: "Land" }
-			];
-
-			vm.airComponents = [
-				{ name: "SOAC", country: _.find(vm.countries, { code: "US" }), staffSections: defaults.staffSectionsForAirComponent.slice() /* by value copy for primitives only */ }
-			];
-
-			vm.communicationsComponents = [
-				{ name: "SIGCEN" }
-			];
-
-			vm.exerciseControlGroups = [
-				{ name: "EUCOM", notionals: ['EMBASSY', 'JFC Brunssum'], selectedUsers: [] }
-			];
+		function resolveCountry(isoCode){
+			if(!isoCode){
+				return vm.countries[getRandom(vm.countries.length)];
+			}
+			return _.find(vm.countries, { code: isoCode });
 
 			function getRandom(max) {
 				return Math.floor(Math.random() * max);
 			}
-			
+		}
+
+		function generateDefaults() {
+			vm.typeaheadDataSourceForSelectableUsers = sharepointUtilities.createTypeaheadDataSourceForSiteUsersList();
+			vm.childWebUrl = "";
+			vm.serverLocation = document.location.protocol + '//' + document.location.host;
+			vm.siteInfo = {
+				cdn: commonConfig.settings.cdn,
+				name: wizard.defaults["Site Name"],
+				description: wizard.defaults["Description"],
+				userTypedUrl: wizard.defaults["URL"]
+			};		
+
+			vm.optionalFeatures = {
+				"Air Component": wizard.defaults["Optional Features"]["Air Component"],
+				"Communications Component": wizard.defaults["Optional Features"]["Communications Tracker"],
+				"Exercise Control Group": wizard.defaults["Optional Features"]["Exercise Control Group"],
+				"Help Desk Ticketing System": wizard.defaults["Optional Features"]["Help Desk Ticketing System"]
+			};
+
+			vm.componentCommands = _.map(wizard.defaults["Component Commands"], function(cmd){
+				return { 
+					name: cmd.name, 
+					country: resolveCountry(cmd.isoCode), 
+					staffSections: wizard.defaults["Staff Sections for Component Command"].slice() /* by value copy for primitives only */ 
+				};
+			});
+
+			vm.taskGroups = _.map(wizard.defaults["Task Groups"], function(tg){
+				return { 
+					name: tg.name, 
+					country: resolveCountry(tg.isoCode), 
+					type: "Land"
+				};
+			});
+
+			vm.airComponents = [
+				{
+					name: wizard.defaults["Air Component"].name,
+					country: resolveCountry(wizard.defaults["Air Component"].isoCode),
+					staffSections: wizard.defaults["Staff Sections for Air Component"].slice() /* by value copy for primitives only */
+				}
+			];
+
+			vm.communicationsComponents = [
+				{ name: wizard.defaults["Communications Tracker"].name }
+			];
+
+			vm.exerciseControlGroups = [
+				{ 
+					name: wizard.defaults["Exercise Control Group"].name, 
+					notionals: wizard.defaults["Exercise Control Group"].notionals, 
+					selectedUsers: [] 
+				}
+			];	
 		}
 
 		function init() {
@@ -364,8 +358,6 @@
 				vm.countries = data;
 				generateDefaults();
 			});
-
-
 		}
 
 		function generateChoiceOptionsForStaffSection(prefix, sections) {
@@ -777,61 +769,7 @@
 		}
 
 		function getAll() {
-			return $q.when([
-				{ code: "NATO", flag: "_NATO", name: "NATO" },
-				{ code: "US", flag: "us", name: "USA" },
-				{ code: "AL", flag: "al", name: "Albania" },
-				{ code: "AD", flag: "ad", name: "Andorra" },
-				{ code: "AM", flag: "am", name: "Armenia" },
-				{ code: "AT", flag: "at", name: "Austria" },
-				{ code: "AZ", flag: "az", name: "Azerbaijan" },
-				{ code: "BY", flag: "by", name: "Belarus" },
-				{ code: "BE", flag: "be", name: "Belgium" },
-				{ code: "BA", flag: "ba", name: "Bosnia and Herzegovina" },
-				{ code: "BG", flag: "bg", name: "Bulgaria" },
-				{ code: "HR", flag: "hr", name: "Croatia" },
-				{ code: "CY", flag: "cy", name: "Cyprus" },
-				{ code: "CZ", flag: "cz", name: "Czech Republic" },
-				{ code: "DK", flag: "dk", name: "Denmark" },
-				{ code: "EE", flag: "ee", name: "Estonia" },
-				{ code: "FI", flag: "fi", name: "Finland" },
-				{ code: "FR", flag: "fr", name: "France" },
-				{ code: "GE", flag: "ge", name: "Georgia" },
-				{ code: "DE", flag: "de", name: "Germany" },
-				{ code: "GR", flag: "gr", name: "Greece" },
-				{ code: "VA", flag: "va", name: "Holy See (Vatican City)" },
-				{ code: "HU", flag: "hu", name: "Hungary" },
-				{ code: "IS", flag: "is", name: "Iceland" },
-				{ code: "IE", flag: "ie", name: "Ireland" },
-				{ code: "IL", flag: "il", name: "Israel" },
-				{ code: "IT", flag: "it", name: "Italy" },
-				{ code: "XK", flag: "_Kosovo", name: "Kosovo" },
-				{ code: "LV", flag: "lv", name: "Latvia" },
-				{ code: "LI", flag: "li", name: "Liechtenstein" },
-				{ code: "LT", flag: "lt", name: "Lithuania" },
-				{ code: "LU", flag: "lu", name: "Luxembourg" },
-				{ code: "MT", flag: "mt", name: "Malta" },
-				{ code: "MD", flag: "md", name: "Moldova" },
-				{ code: "MC", flag: "mc", name: "Monaco" },
-				{ code: "ME", flag: "me", name: "Montenegro" },
-				{ code: "NL", flag: "nl", name: "Netherlands" },
-				{ code: "NO", flag: "no", name: "Norway" },
-				{ code: "PL", flag: "pl", name: "Poland" },
-				{ code: "PT", flag: "pt", name: "Portugal" },
-				{ code: "MK", flag: "mk", name: "Republic of Macedonia" },
-				{ code: "RO", flag: "ro", name: "Romania" },
-				{ code: "RU", flag: "ru", name: "Russia" },
-				{ code: "SM", flag: "sm", name: "San Marino" },
-				{ code: "RS", flag: "rs", name: "Serbia" },
-				{ code: "SK", flag: "sk", name: "Slovakia" },
-				{ code: "SI", flag: "si", name: "Slovenia" },
-				{ code: "ES", flag: "es", name: "Spain" },
-				{ code: "SE", flag: "se", name: "Sweden" },
-				{ code: "CH", flag: "ch", name: "Switzerland" },
-				{ code: "TR", flag: "tr", name: "Turkey" },
-				{ code: "UA", flag: "ua", name: "Ukraine" },
-				{ code: "GB", flag: "gb", name: "United Kingdom" }
-			]);
+			return $q.when(wizard.countriesDataSource);
 		}
 	}
 })();
