@@ -287,11 +287,11 @@
 						.then(customizePermissions);
 		}
 
-		function resolveCountry(isoCode){
-			if(!isoCode){
+		function resolveCountry(flagCode){
+			if(!flagCode){
 				return vm.countries[getRandom(vm.countries.length)];
 			}
-			return _.find(vm.countries, { code: isoCode });
+			return _.find(vm.countries, { code: flagCode });
 
 			function getRandom(max) {
 				return Math.floor(Math.random() * max);
@@ -319,7 +319,7 @@
 			vm.componentCommands = _.map(wizard.defaults["Component Commands"], function(cmd){
 				return { 
 					name: cmd.name, 
-					country: resolveCountry(cmd.isoCode), 
+					country: resolveCountry(cmd.flagCode), 
 					staffSections: wizard.defaults["Staff Sections for Component Command"].slice() /* by value copy for primitives only */ 
 				};
 			});
@@ -327,7 +327,7 @@
 			vm.taskGroups = _.map(wizard.defaults["Task Groups"], function(tg){
 				return { 
 					name: tg.name, 
-					country: resolveCountry(tg.isoCode), 
+					country: resolveCountry(tg.flagCode), 
 					type: "Land"
 				};
 			});
@@ -335,7 +335,7 @@
 			vm.airComponents = [
 				{
 					name: wizard.defaults["Air Component"].name,
-					country: resolveCountry(wizard.defaults["Air Component"].isoCode),
+					country: resolveCountry(wizard.defaults["Air Component"].flagCode),
 					staffSections: wizard.defaults["Staff Sections for Air Component"].slice() /* by value copy for primitives only */
 				}
 			];

@@ -17,19 +17,19 @@ wizard.defaults["Staff Sections for Air Component"] = ["A1", "A2", "A3 Director 
 
 /**
  * Names should be of limited length since they will be included in the menu for sidebar
- * ISO code optional..if blank flag gets generated randomly
+ * flag code optional..if blank flag gets generated randomly
  */
 wizard.defaults["Component Commands"] = [
-    {name: "SOCEUR", isoCode: "US"}
+    {name: "SOCEUR", flagCode: "US"}
 ];
 
 wizard.defaults["Task Groups"] = [
-    {name: "Deutsches Heer", isoCode: "DE"},
+    {name: "Deutsches Heer", flagCode: "DE"},
     {name: "SOTG 20"},
-    {name: "SOTG 30", isoCode: "FR"}
+    {name: "SOTG 30", flagCode: "FR"}
 ];
 
-wizard.defaults["Air Component"] = {name: "Luftwaffe", isoCode: "DE"};
+wizard.defaults["Air Component"] = {name: "Luftwaffe", flagCode: "DE"};
 
 wizard.defaults["Communications Tracker"] = {name: "SOCEUR SSD"};
 
