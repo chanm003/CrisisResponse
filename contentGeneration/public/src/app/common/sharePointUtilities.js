@@ -1127,8 +1127,14 @@
 			}
 
 			function onQueryFailed(sender, args) {
-				logger.logError('Request failed: Updating of choice field(s) failed for the list ' + opts.listName + ': ' + args.get_message(), args.get_stackTrace(), 'sharepointUtilities service, updateChoiceFields()');
-				dfd.reject();
+				var expectedErrorMessageWhenListDoesNotExist = "List '"+opts.listName+"' does not exist at site";
+				if(args.get_message().indexOf(expectedErrorMessageWhenListDoesNotExist) >= 0){
+					logger.logSuccess('No choice fields were updated because the following list does not exist: ' + opts.listName, null, 'sharepointUtilities service, updateChoiceFields()');
+					dfd.resolve();
+				} else{
+					logger.logError('Request failed: Updating of choice field(s) failed for the list ' + opts.listName + ': ' + args.get_message(), args.get_stackTrace(), 'sharepointUtilities service, updateChoiceFields()');
+					dfd.reject();
+				}
 			}
 		}
 

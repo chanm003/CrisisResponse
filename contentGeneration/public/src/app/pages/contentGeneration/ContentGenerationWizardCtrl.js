@@ -220,10 +220,10 @@
 		}
 
 		function createHelpDeskSystem(){
-			/** 
-			 * for now, create the "Help Desk" list every time
-			 * otherwise modifyChoiceFields will fail when it tries to update the Organization field in a list that does not exist... 
-			*/
+			if(!vm.optionalFeatures["Help Desk Ticketing System"]){
+				//SKIP this step
+				return $q.when({});
+			}
 			var listSchemaDef = crisisResponseSchema.listDefs["Help Desk"];
 			listSchemaDef.webUrl = vm.childWebUrl;
 			return sharepointUtilities.createList(listSchemaDef);
