@@ -3506,34 +3506,6 @@
         MissionTrackerRepository.getByOrganization(vm.selectedOrg).then(function (data) {
             vm.missions = _.map(data, function (item) { return new Mission(item); });
         });
-
-        setPageHeader(vm.selectedOrg);
-
-        function setPageHeader(text){
-            var header = angular.element("#DeltaPlaceHolderPageTitleInTitleArea");
-            header.text(header.text() + " - " + text);
-        }
-    }
-
-
-})(jocInBoxConfig.noConflicts.jQuery, jocInBoxConfig.noConflicts.lodash);
-
-/* Controller: CommsAspxController */
-(function ($, _) {
-    angular
-        .module('app.core')
-        .controller('CommsAspxController', ControllerDefFunc);
-
-    ControllerDefFunc.$inject = ['_'];
-    function ControllerDefFunc(_) {
-        var vm = this;
-        vm.selectedOrg = (_.getQueryStringParam("org") || "");
-        setPageHeader(vm.selectedOrg);
-
-        function setPageHeader(text){
-            var header = angular.element("#DeltaPlaceHolderPageTitleInTitleArea");
-            header.text(header.text() + " - " + text);
-        }
     }
 
 
@@ -4560,11 +4532,8 @@
             spPage.attr('ng-controller', 'MissionProductsDataEntryAspxController as vm');
         }
 
-        if (_.includes(currentURL, '/SITEPAGES/COMMS.ASPX')) {
-            spPage.attr('ng-controller', 'CommsAspxController as vm');
-        }
-
         addMenuDirective();
+        setPageHeader();
         //BOOTSTRAP NG-APP
         angular.bootstrap(document, ['singlePageApp']); 
 
@@ -4572,6 +4541,13 @@
             spPage.find("#sideNavBox").prepend("<nav-menu></nav-menu>");
         }
 
-        
+        function setPageHeader(){
+            var organization = _.getQueryStringParam("org");
+
+            if(organization){
+                var header = angular.element("#DeltaPlaceHolderPageTitleInTitleArea");
+                header.text(header.text() + " - " + organization);
+            }
+        }        
     }
 })(jocInBoxConfig.noConflicts.jQuery, jocInBoxConfig.noConflicts.lodash);

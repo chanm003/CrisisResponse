@@ -34,7 +34,7 @@ wizard.defaults["Air Component"] = {name: "Luftwaffe", flagCode: "DE"};
 wizard.defaults["Communications Tracker"] = {name: "SOCEUR SSD"};
 
 wizard.defaults["Exercise Control Group"] = {
-    name: "Private Cell",
+    name: "Response Cell",
     notionals: ['Embassy']
 };
 
