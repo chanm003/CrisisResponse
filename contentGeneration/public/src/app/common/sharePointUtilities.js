@@ -772,8 +772,11 @@
                 remote: {
                     //REST endpoint: /_api/web/siteusers?$filter=substringof('Chan', Title)
 					// tolower is in OData spec, but not SP2013 REST https://msdn.microsoft.com/en-us/library/office/fp142385(v=office.15).aspx#bk_supported
-                    url: _spPageContextInfo.webServerRelativeUrl + "/_api/web/siteusers?$filter=substringof('%QUERY', Title)",
+                    url: _spPageContextInfo.webServerRelativeUrl + "/_api/web/siteusers?$filter=substringof('%QUERY', Title) or substringof('%QUERY', LoginName)",
                     wildcard: '%QUERY',
+					replace: function (url, query) {
+                		return url.replace(new RegExp('%QUERY', 'g'), query);
+            		},
                     transport: function (opts, onSuccess, onError) {
                         $.ajax({
 								url: opts.url,
