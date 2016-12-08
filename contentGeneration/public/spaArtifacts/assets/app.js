@@ -307,6 +307,8 @@
         service.getIdFromLookupField = getIdFromLookupField;
         service.defaultHeaders = defaultHeaders;
         service.copyFile = copyFile;
+        service.sendEmail = sendEmail;
+        service.generateEmailBody = generateEmailBody;
 
         service.htmlHelpers = {};
         service.htmlHelpers.buildHeroButton = function (text, href, ngShowAttrValue) {
@@ -391,6 +393,13 @@
                 url: url,
                 headers: headers
             });
+        }
+
+        function generateEmailBody(templateUrl, data){
+            return $http({url: templateUrl}).then(function(response){
+                var compiled = jocInBoxConfig.noConflicts.lodash.template(response.data);
+                return compiled(data);
+            })
         }
 
         function getContextFromEditFormASPX() {
@@ -514,6 +523,28 @@
                 logger.error("response from contextinfo: " + error);
             }
 
+        }
+
+        function sendEmail(from, to, subject, body){
+            var recipients = (angular.isArray(to)) ? to : [to];
+            var postData = {
+                'properties': {
+                    '__metadata': { 'type': 'SP.Utilities.EmailProperties' },
+                    'From': from,
+                    'To': { 'results': recipients },
+                    'Subject': subject,
+                    'Body': body
+                }
+            };
+            
+            var headers = angular.extend({}, service.defaultHeaders, {'X-RequestDigest': service.securityValidation});
+
+            return $http({
+                method: "post",
+                url: "/_api/SP.Utilities.Utility.SendEmail",
+                data: JSON.stringify(postData), 
+                headers: headers
+            });
         }
     }
 })(jocInBoxConfig.noConflicts.jQuery, jocInBoxConfig.noConflicts.lodash);
@@ -4169,11 +4200,24 @@
         .module('app.core')
         .controller('DeveloperSandboxController', ControllerDefFunc);
 
-    ControllerDefFunc.$inject = ['$q', '$routeParams', '_', 'logger'];
-    function ControllerDefFunc($q, $routeParams, _, logger) {
+    ControllerDefFunc.$inject = ['$q', '$routeParams', '_', 'logger', 'spContext'];
+    function ControllerDefFunc($q, $routeParams, _, logger, spContext) {
         var vm = this;
 
         activate();
+
+        vm.onButtonClicked = function(){
+            var body = 'test body generated at ' + moment().toISOString();
+            spContext.sendEmail('mike@chanm003.onmicrosoft.com', 'mike@chanm003.onmicrosoft.com', 'test subject', body)
+                .then(function(data){
+                    console.log(data);
+                });
+        }
+
+        spContext.generateEmailBody('/ngspa/TF08/mike.txt', { item: {balance: '$89823982983293.32'} })
+            .then(function(body){
+                console.log(body);
+            });
         
         function activate() {
             $q.all([
