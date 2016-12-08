@@ -152,6 +152,7 @@
 /*#region TIMELINE-VERTICAL BEGIN*/
 
 .vertical-timeline {
+  display: inline-block;
   position: relative;
   width: 660px;
   margin: 0 auto;

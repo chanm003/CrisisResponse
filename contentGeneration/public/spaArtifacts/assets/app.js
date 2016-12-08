@@ -4174,20 +4174,13 @@
         var vm = this;
 
         activate();
-
-        vm.createGroup = function(){
-        }
-
         
-    
         function activate() {
             $q.all([
-                getDataForVerticalTimeline(),
-                getDataForProcess()
+                getDataForVerticalTimeline()
             ])
                 .then(function (data) {
                     vm.missionLifecycleEvents = data[0];
-                    vm.routingSteps = data[1];
                     logger.info('Activated Developer Sandbox View');
                 });
         }
@@ -4205,32 +4198,18 @@
                     subject: 'Got footprint',
                     message: 'When choosing a motion for side panels, consider the origin of the triggering element. Use the motion to create a link between the action and the resulting UI.',
                     moment: moment().add(1, 'days')
+                },
+                {
+                    direction: 'left',
+                    subject: 'Got Birth Certificate',
+                    message: 'When choosing a motion for side panels, consider the origin of the triggering element. Use the motion to create a link between the action and the resulting UI.',
+                    moment: moment().add(2, 'days')
                 }
             ];
             return $q.when(staticData);
         }
 
-        function getDataForProcess() {
-            var staticData = [
-                {
-                    status: 'complete',
-                    text: "Shift Created"
-                },
-                {
-                    status: 'complete',
-                    text: "Email Sent"
-                },
-                {
-                    status: 'incomplete',
-                    text: "SIC Approval"
-                },
-                {
-                    status: '',
-                    text: "Shift Completed"
-                }
-            ];
-            return $q.when(staticData);
-        }
+
     }
 })(jocInBoxConfig.noConflicts.jQuery, jocInBoxConfig.noConflicts.lodash);
 
