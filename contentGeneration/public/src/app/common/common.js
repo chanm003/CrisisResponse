@@ -63,17 +63,20 @@
 	
 	
 	function commonConfig() {
-		this.settings = {
-			baseUrl: 'http://localhost:3000', 
-			cdn: 'http://localhost:3000/spaArtifacts/assets' 
+		var productionSettings = {
+			baseUrl: _spPageContextInfo.webServerRelativeUrl + '/generator', 
+			cdn: '~site/SitePages',
+			type: "PRODUCTION"
 		};
 
-		/*PRODUCTION
-		this.settings = {
-			baseUrl: _spPageContextInfo.webServerRelativeUrl + '/generator', 
-			cdn: '~site/SitePages'
+		var devSettings = {
+			baseUrl: 'http://localhost:3000', 
+			cdn: 'http://localhost:3000/spaArtifacts/assets',
+			type: "DEV"
 		};
-		*/
+
+		//CHANGE THIS LINE FOR THE PRODUCTION RELEASE
+		this.settings = devSettings;
 
     	this.$get = function () {
       		return {

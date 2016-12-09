@@ -566,11 +566,14 @@
 				dashboards[orgName].routes = [];
 			});
 
+			var templateDirectoryStatement = (commonConfig.settings.type === "DEV") ? 
+				'jocInBoxConfig.htmlTemplatesLocation = "http://localhost:3000/spaArtifacts/assets";' :
+				'jocInBoxConfig.htmlTemplatesLocation = "' + vm.childWebUrl + '/SitePages";';
+
 			var content = [
 				'var jocInBoxConfig = jocInBoxConfig || {};',
 				'jocInBoxConfig.noConflicts = { jQuery: $.noConflict(), lodash: _.noConflict() };',
-				//'jocInBoxConfig.htmlTemplatesLocation = "' + vm.childWebUrl + '/SitePages";',
-				'jocInBoxConfig.htmlTemplatesLocation = "http://localhost:3000/spaArtifacts/assets";',
+				templateDirectoryStatement,
 				'jocInBoxConfig.dashboards = ' + JSON.stringify(dashboards) + ";",
 				'jocInBoxConfig.missionTypes = ' + JSON.stringify(crisisResponseSchema.missionTypesMappedToDefaultApprovalAuthority) + ";"
 			].join('\n\n');

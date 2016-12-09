@@ -3,7 +3,7 @@
     var globalConfig = {
         appErrorPrefix: '[Exercise Application Error] ',
         appTitle: 'Exercise Application',
-        showDebugToasts: true
+        showDebugToasts: true  //CHANGE THIS TO 'FALSE' FOR THE PRODUCTION RELEASE
     };
 
     angular.module('singlePageApp', [
