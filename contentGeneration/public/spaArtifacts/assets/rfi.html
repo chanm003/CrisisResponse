@@ -1,15 +1,6 @@
 <p>
   <uif-pivot uif-type="{{vm.tabConfig.selectedType}}" uif-size="{{vm.tabConfig.selectedSize}}" uif-pivots="vm.tabConfig.pivots"
     uif-selected="vm.tabConfig.selectedPivot" id="msPivot" class="pivot-overflow-fix">
-    <uif-pivot-ellipsis ng-click="vm.openMenu()">
-      <uif-contextual-menu uif-is-open="vm.tabConfig.menuOpened" uif-close-on-click="true">
-        <uif-contextual-menu-item ng-click="vm.goToNewRfiForm()">
-          <uif-content>
-            <uif-icon uif-type="plus"></uif-icon> New RFI
-          </uif-content>
-        </uif-contextual-menu-item>
-      </uif-contextual-menu>
-    </uif-pivot-ellipsis>
   </uif-pivot>
 </p>
 
