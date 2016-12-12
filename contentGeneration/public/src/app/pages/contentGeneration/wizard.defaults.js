@@ -5,9 +5,9 @@ wizard.defaults["Site Name"] = "Trojan Footprint 08";
 wizard.defaults["Description"] = "This is boilerplate text...";
 
 /** 
- * this URL SHOULD be within same site collection
+ * this URL SHOULD be within same site collection of where the Site Creation Wizard has been deployed
  */
-wizard.defaults["URL"] = "/ngspa/TF08";
+wizard.defaults["URL"] = "/TF08";
 
 /** 
  * staff sections within component command provide feedback during document chop process

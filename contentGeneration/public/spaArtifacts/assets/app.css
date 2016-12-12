@@ -146,6 +146,11 @@ UNCOMMENT THIS BLOCK PRIOR FOR THE PRODUCTION RELEASE
   padding-right: 6px;
 }
 
+.ms-Button{
+  /*CSS2 to fix vertical aligning of text inside IE*/
+  display: table;
+}
+
 /*#endregion Override Office UI Fabric:  END*/
 
 
