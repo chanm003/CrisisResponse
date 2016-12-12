@@ -58,7 +58,7 @@
                       {{item.Priority}}
               </div>
             </uif-table-cell>
-            <uif-table-cell style="white-space:nowrap;">{{item.LTIOV.format('DD MMM YY HHmm[Z]').toUpperCase()}}</uif-table-cell>
+            <uif-table-cell style="white-space:nowrap;">{{(item.LTIOV.isValid())? item.LTIOV.format('DD MMM YY HHmm[Z]').toUpperCase() : ''}}</uif-table-cell>
             <uif-table-cell style="white-space:nowrap;">{{item.Created.format('DD MMM YY HHmm[Z]').toUpperCase()}}</uif-table-cell>
             <uif-table-cell style="white-space:nowrap;" ng-show="vm.tabConfig.selectedPivot.title === 'Closed'">{{item.DateClosed.format('DD MMM YY HHmm[Z]').toUpperCase()}}</uif-table-cell>
           </uif-table-row>
