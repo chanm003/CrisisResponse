@@ -1031,7 +1031,7 @@
 		}
 
 		function getSharepointGroups(opts){
-			var url = "/_api/web/siteGroups?$filter=substringof('"+ opts.keyword +"', Title)&$expand=Users,Owner&$select=Id,Title,Description,Owner/Title,Owner/Email&$orderby=Title";
+			var url = _spPageContextInfo.webServerRelativeUrl + "/_api/web/siteGroups?$filter=substringof('"+ opts.keyword +"', Title)&$expand=Users,Owner&$select=Id,Title,Description,Owner/Title,Owner/Email&$orderby=Title";
 			return $http({
 					url: url,
 					headers: { "Accept": "application/json;odata=verbose" } 

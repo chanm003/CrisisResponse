@@ -19,7 +19,7 @@
         }
 
         function deleteSharePointGroup(group){
-            return sharepointUtilities.deleteSharepointGroup({webUrl: '/', groupID: group.Id});
+            return sharepointUtilities.deleteSharepointGroup({webUrl: _spPageContextInfo.webServerRelativeUrl, groupID: group.Id});
         }
 
         vm.goToGroupMembersPage = function (group) {
