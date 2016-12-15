@@ -151,6 +151,23 @@
                 }
             };
 
+            /* MessageOriginatorSender COLUMN*/
+            fieldCustomizations["MessageOriginatorSender"] = {};
+            fieldCustomizations["MessageOriginatorSender"]["EditForm"] = function(ctx){
+                try {
+                    ctx.CurrentFieldSchema.Choices = trimOrganizationChoicesBasedOnQueryString(ctx.CurrentFieldSchema.Choices);
+                    setDropdownOnNewFormWhenOnlyOneOption(ctx);
+                    return SPFieldChoice_Edit(ctx);
+                }
+                catch (err) {
+                    return 'Error parsing column "MessageOriginatorSender"';
+                }
+            };
+
+            /* MessageRecipients COLUMN*/
+            fieldCustomizations["MessageRecipients"] = {};
+            fieldCustomizations["MessageRecipients"]["EditForm"] = removeMultiChoiceOptionBasedOnQueryString;
+
             /* MissionType COLUMN*/
             fieldCustomizations["MissionType"] = {};
             fieldCustomizations["MissionType"]["EditForm"] = function (ctx) {
@@ -189,7 +206,20 @@
                 }
             };
 
-             /* PocName COLUMN*/
+            /* OriginatorSender COLUMN*/
+            fieldCustomizations["OriginatorSender"] = {};
+            fieldCustomizations["OriginatorSender"]["NewForm"] = fieldCustomizations["OriginatorSender"]["EditForm"] = function (ctx) {
+                try {
+                    ctx.CurrentFieldSchema.Choices = trimOrganizationChoicesBasedOnQueryString(ctx.CurrentFieldSchema.Choices);
+                    setDropdownOnNewFormWhenOnlyOneOption(ctx);
+                    return SPFieldChoice_Edit(ctx);
+                }
+                catch (err) {
+                    return 'Error parsing column "OriginatorSender"';
+                }
+            };
+
+            /* PocName COLUMN*/
             fieldCustomizations["PocName"] = {};
             fieldCustomizations["PocName"]["EditForm"] = function (ctx) {
                 try {
@@ -206,20 +236,11 @@
                 }
             };
 
-            /* OriginatorSender COLUMN*/
-            fieldCustomizations["OriginatorSender"] = {};
-            fieldCustomizations["OriginatorSender"]["NewForm"] = fieldCustomizations["OriginatorSender"]["EditForm"] = function (ctx) {
-                try {
-                    ctx.CurrentFieldSchema.Choices = trimOrganizationChoicesBasedOnQueryString(ctx.CurrentFieldSchema.Choices);
-                    setDropdownOnNewFormWhenOnlyOneOption(ctx);
-                    return SPFieldChoice_Edit(ctx);
-                }
-                catch (err) {
-                    return 'Error parsing column "OriginatorSender"';
-                }
-            };
+             /* Receiver COLUMN*/
+            fieldCustomizations["Receiver"] = {};
+            fieldCustomizations["Receiver"]["EditForm"] = removeMultiChoiceOptionBasedOnQueryString;
 
-             /* RespondentName COLUMN*/
+            /* RespondentName COLUMN*/
             fieldCustomizations["RespondentName"] = {};
             fieldCustomizations["RespondentName"]["EditForm"] = function (ctx) {
                 try {
@@ -240,18 +261,33 @@
             SPClientTemplates.TemplateManager.RegisterTemplateOverrides({
                 Templates: {
                     Fields: {
+                        //LIST(s): Inject, RFI 
                         'ActionsHtml': { 'View': fieldCustomizations["ActionsHtml"]["View"] },
+                        //LIST(s): Mission Tracker
                         'ApprovalAuthority': { 'EditForm': fieldCustomizations["ApprovalAuthority"]["EditForm"], 'NewForm': fieldCustomizations["ApprovalAuthority"]["NewForm"] },
+                        //LIST(s): Mission Documents
                         'ChopProcess': { 'View': fieldCustomizations["ChopProcess"]["View"] },
+                        //LIST(s): Mission Tracker
                         'Identifier': { 'EditForm': fieldCustomizations["Identifier"]["EditForm"] },
+                        //LIST(s): Mission Tracker
                         'FullName': { 'EditForm': fieldCustomizations["FullName"]["EditForm"] },
+                        //LIST(s): Mission Documents
+                        'MessageOriginatorSender': { 'EditForm': fieldCustomizations["MessageOriginatorSender"]["EditForm"] },
+                        //LIST(s): Mission Tracker
                         'MissionType': { 'EditForm': fieldCustomizations["MissionType"]["EditForm"] },
+                        //LIST(s): AAR, Calendar, CCIR, Help Desk, Mission Documents, Mission Tracker, Phonebook, Watch Log
                         'Organization': { 'EditForm': fieldCustomizations["Organization"]["EditForm"], 'NewForm': fieldCustomizations["Organization"]["NewForm"] },
-                        'OriginatorSender': { 'EditForm': fieldCustomizations["OriginatorSender"]["EditForm"], 'NewForm': fieldCustomizations["OriginatorSender"]["NewForm"] },
+                        //LIST(s): Inject, Message Traffic 
+                        'OriginatorSender': { 'NewForm': fieldCustomizations["OriginatorSender"]["NewForm"] },
+                        //LIST(s): RFI 
                         'PocName': { 'EditForm': fieldCustomizations["PocName"]["EditForm"] },
+                        //LIST(s): Inject, Message Traffic 
+                        'Receiver': { 'NewForm': fieldCustomizations["Receiver"]["NewForm"] },
+                        //LIST(s): Mission Documents
+                        'MessageRecipients': { 'EditForm': fieldCustomizations["MessageRecipients"]["EditForm"] },
+                        //LIST(s): RFI 
                         'RespondentName': { 'EditForm': fieldCustomizations["RespondentName"]["EditForm"] }
                     }
-
                 }
             });
 
@@ -326,6 +362,16 @@
                 return _.includes(document.location.pathname, "/Lists/" + listName + "/") && ctx.BaseViewID === formType;
             }
 
+            function removeMultiChoiceOptionBasedOnQueryString(ctx){
+                try {
+                    ctx.CurrentFieldSchema.MultiChoices = trimSingleChoiceBasedOnQueryString(ctx.CurrentFieldSchema.MultiChoices);
+                    return SPFieldMultiChoice_Edit(ctx);
+                }
+                catch (err) {
+                    return 'Error parsing column "'+ctx.CurrentFieldSchema.Name+'"';
+                }
+            };
+
             function setDropdownOnNewFormWhenOnlyOneOption(ctx) {
                 if(ctx.CurrentFieldSchema.Choices.length === 1 && !ctx.CurrentFieldValue) {
                     //only one choice so preset for the user
@@ -337,6 +383,15 @@
                 var org = _.extractOrgFromQueryString();
                 if (org) {
                     return _.intersection(existingOptions, jocInBoxConfig.dashboards[org].optionsForChoiceField);
+                } else {
+                    return existingOptions;
+                }
+            }
+
+            function trimSingleChoiceBasedOnQueryString(existingOptions) {
+                var org = _.extractOrgFromQueryString();
+                if (org) {
+                    return _.reject(existingOptions, function(option){ return option === org; });
                 } else {
                     return existingOptions;
                 }
@@ -515,7 +570,6 @@
                 if(!_.includes(document.location.pathname.toUpperCase(), "/MISSIONDOCUMENTS/FORMS/EDITFORM.ASPX") ){ return ""; }
                 var field = ctx.ListSchema.Field[0];
                 hideRow(field.Name);
-                setToBlank(ctx, field);
 
                 function hideRow(fieldName){
                     var fieldsToHide = ['MessageTitle', 'MessageDetails', 'MessageDTG', 'MessageOriginatorSender', 'MessageRecipients', 'SignificantMessage']
@@ -540,26 +594,6 @@
                         }
                         if(hideColumnsPertinentToSOAC){
                             SPUtility.GetSPFieldByInternalName(fieldName).Hide();
-                        }
-                    }
-                }
-
-                function setToBlank(ctx, field){
-                    //FlaggedForSoacDailyUpdate, SendAsMessage
-                    var fieldsToBlankout = ['SendAsMessage','MessageTitle', 'MessageDetails', 'MessageDTG', 'MessageOriginatorSender', 'MessageRecipients', 'SignificantMessage']
-
-                    if(_.includes(fieldsToBlankout, field.Name)){
-                        if(field.FieldType === "Choice" && field.FormatType === 0){
-                            //blank out dropdown
-                            setTimeout(function(){
-                                    //not sure why artificial delay must be introduced
-                                    $(SPUtility.GetSPFieldByInternalName(field.Name).ControlsRow.cells[1]).find("select").val('');
-                                }, 500);
-                        } else if(field.FieldType === 'MultiChoice'){
-                            //blank out checkboxes
-                            $(SPUtility.GetSPFieldByInternalName(field.Name).ControlsRow.cells[1]).find("input:checkbox").prop('checked', false);
-                        } else {
-                            SPUtility.GetSPFieldByInternalName(field.Name).SetValue('');
                         }
                     }
                 }
