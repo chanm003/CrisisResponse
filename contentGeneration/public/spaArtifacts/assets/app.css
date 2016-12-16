@@ -146,6 +146,10 @@ UNCOMMENT THIS BLOCK PRIOR FOR THE PRODUCTION RELEASE
   padding-right: 6px;
 }
 
+.js-callout-mainElement:focus {
+	/*On chrome when <DIV> has focus, there is sometimes a blue line around it*/
+    outline: none;
+}
 
 /*#endregion Override Office UI Fabric:  END*/
 
