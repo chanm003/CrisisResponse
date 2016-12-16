@@ -56,237 +56,37 @@
         }
 
         function customizeFieldRendering() {
-            var fieldCustomizations = {};
-
-            /* ActionsHtml COLUMN*/
-            fieldCustomizations["ActionsHtml"] = {};
-            fieldCustomizations["ActionsHtml"]["View"] = function (ctx) {
-                try {
-                    var html;
-                    if (ctx.ListTitle === "RFI") {
-                        var buttonText = (ctx.CurrentItem.Status === "Open") ? "Respond" : "Reopen";
-                        html = "<a class='custombtn' rfibutton data-id='" + ctx.CurrentItem.ID + "'>" + buttonText + "</a>";
-                    } else if (ctx.ListTitle === "Inject") {
-                        var injectButtonClass = (ctx.CurrentItem.Status === 'Completed') ? 'disabled-custombtn' : 'custombtn';
-                        html = "<a class='"+injectButtonClass+"' injectbutton data-id='" + ctx.CurrentItem.ID + "' data-status='" + ctx.CurrentItem.Status + 
-                            "' data-receivers='" + ctx.CurrentItem.Receiver.join(';') + "' title='Publish this scenario to " + ctx.CurrentItem.Receiver.join(', ') + "'>Inject</a>";
-                    }
-                    return STSHtmlDecode(html);
-                }
-                catch (err) {
-                    return 'Error parsing calculated column "ActionsHtml"';
-                }
-            };
-
-            /* ApprovalAuthority COLUMN*/
-            fieldCustomizations["ApprovalAuthority"] = {};
-            fieldCustomizations["ApprovalAuthority"]["NewForm"] = fieldCustomizations["ApprovalAuthority"]["EditForm"] = function (ctx) {
-                try {
-                    ctx.CurrentFieldSchema.Choices = getApprovalAuthorityOptionsBasedOnQueryString();
-                    setDropdownOnNewFormWhenOnlyOneOption(ctx);
-                    return SPFieldChoice_Edit(ctx) + '<uif-message-bar ng-show="routeMessage"> <uif-content><strong>Documents associated to this mission will be routed as follows: </strong><div>{{routeMessage}}</div></uif-content> </uif-message-bar>';
-
-                    function getApprovalAuthorityOptionsBasedOnQueryString() {
-                        var org = _.extractOrgFromQueryString();
-                        if (org) {
-                            return _.map(jocInBoxConfig.dashboards[org].routes, 'name');
-                        } else {
-                            return [];
-                        }
-                    }
-                }
-                catch (err) {
-                    return 'Error parsing column "ApprovalAuthority"';
-                }
-            };
-
-            /* ChopProcess COLUMN*/
-            fieldCustomizations["ChopProcess"] = {};
-            fieldCustomizations["ChopProcess"]["View"] = function (ctx) {
-                try {
-                    var html;
-                    if (ctx.ListTitle === "Mission Documents") {
-                        if (!ctx.CurrentItem.ChopProcess) {
-                            html = "<a class='custombtn' initiatechopbutton data-id='" + ctx.CurrentItem.ID + "'>Chop</a>";
-                        } else {
-                            html = "<a class='disabled-custombtn' initiatechopbutton data-chop-process='" + ctx.CurrentItem.ChopProcess + "' data-id='" + ctx.CurrentItem.ID + "'>Chop</a>";
-                        }
-                    }
-                    return STSHtmlDecode(html);
-                }
-                catch (err) {
-                    return 'Error parsing column "ChopProcess"';
-                }
-            };
-
-            /* Identifier COLUMN*/
-            fieldCustomizations["Identifier"] = {};
-            fieldCustomizations["Identifier"]["EditForm"] = function (ctx) {
-                try {
-                    if (isDataEntryFormFor(ctx, "MissionTracker", "EditForm")) {
-                        //render as read-only
-                        return SPField_FormDisplay_Default(ctx) + "<br/>";
-                    }
-
-                    return SPFieldChoice_Edit(ctx);
-                }
-                catch (err) {
-                    return 'Error parsing column "Identifier"';
-                }
-            };
-
-            /* FullName COLUMN*/
-            fieldCustomizations["FullName"] = {};
-            fieldCustomizations["FullName"]["EditForm"] = function (ctx) {
-                try {
-                    if (isDataEntryFormFor(ctx, "MissionTracker", "EditForm")) {
-                        //render as read-only
-                        return SPField_FormDisplay_Default(ctx) + "<br/>";
-                    }
-
-                    return SPFieldChoice_Edit(ctx);
-                }
-                catch (err) {
-                    return 'Error parsing column "FullName"';
-                }
-            };
-
-            /* MessageOriginatorSender COLUMN*/
-            fieldCustomizations["MessageOriginatorSender"] = {};
-            fieldCustomizations["MessageOriginatorSender"]["EditForm"] = function(ctx){
-                try {
-                    ctx.CurrentFieldSchema.Choices = trimOrganizationChoicesBasedOnQueryString(ctx.CurrentFieldSchema.Choices);
-                    setDropdownOnNewFormWhenOnlyOneOption(ctx);
-                    return SPFieldChoice_Edit(ctx);
-                }
-                catch (err) {
-                    return 'Error parsing column "MessageOriginatorSender"';
-                }
-            };
-
-            /* MessageRecipients COLUMN*/
-            fieldCustomizations["MessageRecipients"] = {};
-            fieldCustomizations["MessageRecipients"]["EditForm"] = removeMultiChoiceOptionBasedOnQueryString;
-
-            /* MissionType COLUMN*/
-            fieldCustomizations["MissionType"] = {};
-            fieldCustomizations["MissionType"]["EditForm"] = function (ctx) {
-                try {
-                    if (isDataEntryFormFor(ctx, "MissionTracker", "EditForm")) {
-                        //render as read-only
-                        return SPField_FormDisplay_Default(ctx);
-                    }
-
-                    return SPFieldChoice_Edit(ctx);
-                }
-                catch (err) {
-                    return 'Error parsing column "MissionType"';
-                }
-            };
-
-            /* Organization COLUMN*/
-            fieldCustomizations["Organization"] = {};
-            fieldCustomizations["Organization"]["NewForm"] = fieldCustomizations["Organization"]["EditForm"] = function (ctx) {
-                try {
-                    if (isDataEntryFormFor(ctx, "MissionTracker", "EditForm")) {
-                        //render as read-only
-                        return SPField_FormDisplay_Default(ctx);
-                    }
-
-                    if(ctx.CurrentFieldSchema.FieldType !== "Choice"){
-                        return getDefaultHtmlOutput(ctx);
-                    }
-
-                    ctx.CurrentFieldSchema.Choices = trimOrganizationChoicesBasedOnQueryString(ctx.CurrentFieldSchema.Choices);
-                    setDropdownOnNewFormWhenOnlyOneOption(ctx);
-                    return SPFieldChoice_Edit(ctx);
-                }
-                catch (err) {
-                    return 'Error parsing column "Organization"';
-                }
-            };
-
-            /* OriginatorSender COLUMN*/
-            fieldCustomizations["OriginatorSender"] = {};
-            fieldCustomizations["OriginatorSender"]["NewForm"] = fieldCustomizations["OriginatorSender"]["EditForm"] = function (ctx) {
-                try {
-                    ctx.CurrentFieldSchema.Choices = trimOrganizationChoicesBasedOnQueryString(ctx.CurrentFieldSchema.Choices);
-                    setDropdownOnNewFormWhenOnlyOneOption(ctx);
-                    return SPFieldChoice_Edit(ctx);
-                }
-                catch (err) {
-                    return 'Error parsing column "OriginatorSender"';
-                }
-            };
-
-            /* PocName COLUMN*/
-            fieldCustomizations["PocName"] = {};
-            fieldCustomizations["PocName"]["EditForm"] = function (ctx) {
-                try {
-                    if (isDataEntryFormFor(ctx, "RFI", "EditForm") && _.includes(['respond', 'reopen'], getStateForRfiForm(ctx))) {
-                        //render as read-only
-                        prepareUserFieldValue(ctx);
-                        return SPFieldUser_Display(ctx);
-                    }
-
-                    return SPClientPeoplePickerCSRTemplate(ctx);
-                }
-                catch (err) {
-                    return 'Error parsing column "PocName"';
-                }
-            };
-
-             /* Receiver COLUMN*/
-            fieldCustomizations["Receiver"] = {};
-            fieldCustomizations["Receiver"]["EditForm"] = removeMultiChoiceOptionBasedOnQueryString;
-
-            /* RespondentName COLUMN*/
-            fieldCustomizations["RespondentName"] = {};
-            fieldCustomizations["RespondentName"]["EditForm"] = function (ctx) {
-                try {
-                    if (isDataEntryFormFor(ctx, "RFI", "EditForm") && _.includes(['reopen'], getStateForRfiForm(ctx))) {
-                        //render as read-only
-                        prepareUserFieldValue(ctx);
-                        return SPFieldUser_Display(ctx);
-                    }
-
-                    return SPClientPeoplePickerCSRTemplate(ctx);
-                }
-                catch (err) {
-                    return 'Error parsing column "RespondentName"';
-                }
-            };
 
             // Register the rendering template
             SPClientTemplates.TemplateManager.RegisterTemplateOverrides({
                 Templates: {
                     Fields: {
                         //LIST(s): Inject, RFI 
-                        'ActionsHtml': { 'View': fieldCustomizations["ActionsHtml"]["View"] },
+                        'ActionsHtml': { 'View': renderActionButton },
                         //LIST(s): Mission Tracker
-                        'ApprovalAuthority': { 'EditForm': fieldCustomizations["ApprovalAuthority"]["EditForm"], 'NewForm': fieldCustomizations["ApprovalAuthority"]["NewForm"] },
+                        'ApprovalAuthority': { 'EditForm': renderApprovalAuthorityDropdown, 'NewForm': renderApprovalAuthorityDropdown },
                         //LIST(s): Mission Documents
-                        'ChopProcess': { 'View': fieldCustomizations["ChopProcess"]["View"] },
+                        'ChopProcess': { 'View': renderActionButton },
                         //LIST(s): Mission Tracker
-                        'Identifier': { 'EditForm': fieldCustomizations["Identifier"]["EditForm"] },
+                        'Identifier': { 'EditForm': renderAsReadOnly },
                         //LIST(s): Mission Tracker
-                        'FullName': { 'EditForm': fieldCustomizations["FullName"]["EditForm"] },
+                        'FullName': { 'EditForm': renderAsReadOnly },
                         //LIST(s): Mission Documents
-                        'MessageOriginatorSender': { 'EditForm': fieldCustomizations["MessageOriginatorSender"]["EditForm"] },
+                        'MessageOriginatorSender': { 'EditForm': trimDropdownWithOrganizations },
+                        //LIST(s): Mission Documents
+                        'MessageRecipients': { 'EditForm': removeMultiChoiceOptionBasedOnQueryString },
                         //LIST(s): Mission Tracker
-                        'MissionType': { 'EditForm': fieldCustomizations["MissionType"]["EditForm"] },
+                        'MissionType': { 'EditForm': renderAsReadOnly },
                         //LIST(s): AAR, Calendar, CCIR, Help Desk, Mission Documents, Mission Tracker, Phonebook, Watch Log
-                        'Organization': { 'EditForm': fieldCustomizations["Organization"]["EditForm"], 'NewForm': fieldCustomizations["Organization"]["NewForm"] },
+                        'Organization': { 'EditForm': renderOrganizationDropdown, 'NewForm': renderOrganizationDropdown },
                         //LIST(s): Inject, Message Traffic 
-                        'OriginatorSender': { 'NewForm': fieldCustomizations["OriginatorSender"]["NewForm"] },
+                        'OriginatorSender': { 'NewForm': renderOrganizationDropdown, 'EditForm': renderOrganizationDropdown },
                         //LIST(s): RFI 
-                        'PocName': { 'EditForm': fieldCustomizations["PocName"]["EditForm"] },
+                        'PocName': { 'EditForm': renderPeoplePicker },
                         //LIST(s): Inject, Message Traffic 
-                        'Receiver': { 'NewForm': fieldCustomizations["Receiver"]["NewForm"] },
-                        //LIST(s): Mission Documents
-                        'MessageRecipients': { 'EditForm': fieldCustomizations["MessageRecipients"]["EditForm"] },
+                        'Receiver': { 'NewForm': removeMultiChoiceOptionBasedOnQueryString, 'EditForm': removeMultiChoiceOptionBasedOnQueryString  },
                         //LIST(s): RFI 
-                        'RespondentName': { 'EditForm': fieldCustomizations["RespondentName"]["EditForm"] }
+                        'RespondentName': { 'EditForm': renderPeoplePicker }
                     }
                 }
             });
@@ -358,11 +158,11 @@
                 return renderingTemplateToUse.RenderField(ctx, field, listItem, listSchema);
             }
 
-            function isDataEntryFormFor(ctx, listName, formType) {
-                return _.includes(document.location.pathname, "/Lists/" + listName + "/") && ctx.BaseViewID === formType;
-            }
-
             function removeMultiChoiceOptionBasedOnQueryString(ctx){
+                if(isUserEditingInboundMessage(ctx)){
+                    return renderAsReadOnly(ctx);
+                } 
+
                 try {
                     ctx.CurrentFieldSchema.MultiChoices = trimSingleChoiceBasedOnQueryString(ctx.CurrentFieldSchema.MultiChoices);
                     return SPFieldMultiChoice_Edit(ctx);
@@ -372,12 +172,123 @@
                 }
             };
 
+            function renderActionButton(ctx) {
+                try {
+                    var html;
+                    if (ctx.ListTitle === "RFI") {
+                        var buttonText = (ctx.CurrentItem.Status === "Open") ? "Respond" : "Reopen";
+                        html = "<a class='custombtn' rfibutton data-id='" + ctx.CurrentItem.ID + "'>" + buttonText + "</a>";
+                    } else if (ctx.ListTitle === "Inject") {
+                        var injectButtonClass = (ctx.CurrentItem.Status === 'Completed') ? 'disabled-custombtn' : 'custombtn';
+                        html = "<a class='"+injectButtonClass+"' injectbutton data-id='" + ctx.CurrentItem.ID + "' data-status='" + ctx.CurrentItem.Status + 
+                            "' data-receivers='" + ctx.CurrentItem.Receiver.join(';') + "' title='Publish this scenario to " + ctx.CurrentItem.Receiver.join(', ') + "'>Inject</a>";
+                    } else if (ctx.ListTitle === "Mission Documents") {
+                        if (!ctx.CurrentItem.ChopProcess) {
+                            html = "<a class='custombtn' initiatechopbutton data-id='" + ctx.CurrentItem.ID + "'>Chop</a>";
+                        } else {
+                            html = "<a class='disabled-custombtn' initiatechopbutton data-chop-process='" + ctx.CurrentItem.ChopProcess + "' data-id='" + ctx.CurrentItem.ID + "'>Chop</a>";
+                        }
+                    }
+                    return STSHtmlDecode(html);
+                }
+                catch (err) {
+                    return 'Error parsing calculated column "ActionsHtml"';
+                }
+            };
+
+            function renderAsReadOnly(ctx){
+                if(_.includes(['Choice', 'Text'], ctx.CurrentFieldSchema.Type)){
+                    return SPField_FormDisplay_Default(ctx) + "<br/>";
+                } else if(ctx.CurrentFieldSchema.Type === "MultiChoice"){
+                    return _.filter(ctx.CurrentFieldValue.split(';#')).join('; ') + "<br/>";
+                }
+            }
+
+            function renderApprovalAuthorityDropdown(ctx) {
+                if(ctx.BaseViewID === "EditForm" && _.extractOrgFromQueryString() !== ctx.CurrentItem.Organization){
+                    return renderAsReadOnly(ctx);
+                }
+
+                try {
+                    ctx.CurrentFieldSchema.Choices = getApprovalAuthorityOptionsBasedOnQueryString();
+                    setDropdownOnNewFormWhenOnlyOneOption(ctx);
+                    return SPFieldChoice_Edit(ctx) + '<uif-message-bar ng-show="routeMessage"> <uif-content><strong>Documents associated to this mission will be routed as follows: </strong><div>{{routeMessage}}</div></uif-content> </uif-message-bar>';
+
+                    function getApprovalAuthorityOptionsBasedOnQueryString() {
+                        var org = _.extractOrgFromQueryString();
+                        if (org) {
+                            return _.map(jocInBoxConfig.dashboards[org].routes, 'name');
+                        } else {
+                            return [];
+                        }
+                    }
+                }
+                catch (err) {
+                    return 'Error parsing column "ApprovalAuthority"';
+                }
+            };
+
+            function renderOrganizationDropdown(ctx) {
+                try {
+                    if (isDataEntryFormFor(ctx, "MissionTracker", "EditForm")) {
+                        return renderAsReadOnly(ctx);
+                    }
+
+                    if(isUserEditingInboundMessage(ctx)){
+                        return renderAsReadOnly(ctx);
+                    }
+
+                    if(ctx.CurrentFieldSchema.FieldType !== "Choice"){
+                        return getDefaultHtmlOutput(ctx);
+                    }
+
+                    return trimDropdownWithOrganizations(ctx);
+                }
+                catch (err) {
+                    return 'Error parsing column "Organization"';
+                }
+            };
+
+            function renderPeoplePicker(ctx){
+                var isReadOnly;
+
+                if(ctx.CurrentFieldSchema.Name === "PocName"){
+                    isReadOnly = isDataEntryFormFor(ctx, "RFI", "EditForm") && _.includes(['respond', 'reopen'], getStateForRfiForm(ctx));
+                } else if(ctx.CurrentFieldSchema.Name === "RespondentName"){
+                    isReadOnly = isDataEntryFormFor(ctx, "RFI", "EditForm") && _.includes(['reopen'], getStateForRfiForm(ctx));
+                }
+
+                try {
+                    if (isReadOnly) {
+                        //render as read-only
+                        prepareUserFieldValue(ctx);
+                        return SPFieldUser_Display(ctx);
+                    } else{
+                        return SPClientPeoplePickerCSRTemplate(ctx);
+                    }
+                }
+                catch (err) {
+                    return 'Error parsing column "'+ctx.CurrentFieldSchema.Name+'"';
+                }    
+            }
+
             function setDropdownOnNewFormWhenOnlyOneOption(ctx) {
                 if(ctx.CurrentFieldSchema.Choices.length === 1 && !ctx.CurrentFieldValue) {
                     //only one choice so preset for the user
                     ctx.CurrentFieldValue = ctx.CurrentFieldSchema.Choices[0];
                 }
             }
+
+            function trimDropdownWithOrganizations(ctx){
+                try {
+                    ctx.CurrentFieldSchema.Choices = trimOrganizationChoicesBasedOnQueryString(ctx.CurrentFieldSchema.Choices);
+                    setDropdownOnNewFormWhenOnlyOneOption(ctx);
+                    return SPFieldChoice_Edit(ctx);
+                }
+                catch (err) {
+                    return 'Error parsing column "'+ctx.CurrentFieldSchema.Name+'"';
+                }
+            };
 
             function trimOrganizationChoicesBasedOnQueryString(existingOptions) {
                 var org = _.extractOrgFromQueryString();
@@ -502,6 +413,22 @@
             customizeRfiForm(ctx);
             customizeMissionTrackerForm(ctx);
             customizeMissionDocumentsForm(ctx);
+            customizeMessageTrafficForm(ctx);
+
+            function customizeMessageTrafficForm(ctx){
+               
+                if(!isUserEditingInboundMessage(ctx)){ return ""; }
+                var fieldName = ctx.ListSchema.Field[0].Name;
+                makeFieldReadOnly(fieldName);
+                removeHelpTextWhenReadOnlyField(fieldName);
+
+                function makeFieldReadOnly(fieldName){
+                    var readOnlyFields = ['Title', 'DateTimeGroup', 'TaskInfo', 'Initials', 'Significant', 'Comments'];
+                    if(_.includes(readOnlyFields, fieldName)){
+                        SPUtility.GetSPFieldByInternalName(fieldName).MakeReadOnly();
+                    }
+                }
+            }
 
             function customizeMissionTrackerForm(ctx){
                 if(!_.includes(document.location.pathname.toUpperCase(), "/LISTS/MISSIONTRACKER/") ){ return ""; }
@@ -652,6 +579,25 @@
         } else if(ctx.BaseViewID === "EditForm" && qsParamAction === "Reopen"){
             return "reopen";
         }
+    }
+
+    function isDataEntryFormFor(ctx, listName, formType) {
+        return _.includes(document.location.pathname, "/Lists/" + listName + "/") && ctx.BaseViewID === formType;
+    }
+
+    function isUserEditingInboundMessage(ctx){
+        if (isDataEntryFormFor(ctx, "MessageTraffic", "EditForm")){
+            var org = _.extractOrgFromQueryString();
+            if(org){
+                if(ctx.CurrentItem){
+                    return ctx.CurrentItem.OriginatorSender !== org;
+                } else {
+                    return ctx.ListData.Items[0].OriginatorSender !== org;
+                }
+            }
+        }
+        
+        return false;
     }
 
     function overrideCalendarListForm(){
