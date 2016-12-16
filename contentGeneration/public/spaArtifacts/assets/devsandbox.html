@@ -7,7 +7,8 @@
 </style>
 
 
-<uif-button type="button" >Send Email</uif-button>
+<uif-button type="button" ng-click="vm.onSendEmailButtonClicked()">Send Email</uif-button>
+<uif-button type="button" ng-click="vm.onShowCalloutButtonClicked()">Show Callout</uif-button>
 <div>
 	<vertical-timeline items="vm.missionLifecycleEvents"></vertical-timeline>
 </div>

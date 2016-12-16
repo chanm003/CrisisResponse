@@ -4215,12 +4215,57 @@
 
         activate();
 
-        vm.onButtonClicked = function(){
+        vm.onSendEmailButtonClicked = function(){
             var body = 'test body generated at ' + moment().toISOString();
             spContext.sendEmail('mike@chanm003.onmicrosoft.com', 'mike@chanm003.onmicrosoft.com', 'test subject', body)
                 .then(function(data){
                     console.log(data);
                 });
+        }
+
+        function openCallout(){
+            var calloutObj = CalloutManager.getFromLaunchPointIfExists(document.getElementById('mainContent'));
+            console.log(calloutObj.getTitle());
+            calloutObj.open();
+        }
+
+        vm.onShowCalloutButtonClicked = function(){
+            //for some reason have to introduce a delay from ng-click event-handler
+            setTimeout(openCallout, 300);
+        }
+
+        SP.SOD.loadMultiple(['strings.js', 'sp.js', 'callout.js'], createHiddenCallout);
+
+        function createHiddenCallout(){
+            var opts = {
+                ID: 'stepOne', 
+                launchPoint: document.getElementById('mainContent'),
+                //not required below
+                title: 'callout title',
+                content: 'this is the content...',
+                contentWidth: 600,
+                beakOrientation: 'leftRight',
+                openOptions:{
+                    showCloseButton: false,
+                    event: 'none'
+                }
+            };
+
+            var calloutObj = CalloutManager.createNew(opts);
+            
+            var propertiesAction = new CalloutAction({
+                text: "Properties",
+                onClickCallback: function() {
+                    alert('You clicked Properties');
+                },
+                isEnabledCallback: function() {
+                    return true;
+                }
+            });
+
+            calloutObj.addAction(propertiesAction);
+            
+            //setTimeout(openCallout, 1500);
         }
 
         spContext.generateEmailBody('/ngspa/TF08/mike.txt', { item: {balance: '$89823982983293.32'} })
