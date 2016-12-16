@@ -192,7 +192,7 @@
                     return STSHtmlDecode(html);
                 }
                 catch (err) {
-                    return 'Error parsing calculated column "ActionsHtml"';
+                    return 'Error parsing column "'+ctx.CurrentFieldSchema.Name+'"';
                 }
             };
 
@@ -224,7 +224,7 @@
                     }
                 }
                 catch (err) {
-                    return 'Error parsing column "ApprovalAuthority"';
+                    return 'Error parsing column "'+ctx.CurrentFieldSchema.Name+'"';
                 }
             };
 
@@ -245,7 +245,7 @@
                     return trimDropdownWithOrganizations(ctx);
                 }
                 catch (err) {
-                    return 'Error parsing column "Organization"';
+                    return 'Error parsing column "'+ctx.CurrentFieldSchema.Name+'"';
                 }
             };
 

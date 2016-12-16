@@ -292,7 +292,8 @@
         }
 
         service.SP2013REST = {
-            selectForCommonDocumentFields: 'ServerRedirectedEmbedUrl,Id,Title,Created,Modified,AuthorId,EditorId,Author/Title,Editor/Title,File/CheckOutType,File/MajorVersion,File/Name,File/ServerRelativeUrl,File/TimeCreated,File/TimeLastModified',
+            //ServerRedirectedEmbedUrl is not a standard field within on-premise Document Libraries
+            selectForCommonDocumentFields: 'Id,Title,Created,Modified,AuthorId,EditorId,Author/Title,Editor/Title,File/CheckOutType,File/MajorVersion,File/Name,File/ServerRelativeUrl,File/TimeCreated,File/TimeLastModified',
             expandoForCommonDocumentFields: 'Author,Editor,File',
             selectForCommonListFields: 'Attachments,Id,Title,Created,Modified,AuthorId,EditorId,Author/Title,Editor/Title',
             expandoForCommonListFields: 'Author,Editor'
@@ -3906,7 +3907,15 @@
         }
 
         vm.openDocument = function(item){
-            var url = (item.ServerRedirectedEmbedUrl) ? item.ServerRedirectedEmbedUrl : item.File.ServerRelativeUrl;
+            var fileExtension = item.File.ServerRelativeUrl.substr(item.File.ServerRelativeUrl.lastIndexOf('.')+1);
+            var url;
+
+            if(_.includes(['doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx'], fileExtension)){
+                url = _spPageContextInfo.webServerRelativeUrl + '/_layouts/15/WopiFrame2.aspx?action=interactivepreview&sourcedoc=' + item.File.ServerRelativeUrl;
+            } else {
+                url = item.File.ServerRelativeUrl;
+            }
+
             window.open(url, "_blank");
         }
 
