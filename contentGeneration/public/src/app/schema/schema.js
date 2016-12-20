@@ -1671,7 +1671,7 @@ crisisResponseSchema.listDefs["Inject"] = {
 			Description: '',
 			Default: 'Pending',							//(optional)
 			ShowInNewForm: "FALSE",
-			ShowInEditForm: "FALSE"
+			ShowInEditForm: "TRUE"
 		},
 		{
 			//EXAMPLE: DateTime
@@ -1740,7 +1740,7 @@ crisisResponseSchema.listDefs["Inject"] = {
 			Name: "ReviewedForRelease",
 			DisplayName: "Reviewed for Release",
 			Type: "MultiChoice",
-			Required: "TRUE",
+			Required: "FALSE",
 			Description: "",
 			FillInChoice: "FALSE",
 			Choices: ['MSEL Manager'],						//will be generated
@@ -1748,8 +1748,8 @@ crisisResponseSchema.listDefs["Inject"] = {
 		},
 		{
 			//EXAMPLE: SINGLE LINE OF TEXT
-			Name: "TgtEvt",
-			DisplayName: "Tgt/Evt",
+			Name: "TargetEvent",
+			DisplayName: "Target/Event",
 			Type: "Text",
 			Required: "FALSE",
 			MaxLength: 255,
@@ -1758,8 +1758,8 @@ crisisResponseSchema.listDefs["Inject"] = {
 		},
 		{
 			//EXAMPLE: DateTime
-			Name: "TgtEvtDate",
-			DisplayName: "Tgt/Evt Date",
+			Name: "TargetEventDate",
+			DisplayName: "Target/Event Date",
 			Type: "DateTime",
 			Required: "FALSE",
 			Format: "DateTime", 					//please use either 'DateOnly' or 'DateTime'
@@ -2393,7 +2393,7 @@ crisisResponseSchema.webpartPageDefs['Exercise Conductor Page'] = {
 				}
 			],
 			viewName: 'Pending',
-			viewFields: ['Attachments', 'ActionsHtml', 'DTG','LinkTitle', 'OriginatorSender', 'Receiver', 'DeskResponsible', 'TaskInfo', 'ReviewedForRelease', 'IIRNumber', 'TgtEvt', 'TgtEvtDate'],
+			viewFields: ['Attachments', 'ActionsHtml', 'DTG','LinkTitle', 'OriginatorSender', 'Receiver', 'DeskResponsible', 'TaskInfo', 'ReviewedForRelease', 'IIRNumber', 'TargetEvent', 'TargetEventDate'],
 			viewCAML: '<OrderBy><FieldRef Name="DateTimeGroup"/></OrderBy><Where><Eq><FieldRef Name="Status"/><Value Type="Text">Pending</Value></Eq></Where>',
 			zoneName: 'Bottom',
 			zoneIndex: 0

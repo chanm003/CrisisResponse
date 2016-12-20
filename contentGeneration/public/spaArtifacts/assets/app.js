@@ -1291,7 +1291,7 @@
 
         var fieldsToSelect = [
             spContext.SP2013REST.selectForCommonListFields,
-            "Status,DateTimeGroup,TaskInfo,DeskResponsible,OriginatorSender,Receiver,IIRNumber,ReviewedForRelease,TgtEvt,TgtEvtDate,ReportType"
+            "Status,DateTimeGroup,TaskInfo,DeskResponsible,OriginatorSender,Receiver,IIRNumber,ReviewedForRelease,TargetEvent,TargetEventDate,ReportType"
         ].join(',');
 
         var fieldsToExpand = [
@@ -2748,7 +2748,7 @@
                 '   <uif-dialog-inner>',
                 '       <uif-dialog-content>',
                 '           <uif-dialog-subtext>',
-                '               <span>Are you sure this scenario is ready to be published to the following recipient(s)?</span>',
+                '               <span>Are you sure this scenario is ready to be injected to the following recipient(s)?</span>',
                 '           </uif-dialog-subtext>',
                 '           <uif-textfield uif-label="Receiver" ng-model="receivers" uif-description="" uif-multiline="true" ng-disabled="true"/>',
                 '       </uif-dialog-content>',
