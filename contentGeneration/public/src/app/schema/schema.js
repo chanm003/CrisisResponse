@@ -829,6 +829,14 @@ crisisResponseSchema.listDefs["Phonebook"] = {
 				AppendOnly: "FALSE"						//VERSIONING MUST BE TURNED ON, otherwise specifie "FALSE"
 				
 			}		
+		],
+		viewsToCreate:[
+			{
+				title: 'By Organization',
+				viewFields: ['Organization', 'TitleRole', 'Nation', 'LastName', 'FirstName', 'ShiftWatch', 'Rank', 'UnclassEmail', 'BicesEmail', 'SiprEmail', 'CellPhone', 'BicesPhone', 'OtherPhone', 'BicesVtc', 'Location', 'BuildingNumber'],
+				query: '<GroupBy Collapse="FALSE" GroupLimit="30"><FieldRef Name="Organization"/></GroupBy><OrderBy><FieldRef Name="TitleRole"/></OrderBy>',
+				viewTypeKind: 0 
+			}
 		]
 };
 	
