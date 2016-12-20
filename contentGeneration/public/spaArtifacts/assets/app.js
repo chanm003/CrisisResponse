@@ -4091,7 +4091,7 @@
             var action;
 
             if (vm.tabConfig.selectedPivot.title === "My RFIs") {
-                action = (item.Status === "Open") ? "Respond" : "Edit";
+                action = (item.Status === "Open") ? "Edit" : "Respond";
             } else {
                 action = (item.Status === "Open") ? "Respond" : "Reopen";
             }
