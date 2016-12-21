@@ -1,54 +1,14 @@
-develop PoC for full page slide show 
-- https://chanm003.sharepoint.com/ngspa/instance/SitePages/projectionScrollable.aspx
-
-Getting Web Part Properties:
-/ngspa/tf16/_api/web/getfilebyserverrelativeurl('/ngspa/tf16/lists/MissionTracker/NewForm.aspx')/getlimitedwebpartmanager(1)/WebParts?$expand=WebPart/Properties
-
-CODE SMELLS:
-- <initiatechopbutton> contains too much code, dialog html is currently injected into <body> using jQuery, consider making this a directive, so the jquery only adds <chopDialog> into <body> then figure out some form of directive-to-directive communication mechanism.  <initiatechopbutton> might emit a chopButtonClickedEvent with (missions[], documentObj).  Then the <chopDialog> might emit a documentChopInitiated event handler with (document)
-
-Question:
-- currently clicking on one of the subway nodes launches the dialog AND potentially changes the facepiles
-- should we always just fix the facepiles to the command that has the CONCH?
-
-Stop using _spPageContextInfo in childApp
-During wizard generation, when jocInBoxconfig is generated on-the-fly
-htmlPartialsFolder = "http://localhost:3000/spaArtifacts/assets"
-htmlPartialsFolder = vm.childWebURL + "/SitePages" (prod)
-
-Should say "Show Completed Missions" not "Show Past Missions"
+EXCON people picker
+- Typing last followed by comma does not work..."Britton," 
+- get rid of case sensitivity message
+- ensure all collected text inputs are capitalized!
 
 
-=========================================================================
-DEPLOYMENT STEPS
-=========================================================================
-At the base of a subsite create a document libary called "generator"
-Three folders and one file get pasted into the general folder:
-spArtifacts
-src
-vendor
-index.aspx
+Master
+- CSS should get rid on "Edit Links" and redundant hyperlink
+- SharePoint message
+- Borders around web parts
+- colors left menu
 
-Modify spaArtifacts\assets\app.js 
-var globalConfig = { baseUrl: 'http://localhost:3000/spaArtifacts/assets'};
-var globalConfig = { baseUrl: _spPageContextInfo.webServerRelativeUrl + '/SitePages' };
-
-Modify src\app\common\common.js 
-this.settings = {baseUrl: 'http://localhost:3000', cdn: 'http://localhost:3000/spaArtifacts/assets' };
-this.settings = {baseUrl: _spPageContextInfo.webServerRelativeUrl + '/generator', cdn: '~site/SitePages'};
-
-Modify spaArtifacts\assets\app.css, paste at top:
-@import url("font-awesome.min.css");        
-@import url("lobibox.min.css");        
-@import url("fabric.min.css");        
-@import url("fabric.components.min.css");        
-@import url("flags16.css");
-@import url("flags32.css");        
-@import url("fullcalendar.min.css");        
-
-Change to version 15.0.0.0 on all ASPX  
-
-ret is undefined....documents how to patch the JS
-http://www.techmikael.com/2013/07/how-to-copy-files-between-sites-using.html
-http://sanderlesage.blogspot.de/2014/07/copy-file-cross-site-collection-csom-rest.html (patch no longer needed)
-https://technet.microsoft.com/en-us/library/dn762092(v=office.15).aspx
+dashboard 'EXCON' groups
+- do not assume there will only be one site collection when generating the management links....so should mimic delete button

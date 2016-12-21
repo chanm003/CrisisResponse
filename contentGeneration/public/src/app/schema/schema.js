@@ -1803,7 +1803,7 @@ crisisResponseSchema.listDefs["Inject"] = {
 	viewsToCreate:[
 		{
 			title: 'Completed',
-			query: '<OrderBy><FieldRef Name="DateTimeGroup"/></OrderBy><Where><Eq><FieldRef Name="Status"/><Value Type="Text">Completed</Value></Eq></Where>',
+			query: '<OrderBy><FieldRef Name="Modified" ASCENDING="FALSE"/></OrderBy><Where><Eq><FieldRef Name="Status"/><Value Type="Text">Completed</Value></Eq></Where>',
 			viewTypeKind: 0
 		}
 	]
