@@ -25,6 +25,7 @@
 			getSharepointGroups: getSharepointGroups,
 			provisionListViewWebparts: provisionListViewWebparts,
 			provisionScriptEditorWebparts: provisionScriptEditorWebparts,
+			seedWithListItems: seedWithListItems,
 			setWelcomePage: setWelcomePage,
 			updateChoiceFields: updateChoiceFields
 		};
@@ -1073,6 +1074,42 @@
 
 			//returning promise chain that caller can resolve...
 			return scriptEditorWebpartsChain;
+		}
+
+		function seedWithListItems(opts){
+			var dfd = $q.defer();
+			var ctx = new SP.ClientContext(opts.webUrl);
+			var list = ctx.get_web().get_lists().getByTitle(opts.listName);
+			
+			_.each(opts.itemsToCreate, function(itemToCreate){
+				var itemCreateInfo = new SP.ListItemCreationInformation();
+				var listItem = list.addItem(itemCreateInfo);
+					
+				for(var propName in itemToCreate) {
+					if (itemToCreate.hasOwnProperty(propName)) {
+						listItem.set_item(propName, itemToCreate[propName]);
+					}
+				}
+
+				listItem.update();
+			});
+
+			ctx.executeQueryAsync(
+				Function.createDelegate(this, onQuerySucceeded),
+				Function.createDelegate(this, onQueryFailed)
+			);
+
+			return dfd.promise;
+
+			function onQuerySucceeded() {
+				logger.logSuccess('Seeded the list: (' + opts.listName + ') with '+opts.itemsToCreate.length +' item(s)', null, 'sharepointUtilities service, seedWithListItems()');
+				dfd.resolve();
+			}
+
+			function onQueryFailed(sender, args) {
+				logger.logError('Request failed: ' + args.get_message(), args.get_stackTrace(), 'sharepointUtilities service, seedWithListItems()');
+				dfd.reject();
+			}
 		}
 
 		function setWelcomePage(webUrl, welcomePageUrl){

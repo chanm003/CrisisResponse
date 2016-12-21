@@ -68,6 +68,7 @@
 				.then(createCommsApp)  
 				.then(generateJocInBoxConfigFile)
 				.then(generateMenuItems)
+				.then(seedRouteConfigurationListWithItems)
 				.then(provisionAssetsToSitePagesLibrary);
 		}
 
@@ -310,6 +311,7 @@
 		}
 
 		function generateDefaults() {
+			
 			vm.typeaheadDataSourceForSelectableUsers = sharepointUtilities.createTypeaheadDataSourceForSiteUsersList();
 			vm.childWebUrl = "";
 			vm.serverLocation = document.location.protocol + '//' + document.location.host;
@@ -525,6 +527,39 @@
 				return _.sortBy(choices);
 
 
+			}
+		}
+
+		function seedRouteConfigurationListWithItems(){
+			var opts = {
+				webUrl: vm.childWebUrl,
+				listName: 'Route Configuration',
+				itemsToCreate: []
+			};
+
+			var firstComponentCommand = _.first(vm.componentCommands);
+			createItemsForOrg(firstComponentCommand.name, firstComponentCommand.name);
+
+			var subsequentComponentCommands = vm.componentCommands.slice(1);
+			_.each(subsequentComponentCommands, function(org){
+				createItemsForOrg(org.name, org.name + ";" +firstComponentCommand.name);
+			});
+
+			_.each(vm.taskGroups, function(org){
+				createItemsForOrg(org.name, org.name + ";" +firstComponentCommand.name);
+			});
+
+			return sharepointUtilities.seedWithListItems(opts);
+
+			function createItemsForOrg(orgName, routeSequence){
+				var levels = ['LVL-0', 'LVL-1', 'LVL-2', 'LVL-3'];
+				_.each(levels, function(level){
+					opts.itemsToCreate.push({
+						Organization: orgName,
+						Level: level,
+						ApprovalChain: (level === 'LVL-0') ? orgName : routeSequence
+					});
+				});
 			}
 		}
 
