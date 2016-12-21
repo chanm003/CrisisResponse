@@ -13,8 +13,5 @@
                         * set to current datetime
                     * VersionBeingChopped
                         * set to the current major version of the document+1 (initiating a chop process on a document modifies metadata so version is incremented)
-                    * ChopRouteSequence
-                        * based on the selected Mission's metadata, we perform a lookup against jocInBoxConfig.js 
-                            * given an organization (i.e. "SOTG 10") and an approval authority (i.e. "2A")
-                                * we can determine the organizations in the chop sequence
+
 

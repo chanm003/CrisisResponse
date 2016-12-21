@@ -795,7 +795,6 @@
                 this.DailyProductDate = undefined; //string (ISO) or null "2016-08-01T07:00:00Z"
                 this.ChopProcess = undefined; //string (ISO) or null "2016-08-01T07:00:00Z"
                 this.VersionBeingChopped = undefined; //integer or null
-                this.ChopRouteSequence = undefined; //string or null
                 this.__metadata = {
                     type: "SP.Data.MissionDocumentsItem"
                 };
@@ -829,25 +828,13 @@
             return MissionDocumentRepository.checkInFile(this);
         }
 
-        MissionDocument.prototype.deriveRouteSequence = function (mission, orgConfig) {
-            var sequence = "";
-            if (mission && orgConfig) {
-                var route = _.find(orgConfig.routes, { name: mission.ApprovalAuthority });
-                if (route && route.sequence && route.sequence.length) {
-                    this.ChopRouteSequence = route.sequence.join(';');
-                }
-            }
-        }
-
         MissionDocument.prototype.initiateChop = function () {
             //convert model to DTO that will be used for save...HTTP MERGE should ignore any 'undefined'' props in the request body
             var dto = new MissionDocument();
             dto.Id = this.Id;
             dto.__metadata = this.__metadata;
-            //_api/web/lists/getByTitle('Mission Documents')/items?$select=Id,MissionId,ChopProcess,VersionBeingChopped,ChopRouteSequence,File/MajorVersion&$expand=File
             dto.ChopProcess = (new Date()).toISOString();
             dto.MissionId = this.Mission.Id;
-            dto.ChopRouteSequence = this.ChopRouteSequence;
             dto.VersionBeingChopped = (this.File.MajorVersion + 1);  //initiating the chop process itself should bump the version up by one
             return MissionDocumentRepository.save(dto);
         }
@@ -915,7 +902,7 @@
         }
 
         MissionDocument.prototype.refreshChopProcessInfo = function () {
-            if (!this.ChopRouteSequence) {
+            if (!this.ChopProcess) {
                 this.chopProcessInfo = null;
                 return;
             }
@@ -945,7 +932,8 @@
         }
 
         function buildRouteStages(doc, jocInBoxConfig) {
-            var stageNames = doc.ChopRouteSequence.split(';');
+            throw new Error('Figure out how to build stage names in absence of metadata previously associated with the doc library item');
+            var stageNames = [].split(';');
             var routeStages = _.map(stageNames, function (stageName) {
                 var routeStage = {
                     name: stageName,
@@ -1468,7 +1456,7 @@
         var fieldsToSelect = [
             spContext.SP2013REST.selectForCommonDocumentFields,
             'Organization,TypeOfDocument,MissionId,FlaggedForSoacDailyUpdate,DailyProductDate',
-            'ChopRouteSequence,VersionBeingChopped,ChopProcess',
+            'VersionBeingChopped,ChopProcess',
             'Mission/Id,Mission/FullName'
         ].join(',');
 
@@ -2445,16 +2433,7 @@
                 scope.submitButtonClicked = true;
                 if (scope.isFormValid()) { return; }
 
-                var selectedMission = getSelectedMission();
-                var orgConfig = jocInBoxConfig.dashboards[selectedMission.Organization];
-
-                scope.listItem.deriveRouteSequence(selectedMission, orgConfig);
-
-                if (scope.listItem.ChopRouteSequence) {
-                    scope.listItem.initiateChop().then(onChopStartedSuccessfully);
-                } else {
-                    alert(selectedMission.Organization + ' does not have a configured route sequence for "' + selectedMission.ApprovalAuthority + '"');
-                }
+                scope.listItem.initiateChop().then(onChopStartedSuccessfully)
 
                 function onChopStartedSuccessfully(item) {
                     scope.showModal = false;
