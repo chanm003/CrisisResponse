@@ -353,6 +353,48 @@ crisisResponseSchema.listDefs["DocumentChops"] = {
 	]
 };
 
+crisisResponseSchema.listDefs["Route Configuration"] = {
+	Title: "Route Configuration",
+	BaseTemplate: 'genericList',
+	shouldHideTitleField: true,
+	fieldsToCreate:[
+		{
+			//EXAMPLE: Dropdown
+			Name: "Organization",
+			DisplayName: "Organization",
+			Type: "Choice",
+			Format:"Dropdown",
+			Required: "TRUE",
+			FillInChoice: "FALSE",
+			Description: '',
+			Choices: [],						//will be generated
+			Default: ''							//(optional)
+		},
+		{
+			//EXAMPLE: Dropdown
+			Name: "Level",
+			DisplayName: "Level",
+			Type: "Choice",
+			Format:"Dropdown",
+			Required: "TRUE",
+			FillInChoice: "FALSE",
+			Description: '',
+			Choices: ['LVL-0', 'LVL-1', 'LVL-2', 'LVL-3'],					
+			Default: ''							//(optional)
+		},
+		{
+			//EXAMPLE: SINGLE LINE OF TEXT
+			Name: "ApprovalChain",
+			DisplayName: "Approval Chain",
+			Type: "Text",
+			Required: "TRUE",
+			MaxLength: 255,
+			Default: "",							//(optional)
+			Description: "Sequence of Reviewers (separated by semicolon, i.e. &quot;Org1;Org2;Org3&quot; )"
+		}
+	]
+};
+
 crisisResponseSchema.listDefs["Mission Tracker"] = {
 	Title: "Mission Tracker",
 		BaseTemplate: 'genericList',
@@ -2607,6 +2649,19 @@ crisisResponseSchema.organizationalChoiceFields = [
 			includeNotionals: true,
 			includeExerciseControlGroup: true,
 			includeAirComponent: true,
+			includeCommunicationsComponent: false
+		}
+	},
+	{
+		listName: "Route Configuration",
+		fieldName: "Organization",
+		generationFlags: {
+			includeComponentCommands: true,
+			includeTaskGroups: true,
+			includeStaffSections: false,
+			includeNotionals: false,
+			includeExerciseControlGroup: false,
+			includeAirComponent: false,
 			includeCommunicationsComponent: false
 		}
 	},

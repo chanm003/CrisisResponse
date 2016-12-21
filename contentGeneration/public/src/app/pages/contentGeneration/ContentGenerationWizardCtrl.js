@@ -45,7 +45,8 @@
 				}
 				
 				if(url.length >= 2 && vm.siteInfo.userTypedUrl.startsWith('/')){
-					vm.siteInfo.parentWeb = url.substr(0, url.lastIndexOf('/'));
+					var lastSlash = url.lastIndexOf('/') || 1;
+					vm.siteInfo.parentWeb = url.substr(0, lastSlash);
 					vm.siteInfo.acronym = url.substr(url.lastIndexOf('/')+1);
 					vm.childWebUrl = vm.siteInfo.parentWeb + "/" + vm.siteInfo.acronym;
 				}
@@ -109,6 +110,7 @@
 						.then(createWatchLogList)
 						.then(createDocumentChopsList)
 						.then(createRFIList)
+						.then(createRouteConfigurationList)
 						.then(createMissionDocumentsLibrary);
 
 			function createAARList() {
@@ -178,6 +180,13 @@
 			function createRFIList() {
 				//DEPENDENCIES: Mission Tracker
 				var listSchemaDef = crisisResponseSchema.listDefs["RFI"];
+				listSchemaDef.webUrl = vm.childWebUrl;
+				return sharepointUtilities.createList(listSchemaDef);
+			}
+
+			function createRouteConfigurationList() {
+				//DEPENDENCIES: None
+				var listSchemaDef = crisisResponseSchema.listDefs["Route Configuration"];
 				listSchemaDef.webUrl = vm.childWebUrl;
 				return sharepointUtilities.createList(listSchemaDef);
 			}
