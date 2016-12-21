@@ -4,7 +4,9 @@
 	angular.module('BlurAdmin.pages.contentGeneration')
 		.controller('ContentGenerationWizardCtrl', WizardCtrl)
 		.factory('countriesSvc', countriesSvc)
-		.factory('menuSvc', menuSvc);
+		.factory('menuSvc', menuSvc)
+		.directive('capitalizeAll', capitalizeAllDirective)
+		.directive('capitalizeFirst', capitalizeFirstDirective);
 
 	/** @ngInject */
 	function WizardCtrl($q, $scope, common, commonConfig, countriesSvc, menuSvc, sharepointUtilities) {
@@ -775,5 +777,44 @@
 			return $q.when(wizard.countriesDataSource);
 		}
 	}
+
+	function capitalizeAllDirective($parse) {
+		return {
+			require: 'ngModel',
+			link: function(scope, element, attrs, modelCtrl) {
+				var capitalize = function(inputValue) {
+					if (inputValue === undefined) { inputValue = ''; }
+					var capitalized = inputValue.toUpperCase();
+					if(capitalized !== inputValue) {
+						modelCtrl.$setViewValue(capitalized);
+						modelCtrl.$render();
+					}         
+					return capitalized;
+				}
+				modelCtrl.$parsers.push(capitalize);
+				capitalize($parse(attrs.ngModel)(scope)); // capitalize initial value
+			}
+		};
+	}
+
+	function capitalizeFirstDirective($parse) {
+		return {
+			require: 'ngModel',
+			link: function(scope, element, attrs, modelCtrl) {
+				var capitalize = function(inputValue) {
+					if (inputValue === undefined) { inputValue = ''; }
+					var capitalized = inputValue.charAt(0).toUpperCase() + inputValue.substring(1);
+					if(capitalized !== inputValue) {
+						modelCtrl.$setViewValue(capitalized);
+						modelCtrl.$render();
+					}         
+					return capitalized;
+				}
+				modelCtrl.$parsers.push(capitalize);
+				capitalize($parse(attrs.ngModel)(scope)); // capitalize initial value
+			}
+		};
+	}
+
 })();
 

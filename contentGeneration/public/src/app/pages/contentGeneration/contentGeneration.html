@@ -98,7 +98,7 @@
                             <div class="col-md-4">
                                 <div class="form-group">
                                     <label>Site Name</label>
-                                    <input type="text" class="form-control" placeholder="Name" ng-model="vm.siteInfo.name">
+                                    <input type="text" class="form-control" placeholder="Name" ng-model="vm.siteInfo.name" capitalize-first>
                                 </div>
                                 <div class="form-group">
                                     <label>Description</label>
@@ -149,7 +149,7 @@
                             <tbody>
                                 <tr ng-repeat="org in vm.componentCommands" class="data-entry">
                                     <td class="col-md-2">
-                                        <input type="text" class="form-control input-lg" ng-model="org.name" />
+                                        <input type="text" class="form-control input-lg" ng-model="org.name" capitalize-all/>
                                     </td>
                                     <td class="col-md-2">
                                         <ol class="nya-bs-select input-lg" ng-model="org.country" title="Select a Country" data-live-search="true">
@@ -199,7 +199,7 @@
                             <tbody>
                                 <tr ng-repeat="org in vm.taskGroups" class="data-entry">
                                     <td class="col-md-2">
-                                        <input type="text" class="form-control input-lg" ng-model="org.name" />
+                                        <input type="text" class="form-control input-lg" ng-model="org.name" capitalize-all/>
                                     </td>
                                     <td class="col-md-2">
                                         <ol class="nya-bs-select input-lg" ng-model="org.country" title="Select a Country" data-live-search="true">
@@ -271,7 +271,7 @@
                             <tbody>
                                 <tr ng-repeat="org in vm.airComponents" class="data-entry">
                                     <td class="col-md-2">
-                                        <input type="text" class="form-control input-lg" ng-model="org.name" />
+                                        <input type="text" class="form-control input-lg" ng-model="org.name" capitalize-all/>
                                     </td>
                                     <td class="col-md-2">
                                         <ol class="nya-bs-select input-lg" ng-model="org.country" title="Select a Country" data-live-search="true">
@@ -305,7 +305,7 @@
                             <tbody>
                                 <tr ng-repeat="org in vm.communicationsComponents" class="data-entry">
                                     <td class="col-md-2">
-                                        <input type="text" class="form-control input-lg" ng-model="org.name" />
+                                        <input type="text" class="form-control input-lg" ng-model="org.name" capitalize-all/>
                                     </td>
                                     <td class="col-md-10"></td>
                                 </tr>
@@ -326,7 +326,7 @@
                             <tbody>
                                 <tr ng-repeat="org in vm.exerciseControlGroups" class="data-entry">
                                     <td class="col-md-2">
-                                        <input type="text" class="form-control input-lg" ng-model="org.name" />
+                                        <input type="text" class="form-control input-lg" ng-model="org.name" capitalize-all/>
                                     </td>
                                     <td class="col-md-5">
                                         <tag-input placeholder='add another...' selected-tags='org.notionals'></tag-input>
