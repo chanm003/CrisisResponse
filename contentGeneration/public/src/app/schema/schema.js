@@ -942,7 +942,7 @@ crisisResponseSchema.listDefs["Mission Documents"] = {
 		},
 		{
 			//EXAMPLE: DateTime
-			Name: "ChopProcess",
+			Name: "ChopProcessInitiationDate",
 			DisplayName: "Chop Process",
 			Type: "DateTime",
 			Required: "FALSE",
@@ -1925,7 +1925,7 @@ crisisResponseSchema.webpartPageDefs['Component Command Page'] = {
 				}
 			],
 			viewName: 'SOCC Documents',
-			viewFields: ['DocIcon', 'LinkFilename', 'Modified', 'Editor', 'ChopProcess'],
+			viewFields: ['DocIcon', 'LinkFilename', 'Modified', 'Editor', 'ChopProcessInitiationDate'],
 			viewCAML: '<GroupBy Collapse="FALSE" GroupLimit="30"><FieldRef Name="TypeOfDocument"/><FieldRef Name="Organization"/></GroupBy><OrderBy><FieldRef Name="FileLeafRef"/></OrderBy><Where><Contains><FieldRef Name="Organization"/><Value Type="Text">{orgQsParam}</Value></Contains></Where>',
 			zoneName: 'Right',
 			zoneIndex: 10
@@ -2076,7 +2076,7 @@ crisisResponseSchema.webpartPageDefs['Task Group Page'] = {
 				}
 			],
 			viewName: 'SOTG Documents',
-			viewFields: ['DocIcon', 'LinkFilename', 'Modified', 'Editor', 'ChopProcess'],
+			viewFields: ['DocIcon', 'LinkFilename', 'Modified', 'Editor', 'ChopProcessInitiationDate'],
 			viewCAML: '<GroupBy Collapse="FALSE" GroupLimit="30"><FieldRef Name="TypeOfDocument"/></GroupBy><OrderBy><FieldRef Name="FileLeafRef"/></OrderBy><Where><Contains><FieldRef Name="Organization"/><Value Type="Text">{orgQsParam}</Value></Contains></Where>',
 			zoneName: 'Right',
 			zoneIndex: 10
@@ -2251,7 +2251,7 @@ crisisResponseSchema.webpartPageDefs['Air Component Page'] = {
 				}
 			],
 			viewName: 'SOAC Daily Products',
-			viewFields: ['DocIcon', 'LinkFilename', 'TypeOfDocument', 'Organization', 'ChopProcess'],
+			viewFields: ['DocIcon', 'LinkFilename', 'TypeOfDocument', 'Organization', 'ChopProcessInitiationDate'],
 			viewCAML: '<OrderBy><FieldRef Name="ID" Ascending="FALSE"/></OrderBy><Where><And><And><Eq><FieldRef Name="FlaggedForSoacDailyUpdate" /><Value Type="Text">Yes</Value></Eq><Eq><FieldRef Name="DailyProductDate" /><Value Type="DateTime"><Today /></Value></Eq></And><Contains><FieldRef Name="Organization"/><Value Type="Text">{orgQsParam}</Value></Contains></And></Where>',
 			zoneName: 'Right',
 			zoneIndex: 0
@@ -2269,7 +2269,7 @@ crisisResponseSchema.webpartPageDefs['Air Component Page'] = {
 				}
 			],
 			viewName: 'SOAC Documents',
-			viewFields: ['DocIcon', 'LinkFilename', 'Modified', 'Editor', 'ChopProcess'],
+			viewFields: ['DocIcon', 'LinkFilename', 'Modified', 'Editor', 'ChopProcessInitiationDate'],
 			viewCAML: '<GroupBy Collapse="FALSE" GroupLimit="30"><FieldRef Name="Organization"/><FieldRef Name="TypeOfDocument"/></GroupBy><OrderBy><FieldRef Name="FileLeafRef"/></OrderBy><Where><Contains><FieldRef Name="Organization"/><Value Type="Text">{orgQsParam}</Value></Contains></Where>',
 			zoneName: 'Right',
 			zoneIndex: 1

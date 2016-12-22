@@ -793,7 +793,7 @@
                 this.MissionId = undefined; //integer or null
                 this.FlaggedForSoacDailyUpdate = undefined; //string or null
                 this.DailyProductDate = undefined; //string (ISO) or null "2016-08-01T07:00:00Z"
-                this.ChopProcess = undefined; //string (ISO) or null "2016-08-01T07:00:00Z"
+                this.ChopProcessInitiationDate = undefined; //string (ISO) or null "2016-08-01T07:00:00Z"
                 this.VersionBeingChopped = undefined; //integer or null
                 this.__metadata = {
                     type: "SP.Data.MissionDocumentsItem"
@@ -833,7 +833,7 @@
             var dto = new MissionDocument();
             dto.Id = this.Id;
             dto.__metadata = this.__metadata;
-            dto.ChopProcess = (new Date()).toISOString();
+            dto.ChopProcessInitiationDate = (new Date()).toISOString();
             dto.MissionId = this.Mission.Id;
             dto.VersionBeingChopped = (this.File.MajorVersion + 1);  //initiating the chop process itself should bump the version up by one
             return MissionDocumentRepository.save(dto);
@@ -902,7 +902,7 @@
         }
 
         MissionDocument.prototype.refreshChopProcessInfo = function () {
-            if (!this.ChopProcess) {
+            if (!this.ChopProcessInitiationDate) {
                 this.chopProcessInfo = null;
                 return;
             }
@@ -1456,7 +1456,7 @@
         var fieldsToSelect = [
             spContext.SP2013REST.selectForCommonDocumentFields,
             'Organization,TypeOfDocument,MissionId,FlaggedForSoacDailyUpdate,DailyProductDate',
-            'VersionBeingChopped,ChopProcess',
+            'VersionBeingChopped,ChopProcessInitiationDate',
             'Mission/Id,Mission/FullName'
         ].join(',');
 
@@ -2335,7 +2335,7 @@
 
     function initiatechopbutton($rootScope, $q, logger, Mission, MissionDocument, MissionDocumentRepository, MissionTrackerRepository) {
         /* 
-       SP2013 display template will render ChopProcess column (anytime it appears in LVWP) as:
+       SP2013 display template will render ChopProcessInitiationDate column (anytime it appears in LVWP) as:
            <a class="custombtn" initiatechopbutton="" data-id="1" data-chop-process='10/7/2016 19:08'>Chop</a>
        */
         var directiveDefinition = {
@@ -2438,7 +2438,7 @@
                 function onChopStartedSuccessfully(item) {
                     scope.showModal = false;
                     $rootScope.$broadcast("LVWP:chopProcessSuccessfullyInitiated", {
-                        timestamp: item.ChopProcess,
+                        timestamp: item.ChopProcessInitiationDate,
                         documentID: item.Id
                     });    
                 }
@@ -3950,7 +3950,7 @@
             fetchData().then(function (data) {
                     vm.missions = data.missions;
                     dataSources.missionRelatedDocs = data.documents;
-                    dataSources.chopProcesses = _.filter(dataSources.missionRelatedDocs, function (doc) { return !!doc.ChopProcess; });
+                    dataSources.chopProcesses = _.filter(dataSources.missionRelatedDocs, function (doc) { return !!doc.ChopProcessInitiationDate; });
                     buildFilterControlsForProducts();
                     buildFilterControlsForChopProcesses();
                     logger.info('Activated Mission Tacker View');

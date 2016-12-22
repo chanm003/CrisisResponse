@@ -66,7 +66,7 @@
                         //LIST(s): Mission Tracker
                         'ApprovalAuthority': { 'EditForm': renderApprovalAuthorityDropdown, 'NewForm': renderApprovalAuthorityDropdown },
                         //LIST(s): Mission Documents
-                        'ChopProcess': { 'View': renderActionButton },
+                        'ChopProcessInitiationDate': { 'View': renderActionButton },
                         //LIST(s): Mission Tracker
                         'Identifier': { 'EditForm': renderAsReadOnly },
                         //LIST(s): Mission Tracker
@@ -183,10 +183,10 @@
                         html = "<a class='"+injectButtonClass+"' injectbutton data-id='" + ctx.CurrentItem.ID + "' data-status='" + ctx.CurrentItem.Status + 
                             "' data-receivers='" + ctx.CurrentItem.Receiver.join(';') + "' title='Publish this scenario to " + ctx.CurrentItem.Receiver.join(', ') + "'>Inject</a>";
                     } else if (ctx.ListTitle === "Mission Documents") {
-                        if (!ctx.CurrentItem.ChopProcess) {
+                        if (!ctx.CurrentItem.ChopProcessInitiationDate) {
                             html = "<a class='custombtn' initiatechopbutton data-id='" + ctx.CurrentItem.ID + "'>Chop</a>";
                         } else {
-                            html = "<a class='disabled-custombtn' initiatechopbutton data-chop-process='" + ctx.CurrentItem.ChopProcess + "' data-id='" + ctx.CurrentItem.ID + "'>Chop</a>";
+                            html = "<a class='disabled-custombtn' initiatechopbutton data-chop-process='" + ctx.CurrentItem.ChopProcessInitiationDate + "' data-id='" + ctx.CurrentItem.ID + "'>Chop</a>";
                         }
                     }
                     return STSHtmlDecode(html);
