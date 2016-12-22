@@ -807,8 +807,8 @@
             });
 
 			var emptyMsg = [
-				'<div class="empty-message">',
-				'unable to find any users in the SharePoint directory matching your search (Please ensure case-sensitivity e.g. Smith instead of smith)',
+				'<div class="empty-message" style="padding:5px 15px;">',
+				'unable to find any users in the SharePoint directory matching your search',
 				'</div>'
 			].join('\n');
 

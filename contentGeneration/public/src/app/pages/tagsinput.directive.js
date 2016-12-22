@@ -124,8 +124,8 @@
                 return element.bind('keyup', function (e) {
                     var key;
                     key = e.which;
-                    if (key === 9 || key === 13 || key === 188) {
-                        //tab or enter or comma
+                    if (key === 9 || key === 13 ) {
+                        //tab or enter  (comma would be 188)
                         e.preventDefault();
                         return $scope.$apply('addTag()');
                     }
