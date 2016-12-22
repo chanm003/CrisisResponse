@@ -14,7 +14,6 @@
 					};
 				})
 				.value();	
-			console.log(orgName, orgData.routes);	
 		});
 	}
 	

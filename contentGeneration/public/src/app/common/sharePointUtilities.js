@@ -645,7 +645,7 @@
 			configured in /_layouts/15/ChangeSiteMasterPage.aspx (available only when publishing is activated)
 			*/
 			var serverRelativeURL = (opts.parentWeb + "/" + opts.acronym).replace(document.location.protocol + "//", "").replace(document.location.host, "");
-			var alternateCssUrl = serverRelativeURL + "/SitePages/app.css";
+			var alternateCssUrl = serverRelativeURL + "/SiteAssets/app.css";
 			childWeb.set_alternateCssUrl(alternateCssUrl);
 			childWeb.update();
 
@@ -673,7 +673,7 @@
 				action.set_location("ScriptLink");
 				action.set_title(fileName);
 				//action.set_scriptSrc(opts.cdn + '/' + fileName);	
-				action.set_scriptSrc('~site/SitePages/' + fileName);
+				action.set_scriptSrc('~site/SiteAssets/' + fileName);
 				sequenceCounter = sequenceCounter + 10;
 				action.set_sequence(1000 + sequenceCounter);
 				action.update();
@@ -682,14 +682,14 @@
 			var action = userCustomActions.add();
 			action.set_location("ScriptLink");
 			action.set_title('jocInBoxConfig.js');
-			action.set_scriptSrc('~site/SitePages/jocInBoxConfig.js');
+			action.set_scriptSrc('~site/SiteAssets/jocInBoxConfig.js');
 			action.set_sequence(1000 + sequenceCounter + 1);
 			action.update();
 
 			var action = userCustomActions.add();
 			action.set_location("ScriptLink");
 			action.set_title('populate-jocboxconfig-with-synchronous-data.js');
-			action.set_scriptSrc('~site/SitePages/populate-jocboxconfig-with-synchronous-data.js');
+			action.set_scriptSrc('~site/SiteAssets/populate-jocboxconfig-with-synchronous-data.js');
 			action.set_sequence(1000 + sequenceCounter + 2);
 			action.update();
 

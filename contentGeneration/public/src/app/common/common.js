@@ -65,7 +65,7 @@
 	function commonConfig() {
 		var productionSettings = {
 			baseUrl: _spPageContextInfo.webServerRelativeUrl + '/generator', 
-			cdn: '~site/SitePages',
+			cdn: '~site/SiteAssets',
 			type: "PRODUCTION"
 		};
 

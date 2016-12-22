@@ -61,6 +61,16 @@
 		}
 
 		vm.onAdditionalFeaturesCollected = function () {
+			var provisionFilesToSiteAssets = createFunctionToProvisionFiles(_spPageContextInfo.webServerRelativeUrl, 
+				'generator/spaArtifacts/assets', 
+				vm.childWebUrl, 
+				'SiteAssets');
+
+			var provisionFilesToSitePages = createFunctionToProvisionFiles(_spPageContextInfo.webServerRelativeUrl, 
+				'generator/spaArtifacts/pages', 
+				vm.childWebUrl, 
+				'SitePages');
+
 			return createHelpDeskSystem() 
 				.then(createSoacApp)
 				.then(createExconApp)
@@ -69,7 +79,8 @@
 				.then(generateJocInBoxConfigFile)
 				.then(generateMenuItems)
 				.then(seedRouteConfigurationListWithItems)
-				.then(provisionAssetsToSitePagesLibrary);
+				.then(provisionFilesToSiteAssets)
+				.then(provisionFilesToSitePages);
 		}
 
 		vm.addComponentCommand = function () {
@@ -379,30 +390,32 @@
 			});
 		}
 
-		function provisionAssetsToSitePagesLibrary() {
-			return getAssetsFromArtifactsFolder()
-				.then(copyToSitePagesInChildWeb);
+		function createFunctionToProvisionFiles(sourceWeb, sourceFolder, destinationWeb, destinationFolder){
+			return function(){
+				return getFilesFromFolder()
+					.then(copyFilesToFolder);
 
 
-			function getAssetsFromArtifactsFolder() {
-				return sharepointUtilities.getFilesFromFolder({
-					webUrl: _spPageContextInfo.webServerRelativeUrl,
-					folderServerRelativeUrl: _spPageContextInfo.webServerRelativeUrl + '/generator/spaArtifacts/assets'
-				});
-			}
+				function getFilesFromFolder() {
+					return sharepointUtilities.getFilesFromFolder({
+						webUrl: sourceWeb,
+						folderServerRelativeUrl: sourceWeb + '/' + sourceFolder
+					});
+				}
 
-			function copyToSitePagesInChildWeb(files) {
-				var promises = [];
-				_.each(files, function (file) {
-					promises.push(sharepointUtilities.copyFile({
-						sourceWebUrl: _spPageContextInfo.webServerRelativeUrl,
-						sourceFileUrl: 'generator/spaArtifacts/assets/' + file.name,
-						destinationWebUrl: vm.childWebUrl,
-						destinationWebFolderUrl: 'SitePages',
-						destinationFileUrl: file.name
-					}));
-				})
-				return $q.all(promises);
+				function copyFilesToFolder(files) {
+					var promises = [];
+					_.each(files, function (file) {
+						promises.push(sharepointUtilities.copyFile({
+							sourceWebUrl: sourceWeb,
+							sourceFileUrl: sourceFolder + '/' + file.name,
+							destinationWebUrl: destinationWeb,
+							destinationWebFolderUrl: destinationFolder,
+							destinationFileUrl: file.name
+						}));
+					})
+					return $q.all(promises);
+				}
 			}
 		}
 
@@ -614,7 +627,7 @@
 
 			var templateDirectoryStatement = (commonConfig.settings.type === "DEV") ? 
 				'jocInBoxConfig.htmlTemplatesLocation = "http://localhost:3000/spaArtifacts/assets";' :
-				'jocInBoxConfig.htmlTemplatesLocation = "' + vm.childWebUrl + '/SitePages";';
+				'jocInBoxConfig.htmlTemplatesLocation = "' + vm.childWebUrl + '/SiteAssets";';
 
 			var content = [
 				'var jocInBoxConfig = jocInBoxConfig || {};',

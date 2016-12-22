@@ -8,7 +8,7 @@
 (function ($,_) {
     ExecuteOrDelayUntilScriptLoaded(disableDragAndDrop, "DragDrop.js");
     $(document).ready(overrideCalendarListForm);
-    RegisterModuleInit("SitePages/displayTemplates.js", registerCustomizations); // CSR-override for MDS enabled site
+    RegisterModuleInit("SiteAssets/displayTemplates.js", registerCustomizations); // CSR-override for MDS enabled site
     registerCustomizations(); //CSR-override for MDS disabled site (because we need to call the entry point function in this case whereas it is not needed for anonymous functions)
 
     function disableDragAndDrop(){
