@@ -932,8 +932,8 @@
         }
 
         function buildRouteStages(doc, jocInBoxConfig) {
-            throw new Error('Figure out how to build stage names in absence of metadata previously associated with the doc library item');
-            var stageNames = [].split(';');
+            //approval chain (lookup based on Organization conducting the mission and approval authority for the mission)
+            var stageNames = _.find(jocInBoxConfig.dashboards[doc.Mission.Organization].routes, { name: doc.Mission.ApprovalAuthority }).sequence;
             var routeStages = _.map(stageNames, function (stageName) {
                 var routeStage = {
                     name: stageName,
@@ -3947,17 +3947,12 @@
 
         function activate() {
             initTabs();
-            $q.all([
-                getMissionRelatedDocumentsWithTheirAssociatedChops(),
-                getMissions()
-            ])
-                .then(function (data) {
-                    var docs = _.map(data[0], function (item) { return new MissionDocument(item); })
-                    dataSources.missionRelatedDocs = docs;
+            fetchData().then(function (data) {
+                    vm.missions = data.missions;
+                    dataSources.missionRelatedDocs = data.documents;
                     dataSources.chopProcesses = _.filter(dataSources.missionRelatedDocs, function (doc) { return !!doc.ChopProcess; });
                     buildFilterControlsForProducts();
                     buildFilterControlsForChopProcesses();
-                    vm.missions = data[1];
                     logger.info('Activated Mission Tacker View');
                 });
         }
@@ -4018,21 +4013,29 @@
             })
         }
 
-        function getMissionRelatedDocumentsWithTheirAssociatedChops() {
+        function fetchData() {
 
             return $q.all([
                 MissionDocumentRepository.getMissionRelated(),
-                DocumentChopsRepository.getAll()
+                DocumentChopsRepository.getAll(),
+                getMissions()
             ])
                 .then(function (data) {
+                    var missions = data[2];
                     var chopsJSON = data[1];
                     var docs = _.map(data[0], function (item) {
+                        var associatedMission = _.find(missions, {Id: item.MissionId});
                         var doc = new MissionDocument(item);
+                        doc.Mission.ApprovalAuthority = associatedMission.ApprovalAuthority;
+                        doc.Mission.Organization = associatedMission.Organization;
                         doc.relatedChops = getRelatedChops(doc, chopsJSON);
                         doc.refreshChopProcessInfo();
                         return doc;
                     });
-                    return docs;
+                    return {
+                        documents: docs,
+                        missions: missions
+                    };
                 });
 
             function getRelatedChops(doc, chopsJSON) {
@@ -4560,7 +4563,6 @@
         }
     }
 })(jocInBoxConfig.noConflicts.jQuery, jocInBoxConfig.noConflicts.lodash);
-
 
 (function ($, _) {
     $(document).ready(bootstrapNgApplication);
