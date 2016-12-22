@@ -222,7 +222,7 @@
 					logger.logSuccess('File copied: ' + opts.destinationFileUrl, null, 'sharepointUtilities service, copyFile()');
 				})
 				.catch(function (ex) {
-					logger.logError('Request failed: ' + ex, null, 'sharepointUtilities service, copyFile()');
+					logger.logError('Request failed: ' + ex, opts, 'sharepointUtilities service, copyFile()');
 				});
 
 			function copyToDestination(opts) {
@@ -684,6 +684,13 @@
 			action.set_title('jocInBoxConfig.js');
 			action.set_scriptSrc('~site/SitePages/jocInBoxConfig.js');
 			action.set_sequence(1000 + sequenceCounter + 1);
+			action.update();
+
+			var action = userCustomActions.add();
+			action.set_location("ScriptLink");
+			action.set_title('populate-jocboxconfig-with-synchronous-data.js');
+			action.set_scriptSrc('~site/SitePages/populate-jocboxconfig-with-synchronous-data.js');
+			action.set_sequence(1000 + sequenceCounter + 2);
 			action.update();
 
 			var action = userCustomActions.add();

@@ -619,6 +619,7 @@
 			var content = [
 				'var jocInBoxConfig = jocInBoxConfig || {};',
 				'jocInBoxConfig.noConflicts = { jQuery: $.noConflict(), lodash: _.noConflict() };',
+				'jocInBoxConfig.webUrl = "' + vm.childWebUrl + '";',
 				templateDirectoryStatement,
 				'jocInBoxConfig.dashboards = ' + JSON.stringify(dashboards) + ";",
 				'jocInBoxConfig.missionTypes = ' + JSON.stringify(crisisResponseSchema.missionTypesMappedToDefaultApprovalAuthority) + ";"
