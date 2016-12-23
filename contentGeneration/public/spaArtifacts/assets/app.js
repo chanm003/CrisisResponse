@@ -2812,6 +2812,108 @@
     }
 })(jocInBoxConfig.noConflicts.jQuery, jocInBoxConfig.noConflicts.lodash);
 
+/* Directive: lastChopPopover */
+(function ($, _) {
+    angular
+        .module('app.core')
+        .directive('lastChopPopover', function($compile, $timeout) {
+            return {
+                restrict: 'A',
+                controller: function($scope, $element) {
+                    $scope.isShown = true;
+                    $scope.getClass = function(){
+                        if($scope.positionOrientation === 'left'){
+                            return 'ms-Callout--arrowRight';
+                        } else if($scope.positionOrientation === 'right'){
+                            return 'ms-Callout--arrowLeft';
+                        }
+                    }
+
+                    this.calculatePosition = function(target, popup, tooltipPosition){
+                        $scope.positionOrientation = tooltipPosition;
+                        $scope.popupCSS = {
+                            top: getOffsetTop(target, popup, tooltipPosition), 
+                            left: getOffsetLeft(target, popup, tooltipPosition)
+                        }
+                        $scope.isShown = false;
+                    }
+
+                    this.showTooltip = function() {
+                        $scope.isShown = true;
+                    }
+
+                    this.hideTooltip = function() {
+                        $scope.isShown = false;
+                    }
+
+                    function getOffsetLeft(target, popup, tooltipPosition){
+                        if(tooltipPosition === 'right'){
+                            return target.outerWidth() + 'px';
+                        } else if(tooltipPosition === 'left'){
+                            return -(33+popup.outerWidth()) + 'px';
+                        }
+                    }
+
+                    function getOffsetTop(target, popup, tooltipPosition){
+                        if(tooltipPosition === 'right' || tooltipPosition === 'left'){
+                            var offset = (target.outerHeight()/2) + 48;
+                            return -(offset) + 'px';
+                        }
+                    }
+                },
+                scope: {
+                    lastChop: "="
+                },
+                transclude: true,
+                compile: function(element, attrs){
+                    return {
+                        pre: function(){},
+                        post: function(scope, element, attrs, ctrl) {
+                            element.css({'position': 'relative', textAlign: 'left', whiteSpace: 'normal'});
+                            element.bind('mouseover', function(e) {
+                                scope.$apply(function() {
+                                    ctrl.showTooltip();
+                                });
+                            });
+
+                            element.bind('mouseout', function(e) {
+                                scope.$apply(function() {
+                                    ctrl.hideTooltip();
+                                });
+                            });
+
+                            $timeout(function(){
+                                ctrl.calculatePosition(element, element.find('.ms-Callout'), attrs.tooltipPosition);
+                            });
+                        }
+                    };
+                },
+                template: buildCalloutHtml()
+            }
+        });
+
+        function buildCalloutHtml() {
+            var html = '\
+                <div ng-transclude></div>\
+                <div class="ms-Callout" ng-class="getClass()" style="position:absolute;left:-2000px;" ng-style="popupCSS" ng-show="isShown" >\
+                    <div class="ms-Callout-main">\
+                        <div class="ms-Callout-header">\
+                            <span class="ms-fontWeight-light" style="float:right;">{{lastChop.Created  | date:"MM/dd/yyyy @ hhmm": "+0000" }}Z</span> <strong>{{lastChop.OrganizationalRole}}</strong> \
+                        </div>\
+                        <div class="ms-Callout-inner">\
+                            <div class="ms-Callout-content">\
+                                <p class="ms-Callout-subText ms-Callout-subText--s">\
+                                    {{lastChop.Author.Title}} wrote:<br/>\
+                                    {{lastChop.Comments}}\
+                                </p>\
+                            </div>\
+                        </div>\
+                    </div>\
+                </div>';
+            return html;
+        }
+})(jocInBoxConfig.noConflicts.jQuery, jocInBoxConfig.noConflicts.lodash);
+
 /* Directive: missionTimeline */
 (function ($, _) {
     angular
@@ -3116,7 +3218,7 @@
             '<button ng-click="chopButtonClicked()" ng-if="document.chopProcessInfo.selectedRouteStage.cdrDecisions.length === 0" type="button" class="cdr-chop-button-no-decisions-yet">',
             '   {{document.chopProcessInfo.selectedRouteStage.name}} CDR',
             '</button>',
-            '<button ng-click="chopButtonClicked()" ng-if="document.chopProcessInfo.selectedRouteStage.cdrDecisions.length !== 0" type="button" class="cdr-chop-button">',
+            '<button ng-click="chopButtonClicked()" ng-if="document.chopProcessInfo.selectedRouteStage.cdrDecisions.length !== 0" type="button" class="cdr-chop-button" last-chop-popover tooltip-position="left" last-chop="document.chopProcessInfo.selectedRouteStage.cdrDecisions[0]">',
             '   <span>',
             '       <i ng-if="document.chopProcessInfo.selectedRouteStage.cdrDecisions[0].Verdict === \'Concur\'" class="fa fa-thumbs-up" style="color:green;font-size:1.4em;"></i>',
             '       <i ng-if="document.chopProcessInfo.selectedRouteStage.cdrDecisions[0].Verdict === \'Nonconcur\'" class="fa fa-thumbs-down" style="color:red;font-size:1.4em;"></i>',
@@ -3167,7 +3269,7 @@
                 '           <button ng-if="decisions.length === 0" type="button" class="staff-chop-button-no-decisions-yet">',
                 '               {{tryToShorten(sectionName)}}',
                 '           </button>',
-                '           <button ng-if="decisions.length !== 0" type="button" class="staff-chop-button">',
+                '           <button ng-if="decisions.length !== 0" type="button" class="staff-chop-button" last-chop-popover tooltip-position="left" last-chop="decisions[0]">',
                 '               <span>',
                 '                   <i ng-if="decisions[0].Verdict === \'Concur\'" class="fa fa-thumbs-up" style="color:green;font-size:1.4em;"></i>',
                 '                   <i ng-if="decisions[0].Verdict === \'Nonconcur\'" class="fa fa-thumbs-down" style="color:red;font-size:1.4em;"></i>',
