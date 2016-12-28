@@ -11,6 +11,42 @@ UNCOMMENT THIS BLOCK PRIOR FOR THE PRODUCTION RELEASE
 @import url("jstree.min.css");     
 */
 
+/*#region UNCOMMENT IF SOCEUR STYLING PREFERENCES is desired
+	
+.ms-breadcrumb-top {
+	display:none;	
+}
+
+body .ms-core-brandingText{
+	font-size: 0;
+}
+
+body .ms-core-brandingText::after{
+	font-size: 17px;
+	display: block;
+	height: 15px;
+	padding: 15px 0 0 7px;
+	content: "SOCEUR";
+	background: #bb101d;
+	letter-spacing: 1px;
+	width:74px;
+}
+
+body #suiteBarLeft{
+  background-color: #000;
+}
+
+.ms-webpartzone-cell{
+	padding: 15px;
+	border: solid 1px rgb(204,204,204);
+	margin-right: 10px;
+}
+
+.ms-webpartzone-cell > .ms-webpart-chrome > .ms-WPBorder{
+	border:none;
+}
+#endregion*/
+
 #DeltaPlaceHolderLeftNavBar{
   display: none;
 }

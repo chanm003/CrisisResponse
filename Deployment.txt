@@ -7,8 +7,8 @@ index.aspx
 Modify src\app\common\common.js 
 this.settings = productionSettings;
 
-Modify spaArtifacts\assets\app.css, paste at top:
-Uncomment the CSS files....       
+Modify spaArtifacts\assets\app.css:
+Uncomment import statements at top of the page....       
 
 Modify spaArtifacts\assets\app.js:
 showDebugToasts: false 
