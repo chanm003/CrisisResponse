@@ -3107,7 +3107,7 @@
             ConfigRepository.getByKey("MENU_CONFIG")
                 .then(function (data) {
                     _.remove(data.JSON, isRootNode);
-                    _.each(data.JSON, associateToFlag);
+                    _.each(data.JSON, associateToConfigItem);
                     generateMenu(convertToRecursive(data.JSON));
                 });
 
@@ -3144,28 +3144,51 @@
 
             function generateAnchor_standard(node) {
                 var url = node.li_attr.url || "#";
+                var cssClass = 'noflag';
+                if(node.orgType){
+                    cssClass += " " + constructCssClassBasedOnOrgType(node);  
+                }
                 var parts = [
-                    '<a class="noflag" href="' + url + '" target="' + node.li_attr.target + '">',
+                    '<a class="' + cssClass + '" href="' + url + '" target="' + node.li_attr.target + '">',
                     '   <span class="menu-label-when-no-flag">' + node.text + '</span>',
                     '</a>'
                 ].join('');
                 return parts;
             }
 
+            function constructCssClassBasedOnOrgType(node){
+                if(!node.orgType){ return ""; }
+                if(node.orgType === "Task Group"){
+                    return _.camelCase(node.orgType + node.type);
+                } else {
+                    return  _.camelCase(node.orgType);
+                }
+            }
+
             function generateAnchor_withFlagIcon(node) {
                 var url = node.li_attr.url || "#";
+                var cssClass = '';
+                if(node.orgType){
+                    cssClass += constructCssClassBasedOnOrgType(node); 
+                }
                 var parts = [
-                    '<a href="' + url + '" target="' + node.li_attr.target + '">',
+                    '<a class="' + cssClass + '" href="' + url + '" target="' + node.li_attr.target + '">',
                     '   <span class="f32"><span class="flag ' + node.flagCode + '"><span class="menu-label-when-flag">' + node.text + '</span></span></span>',
                     '</a>'
                 ].join('');
                 return parts;
             }
         }
-        function associateToFlag(item) {
+        function associateToConfigItem(item) {
             var orgConfig = jocInBoxConfig.dashboards[item.text]
             if (orgConfig && orgConfig.flagCode) {
                 item.flagCode = orgConfig.flagCode;
+            }
+            if (orgConfig && orgConfig.orgType) {
+                item.orgType = orgConfig.orgType;
+            }
+            if (orgConfig && orgConfig.type) {
+                item.type = orgConfig.type;
             }
         }
 
