@@ -352,7 +352,7 @@
 				return { 
 					name: tg.name, 
 					country: resolveCountry(tg.flagCode), 
-					type: "Land"
+					type: tg.type || "Land"
 				};
 			});
 

@@ -25,8 +25,8 @@ wizard.defaults["Component Commands"] = [
 
 wizard.defaults["Task Groups"] = [
     {name: "Deutsches Heer", flagCode: "DE"},
-    {name: "SOTG 20"},
-    {name: "SOTG 30", flagCode: "FR"}
+    {name: "SOTG 20", type: "Maritime"},
+    {name: "SOTG 30", flagCode: "FR", type: "Maritime"}
 ];
 
 wizard.defaults["Air Component"] = {name: "Luftwaffe", flagCode: "DE"};
