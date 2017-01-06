@@ -1944,7 +1944,7 @@ crisisResponseSchema.webpartPageDefs['Component Command Page'] = {
 			],
 			viewName: 'SOCC CCIR',
 			viewFields: ['Number', 'LinkTitle', 'Status', 'Description'],
-			viewCAML: '<GroupBy Collapse="TRUE" GroupLimit="30"><FieldRef Name="Category"/></GroupBy><OrderBy><FieldRef Name="Number"/></OrderBy><Where><Contains><FieldRef Name="Organization"/><Value Type="Text">{orgQsParam}</Value></Contains></Where>',
+			viewCAML: '<GroupBy Collapse="FALSE" GroupLimit="30"><FieldRef Name="Category"/></GroupBy><OrderBy><FieldRef Name="Number"/></OrderBy><Where><Contains><FieldRef Name="Organization"/><Value Type="Text">{orgQsParam}</Value></Contains></Where>',
 			zoneName: 'Bottom',
 			zoneIndex: 0
 		}
