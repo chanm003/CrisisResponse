@@ -11,8 +11,8 @@ UNCOMMENT THIS BLOCK PRIOR FOR THE PRODUCTION RELEASE
 @import url("jstree.min.css");     
 */
 
-/*#region UNCOMMENT IF SOCEUR STYLING PREFERENCES is desired	
-.ms-breadcrumb-top {
+/*#region UNCOMMENT IF SOCEUR STYLING PREFERENCES is desired
+ul.ms-core-listMenu-root > li:first-child {
 	display:none;	
 }
 
@@ -65,12 +65,10 @@ body #suiteBarLeft{
   color:white !important;
 }
 
-
 #jocboxmenu a.exerciseControlGroup{
   background-color: #1f1f1f !important;
   color:white !important;
 }
-
 #endregion UNCOMMENT IF SOCEUR STYLING PREFERENCES is desired*/	
 
 #DeltaPlaceHolderLeftNavBar{
