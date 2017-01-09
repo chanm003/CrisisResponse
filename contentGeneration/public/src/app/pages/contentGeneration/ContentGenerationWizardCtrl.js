@@ -776,7 +776,7 @@
 
 			//missiontracker
 			var missionTrackerUrl = childWebUrl + "/SitePages/app.aspx/#/missiontracker/";
-			nodes.push(generateChildMenuNode(generateRandomId(), "Mission Tracker/Product Chop", nodeId_battlespace, {url: missionTrackerUrl}));
+			nodes.push(generateChildMenuNode(generateRandomId(), "Mission Tracker/Chop", nodeId_battlespace, {url: missionTrackerUrl}));
 
 			//RFI
 			var rfiUrl = childWebUrl + "/SitePages/app.aspx/#/rfi/";

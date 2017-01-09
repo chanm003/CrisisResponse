@@ -3293,14 +3293,14 @@
         function buildButtonHtml() {
             var parts = [
             '<button ng-click="chopButtonClicked()" ng-if="document.chopProcessInfo.selectedRouteStage.cdrDecisions.length === 0" type="button" class="cdr-chop-button-no-decisions-yet">',
-            '   {{document.chopProcessInfo.selectedRouteStage.name}} CDR',
+            '   {{document.chopProcessInfo.selectedRouteStage.name}}',
             '</button>',
             '<button ng-click="chopButtonClicked()" ng-if="document.chopProcessInfo.selectedRouteStage.cdrDecisions.length !== 0" type="button" class="cdr-chop-button" last-chop-popover tooltip-position="left" last-chop="document.chopProcessInfo.selectedRouteStage.cdrDecisions[0]">',
             '   <span>',
             '       <i ng-if="document.chopProcessInfo.selectedRouteStage.cdrDecisions[0].Verdict === \'Concur\'" class="fa fa-thumbs-up" style="color:green;font-size:1.4em;"></i>',
             '       <i ng-if="document.chopProcessInfo.selectedRouteStage.cdrDecisions[0].Verdict === \'Nonconcur\'" class="fa fa-thumbs-down" style="color:red;font-size:1.4em;"></i>',
             '       <i ng-if="document.chopProcessInfo.selectedRouteStage.cdrDecisions[0].Verdict === \'Pending\'" class="fa fa-hourglass-start" style="font-size:1.2em;"></i>',
-            '       {{document.chopProcessInfo.selectedRouteStage.name}} CDR',
+            '       {{document.chopProcessInfo.selectedRouteStage.name}}',
             '   </span>',
             '</button>'
             ].join('');
@@ -3464,7 +3464,7 @@
         var parts = [
             '<uif-panel uif-type="large" uif-is-open="showPanel" uif-show-overlay="true" uif-show-close="true" close-panel="onPanelClosed()">',
             '   <uif-panel-header>',
-            '       {{selectedStage.name}} Routing Sheet',
+            '       {{document.Mission.FullName}}, Reviewer: {{selectedTab}}',
             '   </uif-panel-header>',
             '   <uif-content>',
             generateTabsHtml(),
@@ -3474,13 +3474,13 @@
             '       <div class="ms-Grid" ng-if="!errors || errors.errorType !== \'TooEarly\'" >',
             '           <div class="ms-Grid-row" ng-show="!selectedTab || selectedTab === block.signOnBehalfOf" ng-repeat="block in signatureBlocks" style="margin-top: 20px;">',
             '               <div class="ms-Grid-col ms-u-md12">',
-            '                   <div class="form-header"><span class="ms-font-xl">{{block.title}}</span></div>',
+            '                   <div class="form-header"><span class="ms-font-xl">Chop Status</span></div>',
             '                   <div class="ms-Grid">',
             '                       <div class="ms-Grid-row">',
             '                           <div class="ms-Grid-col ms-u-md12">',
-            '                               <uif-textfield uif-label="Comments" ng-model="block.Comments" uif-multiline="true" ng-disabled="document.chopProcessInfo.lastKnownLocationAlongRoute !== selectedStage.name" />',
                                             generateVerdictPicker(),
                                             generateBlockErrorMessages(),
+            '                               <uif-textfield uif-label="Comments" ng-model="block.Comments" uif-multiline="true" ng-disabled="document.chopProcessInfo.lastKnownLocationAlongRoute !== selectedStage.name" />',
                                             generateButtonsHtml(),
             '                           </div>',
             '                       </div>',
@@ -3542,7 +3542,7 @@
         function generatePreviousChopsHtml() {
             var parts = [
                 '<div ng-if="block.previousChops.length === 0" style="padding-top:9px;">',
-                '   <uif-message-bar><uif-content>{{selectedStage.name}} {{block.title}} has no previous chops for this document</uif-content></uif-message-bar>',
+                '   <uif-message-bar><uif-content>No previous comments</uif-content></uif-message-bar>',
                 '</div>',
                 '<div ng-if="block.previousChops.length" class="chop-comments-container ">',
                 '   <ul class="chop-comments">',
@@ -4168,7 +4168,7 @@
             var pivots = [
                 { title: "Timeline" },
                 { title: "Products" },
-                { title: "Product Chop" }
+                { title: "Chop" }
             ];
 
             var selectedIndex = (!$routeParams.tabIndex || $routeParams.tabIndex >= pivots.length) ? 0 : $routeParams.tabIndex;
