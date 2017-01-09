@@ -1081,3 +1081,34 @@ td.NA{
 .ms-dragDropAttract-subtle{
   display:none;
 }
+
+.tagfilter{
+	display:inline-block;
+	border-radius: 3px;
+	font-weight: 400;
+	font-size: 11px;
+	padding: 4px 8px;
+	color: white;
+	margin-right:2px;
+	margin-top:3px;
+	line-height: 1;
+	text-align: center;
+	white-space: nowrap;
+	vertical-align: baseline;
+	background-color:#777;
+  cursor: pointer;
+}
+
+.tagfilter.disabled{
+	opacity: 0.5;
+}
+
+.tagfilter [data-role="remove"] {
+	margin-left:8px;
+}
+
+.tagfilter [data-role="remove"]:after {
+	content: "X";
+	padding: 0px 2px;
+	box-sizing:  border-box;
+}

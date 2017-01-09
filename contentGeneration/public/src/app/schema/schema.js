@@ -1979,7 +1979,7 @@ crisisResponseSchema.webpartPageDefs['Component Command Page'] = {
 			webPartProperties: [
 				{ 
 					attributes: {name: 'Content', type: 'string'},
-					innerText: '&lt;exercise-calendar&gt;&lt;/exercise-calendar&gt;'
+					innerText: '&lt;exercise-calendar selected-categories="[&#39;Battle Rhythm&#39;]"&gt;&lt;/exercise-calendar&gt;'
 				},
 				{
 					attributes: {name: 'Title', type: 'string'},

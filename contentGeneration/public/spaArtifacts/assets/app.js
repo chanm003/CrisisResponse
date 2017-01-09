@@ -1769,6 +1769,7 @@
     CalendarRepository.$inject = ['$http', '$q', '$resource', 'exception', 'logger', 'spContext'];
     function CalendarRepository($http, $q, $resource, exception, logger, spContext) {
         var service = {
+            getOptionsForCategoryField: getOptionsForCategoryField,
             getBattleRhythmNext24: getBattleRhythmNext24,
             getEvents: getEvents
         };
@@ -1801,6 +1802,21 @@
                 }
                 return _.filter(xmlAttrValue.split(';#'))
             }
+        }
+
+        function getOptionsForCategoryField(){
+            return $http({
+                    url: _spPageContextInfo.webServerRelativeUrl + "/_api/web/lists/getByTitle('Calendar')/fields?$filter=InternalName eq 'Category'",
+                    method: "GET",
+                    headers: {
+                        'Accept': 'application/json;odata=verbose',
+                        'Content-Type': 'application/json;odata=verbose',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(function (response) {
+                    return response.data.d.results[0].Choices.results;
+                });
         }
 
         function getBattleRhythmNext24(org){
@@ -2181,8 +2197,10 @@
         var directiveDefinition = {
             restrict: 'E',
             scope: {
+                selectedCategories: "="
             },
-            link: link
+            link: link,
+            template:  buildHeroButtonHtml() + buildCategoryPicker() + '<div class="exercise-site-calendar"/>'
         };
         return directiveDefinition;
 
@@ -2191,32 +2209,68 @@
             return spContext.htmlHelpers.buildHeroButton('new item', newFormUrl, 'showNewItemLink');
         }
 
+        function buildCategoryPicker(){
+            return '<div style="border: solid 1px rgb(204,204,204);padding:8px;margin-bottom:5px;"><span ng-repeat="category in categories" ng-click="filterSelected(category)" class="tagfilter" ng-class="{disabled: !category.selected}">{{category.text}}<span data-role="remove"></span></span></div>';
+        }
+
         function link(scope, elem, attrs) {
-            $(elem).before(buildHeroButtonHtml());
-            $(elem).fullCalendar({
-                // Assign buttons to the header of the calendar. See FullCalendar documentation for details.
-                header: {
-                    left: 'prev,next today',
-                    center: 'title',
-                    right: 'month, agendaWeek'
-                },
-                defaultView: "month", // Set the default view to month
-                firstHour: "0", // Set the first visible hour in agenda views to 5 a.m.
-                weekMode: "liquid", // Only display the weeks that are needed
-                theme: false, // Use a jQuery UI theme instead of the default fullcalendar theme
-                editable: false, // Set the calendar to read-only; events can't be dragged or resized
+            scope.showNewItemLink = true;
+            initializeCalendar(scope, elem, attrs);
+        }
 
-                // Add events to the calendar. This is where the "magic" happens!
-                events: function (start, end, timezone, callback) {
-                    var calView = $(elem).fullCalendar('getView');
-                    CalendarRepository.getEvents(start, end, calView.intervalUnit, (_.getQueryStringParam("org") || ""))
-                        .then(function (data) {
-                            callback(data);
-                        })
-
-                }
+        function initializeCalendar(scope, elem, attrs){
+            CalendarRepository.getOptionsForCategoryField().then(function(data){
+                initializeCategoriesFilter(data, scope, elem, attrs);
+                initPlugin(elem);
             });
 
+            function initializeCategoriesFilter(optionsForChoiceField, scope, elem, attrs){
+                scope.categories = _.map(optionsForChoiceField, function(option){
+                    return {
+                        text: option,
+                        selected: !scope.selectedCategories || _.includes(scope.selectedCategories, option)
+                    }
+                });
+                scope.filterSelected = function(category){
+                    category.selected = !category.selected;
+                    applyFilters();
+                }
+            }
+
+            function applyFilters(){
+                var jqueryWidget = $(elem).find(".exercise-site-calendar");
+                jqueryWidget.fullCalendar('rerenderEvents');             
+            }
+
+            function initPlugin(elem){
+                $(elem).find('.exercise-site-calendar').fullCalendar({
+                    // Assign buttons to the header of the calendar. See FullCalendar documentation for details.
+                    header: {
+                        left: 'prev,next today',
+                        center: 'title',
+                        right: 'month, agendaWeek'
+                    },
+                    defaultView: "month", // Set the default view to month
+                    firstHour: "0", // Set the first visible hour in agenda views to 5 a.m.
+                    weekMode: "liquid", // Only display the weeks that are needed
+                    theme: false, // Use a jQuery UI theme instead of the default fullcalendar theme
+                    editable: false, // Set the calendar to read-only; events can't be dragged or resized
+
+                    // Add events to the calendar. This is where the "magic" happens!
+                    events: function (start, end, timezone, callback) {
+                        var calView = $(elem).find('.exercise-site-calendar').fullCalendar('getView');
+                        CalendarRepository.getEvents(start, end, calView.intervalUnit, (_.getQueryStringParam("org") || ""))
+                            .then(function (data) {
+                                callback(data);
+                            })
+
+                    },
+                    eventRender: function(evt, element, view){
+                        var selectedCategories = _.map(_.filter(scope.categories, {selected: true}), 'text');
+                        return _.intersection(evt.category, selectedCategories).length > 0;
+                    }
+                });
+            }
         }
     }
 
