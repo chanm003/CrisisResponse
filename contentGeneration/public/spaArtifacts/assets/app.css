@@ -12,7 +12,7 @@ UNCOMMENT THIS BLOCK PRIOR FOR THE PRODUCTION RELEASE
 */
 
 /*#region UNCOMMENT IF SOCEUR STYLING PREFERENCES is desired
-ul.ms-core-listMenu-root > li:first-child {
+ul.ms-core-listMenu-root > li:first-child > a:first-child {
 	display:none;	
 }
 
