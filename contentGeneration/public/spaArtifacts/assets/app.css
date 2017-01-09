@@ -188,6 +188,10 @@ body #suiteBarLeft{
 
 /*#region Override Office UI Fabric:  BEGIN*/
 
+.ms-Table td {
+  vertical-align: top;
+}
+
 .ms-Pivot {
   /*Fix bug so context menu renders properly*/
   overflow-x: initial;
