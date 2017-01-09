@@ -1578,6 +1578,11 @@ crisisResponseSchema.listDefs["Calendar"] = {
 			viewTypeKind:524288
 		},
 		{
+			title: 'Battle Rhythm',
+			query: '<Where><Eq><FieldRef Name="Category"/><Value Type="Text">Battle Rhythm</Value></Eq></Where>',
+			viewTypeKind:524288
+		},
+		{
 			title: 'VTC',
 			query: '<Where><Eq><FieldRef Name="Category"/><Value Type="Text">VTC</Value></Eq></Where>',
 			viewTypeKind:524288
