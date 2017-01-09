@@ -1536,7 +1536,7 @@ crisisResponseSchema.listDefs["Calendar"] = {
 			Required: "FALSE",
 			FillInChoice: "FALSE",
 			Description: "Select all that apply",
-			Choices: ['Battle Rhythm', 'Working Group', 'Briefing', 'SOCEUR Internal', 'Reporting Requirement', 'Academics', 'VTC'],
+			Choices: ['Battle Rhythm', 'Working Group', 'Briefing', 'Reporting Requirement', 'Academics', 'VTC'],
 			Default: ''						//(optional)
 		}
 	],	
