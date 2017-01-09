@@ -3414,6 +3414,10 @@
                 return !!text ? text.replace(/(?:\r\n|\r|\n)/g, '<br />') : '';
             }
 
+            scope.closeChopDialog = function () {
+                scope.showPanel = false;
+            }
+
             scope.saveChop = function (block) {
                 block.errors = "";
                 if (!block.Verdict) {
@@ -3462,7 +3466,7 @@
 
     function buildPanelHtml() {
         var parts = [
-            '<uif-panel uif-type="large" uif-is-open="showPanel" uif-show-overlay="true" uif-show-close="true" close-panel="onPanelClosed()">',
+            '<uif-panel uif-type="medium" uif-is-open="showPanel" uif-show-overlay="true" uif-show-close="true" close-panel="onPanelClosed()" uif-is-light-dismiss="false">',
             '   <uif-panel-header>',
             '       {{document.Mission.FullName}}, Reviewer: {{selectedTab}}',
             '   </uif-panel-header>',
@@ -3505,14 +3509,18 @@
         function generateBlockErrorMessages() {
             var parts = [
                 '<div style="margin-bottom:5px;"><uif-message-bar uif-type="error" ng-if="!!block.errors"> <uif-content>{{block.errors}}</uif-content></uif-message-bar></div>'
-            ]
-                .join('');
+            ].join('');
 
             return parts;
         }
 
         function generateButtonsHtml() {
-            return '<uif-button type="button" uif-type="primary" ng-click="saveChop(block)" ng-disabled="document.chopProcessInfo.lastKnownLocationAlongRoute !== selectedStage.name">Save</uif-button>';
+            var parts = [
+                '<uif-button type="button" uif-type="primary" ng-click="saveChop(block)" ng-disabled="document.chopProcessInfo.lastKnownLocationAlongRoute !== selectedStage.name">Save</uif-button>',
+                '<uif-button type="button" ng-click="closeChopDialog()" ng-disabled="document.chopProcessInfo.lastKnownLocationAlongRoute !== selectedStage.name">Cancel</uif-button>'
+            ].join('');
+
+            return parts;
         }
 
         function generateChoppingOutOfSequenceError() {
