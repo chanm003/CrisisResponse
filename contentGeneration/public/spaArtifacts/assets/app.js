@@ -3030,8 +3030,6 @@
         function link(scope, elem, attrs) {
             var options = {
                 stack: false,
-                start: moment(),
-                end: moment().add(15, 'days'),
                 editable: false,
                 moment: function(date){
                     return vis.moment(date).utc();
