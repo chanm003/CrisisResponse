@@ -658,7 +658,7 @@
             }
         }
 
-        RFI.prototype.validate = function (formState) {
+        RFI.prototype.validate = function (formState, itemOnEditFormAspxLoad) {
             var errors = [];
 
             if (formState === 'new' || formState === 'edit') {
@@ -693,7 +693,8 @@
                 }
             }
 
-            if (formState === 'respond') {
+            var userAttemptedToPassTheBuck = itemOnEditFormAspxLoad.RecommendedOPR !== this.RecommendedOPR;
+            if (formState === 'respond' && !userAttemptedToPassTheBuck) {
                 if (this.RespondentNameSelectedKeys.length === 0) {
                     errors.push("Respondent Name is a required field");
                 }
@@ -1426,7 +1427,10 @@
             if (formState === 'respond') {
                 listItem.set_item('Mission', convertToFieldLookupValue(rfi.MissionId));
                 listItem.set_item('RecommendedOPR', rfi.RecommendedOPR);
-                listItem.set_item('RespondentName', SP.FieldUserValue.fromUser(rfi.RespondentNameSelectedKeys[0]));
+
+                if(rfi.RespondentNameSelectedKeys.length){
+                    listItem.set_item('RespondentName', SP.FieldUserValue.fromUser(rfi.RespondentNameSelectedKeys[0]));
+                }
                 listItem.set_item('RespondentPhone', rfi.RespondentPhone);
                 listItem.set_item('ResponseToRequest', rfi.ResponseToRequest);
                 listItem.set_item('DateClosed', (rfi.DateClosed && rfi.DateClosed.isValid()) ? rfi.DateClosed.toISOString() : null);
@@ -3890,6 +3894,7 @@
     controller.$inject = ['$scope', '_', 'RFI', 'spContext', 'SPUtility'];
     function controller($scope, _, RFI, spContext, SPUtility) {
         var vm = this;
+        var itemOnEditFormAspxLoad = null;
 
         init();
 
@@ -3898,7 +3903,7 @@
 
             var rfi = generateModelFromSpListForm();
 
-            var errors = rfi.validate(formState);
+            var errors = rfi.validate(formState, itemOnEditFormAspxLoad);
             if (errors) {
                 alert(errors);
             } else {
@@ -3963,6 +3968,7 @@
         }
 
         function init() {
+            itemOnEditFormAspxLoad = spContext.getContextFromEditFormASPX();
         }
 
 
