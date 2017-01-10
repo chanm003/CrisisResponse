@@ -4044,7 +4044,7 @@
             item.TaskInfo = SPUtility.GetSPFieldByInternalName("MessageDetails").GetValue();
             item.OriginatorSender = SPUtility.GetSPFieldByInternalName("MessageOriginatorSender").GetValue();
             item.Receiver = SPUtility.GetSPFieldByInternalName("MessageRecipients").GetValue(); //object {results: ['SOTG 10', 'SOTG 15', 'SOTG 25']} 
-            item.DateTimeGroup = moment.utc(SPUtility.GetSPFieldByInternalName("MessageDTG").GetValue().toString());
+            item.DateTimeGroup = moment.utc(SPUtility.GetSPFieldByInternalName("MessageDateTimeGroup").GetValue().toString());
             item.Significant = SPUtility.GetSPFieldByInternalName("SignificantMessage").GetValue();
 
             return item;

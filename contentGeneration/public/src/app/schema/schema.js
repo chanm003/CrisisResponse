@@ -996,8 +996,8 @@ crisisResponseSchema.listDefs["Mission Documents"] = {
 		},
 		{
 			//EXAMPLE: DateTime
-			Name: "MessageDTG",
-			DisplayName: "Message DTG",
+			Name: "MessageDateTimeGroup",
+			DisplayName: "Message Date Time Group",
 			Type: "DateTime",
 			Required: "FALSE",
 			Format: "DateTime", 					//please use either 'DateOnly' or 'DateTime'

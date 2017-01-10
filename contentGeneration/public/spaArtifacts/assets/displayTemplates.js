@@ -499,7 +499,7 @@
                 hideRow(field.Name);
 
                 function hideRow(fieldName){
-                    var fieldsToHide = ['MessageTitle', 'MessageDetails', 'MessageDTG', 'MessageOriginatorSender', 'MessageRecipients', 'SignificantMessage']
+                    var fieldsToHide = ['MessageTitle', 'MessageDetails', 'MessageDateTimeGroup', 'MessageOriginatorSender', 'MessageRecipients', 'SignificantMessage']
 
                     if(_.includes(fieldsToHide, fieldName)){
                         SPUtility.GetSPFieldByInternalName(fieldName).Hide();
