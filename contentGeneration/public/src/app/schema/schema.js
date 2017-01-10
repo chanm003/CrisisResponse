@@ -478,7 +478,7 @@ crisisResponseSchema.listDefs["Mission Tracker"] = {
 				Type: "Text",
 				Required: "FALSE",
 				MaxLength: 255,
-				Description: "Name of Objective/Target. One word, all CAPs, prefix name with OP.",
+				Description: "Name of Operation. One word, all CAPs, prefix name with OP.",
 				Default: "OP_"							//(optional)
 			},
 			{
@@ -492,15 +492,6 @@ crisisResponseSchema.listDefs["Mission Tracker"] = {
 				Description: 'Use this drop-down menu to identify what stage the Mission or CONOP is currently in. This field should be updated as the CONOP moves through the stages from planning to execution to completion',
 				Choices: ['Initial Targeting', 'JPG Assigned', 'COA Approved', 'CONOP Received - In Chop', 'CONOP Approved', 'CONOP Disapproved', 'FRAGO In-Chop', 'FRAGO Released', 'EXORD Released', 'Mission In Progress', 'Return to Base', 'QuickLook', 'StoryBoard', 'OPSUM', 'Mission Closed'], 
 				Default: ''							//(optional)
-			},
-			{
-				//EXAMPLE: DateTime
-				Name: "MissionApproved",
-				DisplayName: "Mission Approved",
-				Type: "DateTime",
-				Required: "FALSE",
-				Format: "DateTime", 			//please use either 'DateOnly' or 'DateTime'
-				Default: ''						//(optional)	
 			},
 			{
 				//EXAMPLE: DateTime
@@ -541,6 +532,15 @@ crisisResponseSchema.listDefs["Mission Tracker"] = {
 				RichText: "FALSE",						//RECOMMENDED
 				AppendOnly: "FALSE"						//VERSIONING MUST BE TURNED ON, otherwise specifie "FALSE"
 				
+			},
+			{
+				//EXAMPLE: DateTime
+				Name: "MissionApproved",
+				DisplayName: "Mission Approved",
+				Type: "DateTime",
+				Required: "FALSE",
+				Format: "DateTime", 			//please use either 'DateOnly' or 'DateTime'
+				Default: ''						//(optional)	
 			}		
 		]
 };
@@ -1295,7 +1295,7 @@ crisisResponseSchema.listDefs["Watch Log"] = {
 			Type: "DateTime",
 			Required: "TRUE",
 			Format: "DateTime", 					//please use either 'DateOnly' or 'DateTime'
-			Default: ''						//(optional)	
+			Default: '[today]'						//(optional)	
 		},
 		{
 			//EXAMPLE: MULTIPLE LINE OF TEXT
@@ -1387,7 +1387,18 @@ crisisResponseSchema.listDefs["Message Traffic"] = {
 			Required: "TRUE",
 			Description: "(DTG) Date and Time that message was received/sent",
 			Format: "DateTime", 					//please use either 'DateOnly' or 'DateTime'
-			Default: ''						//(optional)	
+			Default: '[today]'						//(optional)	
+		},
+		{
+			//EXAMPLE: Calculated
+			Name: 'DTG',
+			DisplayName: 'DTG',
+			Type: "Calculated",
+			Required: 'TRUE',
+			ResultType: 'Text',
+			ReadOnly: 'TRUE',
+			Formula: '=UPPER(TEXT([Date Time Group],"ddHHmm")&amp;"Z"&amp;(TEXT([Date Time Group],"MMMyy")))',
+			FieldRefs: ['DateTimeGroup']		
 		},
 		{
 			//EXAMPLE: MULTIPLE LINE OF TEXT
@@ -1442,17 +1453,6 @@ crisisResponseSchema.listDefs["Message Traffic"] = {
 			Format: "Hyperlink",
 			ShowInNewForm: 'FALSE',
 			ShowInEditForm: 'FALSE'					
-		},
-		{
-			//EXAMPLE: Calculated
-			Name: 'DTG',
-			DisplayName: 'DTG',
-			Type: "Calculated",
-			Required: 'TRUE',
-			ResultType: 'Text',
-			ReadOnly: 'TRUE',
-			Formula: '=UPPER(TEXT([Date Time Group],"ddHHmm")&amp;"Z"&amp;(TEXT([Date Time Group],"MMMyy")))',
-			FieldRefs: ['DateTimeGroup']		
 		}
 	]
 };
@@ -1756,7 +1756,7 @@ crisisResponseSchema.listDefs["Inject"] = {
 			DisplayName: "Receiver",
 			Type: "MultiChoice",
 			Required: "TRUE",
-			Description: "First command message is released to",
+			Description: "Organizations to receive the inject",
 			FillInChoice: "FALSE",
 			Choices: [],						//will be generated
 			Default: ''						//(optional)
