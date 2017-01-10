@@ -851,6 +851,11 @@
                 errors.push("Name is a required field");
             }
 
+            //validate client-side (these fields are required, but not enforced at schema-level, so we can enable drag-drop scenarios)
+            if(!this.Title){
+                this.Title = fileNameWithoutExtension;
+            }
+
             if (!this.Organization) {
                 errors.push("Organization is a required field");
             }
@@ -3985,7 +3990,6 @@
         function generateMissionDocumentModelFromSpListForm() {
             var doc = new MissionDocument();
             doc.FileLeafRef = SPUtility.GetSPFieldByInternalName("FileLeafRef").GetValue();
-            doc.Title = SPUtility.GetSPFieldByInternalName("Title").GetValue();
             doc.Organization = SPUtility.GetSPFieldByInternalName("Organization").GetValue();
             doc.TypeOfDocument = SPUtility.GetSPFieldByInternalName("TypeOfDocument").GetValue();
             doc.MissionId = spContext.getIdFromLookupField("Mission");

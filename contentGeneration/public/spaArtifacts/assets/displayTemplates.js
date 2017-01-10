@@ -6,12 +6,12 @@
  * https://blogs.msdn.microsoft.com/sridhara/2013/02/08/register-csr-override-on-mds-enabled-sharepoint-2013-site/
  */
 (function ($,_) {
-    ExecuteOrDelayUntilScriptLoaded(disableDragAndDrop, "DragDrop.js");
     $(document).ready(overrideCalendarListForm);
     RegisterModuleInit("SiteAssets/displayTemplates.js", registerCustomizations); // CSR-override for MDS enabled site
     registerCustomizations(); //CSR-override for MDS disabled site (because we need to call the entry point function in this case whereas it is not needed for anonymous functions)
 
     function disableDragAndDrop(){
+        //should be invoked after DragDrop.js: ExecuteOrDelayUntilScriptLoaded(disableDragAndDrop, "DragDrop.js");
         g_uploadType = DragDropMode.NOTSUPPORTED;
         SPDragDropManager.DragDropMode = DragDropMode.NOTSUPPORTED;
     }

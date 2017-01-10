@@ -886,7 +886,7 @@ crisisResponseSchema.listDefs["Mission Documents"] = {
 	Title: "Mission Documents",
 	BaseTemplate: 'documentLibrary',
 	enableVersioning: true,
-	shouldHideTitleField: false,
+	shouldHideTitleField: true,
 	fieldsToCreate:[
 		{
 			//EXAMPLE: Dropdown
@@ -894,7 +894,7 @@ crisisResponseSchema.listDefs["Mission Documents"] = {
 			DisplayName: "Organization",
 			Type: "Choice",
 			Format:"Dropdown",
-			Required: "TRUE",
+			Required: "FALSE",
 			FillInChoice: "FALSE",
 			Choices: [],						//will be generated 
 			Default: ''							//(optional)
@@ -905,7 +905,7 @@ crisisResponseSchema.listDefs["Mission Documents"] = {
 			DisplayName: "Type of Document",
 			Type: "Choice",
 			Format:"Dropdown",
-			Required: "TRUE",
+			Required: "FALSE",
 			FillInChoice: "FALSE",
 			Choices: crisisResponseSchema.docTypes, 
 			Default: ''							//(optional)

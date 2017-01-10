@@ -442,7 +442,7 @@
 				};
 				var viewName = defaultViews[opts.BaseTemplate] || "All Items";
 				var defaultView = createdList.get_views().getByTitle(viewName);
-				if (opts.shouldHideTitleField) {
+				if (opts.shouldHideTitleField && viewName !== 'All Documents') {
 					defaultView.get_viewFields().remove("LinkTitle");
 				}
 				var internalFieldNamesForHiddenFields = _.pluck(_.where(opts.fieldsToCreate, { Hidden: 'TRUE' }), "Name");
