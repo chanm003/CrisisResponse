@@ -39,7 +39,8 @@
             <tr>
                 <th>DTG</th>
                 <th>Organization</th>
-                <th>Event</th>
+                <th>Title</th>
+                <th>Event Details</th>
                 <th>Action Taken</th>
                 <th>Initials</th>
             </tr>
@@ -49,6 +50,7 @@
                 <td>{{item.DTG}}</td>
                 <td>{{item.Organization}}</td>
                 <td>{{item.Title}} <span ng-show="vm.isNew(item.Created)" class="ms-newdocument-iconouter"><img class="ms-newdocument-icon" src="/_layouts/15/images/spcommon.png?rev=44" alt="new" title="new"></span></td>
+                <td>{{item.EventDetails}}</td>
                 <td>{{item.ActionTaken}}</td>
                 <td>{{item.Initials}}</td>
             </tr>
