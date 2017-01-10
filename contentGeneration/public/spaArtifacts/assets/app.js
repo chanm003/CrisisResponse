@@ -310,6 +310,7 @@
         service.copyFile = copyFile;
         service.sendEmail = sendEmail;
         service.generateEmailBody = generateEmailBody;
+        service.getUserInfoListItem = getUserInfoListItem;
 
         service.htmlHelpers = {};
         service.htmlHelpers.buildHeroButton = function (text, href, ngShowAttrValue) {
@@ -488,6 +489,21 @@
                     "results": model[propName]
                 }
             }
+        }
+
+        function getUserInfoListItem(userID){
+            var ngResource = $resource( _spPageContextInfo.webServerRelativeUrl + "/_api/web/SiteUserInfoList/Items(:userId)",
+                { userId: userID },
+                {
+                    get: {
+                        method: 'GET',
+                        headers: defaultHeaders
+                    }
+                });
+            return ngResource.get().$promise
+                .then(function(response){
+                    return response.d;
+                });
         }
 
         function refreshSecurityValidation() {
@@ -3984,6 +4000,7 @@
             } else {
                 doc.save()
                     .then(checkInFile)
+                    .then(getCurrentUser)
                     .then(generateMessage)
                     .then(redirectToSource)
                     .catch(function (error) {
@@ -3995,10 +4012,16 @@
                 return doc.checkIn();
             }
 
-            function generateMessage() {
+            function generateMessage(user) {
                 if (!message) { return $q.when(); }
+                var initialsForUser = user.FirstName[0] + user.LastName[0];
+                message.Initials = initialsForUser;
                 message.LinkToMissionDocument = _spPageContextInfo.webServerRelativeUrl + "/MissionDocuments/" + doc.FileLeafRef;
                 return message.save();
+            }
+
+            function getCurrentUser(){
+                return spContext.getUserInfoListItem(_spPageContextInfo.userId);
             }
 
             function redirectToSource() {
