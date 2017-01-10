@@ -190,6 +190,7 @@ body #suiteBarLeft{
 
 .ms-Table td {
   vertical-align: top;
+  border-bottom: solid 1px rgb(234, 234, 234);
 }
 
 .ms-Pivot {

@@ -1650,7 +1650,8 @@
         var service = {
             getByOrganization: getByOrganization,
             getOpenMissionsByApprovalChain: getOpenMissionsByApprovalChain,
-            save: save
+            save: save,
+            updateMissionStatusBasedOnConopChopDecision: updateMissionStatusBasedOnConopChopDecision
         };
 
         var fieldsToSelect = [
@@ -1685,6 +1686,12 @@
                     item.deriveFullName();
                     return item;
                 });
+        }
+
+        function getById(id) {
+            var constructParams = angular.extend({}, { item: { Id: id } }, ngResourceConstructParams);
+            var restResource = spContext.constructNgResourceForRESTResource(constructParams);
+            return restResource.get({}).$promise.then(function (response) { return response.d; });
         }
 
         function getByOrganization(org){
@@ -1761,6 +1768,29 @@
                     return $q.when(item);
                 }
             }
+        }
+
+        function updateMissionStatusBasedOnConopChopDecision(conopStatus, missionId){
+            getById(missionId)
+                .then(function(mission){
+                    var newMissionStatus = "";
+                    if(conopStatus === "Approved" && _.includes(['Initial Targeting', 'JPG Assigned', 'COA Approved', 'CONOP Received - In Chop', 'CONOP Disapproved'], mission.Status)){
+                        newMissionStatus = "CONOP Approved";
+                    } else if(conopStatus === "Disapproved"){
+                        newMissionStatus = "CONOP Disapproved";
+                    }
+                    
+                    if(newMissionStatus){
+                        var item = { 
+                            Id: mission.Id, 
+                            Status: newMissionStatus,
+                            __metadata: mission.__metadata
+                        };
+                        var constructParams = angular.extend({}, { item: { Id: item.Id } }, ngResourceConstructParams);
+                        var restResource = spContext.constructNgResourceForRESTResource(constructParams);
+                        return restResource.post(item);
+                    }
+                });
         }
 
         return service;
@@ -3387,7 +3417,7 @@
         .module('app.core')
         .directive('routingSheet', directiveDefinitionFunc);
 
-    function directiveDefinitionFunc($rootScope, logger, MissionDocument) {
+    function directiveDefinitionFunc($rootScope, logger, MissionDocument, MissionTrackerRepository) {
         /* 
         USAGE: <routing-sheet></routing-sheet>
         SIMPLY listens for an event
@@ -3442,6 +3472,11 @@
                     //TODO: display logger message
                     scope.document.relatedChops.push(item);
                     scope.document.refreshChopProcessInfo();
+
+                    if(scope.document.chopProcessInfo.overallChopStatus !== "In Chop" && scope.document.TypeOfDocument === "CONOP Concept of Operations"){
+                        MissionTrackerRepository.updateMissionStatusBasedOnConopChopDecision(scope.document.chopProcessInfo.overallChopStatus, scope.document.Mission.Id);   
+                    }
+
                     scope.onChopCreated()
                     scope.showPanel = false
                 });
