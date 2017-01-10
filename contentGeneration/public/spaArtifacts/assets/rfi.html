@@ -30,8 +30,9 @@
             <uif-table-header style="white-space:nowrap;" uif-order-by="RfiTrackingNumber">Tracking #</uif-table-header>
             <uif-table-header uif-order-by="PrioritySort">Priority</uif-table-header>
             <uif-table-header uif-order-by="LTIOV">LTIOV</uif-table-header>
+            <uif-table-header uif-order-by="Status" ng-show="vm.tabConfig.selectedPivot.title !== 'Open' && vm.tabConfig.selectedPivot.title !== 'Closed'">Status</uif-table-header>
             <uif-table-header style="white-space:nowrap;" uif-order-by="Created">Date Opened</uif-table-header>
-            <uif-table-header style="white-space:nowrap;" uif-order-by="DateClosed" ng-show="vm.tabConfig.selectedPivot.title === 'Closed'">Date Closed</uif-table-header>
+            <uif-table-header style="white-space:nowrap;" uif-order-by="DateClosed" ng-show="vm.tabConfig.selectedPivot.title !== 'Open'">Date Closed</uif-table-header>
           </uif-table-row>
         </uif-table-head>
         <uif-table-body>
@@ -50,8 +51,9 @@
               </div>
             </uif-table-cell>
             <uif-table-cell style="white-space:nowrap;">{{(item.LTIOV.isValid())? item.LTIOV.format('DD MMM YY HHmm[Z]').toUpperCase() : ''}}</uif-table-cell>
+            <uif-table-cell style="white-space:nowrap;" ng-show="vm.tabConfig.selectedPivot.title !== 'Open' && vm.tabConfig.selectedPivot.title !== 'Closed'">{{item.Status}}</uif-table-cell>
             <uif-table-cell style="white-space:nowrap;">{{item.Created.format('DD MMM YY HHmm[Z]').toUpperCase()}}</uif-table-cell>
-            <uif-table-cell style="white-space:nowrap;" ng-show="vm.tabConfig.selectedPivot.title === 'Closed'">{{item.DateClosed.format('DD MMM YY HHmm[Z]').toUpperCase()}}</uif-table-cell>
+            <uif-table-cell style="white-space:nowrap;" ng-show="vm.tabConfig.selectedPivot.title !== 'Open'">{{(item.DateClosed.isValid())? item.DateClosed.format('DD MMM YY HHmm[Z]').toUpperCase() : ''}}</uif-table-cell>
           </uif-table-row>
         </uif-table-body>
       </uif-table>
