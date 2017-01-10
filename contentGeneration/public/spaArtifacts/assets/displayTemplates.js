@@ -212,7 +212,7 @@
                 try {
                     ctx.CurrentFieldSchema.Choices = getApprovalAuthorityOptionsBasedOnQueryString();
                     setDropdownOnNewFormWhenOnlyOneOption(ctx);
-                    return SPFieldChoice_Edit(ctx) + '<uif-message-bar ng-show="routeMessage"> <uif-content><strong>Documents associated to this mission will be routed as follows: </strong><div>{{routeMessage}}</div></uif-content> </uif-message-bar>';
+                    return SPFieldChoice_Edit(ctx) + '<uif-message-bar ng-show="false"> <uif-content><strong>Documents associated to this mission will be routed as follows: </strong><div>{{routeMessage}}</div></uif-content> </uif-message-bar>';
 
                     function getApprovalAuthorityOptionsBasedOnQueryString() {
                         var org = _.extractOrgFromQueryString();
