@@ -206,7 +206,7 @@
 
             function renderApprovalAuthorityDropdown(ctx) {
                 if(ctx.BaseViewID === "EditForm" && _.extractOrgFromQueryString() !== ctx.CurrentItem.Organization){
-                    return renderAsReadOnly(ctx);
+                    return '<span class="readOnlyLabel">' + SPField_FormDisplay_Default(ctx) + '</span>';
                 }
 
                 try {

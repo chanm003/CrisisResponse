@@ -3767,6 +3767,13 @@
         window.PreSaveAction = function () {
             var msn = new Mission();
             msn.ApprovalAuthority = SPUtility.GetSPFieldByInternalName("ApprovalAuthority").GetValue();
+            if(!msn.ApprovalAuthority){
+                //check if we are on the EditForm.aspx
+                var $domElem = $(SPUtility.GetSPFieldByInternalName("ApprovalAuthority").Controls);
+                if($domElem.hasClass("readOnlyLabel")){
+                    msn.ApprovalAuthority = $domElem.text();
+                }
+            }
             msn.Comments = SPUtility.GetSPFieldByInternalName("Comments").GetValue();
             msn.ExpectedExecution = moment.utc(SPUtility.GetSPFieldByInternalName("ExpectedExecution").GetValue().toString());
             msn.ExpectedTermination = moment.utc(SPUtility.GetSPFieldByInternalName("ExpectedTermination").GetValue().toString());
