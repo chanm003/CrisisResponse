@@ -1860,6 +1860,7 @@ crisisResponseSchema.webpartPageDefs['Component Command Page'] = {
 			viewName: 'SOCC Watch Log',
 			viewFields: ['Attachments', 'DTG', 'LinkTitle', 'EventDetails', 'ActionTaken', 'Initials', 'Significant'],
 			viewCAML: '<OrderBy><FieldRef Name="DateTimeGroup" Ascending="FALSE"/></OrderBy><Where><Contains><FieldRef Name="Organization"/><Value Type="Text">{orgQsParam}</Value></Contains></Where>',
+			rowLimit: 5,
 			zoneName: 'Top',
 			zoneIndex: 0
 		},
@@ -1878,6 +1879,7 @@ crisisResponseSchema.webpartPageDefs['Component Command Page'] = {
 			viewName: 'SOCC Inbound Messages',
 			viewFields: ['Attachments', 'DTG', 'OriginatorSender', 'LinkTitle', 'LinkToMissionDocument', 'Initials', 'Significant'],
 			viewCAML: '<OrderBy><FieldRef Name="DateTimeGroup" Ascending="FALSE"/></OrderBy><Where><Contains><FieldRef Name="Receiver"/><Value Type="Text">{orgQsParam}</Value></Contains></Where>',
+			rowLimit: 5,
 			zoneName: 'Left',
 			zoneIndex: 0
 		},
@@ -1896,6 +1898,7 @@ crisisResponseSchema.webpartPageDefs['Component Command Page'] = {
 			viewName: 'SOCC Outbound Messages',
 			viewFields: ['DTG', 'Receiver', 'LinkTitle', 'LinkToMissionDocument', 'Initials', 'Significant'],
 			viewCAML: '<OrderBy><FieldRef Name="DateTimeGroup" Ascending="FALSE"/></OrderBy><Where><Contains><FieldRef Name="OriginatorSender"/><Value Type="Text">{orgQsParam}</Value></Contains></Where>',
+			rowLimit: 5,
 			zoneName: 'Left',
 			zoneIndex: 10
 		},
@@ -2011,6 +2014,7 @@ crisisResponseSchema.webpartPageDefs['Task Group Page'] = {
 			viewName: 'SOTG Watch Log',
 			viewFields: ['Attachments', 'DTG', 'LinkTitle', 'EventDetails', 'ActionTaken', 'Initials', 'Significant'],
 			viewCAML: '<OrderBy><FieldRef Name="DateTimeGroup" Ascending="FALSE"/></OrderBy><Where><Contains><FieldRef Name="Organization"/><Value Type="Text">{orgQsParam}</Value></Contains></Where>',
+			rowLimit: 5,
 			zoneName: 'Top',
 			zoneIndex: 0
 		},
@@ -2029,6 +2033,7 @@ crisisResponseSchema.webpartPageDefs['Task Group Page'] = {
 			viewName: 'SOTG Inbound Messages',
 			viewFields: ['Attachments', 'DTG', 'OriginatorSender', 'LinkTitle', 'LinkToMissionDocument', 'Initials', 'Significant'],
 			viewCAML: '<OrderBy><FieldRef Name="DateTimeGroup" Ascending="FALSE"/></OrderBy><Where><Contains><FieldRef Name="Receiver"/><Value Type="Text">{orgQsParam}</Value></Contains></Where>',
+			rowLimit: 5,
 			zoneName: 'Left',
 			zoneIndex: 10
 		},
@@ -2047,6 +2052,7 @@ crisisResponseSchema.webpartPageDefs['Task Group Page'] = {
 			viewName: 'SOTG Outbound Messages',
 			viewFields: ['DTG', 'Receiver', 'LinkTitle', 'LinkToMissionDocument', 'Initials', 'Significant'],
 			viewCAML: '<OrderBy><FieldRef Name="DateTimeGroup" Ascending="FALSE"/></OrderBy><Where><Contains><FieldRef Name="OriginatorSender"/><Value Type="Text">{orgQsParam}</Value></Contains></Where>',
+			rowLimit: 5,
 			zoneName: 'Left',
 			zoneIndex: 20
 		},
@@ -2144,6 +2150,7 @@ crisisResponseSchema.webpartPageDefs['Communications Component Page'] = {
 			viewName: 'Comms Watch Log',
 			viewFields: ['Attachments', 'DTG', 'LinkTitle', 'EventDetails', 'ActionTaken', 'Initials', 'Significant'],
 			viewCAML: '<OrderBy><FieldRef Name="DateTimeGroup" Ascending="FALSE"/></OrderBy><Where><Contains><FieldRef Name="Organization"/><Value Type="Text">{orgQsParam}</Value></Contains></Where>',
+			rowLimit: 5,
 			zoneName: 'Bottom',
 			zoneIndex: 0
 		}
@@ -2186,6 +2193,7 @@ crisisResponseSchema.webpartPageDefs['Air Component Page'] = {
 			viewName: 'SOAC Watch Log',
 			viewFields: ['Attachments', 'DTG', 'LinkTitle', 'EventDetails', 'ActionTaken', 'Initials', 'Significant'],
 			viewCAML: '<OrderBy><FieldRef Name="DateTimeGroup" Ascending="FALSE"/></OrderBy><Where><Contains><FieldRef Name="Organization"/><Value Type="Text">{orgQsParam}</Value></Contains></Where>',
+			rowLimit: 5,
 			zoneName: 'Left',
 			zoneIndex: 0
 		},
@@ -2222,6 +2230,7 @@ crisisResponseSchema.webpartPageDefs['Air Component Page'] = {
 			viewName: 'SOAC Inbound Messages',
 			viewFields: ['Attachments', 'DTG', 'OriginatorSender', 'LinkTitle', 'LinkToMissionDocument', 'Initials', 'Significant'],
 			viewCAML: '<OrderBy><FieldRef Name="DateTimeGroup" Ascending="FALSE"/></OrderBy><Where><Contains><FieldRef Name="Receiver"/><Value Type="Text">{orgQsParam}</Value></Contains></Where>',
+			rowLimit: 5,
 			zoneName: 'Left',
 			zoneIndex: 20
 		},
@@ -2240,6 +2249,7 @@ crisisResponseSchema.webpartPageDefs['Air Component Page'] = {
 			viewName: 'SOAC Outbound Messages',
 			viewFields: ['DTG', 'Receiver', 'LinkTitle', 'LinkToMissionDocument', 'Initials', 'Significant'],
 			viewCAML: '<OrderBy><FieldRef Name="DateTimeGroup" Ascending="FALSE"/></OrderBy><Where><Contains><FieldRef Name="OriginatorSender"/><Value Type="Text">{orgQsParam}</Value></Contains></Where>',
+			rowLimit: 5,
 			zoneName: 'Left',
 			zoneIndex: 30
 		},
@@ -2341,6 +2351,7 @@ crisisResponseSchema.webpartPageDefs['Exercise Conductor Page'] = {
 			viewName: 'EXCON Watch Log',
 			viewFields: ['Attachments', 'DTG', 'LinkTitle', 'EventDetails', 'ActionTaken', 'Initials'],
 			viewCAML: '<OrderBy><FieldRef Name="DateTimeGroup" Ascending="FALSE"/></OrderBy>',
+			rowLimit: 5,
 			zoneName: 'Left',
 			zoneIndex: 0
 		},
@@ -2359,6 +2370,7 @@ crisisResponseSchema.webpartPageDefs['Exercise Conductor Page'] = {
 			viewName: 'EXCON Inbound Messages',
 			viewFields: ['Attachments', 'DTG', 'OriginatorSender', 'LinkTitle', 'LinkToMissionDocument', 'Initials', 'Significant'],
 			viewCAML: '<OrderBy><FieldRef Name="DateTimeGroup" Ascending="FALSE"/></OrderBy><Where><Contains><FieldRef Name="Receiver"/><Value Type="Text">{orgQsParam}</Value></Contains></Where>',
+			rowLimit: 5,
 			zoneName: 'Left',
 			zoneIndex: 10
 		},
@@ -2377,6 +2389,7 @@ crisisResponseSchema.webpartPageDefs['Exercise Conductor Page'] = {
 			viewName: 'EXCON Outbound Messages',
 			viewFields: ['DTG', 'Receiver', 'LinkTitle', 'LinkToMissionDocument', 'Initials', 'Significant'],
 			viewCAML: '<OrderBy><FieldRef Name="DateTimeGroup" Ascending="FALSE"/></OrderBy><Where><Contains><FieldRef Name="OriginatorSender"/><Value Type="Text">{orgQsParam}</Value></Contains></Where>',
+			rowLimit: 5,
 			zoneName: 'Left',
 			zoneIndex: 20
 		},

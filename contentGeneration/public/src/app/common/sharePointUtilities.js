@@ -134,6 +134,12 @@
 					webPartView.set_title(opts.viewName);
 					webPartView.set_viewQuery(opts.viewCAML);
 					webPartView.set_hidden(false);
+
+					if(opts.rowLimit){
+						webPartView.set_paged(true);
+						webPartView.set_rowLimit(opts.rowLimit);	
+					}
+
 					webPartView.update();
 					ctx.load(webPartView);
 					ctx.executeQueryAsync(
