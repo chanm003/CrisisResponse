@@ -1855,6 +1855,10 @@ crisisResponseSchema.webpartPageDefs['Component Command Page'] = {
 				{
 					attributes: {name: 'ListUrl', type: 'string'},
 					innerText: 'Lists/WatchLog'
+				},
+				{
+					attributes: {name: 'TitleUrl', type: 'string'},
+					innerText: '#'
 				}
 			],
 			viewName: 'SOCC Watch Log',
@@ -1874,6 +1878,10 @@ crisisResponseSchema.webpartPageDefs['Component Command Page'] = {
 				{
 					attributes: {name: 'Title', type: 'string'},
 					innerText: 'Inbound Messages'
+				},
+				{
+					attributes: {name: 'TitleUrl', type: 'string'},
+					innerText: '#'
 				}
 			],
 			viewName: 'SOCC Inbound Messages',
@@ -1893,6 +1901,10 @@ crisisResponseSchema.webpartPageDefs['Component Command Page'] = {
 				{
 					attributes: {name: 'Title', type: 'string'},
 					innerText: 'Outbound Messages'
+				},
+				{
+					attributes: {name: 'TitleUrl', type: 'string'},
+					innerText: '#'
 				}
 			],
 			viewName: 'SOCC Outbound Messages',
@@ -1912,6 +1924,10 @@ crisisResponseSchema.webpartPageDefs['Component Command Page'] = {
 				{
 					attributes: {name: 'Title', type: 'string'},
 					innerText: 'Request for Information'
+				},
+				{
+					attributes: {name: 'TitleUrl', type: 'string'},
+					innerText: '#'
 				}
 			],
 			viewName: 'SOCC RFI',
@@ -1930,6 +1946,10 @@ crisisResponseSchema.webpartPageDefs['Component Command Page'] = {
 				{
 					attributes: {name: 'Title', type: 'string'},
 					innerText: 'Documents'
+				},
+				{
+					attributes: {name: 'TitleUrl', type: 'string'},
+					innerText: '#'
 				}
 			],
 			viewName: 'SOCC Documents',
@@ -1948,6 +1968,10 @@ crisisResponseSchema.webpartPageDefs['Component Command Page'] = {
 				{
 					attributes: {name: 'Title', type: 'string'},
 					innerText: 'CCIR'
+				},
+				{
+					attributes: {name: 'TitleUrl', type: 'string'},
+					innerText: '#'
 				}
 			],
 			viewName: 'SOCC CCIR',
@@ -2009,6 +2033,10 @@ crisisResponseSchema.webpartPageDefs['Task Group Page'] = {
 				{
 					attributes: {name: 'ListUrl', type: 'string'},
 					innerText: 'Lists/WatchLog'
+				},
+				{
+					attributes: {name: 'TitleUrl', type: 'string'},
+					innerText: '#'
 				}
 			],
 			viewName: 'SOTG Watch Log',
@@ -2028,6 +2056,10 @@ crisisResponseSchema.webpartPageDefs['Task Group Page'] = {
 				{
 					attributes: {name: 'Title', type: 'string'},
 					innerText: 'Inbound Messages'
+				},
+				{
+					attributes: {name: 'TitleUrl', type: 'string'},
+					innerText: '#'
 				}
 			],
 			viewName: 'SOTG Inbound Messages',
@@ -2047,6 +2079,10 @@ crisisResponseSchema.webpartPageDefs['Task Group Page'] = {
 				{
 					attributes: {name: 'Title', type: 'string'},
 					innerText: 'Outbound Messages'
+				},
+				{
+					attributes: {name: 'TitleUrl', type: 'string'},
+					innerText: '#'
 				}
 			],
 			viewName: 'SOTG Outbound Messages',
@@ -2066,6 +2102,10 @@ crisisResponseSchema.webpartPageDefs['Task Group Page'] = {
 				{
 					attributes: {name: 'Title', type: 'string'},
 					innerText: 'Request for Information'
+				},
+				{
+					attributes: {name: 'TitleUrl', type: 'string'},
+					innerText: '#'
 				}
 			],
 			viewName: 'SOTG RFI',
@@ -2084,6 +2124,10 @@ crisisResponseSchema.webpartPageDefs['Task Group Page'] = {
 				{
 					attributes: {name: 'Title', type: 'string'},
 					innerText: 'Documents'
+				},
+				{
+					attributes: {name: 'TitleUrl', type: 'string'},
+					innerText: '#'
 				}
 			],
 			viewName: 'SOTG Documents',
@@ -2145,6 +2189,10 @@ crisisResponseSchema.webpartPageDefs['Communications Component Page'] = {
 				{
 					attributes: {name: 'ListUrl', type: 'string'},
 					innerText: 'Lists/WatchLog'
+				},
+				{
+					attributes: {name: 'TitleUrl', type: 'string'},
+					innerText: '#'
 				}
 			],
 			viewName: 'Comms Watch Log',
@@ -2188,6 +2236,10 @@ crisisResponseSchema.webpartPageDefs['Air Component Page'] = {
 				{
 					attributes: {name: 'ListUrl', type: 'string'},
 					innerText: 'Lists/WatchLog'
+				},
+				{
+					attributes: {name: 'TitleUrl', type: 'string'},
+					innerText: '#'
 				}
 			],
 			viewName: 'SOAC Watch Log',
@@ -2207,6 +2259,10 @@ crisisResponseSchema.webpartPageDefs['Air Component Page'] = {
 				{
 					attributes: {name: 'Title', type: 'string'},
 					innerText: 'Request for Information'
+				},
+				{
+					attributes: {name: 'TitleUrl', type: 'string'},
+					innerText: '#'
 				}
 			],
 			viewName: 'SOAC RFI',
@@ -2225,6 +2281,10 @@ crisisResponseSchema.webpartPageDefs['Air Component Page'] = {
 				{
 					attributes: {name: 'Title', type: 'string'},
 					innerText: 'Inbound Messages'
+				},
+				{
+					attributes: {name: 'TitleUrl', type: 'string'},
+					innerText: '#'
 				}
 			],
 			viewName: 'SOAC Inbound Messages',
@@ -2244,6 +2304,10 @@ crisisResponseSchema.webpartPageDefs['Air Component Page'] = {
 				{
 					attributes: {name: 'Title', type: 'string'},
 					innerText: 'Outbound Messages'
+				},
+				{
+					attributes: {name: 'TitleUrl', type: 'string'},
+					innerText: '#'
 				}
 			],
 			viewName: 'SOAC Outbound Messages',
@@ -2263,6 +2327,10 @@ crisisResponseSchema.webpartPageDefs['Air Component Page'] = {
 				{
 					attributes: {name: 'Title', type: 'string'},
 					innerText: 'Daily Products'
+				},
+				{
+					attributes: {name: 'TitleUrl', type: 'string'},
+					innerText: '#'
 				}
 			],
 			viewName: 'SOAC Daily Products',
@@ -2281,6 +2349,10 @@ crisisResponseSchema.webpartPageDefs['Air Component Page'] = {
 				{
 					attributes: {name: 'Title', type: 'string'},
 					innerText: 'Documents'
+				},
+				{
+					attributes: {name: 'TitleUrl', type: 'string'},
+					innerText: '#'
 				}
 			],
 			viewName: 'SOAC Documents',
@@ -2346,6 +2418,10 @@ crisisResponseSchema.webpartPageDefs['Exercise Conductor Page'] = {
 				{
 					attributes: {name: 'Title', type: 'string'},
 					innerText: 'Watch Log'
+				},
+				{
+					attributes: {name: 'TitleUrl', type: 'string'},
+					innerText: '#'
 				}
 			],
 			viewName: 'EXCON Watch Log',
@@ -2365,6 +2441,10 @@ crisisResponseSchema.webpartPageDefs['Exercise Conductor Page'] = {
 				{
 					attributes: {name: 'Title', type: 'string'},
 					innerText: 'Inbound Messages'
+				},
+				{
+					attributes: {name: 'TitleUrl', type: 'string'},
+					innerText: '#'
 				}
 			],
 			viewName: 'EXCON Inbound Messages',
@@ -2384,6 +2464,10 @@ crisisResponseSchema.webpartPageDefs['Exercise Conductor Page'] = {
 				{
 					attributes: {name: 'Title', type: 'string'},
 					innerText: 'Outbound Messages'
+				},
+				{
+					attributes: {name: 'TitleUrl', type: 'string'},
+					innerText: '#'
 				}
 			],
 			viewName: 'EXCON Outbound Messages',
@@ -2403,6 +2487,10 @@ crisisResponseSchema.webpartPageDefs['Exercise Conductor Page'] = {
 				{
 					attributes: {name: 'Title', type: 'string'},
 					innerText: 'Request for Information'
+				},
+				{
+					attributes: {name: 'TitleUrl', type: 'string'},
+					innerText: '#'
 				}
 			],
 			viewName: 'EXCON RFI',
@@ -2421,6 +2509,10 @@ crisisResponseSchema.webpartPageDefs['Exercise Conductor Page'] = {
 				{
 					attributes: {name: 'Title', type: 'string'},
 					innerText: 'Documents'
+				},
+				{
+					attributes: {name: 'TitleUrl', type: 'string'},
+					innerText: '#'
 				}
 			],
 			viewName: 'EXCON Documents',
@@ -2439,6 +2531,10 @@ crisisResponseSchema.webpartPageDefs['Exercise Conductor Page'] = {
 				{
 					attributes: {name: 'Title', type: 'string'},
 					innerText: 'Inject'
+				},
+				{
+					attributes: {name: 'TitleUrl', type: 'string'},
+					innerText: '#'
 				}
 			],
 			viewName: 'Pending',

@@ -360,20 +360,13 @@
             }
 
             function disableNavigationToSharepointLists(ctx, webPartDiv) {
-                var wpPages = [
-                    '/sitepages/comms.aspx',
-                    '/sitepages/excon.aspx',
-                    '/sitepages/soac.aspx',
-                    '/sitepages/socc.aspx',
-                    '/sitepages/sotg.aspx'
-                ];
-                var shouldDisableLinks = _.some(wpPages, function (item) {
-                    return _.includes(document.location.pathname.toLowerCase(), item);
-                });
+                var anchorTag = webPartDiv.find(".ms-webpart-titleText>a");
+                var redirectUrl = anchorTag.attr("href");
+                var shouldDisableLinks = (redirectUrl === '%23' || redirectUrl === '#');
 
                 if (shouldDisableLinks) {
                     //prevents users from navigating to backend lists
-                    webPartDiv.find(".ms-webpart-titleText>a").removeAttr("href");
+                    anchorTag.removeAttr("href");
                 }
             }
 
