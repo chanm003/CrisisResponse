@@ -17,26 +17,22 @@
 <asp:Content ContentPlaceHolderID="PlaceHolderMain" runat="server">
 	<table width="100%" border="0" cellpadding="0" cellspacing="0" style="padding:5px 10px 10px 10px;">
         <tr>
-            <td colspan="3" valign="top">
+            <td colspan="2" valign="top">
                 <WebPartPages:WebPartZone runat="server" FrameType="TitleBarOnly" ID="Top" Title="loc:Top"><ZoneTemplate></ZoneTemplate></WebPartPages:WebPartZone>
             </td>
-            <td>&nbsp;</td>
         </tr>
         <tr>
-            <td valign="top" width="70%">
+            <td valign="top" width="70%" style="padding-right:5px">
                 <WebPartPages:WebPartZone runat="server" FrameType="TitleBarOnly" ID="Left" Title="loc:Left"><ZoneTemplate></ZoneTemplate></WebPartPages:WebPartZone>
             </td>
-            <td>&nbsp;</td>
-            <td valign="top" width="30%">
+            <td valign="top" width="30%" style="padding-left:5px">
                 <WebPartPages:WebPartZone runat="server" FrameType="TitleBarOnly" ID="Right" Title="loc:Right"><ZoneTemplate></ZoneTemplate></WebPartPages:WebPartZone>
             </td>
-            <td>&nbsp;</td>
         </tr>
         <tr>
-            <td colspan="3" valign="top">
+            <td colspan="2" valign="top">
                 <WebPartPages:WebPartZone runat="server" FrameType="TitleBarOnly" ID="Bottom" Title="loc:Bottom"><ZoneTemplate></ZoneTemplate></WebPartPages:WebPartZone>
             </td>
-            <td>&nbsp;</td>
         </tr>
     </table>
 </asp:Content>
