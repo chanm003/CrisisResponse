@@ -83,6 +83,8 @@
                         'OriginatorSender': { 'NewForm': renderOrganizationDropdown, 'EditForm': renderOrganizationDropdown },
                         //LIST(s): RFI 
                         'PocName': { 'EditForm': renderPeoplePicker },
+                        //LIST(s): RFI 
+                        'PocOrganization': { 'EditForm': renderOrganizationDropdown, 'NewForm': renderOrganizationDropdown },
                         //LIST(s): Inject, Message Traffic 
                         'Receiver': { 'NewForm': removeMultiChoiceOptionBasedOnQueryString, 'EditForm': removeMultiChoiceOptionBasedOnQueryString  },
                         //LIST(s): RFI 
