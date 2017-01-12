@@ -2382,8 +2382,9 @@
             link: link,
             template:
             '<ul class="horizontal-timeline">\
-                    <li ng-click="onStepClicked(step.text)" ng-repeat="step in document.chopProcessInfo.routeStepsVisualizationDataSource" class="li" ng-class="{\'complete\': step.status===\'complete\', \'incomplete\': step.status===\'incomplete\' }">\
+                    <li ng-click="onStepClicked(step.text)" ng-repeat="step in document.chopProcessInfo.routeStepsVisualizationDataSource" class="li" ng-class="{\'complete\': step.status===\'complete\', \'incomplete\': step.status===\'incomplete\', \'ondeck\': step.text === document.chopProcessInfo.requiresDecisionFrom }">\
                         <div class="status">\
+                            <i ng-show="step.text === document.chopProcessInfo.requiresDecisionFrom" style="position:absolute;top:-12px;left:19px;" class="fa fa-hourglass-start fa-2x"></i>\
                             <h4>\
                                 {{step.text}}\
                             </h4>\

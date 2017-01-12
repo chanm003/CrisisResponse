@@ -536,7 +536,13 @@ body #suiteBarLeft{
   border: 1px solid #ddd;
   position: absolute;
   top: -15px;
-  left: 42%;
+  left: 35%;
+  transition: all 200ms ease-in;
+}
+
+.li.ondeck .status:before {
+  background-color: transparent;
+  border: none;
   transition: all 200ms ease-in;
 }
 
