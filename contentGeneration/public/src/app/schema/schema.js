@@ -932,7 +932,7 @@ crisisResponseSchema.listDefs["Mission Documents"] = {
 			Default: ''							//(optional)
 		},
 		{
-			//EXAMPLE: Calculated
+			//EXAMPLE: DateTime
 			Name: 'DailyProductDate',
 			DisplayName: 'Daily Product Date',
 			Type: "DateTime",
@@ -1038,6 +1038,19 @@ crisisResponseSchema.listDefs["Mission Documents"] = {
 			FillInChoice: "FALSE",
 			Choices: ['No', 'Yes'],						//will be generated 
 			Default: ''							//(optional)
+		},
+		{
+			//EXAMPLE: Calculated
+			Name: 'OrgFilter',
+			DisplayName: 'OrgFilter',
+			Type: "Calculated",
+			Required: 'TRUE',
+			ResultType: 'Text',
+			ReadOnly: 'TRUE',
+			Formula: '=IF(ISNUMBER(FIND("-",[Organization])),LEFT([Organization],FIND("-",[Organization])-2),[Organization])',
+			FieldRefs: ['Organization'],
+			Description: 'Used for web part filtering.  Extract left portion whenever &quot; = &quot; is found in the &quot;Organization&quot; field',
+			ShowInDisplayForm: 'FALSE'		
 		}
 	],
 	viewsToCreate:[
@@ -1221,7 +1234,8 @@ crisisResponseSchema.listDefs["RFI"] = {
 			Type: "DateTime",
 			Required: "FALSE",
 			Format: "DateTime", 					//please use either 'DateOnly' or 'DateTime'
-			Default: ''						//(optional)	
+			Default: '',						//(optional)	
+			Description: 'If all information has been provided, populate this date to close the RFI'
 		},
 		{
 			//EXAMPLE: Dropdown
@@ -1266,7 +1280,21 @@ crisisResponseSchema.listDefs["RFI"] = {
 			ResultType: 'Number',
 			ReadOnly: 'TRUE',
 			Formula: '=IF(ISNUMBER(SEARCH("Immediate",Priority)),1,IF(ISNUMBER(SEARCH("Priority",Priority)),2,3))',
-			FieldRefs: ['Priority']		
+			FieldRefs: ['Priority'],
+			ShowInDisplayForm: 'FALSE'		
+		},
+		{
+			//EXAMPLE: Calculated
+			Name: 'OrgFilter',
+			DisplayName: 'OrgFilter',
+			Type: "Calculated",
+			Required: 'TRUE',
+			ResultType: 'Text',
+			ReadOnly: 'TRUE',
+			Formula: '=IF(ISNUMBER(FIND("-",[Recommended OPR])),LEFT([Recommended OPR],FIND("-",[Recommended OPR])-2),[Recommended OPR])',
+			FieldRefs: ['RecommendedOPR'],
+			Description: 'Used for web part filtering.  Extract left portion whenever &quot; = &quot; is found in the &quot;Recommended OPR&quot; field',
+			ShowInDisplayForm: 'FALSE'		
 		}
 	]
 };
@@ -1345,7 +1373,8 @@ crisisResponseSchema.listDefs["Watch Log"] = {
 			ResultType: 'Text',
 			ReadOnly: 'TRUE',
 			Formula: '=UPPER(TEXT([Date Time Group],"ddHHmm")&amp;"Z"&amp;(TEXT([Date Time Group],"MMMyy")))',
-			FieldRefs: ['DateTimeGroup']		
+			FieldRefs: ['DateTimeGroup'],
+			ShowInDisplayForm: 'FALSE'		
 		}
 	]
 };
@@ -1398,7 +1427,8 @@ crisisResponseSchema.listDefs["Message Traffic"] = {
 			ResultType: 'Text',
 			ReadOnly: 'TRUE',
 			Formula: '=UPPER(TEXT([Date Time Group],"ddHHmm")&amp;"Z"&amp;(TEXT([Date Time Group],"MMMyy")))',
-			FieldRefs: ['DateTimeGroup']		
+			FieldRefs: ['DateTimeGroup'],
+			ShowInDisplayForm: 'FALSE'		
 		},
 		{
 			//EXAMPLE: MULTIPLE LINE OF TEXT
@@ -1684,7 +1714,8 @@ crisisResponseSchema.listDefs["EXCON Watch Log"] = {
 			ResultType: 'Text',
 			ReadOnly: 'TRUE',
 			Formula: '=UPPER(TEXT([Date Time Group],"ddHHmm")&amp;"Z"&amp;(TEXT([Date Time Group],"MMMyy")))',
-			FieldRefs: ['DateTimeGroup']		
+			FieldRefs: ['DateTimeGroup'],
+			ShowInDisplayForm: 'FALSE'		
 		}
 	]
 };
@@ -1833,7 +1864,8 @@ crisisResponseSchema.listDefs["Inject"] = {
 			ResultType: 'Text',
 			ReadOnly: 'TRUE',
 			Formula: '=UPPER(TEXT([Date Time Group],"ddHHmm")&amp;"Z"&amp;(TEXT([Date Time Group],"MMMyy")))',
-			FieldRefs: ['DateTimeGroup']		
+			FieldRefs: ['DateTimeGroup'],
+			ShowInDisplayForm: 'FALSE'		
 		}		
 	],
 	viewsToCreate:[

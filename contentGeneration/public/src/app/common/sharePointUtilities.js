@@ -1264,6 +1264,9 @@
 			ShowField: function (val) {
 				return _.isString(val);
 			},
+			ShowInDisplayForm: function (val) {
+				return _.isString(val) && _.contains(['TRUE', 'FALSE'], val.toUpperCase());
+			},
 			ShowInEditForm: function (val) {
 				return _.isString(val) && _.contains(['TRUE', 'FALSE'], val.toUpperCase());
 			},
@@ -1380,7 +1383,7 @@
 		}
 
 		function generateCamlForCalculatedField(mapping) {
-			var supported = ["Name", "DisplayName", "Type", "Required", "ResultType", "ReadOnly", "Formula", "FieldRefs", "Description", "Format"];
+			var supported = ["Name", "DisplayName", "Type", "Required", "ResultType", "ReadOnly", "Formula", "FieldRefs", "Description", "ShowInDisplayForm","Format"];
 			return generateCaml(mapping, supported);
 		}
 

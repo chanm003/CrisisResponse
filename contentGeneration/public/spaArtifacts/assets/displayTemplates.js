@@ -382,6 +382,16 @@
                 }
             }
 
+            function hideListViewWebPartColumn(ctx, webPartDiv, columnName){
+                var column = _.filter(ctx.ListSchema.Field, {Name: columnName});
+                if(column){
+                    var cell = $("div [name='" + columnName + "']").closest('th');
+                    var cellIndex = cell[0].cellIndex + 1;
+                    webPartDiv.find('td:nth-child(' + cellIndex + ')').hide(); 
+                    webPartDiv.find('th:nth-child(' + cellIndex + ')').hide(); 
+                }
+            }
+
             function hideToolbarForSpecificWebparts(ctx, webPartDiv) {
                 //ASSUMPTION: List Views for web part looks has title with the string "Inbound Messages"
                 if (_.includes(ctx.viewTitle, 'Inbound Messages') || _.includes(ctx.viewTitle, 'Daily Products')) {
