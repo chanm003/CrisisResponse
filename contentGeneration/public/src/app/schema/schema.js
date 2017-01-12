@@ -893,6 +893,7 @@ crisisResponseSchema.listDefs["Phonebook"] = {
 crisisResponseSchema.listDefs["Mission Documents"] = {
 	Title: "Mission Documents",
 	BaseTemplate: 'documentLibrary',
+	enableFolderCreation: false,
 	enableVersioning: true,
 	shouldHideTitleField: true,
 	fieldsToCreate:[

@@ -407,6 +407,10 @@
 				if (opts.enableVersioning) {
 					createdList.set_enableVersioning(true);
 				}
+				
+				if (opts.hasOwnProperty('enableFolderCreation')) {
+					createdList.set_enableFolderCreation(opts.enableFolderCreation);
+				}
 				createdList.update();
 
 				//delete fields
@@ -698,8 +702,8 @@
 
 			var action = userCustomActions.add();
 			action.set_location("ScriptLink");
-			action.set_title('populate-jocboxconfig-with-synchronous-data.js');
-			action.set_scriptSrc('~site/SiteAssets/populate-jocboxconfig-with-synchronous-data.js');
+			action.set_title('populate-jocboxconfig.js');
+			action.set_scriptSrc('~site/SiteAssets/populate-jocboxconfig.js');
 			action.set_sequence(1000 + sequenceCounter + 2);
 			action.update();
 
