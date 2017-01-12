@@ -467,6 +467,10 @@
 						vci.set_viewFields(viewDef.viewFields);
 					}
 
+					if(viewDef.defaultView){
+						vci.set_setAsDefaultView(viewDef.defaultView);
+					}
+
 					if(viewDef.query){
 						var camlQuery = new SP.CamlQuery();
 						camlQuery.set_viewXml(viewDef.query);

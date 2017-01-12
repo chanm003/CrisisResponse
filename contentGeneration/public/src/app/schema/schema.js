@@ -73,6 +73,14 @@ crisisResponseSchema.listDefs["AAR"] = {
 			Choices: [],						//will be generated
 			Default: ''							//(optional)
 		}						
+	],
+	viewsToCreate:[
+		{
+			title: 'Recent',
+			defaultView: true,
+			query: '<OrderBy><FieldRef Name="Modified" Ascending="FALSE"/></OrderBy>',
+			viewTypeKind: 0
+		}
 	]
 };
 
@@ -1871,7 +1879,7 @@ crisisResponseSchema.listDefs["Inject"] = {
 	viewsToCreate:[
 		{
 			title: 'Completed',
-			query: '<OrderBy><FieldRef Name="Modified" ASCENDING="FALSE"/></OrderBy><Where><Eq><FieldRef Name="Status"/><Value Type="Text">Completed</Value></Eq></Where>',
+			query: '<OrderBy><FieldRef Name="Modified" Ascending="FALSE"/></OrderBy><Where><Eq><FieldRef Name="Status"/><Value Type="Text">Completed</Value></Eq></Where>',
 			viewTypeKind: 0
 		}
 	]
