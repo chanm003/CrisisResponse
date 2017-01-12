@@ -1,107 +1,114 @@
-<uif-pivot uif-type="{{vm.tabConfig.selectedType}}" uif-size="{{vm.tabConfig.selectedSize}}" uif-pivots="vm.tabConfig.pivots"
-  uif-selected="vm.tabConfig.selectedPivot" id="msPivot" class="pivot-overflow-fix">
-</uif-pivot>
-
-<!--TAB 1 CONTENT -->
-<div class="ms-Grid" ng-show="vm.tabConfig.selectedPivot.title === 'Timeline'">
-  <div class="ms-Grid-row">
-    <div class="ms-Grid-col ms-u-sm12 ms-u-md12 ms-u-lg12">
-      <mission-timeline missions="vm.missions" on-missions-filtered="vm.onMissionsFiltered(missions)"></mission-timeline>
-    </div>
+<div class="crt-tabs">
+  <div class="crt-tablist">
+    <uif-pivot uif-type="{{vm.tabConfig.selectedType}}" uif-size="{{vm.tabConfig.selectedSize}}" uif-pivots="vm.tabConfig.pivots"
+      uif-selected="vm.tabConfig.selectedPivot" id="msPivot" class="pivot-overflow-fix">
+    </uif-pivot>
   </div>
-</div>
+  <div class="crt-tabcontent">
 
-
-<!--TAB 2 CONTENT | orderBy:table.orderBy:!table.orderAsc-->
-<div class="ms-Grid" ng-show="vm.tabConfig.selectedPivot.title === 'Products'">
-  <div class="ms-Grid-row">
-    <div class="ms-Grid-col ms-u-sm10 ms-u-md10 ms-u-lg10">
-
-      <uif-table>
-        <uif-table-head>
-          <uif-table-row>
-            <uif-table-header style="width:1px"></uif-table-header>
-            <uif-table-header>Document Type</uif-table-header>
-            <uif-table-header>File Name</uif-table-header>
-            <uif-table-header>Organization</uif-table-header>
-            <uif-table-header>Modified</uif-table-header>
-            <uif-table-header>Modified By</uif-table-header>
-          </uif-table-row>
-        </uif-table-head>
-        <uif-table-body ng-repeat="(missionName, products) in vm.missionProductsDataSource">
-          <uif-table-row>
-            <uif-table-cell colspan="6" style="padding:0;">
-              <div style="border-bottom:dashed 1px #777;padding:3px 5px;"><span class="ms-fontColor-neutralTertiary ms-fontWeight-semibold">Mission:</span> <span class="ms-fontWeight-semibold">{{missionName}}</span> ({{products.length}})</span></div>
-            </uif-table-cell>
-          </uif-table-row>
-          <uif-table-row ng-repeat="item in products">
-            <uif-table-cell></uif-table-cell>
-            <uif-table-cell>{{item.TypeOfDocument}}</uif-table-cell>
-            <uif-table-cell><a ng-click="vm.openDocument(item)" style="text-decoration:underline;cursor:pointer;" class="ms-fontColor-themePrimary">{{item.File.Name}}</a></uif-table-cell>
-            <uif-table-cell>{{item.Organization}}</uif-table-cell>
-            <uif-table-cell>{{item.Modified.format('DD MMM YY HHmm[Z]').toUpperCase()}}</uif-table-cell>
-            <uif-table-cell>{{item.Editor.Title}}</uif-table-cell>
-          </uif-table-row>
-        </uif-table-body>
-      </uif-table>
-  
+    <!--TAB 1 CONTENT -->
+    <div class="ms-Grid" ng-show="vm.tabConfig.selectedPivot.title === 'Timeline'">
+      <div class="ms-Grid-row">
+        <div class="ms-Grid-col ms-u-sm12 ms-u-md12 ms-u-lg12">
+          <mission-timeline missions="vm.missions" on-missions-filtered="vm.onMissionsFiltered(missions)"></mission-timeline>
+        </div>
+      </div>
     </div>
-    <div class="ms-Grid-col ms-u-sm2 ms-u-md2 ms-u-lg2">
-      <uif-contextual-menu ng-show="vm.filterOptions.products.organization.length" uif-is-open="true" uif-multiselect="true" uif-close-on-click="false">
-        <uif-contextual-menu-item uif-text="'Filter by Organization'" uif-type="header"></uif-contextual-menu-item>
-        <uif-contextual-menu-item ng-repeat="item in vm.filterOptions.products.organization" uif-is-selected="item.isSelected"
-          ng-click="vm.onFilterOptionClicked(item, 'missionRelatedDocs')">
-          <uif-content>
-            <span style="font-size:11px;" title="{{item.key}}">{{item.key}}</span>
-          </uif-content>
-        </uif-contextual-menu-item>
-      </uif-contextual-menu>
+
+
+    <!--TAB 2 CONTENT | orderBy:table.orderBy:!table.orderAsc-->
+    <div class="ms-Grid" ng-show="vm.tabConfig.selectedPivot.title === 'Products'">
+      <div class="ms-Grid-row">
+        <div class="ms-Grid-col ms-u-sm10 ms-u-md10 ms-u-lg10">
+
+          <uif-table>
+            <uif-table-head>
+              <uif-table-row>
+                <uif-table-header style="width:1px"></uif-table-header>
+                <uif-table-header>Document Type</uif-table-header>
+                <uif-table-header>File Name</uif-table-header>
+                <uif-table-header>Organization</uif-table-header>
+                <uif-table-header>Modified</uif-table-header>
+                <uif-table-header>Modified By</uif-table-header>
+              </uif-table-row>
+            </uif-table-head>
+            <uif-table-body ng-repeat="(missionName, products) in vm.missionProductsDataSource">
+              <uif-table-row>
+                <uif-table-cell colspan="6" style="padding:0;">
+                  <div style="padding:3px 5px;color:#337ab7;"><span class="ms-fontColor-neutralTertiary ms-fontWeight-semibold">Mission:</span> <span class="ms-fontWeight-semibold">{{missionName}}</span>                    ({{products.length}})</span>
+                  </div>
+                </uif-table-cell>
+              </uif-table-row>
+              <uif-table-row ng-repeat="item in products">
+                <uif-table-cell></uif-table-cell>
+                <uif-table-cell>{{item.TypeOfDocument}}</uif-table-cell>
+                <uif-table-cell><a ng-click="vm.openDocument(item)" style="text-decoration:underline;cursor:pointer;" class="ms-fontColor-themePrimary">{{item.File.Name}}</a></uif-table-cell>
+                <uif-table-cell>{{item.Organization}}</uif-table-cell>
+                <uif-table-cell>{{item.Modified.format('DD MMM YY HHmm[Z]').toUpperCase()}}</uif-table-cell>
+                <uif-table-cell>{{item.Editor.Title}}</uif-table-cell>
+              </uif-table-row>
+            </uif-table-body>
+          </uif-table>
+
+        </div>
+        <div class="ms-Grid-col ms-u-sm2 ms-u-md2 ms-u-lg2">
+          <uif-contextual-menu ng-show="vm.filterOptions.products.organization.length" uif-is-open="true" uif-multiselect="true" uif-close-on-click="false">
+            <uif-contextual-menu-item uif-text="'Filter by Organization'" uif-type="header"></uif-contextual-menu-item>
+            <uif-contextual-menu-item ng-repeat="item in vm.filterOptions.products.organization" uif-is-selected="item.isSelected" ng-click="vm.onFilterOptionClicked(item, 'missionRelatedDocs')">
+              <uif-content>
+                <span style="font-size:11px;" title="{{item.key}}">{{item.key}}</span>
+              </uif-content>
+            </uif-contextual-menu-item>
+          </uif-contextual-menu>
+        </div>
+      </div>
     </div>
-  </div>
-</div>
 
 
-<!--TAB 3 CONTENT -->
-<div class="ms-Grid" ng-show="vm.tabConfig.selectedPivot.title === 'Chop'">
-  <div class="ms-Grid-row">
-    <div class="ms-Grid-col ms-u-sm12 ms-u-md12 ms-u-lg12">
-      <uif-contextual-menu uif-is-open="true" uif-multiselect="true" uif-close-on-click="false" style="margin-left:20px;position:static;float:right;" class="ms-u-hiddenLgDown">
-        <uif-contextual-menu-item uif-text="'Filter by Status'" uif-type="header"></uif-contextual-menu-item>
-        <uif-contextual-menu-item ng-repeat="item in vm.filterOptions.chopProcesses.overallChopStatus" uif-is-selected="item.isSelected"
-          ng-click="vm.onFilterOptionClicked(item, 'chopProcesses')">
-          <uif-content>
-            <span style="font-size:11px;" title="{{item.key}}">{{item.key}}</span>
-          </uif-content>
-        </uif-contextual-menu-item>
-      </uif-contextual-menu>
-      <uif-table style="width:auto;">
-        <uif-table-head>
-          <uif-table-row>
-            <uif-table-header uif-order-by="Mission.FullName">Mission</uif-table-header>
-            <uif-table-header uif-order-by="TypeOfDocument">Product</uif-table-header>
-            <uif-table-header>Status</uif-table-header>
-            <uif-table-header>Reviewer</uif-table-header>
-            <uif-table-header>Staff Sections</uif-table-header>
-          </uif-table-row>
-        </uif-table-head>
-        <uif-table-body class="ms-Grid">
-          <uif-table-row ng-repeat="item in vm.chopProcessesDataSource | orderBy:table.orderBy:!table.orderAsc">
-            <uif-table-cell>{{item.Mission.FullName}}</uif-table-cell>
-            <uif-table-cell>
-              <a ng-click="vm.openDocument(item)" style="text-decoration:underline;cursor:pointer;" class="ms-fontColor-themePrimary">{{item.TypeOfDocument}}</a>
-            </uif-table-cell>
-            <uif-table-cell style="white-space:nowrap;">
-              <routing-process-visualization document="item"></routing-process-visualization>
-            </uif-table-cell>
-            <uif-table-cell>
-              <commander-decision-button document="item"></commander-decision-button>
-            </uif-table-cell>
-            <uif-table-cell>
-              <routing-process-participants document="item"></routing-process-participants>
-            </uif-table-cell>
-          </uif-table-row>
-        </uif-table-body>
-      </uif-table>
+    <!--TAB 3 CONTENT -->
+    <div class="ms-Grid" ng-show="vm.tabConfig.selectedPivot.title === 'Chop'">
+      <div class="ms-Grid-row">
+        <div class="ms-Grid-col ms-u-sm12 ms-u-md12 ms-u-lg12">
+          <uif-contextual-menu uif-is-open="true" uif-multiselect="true" uif-close-on-click="false" style="margin-left:20px;position:static;float:right;"
+            class="ms-u-hiddenLgDown">
+            <uif-contextual-menu-item uif-text="'Filter by Status'" uif-type="header"></uif-contextual-menu-item>
+            <uif-contextual-menu-item ng-repeat="item in vm.filterOptions.chopProcesses.overallChopStatus" uif-is-selected="item.isSelected"
+              ng-click="vm.onFilterOptionClicked(item, 'chopProcesses')">
+              <uif-content>
+                <span style="font-size:11px;" title="{{item.key}}">{{item.key}}</span>
+              </uif-content>
+            </uif-contextual-menu-item>
+          </uif-contextual-menu>
+          <uif-table style="width:auto;">
+            <uif-table-head>
+              <uif-table-row>
+                <uif-table-header uif-order-by="Mission.FullName">Mission</uif-table-header>
+                <uif-table-header uif-order-by="TypeOfDocument">Product</uif-table-header>
+                <uif-table-header>Status</uif-table-header>
+                <uif-table-header>Reviewer</uif-table-header>
+                <uif-table-header>Staff Sections</uif-table-header>
+              </uif-table-row>
+            </uif-table-head>
+            <uif-table-body class="ms-Grid">
+              <uif-table-row ng-repeat="item in vm.chopProcessesDataSource | orderBy:table.orderBy:!table.orderAsc">
+                <uif-table-cell>{{item.Mission.FullName}}</uif-table-cell>
+                <uif-table-cell>
+                  <a ng-click="vm.openDocument(item)" style="text-decoration:underline;cursor:pointer;" class="ms-fontColor-themePrimary">{{item.TypeOfDocument}}</a>
+                </uif-table-cell>
+                <uif-table-cell style="white-space:nowrap;">
+                  <routing-process-visualization document="item"></routing-process-visualization>
+                </uif-table-cell>
+                <uif-table-cell>
+                  <commander-decision-button document="item"></commander-decision-button>
+                </uif-table-cell>
+                <uif-table-cell>
+                  <routing-process-participants document="item"></routing-process-participants>
+                </uif-table-cell>
+              </uif-table-row>
+            </uif-table-body>
+          </uif-table>
+        </div>
+      </div>
     </div>
   </div>
 </div>

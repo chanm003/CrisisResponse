@@ -1117,3 +1117,15 @@ td.NA{
 	padding: 0px 2px;
 	box-sizing:  border-box;
 }
+
+.crt-tabs{
+  border: 1px solid #c5c5c5;padding: .2em;border-top-left-radius: 3px;border-top-right-radius: 3px;border-bottom-left-radius: 3px;border-bottom-right-radius: 3px;
+}
+
+.crt-tablist{
+  border: 1px solid #dddddd;background: #e9e9e9;padding: .4em .4em 0;border-top-left-radius: 3px;border-top-right-radius: 3px;border-bottom-left-radius: 3px;border-bottom-right-radius: 3px;
+}
+
+.crt-tabcontent{
+  padding: 1em 1.4em;
+}

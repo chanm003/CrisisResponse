@@ -1,55 +1,59 @@
-<p>
-  <uif-pivot uif-type="{{vm.tabConfig.selectedType}}" uif-size="{{vm.tabConfig.selectedSize}}" uif-pivots="vm.tabConfig.pivots"
-    uif-selected="vm.tabConfig.selectedPivot" id="msPivot" class="pivot-overflow-fix">
-  </uif-pivot>
-</p>
+<div class="crt-tabs">
+  <div class="crt-tablist">
+    <uif-pivot uif-type="{{vm.tabConfig.selectedType}}" uif-size="{{vm.tabConfig.selectedSize}}" uif-pivots="vm.tabConfig.pivots"
+      uif-selected="vm.tabConfig.selectedPivot" id="msPivot" class="pivot-overflow-fix">
+    </uif-pivot>
+  </div>
+  <div class="crt-tabcontent">
+    <div class="ms-Grid">
+      <div class="ms-Grid-row">
+        <div class="ms-Grid-col ms-u-sm12 ms-u-md12 ms-u-lg12">
+          <uif-button type="button" uif-type="hero" ng-click="vm.goToNewHelpDeskForm()">
+            <uif-icon uif-type="plus"></uif-icon> create a new Help Desk Ticket
+          </uif-button>
+
+          <uif-table>
+            <uif-table-head>
+              <uif-table-row>
+                <uif-table-header style="width:1px"></uif-table-header>
+                <uif-table-header>Title</uif-table-header>
+                <uif-table-header ng-show="vm.tabConfig.selectedPivot.title === 'Open - Portal/KM'">Priority #</uif-table-header>
+                <uif-table-header>Priority</uif-table-header>
+                <uif-table-header>Customer</uif-table-header>
+                <uif-table-header>Assigned To</uif-table-header>
+                <uif-table-header ng-show="vm.tabConfig.selectedPivot.title === 'Resolved' || vm.tabConfig.selectedPivot.title === 'My Requests'">Resolution Type</uif-table-header>
+                <uif-table-header ng-show="vm.tabConfig.selectedPivot.title === 'Resolved' || vm.tabConfig.selectedPivot.title === 'My Requests'">Resolution Date</uif-table-header>
+                <uif-table-header>Created</uif-table-header>
+                <uif-table-header>Created By</uif-table-header>
+              </uif-table-row>
+            </uif-table-head>
+            <uif-table-body ng-repeat="(groupName, tickets) in vm.ticketsDataSource">
+              <uif-table-row>
+                <uif-table-cell colspan="11" style="padding:0;">
+                  <div style="padding:3px 5px;color:#337ab7;"><span class="ms-fontColor-neutralTertiary ms-fontWeight-semibold">{{vm.groupByFieldName}}:</span>
+                    <span
+                      class="ms-fontWeight-semibold">{{groupName}}</span> ({{tickets.length}})</span>
+                  </div>
+                </uif-table-cell>
+              </uif-table-row>
+              <uif-table-row ng-repeat="item in tickets">
+                <uif-table-cell></uif-table-cell>
+                <uif-table-cell><a ng-click="vm.goToTicket(item)" style="text-decoration:underline;cursor:pointer;" class="ms-fontColor-themePrimary">{{item.Title}}</a></uif-table-cell>
+                <uif-table-cell ng-show="vm.tabConfig.selectedPivot.title === 'Open - Portal/KM'">{{item.PriorityNumber}}</uif-table-cell>
+                <uif-table-cell>{{item.Priority}}</uif-table-cell>
+                <uif-table-cell>{{item.Customer.Title}}</uif-table-cell>
+                <uif-table-cell>{{item.AssignedTo.Title}}</uif-table-cell>
+                <uif-table-cell ng-show="vm.tabConfig.selectedPivot.title === 'Resolved' || vm.tabConfig.selectedPivot.title === 'My Requests'">{{item.ResolutionType}}</uif-table-cell>
+                <uif-table-cell ng-show="vm.tabConfig.selectedPivot.title === 'Resolved' || vm.tabConfig.selectedPivot.title === 'My Requests'"><span ng-show="item.ResolutionDate.isValid()">{{item.ResolutionDate.format('DD MMM YY').toUpperCase()}}</span></uif-table-cell>
+                <uif-table-cell>{{item.Created.format('DD MMM YY HHmm[Z]').toUpperCase()}}</uif-table-cell>
+                <uif-table-cell>{{item.Author.Title}}</uif-table-cell>
+              </uif-table-row>
+            </uif-table-body>
+          </uif-table>
 
 
-
-<div class="ms-Grid">
-  <div class="ms-Grid-row">
-    <div class="ms-Grid-col ms-u-sm12 ms-u-md12 ms-u-lg12">
-      <uif-button type="button" uif-type="hero" ng-click="vm.goToNewHelpDeskForm()">
-        <uif-icon uif-type="plus"></uif-icon> create a new Help Desk Ticket
-      </uif-button>
-
-      <uif-table>
-        <uif-table-head>
-          <uif-table-row>
-            <uif-table-header style="width:1px"></uif-table-header>
-            <uif-table-header>Title</uif-table-header>
-            <uif-table-header ng-show="vm.tabConfig.selectedPivot.title === 'Open - Portal/KM'">Priority #</uif-table-header>
-            <uif-table-header>Priority</uif-table-header>
-            <uif-table-header>Customer</uif-table-header>
-            <uif-table-header>Assigned To</uif-table-header>
-            <uif-table-header ng-show="vm.tabConfig.selectedPivot.title === 'Resolved' || vm.tabConfig.selectedPivot.title === 'My Requests'">Resolution Type</uif-table-header>
-            <uif-table-header ng-show="vm.tabConfig.selectedPivot.title === 'Resolved' || vm.tabConfig.selectedPivot.title === 'My Requests'">Resolution Date</uif-table-header>
-            <uif-table-header>Created</uif-table-header>
-            <uif-table-header>Created By</uif-table-header>
-          </uif-table-row>
-        </uif-table-head>
-        <uif-table-body ng-repeat="(groupName, tickets) in vm.ticketsDataSource">
-          <uif-table-row>
-            <uif-table-cell colspan="11" style="padding:0;">
-              <div style="border-bottom:dashed 1px #777;padding:3px 5px;"><span class="ms-fontColor-neutralTertiary ms-fontWeight-semibold">{{vm.groupByFieldName}}:</span> <span class="ms-fontWeight-semibold">{{groupName}}</span> ({{tickets.length}})</span></div>
-            </uif-table-cell>
-          </uif-table-row>
-          <uif-table-row ng-repeat="item in tickets">
-            <uif-table-cell></uif-table-cell>
-            <uif-table-cell><a ng-click="vm.goToTicket(item)" style="text-decoration:underline;cursor:pointer;" class="ms-fontColor-themePrimary">{{item.Title}}</a></uif-table-cell>
-            <uif-table-cell ng-show="vm.tabConfig.selectedPivot.title === 'Open - Portal/KM'">{{item.PriorityNumber}}</uif-table-cell>
-            <uif-table-cell>{{item.Priority}}</uif-table-cell>
-            <uif-table-cell>{{item.Customer.Title}}</uif-table-cell>
-            <uif-table-cell>{{item.AssignedTo.Title}}</uif-table-cell>
-            <uif-table-cell ng-show="vm.tabConfig.selectedPivot.title === 'Resolved' || vm.tabConfig.selectedPivot.title === 'My Requests'">{{item.ResolutionType}}</uif-table-cell>
-            <uif-table-cell ng-show="vm.tabConfig.selectedPivot.title === 'Resolved' || vm.tabConfig.selectedPivot.title === 'My Requests'"><span ng-show="item.ResolutionDate.isValid()">{{item.ResolutionDate.format('DD MMM YY').toUpperCase()}}</span></uif-table-cell>
-            <uif-table-cell>{{item.Created.format('DD MMM YY HHmm[Z]').toUpperCase()}}</uif-table-cell>
-            <uif-table-cell>{{item.Author.Title}}</uif-table-cell>
-          </uif-table-row>
-        </uif-table-body>
-      </uif-table>
-
-
+        </div>
+      </div>
     </div>
   </div>
 </div>
