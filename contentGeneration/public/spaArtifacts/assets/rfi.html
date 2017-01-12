@@ -38,7 +38,7 @@
         <uif-table-body>
           <uif-table-row ng-repeat="item in vm.selectedDataSource | orderBy:table.orderBy:!table.orderAsc">
             <uif-table-cell>
-              <uif-button type="button" uif-type="primary" ng-click="vm.goToEditForm(item)" style="display: table;">{{vm.getAction(item)}}</uif-button>
+              <a class="custombtn" ng-click="vm.goToEditForm(item)">{{vm.getButtonText(item)}}</a>
             </uif-table-cell>
             <uif-table-cell>{{item.Title}}</uif-table-cell>
             <uif-table-cell style="white-space:nowrap;">{{item.Mission.FullName}}</uif-table-cell>

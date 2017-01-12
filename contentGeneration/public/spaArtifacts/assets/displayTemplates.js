@@ -178,7 +178,7 @@
                 try {
                     var html;
                     if (ctx.ListTitle === "RFI") {
-                        var buttonText = (ctx.CurrentItem.Status === "Open") ? "Respond" : "Reopen";
+                        var buttonText = (ctx.CurrentItem.Status === "Open") ? "Respond" : "Review";
                         html = "<a class='custombtn' rfibutton data-id='" + ctx.CurrentItem.ID + "'>" + buttonText + "</a>";
                     } else if (ctx.ListTitle === "Inject") {
                         var injectButtonClass = (ctx.CurrentItem.Status === 'Completed') ? 'disabled-custombtn' : 'custombtn';
@@ -493,7 +493,7 @@
 
                 function setFieldThenMakeReadOnly(fieldName, formState){
                     if(fieldName === "ResponseSufficient" && formState === "reopen"){
-                        SPUtility.GetSPFieldByInternalName(fieldName).SetValue('No').MakeReadOnly();
+                        //SPUtility.GetSPFieldByInternalName(fieldName).SetValue('No').MakeReadOnly();
                     }
                 }
             }

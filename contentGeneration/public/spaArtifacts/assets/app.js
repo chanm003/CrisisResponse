@@ -640,10 +640,9 @@
             }
 
             function checkIfRfiNeedsToBeReopened(rfi, rfiOnAspxLoad) {
-                if (rfiOnAspxLoad.ResponseSufficient === "Yes") {
+                if (rfiOnAspxLoad.ResponseSufficient === "Yes" && rfi.ResponseSufficient === "No") {
                     //on load Response Sufficient was "Yes"
                     //but since they navigated to this page we should set it to "No" for them
-                    rfi.ResponseSufficient = "No";
                     rfi.DateClosed = null;
                     rfi.Status = "Open";
                 }
@@ -688,7 +687,7 @@
             }
 
             if (formState === "reopen") {
-                if (!this.InsufficientExplanation) {
+                if (this.ResponseSufficient === "No" && !this.InsufficientExplanation) {
                     errors.push("Insufficient Explanation is a required field");
                 }
             }
@@ -2428,7 +2427,8 @@
             var buttonText = $elem.text();
 
             $elem.on('click', function () {
-                var redirect = _spPageContextInfo.webServerRelativeUrl + "/Lists/RFI/EditForm.aspx?action=" + buttonText + "&ID=" + listItemID + "&Source=" + document.location.href;
+                var action = (buttonText === 'Respond') ? 'Respond' : 'Reopen';
+                var redirect = _spPageContextInfo.webServerRelativeUrl + "/Lists/RFI/EditForm.aspx?action=" + action + "&ID=" + listItemID + "&Source=" + document.location.href;
                 window.location.href = redirect;
             });
         }
@@ -4333,7 +4333,7 @@
             var action;
 
             if (vm.tabConfig.selectedPivot.title === "My RFIs") {
-                action = (item.Status === "Open") ? "Edit" : "Respond";
+                action = (item.Status === "Open") ? "Edit" : "Reopen";
             } else {
                 action = (item.Status === "Open") ? "Respond" : "Reopen";
             }
@@ -4352,8 +4352,15 @@
         }
 
         vm.getButtonText = function (item) {
+            var action;
 
-            window.location.href = url;
+            if (vm.tabConfig.selectedPivot.title === "My RFIs") {
+                action = (item.Status === "Open") ? "Edit" : "Review";
+            } else {
+                action = (item.Status === "Open") ? "Respond" : "Review";
+            }
+
+            return action;
         }
 
         var dataSources = {
