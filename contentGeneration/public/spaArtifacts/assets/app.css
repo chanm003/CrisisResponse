@@ -51,8 +51,8 @@ body #suiteBarLeft{
 }
 
 #jocboxmenu a.airComponent{    
-  background-color: #add8e6 !important;
-  color:black !important;
+  background-color: #0078d7 !important;
+  color:white !important;
 }
 
 #jocboxmenu a.taskGroupLand{    
@@ -727,7 +727,6 @@ body #suiteBarLeft{
 }
 
 #jocboxmenu ul{
-    box-shadow: 0 0 5px 0 rgba(0,0,0,.4);
     background-color: #fff;
     border: 1px solid #c8c8c8;
     width: 180px;

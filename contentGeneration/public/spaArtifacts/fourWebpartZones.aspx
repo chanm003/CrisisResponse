@@ -15,7 +15,7 @@
     </style>	
 </asp:Content>
 <asp:Content ContentPlaceHolderID="PlaceHolderMain" runat="server">
-	<table width="100%" border="0" cellpadding="0" cellspacing="0" style="padding:5px 10px 10px 10px;">
+	<table width="100%" border="0" cellpadding="0" cellspacing="0" style="padding:0px 10px 10px 10px;">
         <tr>
             <td colspan="2" valign="top">
                 <WebPartPages:WebPartZone runat="server" FrameType="TitleBarOnly" ID="Top" Title="loc:Top"><ZoneTemplate></ZoneTemplate></WebPartPages:WebPartZone>

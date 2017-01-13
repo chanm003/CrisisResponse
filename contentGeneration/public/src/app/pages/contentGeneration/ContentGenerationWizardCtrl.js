@@ -771,7 +771,7 @@
 			if(selectedOptions["Air Component"]){
 				var currentOpsSummaryAirName = airComponents[0].name;
 				var currentOpsSummaryAirUrl = currentOpsSummaryBaseUrl + "?org=" + currentOpsSummaryAirName;
-				nodes.push(generateChildMenuNode(generateRandomId(), currentOpsSummaryAirName, nodeId_currentOpsSummary, {url: currentOpsSummaryAirUrl}));
+				nodes.push(generateChildMenuNode(generateRandomId(), currentOpsSummaryAirName, nodeId_currentOpsSummary, {url: currentOpsSummaryAirUrl, target: "_blank"}));
 			}
 
 			//missiontracker
