@@ -81,6 +81,8 @@
                         'Organization': { 'EditForm': renderOrganizationDropdown, 'NewForm': renderOrganizationDropdown },
                         //LIST(s): Inject, Message Traffic 
                         'OriginatorSender': { 'NewForm': renderOrganizationDropdown, 'EditForm': renderOrganizationDropdown },
+                        //LIST(s): Participating Organizations
+                        'ParticipatingOrganizations': { 'NewForm': preselectCheckboxForOrganization },
                         //LIST(s): RFI 
                         'PocName': { 'EditForm': renderPeoplePicker },
                         //LIST(s): RFI 
@@ -158,6 +160,14 @@
                 }
 
                 return renderingTemplateToUse.RenderField(ctx, field, listItem, listSchema);
+            }
+
+            function preselectCheckboxForOrganization(ctx){
+                var org = _.extractOrgFromQueryString();
+                if(_.includes(ctx.CurrentFieldSchema.MultiChoices, org)){
+                    ctx.CurrentFieldValue = ';#'+org+';#';
+                }
+                return SPFieldMultiChoice_Edit(ctx);
             }
 
             function removeMultiChoiceOptionBasedOnQueryString(ctx){
