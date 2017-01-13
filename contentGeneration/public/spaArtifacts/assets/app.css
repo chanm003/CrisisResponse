@@ -1135,3 +1135,8 @@ td.NA{
 .crt-tabcontent{
   padding: 1em 1.4em;
 }
+
+ dt{
+    color:#337ab7;
+    font-weight: bold;
+ }

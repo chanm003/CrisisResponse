@@ -2615,6 +2615,56 @@
         }
 })(jocInBoxConfig.noConflicts.jQuery, jocInBoxConfig.noConflicts.lodash);
 
+/* Directive: genericdialog */
+(function ($, _) {
+    angular
+        .module('app.core')
+        .directive('genericdialog', directiveDefinitionFunc);
+
+    function directiveDefinitionFunc($q, $rootScope, logger, Mission, MissionDocument, MissionDocumentRepository, MissionTrackerRepository) {
+        /* 
+        USAGE: <genericdialog></genericdialog>
+        SIMPLY listens for an event
+        */
+        var directiveDefinition = {
+            restrict: 'E',
+            link: link,
+            template: generateDialogHtml()
+        };
+        return directiveDefinition;
+
+        function link(scope, elem, attrs) {
+            scope.closeModal = function(){
+                scope.showGenericModal = false;
+            };
+        }
+    }
+
+    function generateDialogHtml() {
+            var html = [
+                '<uif-dialog uif-close="false" uif-overlay="light" uif-type="multiline" ng-show="showGenericModal">',
+                '   <uif-dialog-header>',
+                '       <p class="ms-Dialog-title">',
+                '           {{genericModalOptions.title}}',
+                '       </p>',
+                '   </uif-dialog-header>',
+                '   <uif-dialog-inner>',
+                '       <uif-dialog-content>',
+                '           <uif-dialog-subtext>',
+                '               <div ng-bind-html="genericModalOptions.message"></div>',
+                '           </uif-dialog-subtext>',
+                '       </uif-dialog-content>',
+                '       <uif-dialog-actions uif-position="right">',
+                '           <button class="ms-Dialog-action ms-Button" ng-click="closeModal()" type="button">',
+                '               <span class="ms-Button-label">Close</span>',
+                '           </button>',
+                '       </uif-dialog-actions>',
+                '   </uif-dialog-inner>',
+                '</uif-dialog>'].join('');
+            return html;
+        }
+})(jocInBoxConfig.noConflicts.jQuery, jocInBoxConfig.noConflicts.lodash);
+
 /* Directive: includeReplace */
 (function ($, _) {
     /**USAGE
@@ -3778,6 +3828,15 @@
     function controller($scope, _, Mission, spContext, SPUtility) {
         var vm = this;
         var itemOnEditFormAspxLoad = null;
+        var org = _.extractOrgFromQueryString();
+
+        $scope.showApprovalLevels = function(){
+            $scope.genericModalOptions = {
+                title: "Approval Levels",
+                message: generateApprovalAuthoritiesTableHtml(jocInBoxConfig.dashboards[org].routes)
+            };
+            $scope.showGenericModal = true;
+        }
 
         $scope.routeMessage = "";
 
@@ -3825,6 +3884,15 @@
         function init() {
             itemOnEditFormAspxLoad = spContext.getContextFromEditFormASPX();
             wireUpEventHandlers();
+        }
+
+        function generateApprovalAuthoritiesTableHtml(approvalLevels){
+            console.log(approvalLevels);
+            var html = [
+                '<dl>',
+                '<% _.forEach(levels, function(level) { %><dt><%- level.name %></dt><dd><%- level.description || \'No description provided\' %></dd><% }); %>',
+                '</dl>'].join('');
+            return _.template(html)({levels: approvalLevels});
         }
 
         function wireUpEventHandlers() {
@@ -4848,6 +4916,7 @@
 
         if (_.includes(currentURL, '/LISTS/MISSIONTRACKER/NEWFORM.ASPX') || _.includes(currentURL, '/LISTS/MISSIONTRACKER/EDITFORM.ASPX')) {
             spPage.attr('ng-controller', 'MissionTrackerDataEntryAspxController as vm');
+            spPage.append("<genericdialog></genericdialog>");
         }
 
         if (_.includes(currentURL, '/LISTS/RFI/NEWFORM.ASPX') || _.includes(currentURL, '/LISTS/RFI/EDITFORM.ASPX')) {

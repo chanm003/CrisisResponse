@@ -10,7 +10,8 @@
 				.map(function(item){
 					return {
 						name: item.Level,
-						sequence: item.ApprovalChain.split(';')
+						sequence: item.ApprovalChain.split(';'),
+						description: item.Description
 					};
 				})
 				.value();	

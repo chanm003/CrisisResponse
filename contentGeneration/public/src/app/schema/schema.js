@@ -399,6 +399,15 @@ crisisResponseSchema.listDefs["Route Configuration"] = {
 			MaxLength: 255,
 			Default: "",							//(optional)
 			Description: "Sequence of Reviewers (separated by semicolon, i.e. &quot;Org1;Org2;Org3&quot; )"
+		},
+		{
+			//EXAMPLE: SINGLE LINE OF TEXT
+			Name: "Description",
+			DisplayName: "Description",
+			Type: "Text",
+			Required: "TRUE",
+			MaxLength: 255,
+			Default: ""							//(optional)
 		}
 	]
 };

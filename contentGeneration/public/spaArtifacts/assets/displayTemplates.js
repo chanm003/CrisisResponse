@@ -212,17 +212,26 @@
                 }
 
                 try {
-                    ctx.CurrentFieldSchema.Choices = getApprovalAuthorityOptionsBasedOnQueryString();
+                    var infoMessage_explicitSequence = '<span style="display:none;"><uif-message-bar ng-show="routeMessage"> <uif-content><strong>Documents associated to this mission will be routed as follows: </strong><div>{{routeMessage}}</div></uif-content> </uif-message-bar></span>'; 
+                    
+                    var approvalAuthorities = getApprovalAuthorityOptionsBasedOnQueryString();
+                    ctx.CurrentFieldSchema.Choices = _.map(approvalAuthorities, 'name');
                     setDropdownOnNewFormWhenOnlyOneOption(ctx);
-                    return SPFieldChoice_Edit(ctx) + '<span style="display:none;"><uif-message-bar ng-show="routeMessage"> <uif-content><strong>Documents associated to this mission will be routed as follows: </strong><div>{{routeMessage}}</div></uif-content> </uif-message-bar></span>';
-
+                    return buildHtmlForControl(ctx, approvalAuthorities)
+                    
                     function getApprovalAuthorityOptionsBasedOnQueryString() {
                         var org = _.extractOrgFromQueryString();
                         if (org) {
-                            return _.map(jocInBoxConfig.dashboards[org].routes, 'name');
+                            return jocInBoxConfig.dashboards[org].routes;
                         } else {
                             return [];
                         }
+                    }
+
+                    function buildHtmlForControl(ctx, approvalAuthorities){
+                        var infoMessage_customDescriptions = '<br />';
+                        infoMessage_customDescriptions = ' <span id="ms-pageDescriptionImage" style="cursor:pointer;" ng-click="showApprovalLevels()">&nbsp;</span>';
+                        return SPFieldChoice_Edit(ctx).replace('<br />', infoMessage_customDescriptions);
                     }
                 }
                 catch (err) {
