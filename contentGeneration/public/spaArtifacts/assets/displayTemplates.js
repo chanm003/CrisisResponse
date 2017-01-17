@@ -218,9 +218,6 @@
             }
 
             function renderApprovalAuthorityDropdown(ctx) {
-                if(ctx.BaseViewID === "EditForm" && _.extractOrgFromQueryString() !== ctx.CurrentItem.Organization){
-                    return '<span class="readOnlyLabel">' + SPField_FormDisplay_Default(ctx) + '</span>';
-                }
 
                 try {
                     var infoMessage_explicitSequence = '<span style="display:none;"><uif-message-bar ng-show="routeMessage"> <uif-content><strong>Documents associated to this mission will be routed as follows: </strong><div>{{routeMessage}}</div></uif-content> </uif-message-bar></span>'; 
