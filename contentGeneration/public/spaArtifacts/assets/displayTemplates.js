@@ -493,7 +493,7 @@
                     var readOnlyFields = {
                         "Title": ['respond', 'reopen'],
                         "Status": ['edit', 'respond', 'reopen'],
-                        "RfiTrackingNumber": ['respond', 'reopen'],
+                        "RfiTrackingNumber": ['reopen'],
                         "Details": ['respond', 'reopen'],
                         "Priority": ['respond', 'reopen'],
                         "LTIOV": ['respond', 'reopen'],

@@ -1424,6 +1424,7 @@
             }
 
             if (formState === 'respond') {
+                listItem.set_item('RfiTrackingNumber', (rfi.RfiTrackingNumber || null));
                 listItem.set_item('Mission', convertToFieldLookupValue(rfi.MissionId));
                 listItem.set_item('RecommendedOPR', rfi.RecommendedOPR);
 
