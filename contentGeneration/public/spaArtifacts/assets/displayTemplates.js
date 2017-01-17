@@ -477,6 +477,7 @@
                         "RespondentName": ['new', 'edit'],
                         "RespondentPhone": ['new', 'edit'],
                         "ResponseToRequest": ['new', 'edit'],
+                        "RfiTrackingNumber": ['new'],
                         "DateClosed": ['new', 'edit'],
                         "ResponseSufficient": ['new', 'edit', 'respond'],
                         "InsufficientExplanation": ['new', 'edit', 'respond']

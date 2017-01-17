@@ -1116,7 +1116,7 @@ crisisResponseSchema.listDefs["RFI"] = {
 			DisplayName: "RFI Tracking",
 			Type: "Number",
 			Required: "FALSE",
-			Decimals: 0		
+			Decimals: 0
 		},
 		{
 			//EXAMPLE: Lookup field
