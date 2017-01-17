@@ -2715,11 +2715,15 @@
             var tempID = $elem.attr("data-id");
             var receivers = $elem.attr("data-receivers");
             var status = $elem.attr("data-status");
+            var injecttitle = $elem.attr("data-injecttitle");
+            var dtg = $elem.attr("data-dtg");
            
             $elem.removeClass(tempClass);
             $elem.removeAttr("data-id");
             $elem.removeAttr("data-receivers");
             $elem.removeAttr("data-status");
+            $elem.removeAttr("data-injecttitle");
+            $elem.removeAttr("data-dtg");
 
             scope.listItemID = parseInt(tempID, 10);
             scope.status = status;
@@ -2731,7 +2735,9 @@
             scope.openInjectDialog = function () {               
                 $rootScope.$broadcast("LVWP:injectButtonClicked", {
                     ID: scope.listItemID,
-                    receivers: receivers
+                    receivers: receivers,
+                    selectedInject: injecttitle,
+                    dtg: dtg
                 });
             }
 
@@ -2794,6 +2800,7 @@
                 scope.showModal = true;
                 scope.receivers = args.receivers;
                 scope.injectListItemId = args.ID;
+                scope.selectedInject = '(' + args.dtg + ') ' + args.selectedInject;
             });
         }
 
@@ -2887,8 +2894,9 @@
                 '   </uif-dialog-header>',
                 '   <uif-dialog-inner>',
                 '       <uif-dialog-content>',
+                '           <uif-textfield uif-label="Scenario" ng-model="selectedInject" uif-description="" uif-multiline="true" ng-disabled="true"/>',
                 '           <uif-dialog-subtext>',
-                '               <span>Are you sure this scenario is ready to be injected to the following recipient(s)?</span>',
+                '               <span>Are you sure above scenario is ready to be injected to the following recipient(s)?</span>',
                 '           </uif-dialog-subtext>',
                 '           <uif-textfield uif-label="Receiver" ng-model="receivers" uif-description="" uif-multiline="true" ng-disabled="true"/>',
                 '       </uif-dialog-content>',

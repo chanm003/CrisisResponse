@@ -193,6 +193,7 @@
                     } else if (ctx.ListTitle === "Inject") {
                         var injectButtonClass = (ctx.CurrentItem.Status === 'Completed') ? 'disabled-custombtn' : 'custombtn';
                         html = "<a class='"+injectButtonClass+"' injectbutton data-id='" + ctx.CurrentItem.ID + "' data-status='" + ctx.CurrentItem.Status + 
+                            "' data-injecttitle='" + ctx.CurrentItem.Title +  "' data-dtg='" + ctx.CurrentItem.DTG + 
                             "' data-receivers='" + ctx.CurrentItem.Receiver.join(';') + "' title='Publish this scenario to " + ctx.CurrentItem.Receiver.join(', ') + "'>Inject</a>";
                     } else if (ctx.ListTitle === "Mission Documents") {
                         if (!ctx.CurrentItem.ChopProcessInitiationDate) {
