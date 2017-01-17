@@ -10,6 +10,7 @@
 	function dataservice($http, $location, $q, fieldXmlGeneration, logger) {
 
 		return {
+			assignUniquePermissions: assignUniquePermissions,
 			copyFile: copyFile,
 			createOrUpdateFile: createOrUpdateFile,
 			createList: createList,
@@ -214,6 +215,53 @@
 					logger.logError('Request to create webpart (' + opts.name + ') failed on ' + opts.aspxFileUrl + ': ' + args.get_message(), args.get_stackTrace(), 'sharepointUtilities service, addScriptEditorWebpart()');
 					dfd.reject();
 				}
+			}
+		}
+
+		function assignUniquePermissions(opts){
+			var dfd = $q.defer();
+			var ctx = new SP.ClientContext(opts.webUrl);
+
+			//get access to user
+			var user = ctx.get_web().ensureUser(opts.loginName);
+
+			//permission
+			var collRoleDefinitionBinding = SP.RoleDefinitionBindingCollection.newObject(ctx);
+			collRoleDefinitionBinding.add(ctx.get_web().get_roleDefinitions().getByType(opts.permissionLevel));
+			
+			var resource;
+			if(opts.type === "SP.List"){
+				resource = ctx.get_web().get_lists().getByTitle(opts.listName);
+				resource.breakRoleInheritance(false);  
+				resource.get_roleAssignments().add(user, collRoleDefinitionBinding); 
+			}
+
+           	ctx.executeQueryAsync(
+				Function.createDelegate(this, onQuerySucceeded),
+				Function.createDelegate(this, onQueryFailed)
+			);
+
+			return dfd.promise;
+
+			function onQuerySucceeded() {
+				var roleTypeEnum = {
+					0: "None",
+					1: "Guest",
+					2: "Reader",
+					3: "Contributor",
+					4: "Designer",
+					5: "Administrator"
+				};
+
+				var msg = "Broke permissions on '" + opts.listName + "' and granted '" + roleTypeEnum[opts.permissionLevel] + "' to the user '" + opts.loginName + "'"; 
+				logger.logSuccess(msg, null, 'sharepointUtilities service, assignUniquePermissions()');
+				
+				dfd.resolve();
+			}
+
+			function onQueryFailed(sender, args) {
+				logger.logError('Request failed: ' + args.get_message(), args.get_stackTrace(), 'sharepointUtilities service, assignUniquePermissions()');
+				dfd.reject();
 			}
 		}
 

@@ -123,7 +123,8 @@
 						.then(createDocumentChopsList)
 						.then(createRFIList)
 						.then(createRouteConfigurationList)
-						.then(createMissionDocumentsLibrary);
+						.then(createMissionDocumentsLibrary)
+						.then(modifyPermissionsOnConfigList);
 
 			function createAARList() {
 				//DEPENDENCIES: None
@@ -208,6 +209,16 @@
 				var listSchemaDef = crisisResponseSchema.listDefs["Watch Log"];
 				listSchemaDef.webUrl = vm.childWebUrl;
 				return sharepointUtilities.createList(listSchemaDef);
+			}
+
+			function modifyPermissionsOnConfigList(){
+				return sharepointUtilities.assignUniquePermissions({
+					webUrl: vm.childWebUrl,
+					loginName: 'c:0(.s|true', //aka 'EVERYONE'
+					type: 'SP.List',
+					listName: 'Config',
+					permissionLevel: SP.RoleType.reader
+				});
 			}
 		}
 
