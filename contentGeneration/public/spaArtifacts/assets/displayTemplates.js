@@ -249,6 +249,17 @@
                 }
             };
 
+            function getExerciseConductor(){
+                //finishes thru iteration of all keys in object (no short-circuit)
+                var nameOfConductor = "";
+                _.each(jocInBoxConfig.dashboards, function(orgInfo, orgName){
+                    if(orgInfo.orgType === "Exercise Control Group"){
+                        nameOfConductor = orgName;
+                    }
+                });
+                return nameOfConductor;
+            }
+
             function renderOrganizationDropdown(ctx) {
                 try {
                     if (isDataEntryFormFor(ctx, "MissionTracker", "EditForm")) {
@@ -261,6 +272,10 @@
 
                     if(ctx.CurrentFieldSchema.FieldType !== "Choice"){
                         return getDefaultHtmlOutput(ctx);
+                    }
+
+                     if (isDataEntryFormFor(ctx, "Inject", "NewForm")) {
+                        ctx.CurrentFieldValue = getExerciseConductor();
                     }
 
                     return trimDropdownWithOrganizations(ctx);
