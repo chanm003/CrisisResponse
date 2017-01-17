@@ -4634,7 +4634,72 @@
             return $q.when(staticData);
         }
 
+        vm.testCopyAttachmentOperation = function(){
+            copyAttachmentBetweenListItems({
+                webUrl: _spPageContextInfo.webServerRelativeUrl,
+                sourceListName: 'Inject',
+                sourceListItemID: 2,
+                fileName: 'style.scss',
+                destinationListName: 'Message Traffic',
+                destinationListItemID: 1
+            })
+            .then(function(){
+                console.log('Copy complete...');
+            });
+        }
 
+        function copyAttachmentBetweenListItems(opts){
+            return  getListItemAttachmentBinary(opts).then(uploadListItemAttachmentBinary);
+        
+            function getListItemAttachmentBinary(opts){
+                var dfd = $q.defer();
+                SP.SOD.loadMultiple(['sp.requestexecutor.js'], _getFileBinary);
+                return dfd.promise;
+
+                function _getFileBinary(){
+                    var fileContentUrl = opts.webUrl + "/_api/web/Lists/getByTitle('"+opts.sourceListName+"')/Items("+opts.sourceListItemID+")/AttachmentFiles('"+opts.fileName+"')/$value";
+                    var executor = new SP.RequestExecutor(opts.webUrl);
+                    var request = {
+                        url: fileContentUrl,
+                        method: "GET",
+                        binaryStringResponseBody: true,
+                        success: function (data) {
+                            //binary data available in data.body
+                            opts.binary = data.body;
+                            dfd.resolve(opts);
+                        },
+                        error: function (err) {
+                            dfd.reject(JSON.stringify(err));
+                        }
+                    };
+                    executor.executeAsync(request);
+                }
+            }
+
+            function uploadListItemAttachmentBinary(opts){
+                var dfd = $q.defer();
+
+                var fileContentUrl = opts.webUrl + "/_api/web/Lists/getByTitle('"+opts.destinationListName+"')/Items("+opts.destinationListItemID+")/AttachmentFiles/add(FileName='"+opts.fileName+"')";
+                var executor = new SP.RequestExecutor(opts.webUrl);
+                var request = {
+                    url: fileContentUrl,
+                    method: "POST",
+                    binaryStringRequestBody: true,
+                    body: opts.binary,
+                    state: "Update",
+                    success: function (data) {
+                        dfd.resolve();
+                    },
+                    error: function (err) {
+                        var error = JSON.stringify(err);
+                        dfd.reject(error);
+                    }
+                };
+                executor.executeAsync(request);
+
+                return dfd.promise;
+            }
+        }
     }
 })(jocInBoxConfig.noConflicts.jQuery, jocInBoxConfig.noConflicts.lodash);
 
