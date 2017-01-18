@@ -683,7 +683,7 @@
 			if(vm.optionalFeatures["Exercise Control Group"]){
 				_.each(vm.exerciseControlGroups, function (org) {
 					var dashboardUrl = vm.childWebUrl + "/SitePages/excon.aspx?org=" + org.name;
-					menuItems.push(menuSvc.generateChildMenuNode(org.name, org.name, "rootNode", {url: dashboardUrl}));
+					menuItems.push(menuSvc.generateChildMenuNode(org.name, org.name + ' (PRIVATE)', "rootNode", {url: dashboardUrl}));
 				});
 			}
 			
