@@ -2779,7 +2779,7 @@
                 if(args.injectItem.Id === scope.listItemID){  
                     scope.status = args.injectItem.Status;
                     logger.success('MSEL Inject will now appear as "Inbound Message" for the following: ' + args.generatedMessageTrafficItem.Receiver.results.join(', ') , {
-                        title: "Scenario published",
+                        title: "Scenario injected",
                         alwaysShowToEnduser: true
                     });
                 }
@@ -3135,7 +3135,8 @@
                 missions: '=',
                 selectedOrg: '=',
                 showNewItemLink: '=',
-                onMissionsFiltered: '&'
+                onMissionsFiltered: '&',
+                redirectUrlReplace: '&'
             },
             template: buildHeroButtonHtml() + buildCheckboxHtml() + buildLegendHtml() + '<div class="mission-timeline" ng-show="missionsToShow.length"></div>' + buildMessageBarHtml()
         };
@@ -3221,9 +3222,12 @@
                 timeline.setItems(items);
                 timeline.on('click', function (props) {
                     if (props.what === 'group-label' || props.what === 'item') {
-                        var url = _spPageContextInfo.webServerRelativeUrl + '/Lists/MissionTracker/DispForm.aspx?ID=' + props.group + "&Source=" + encodeURIComponent(document.location.href);
+                        var redirect = scope.redirectUrlReplace({url: document.location.href});
+                        if(!redirect){
+                            redirect = document.location.href;
+                        }
+                        var url = _spPageContextInfo.webServerRelativeUrl + '/Lists/MissionTracker/DispForm.aspx?ID=' + props.group + "&Source=" + encodeURIComponent(redirect);
                         document.location.href = url;
-                        //window.open(url , '_blank');    
                     }
                 })
 
@@ -4246,6 +4250,11 @@
             applyFilters();
         }
 
+        vm.redirectUrlReplace = function(url){
+            var pattern = /#\/missiontracker\/[\d]{0,1}/g;
+            return url.replace(pattern, '#/missiontracker/0');
+        }
+
         vm.onFilterOptionClicked = function (option, dataSourceName) {
             if (option) {
                 option.isSelected = !option.isSelected;
@@ -4453,8 +4462,15 @@
             return action;
         }
 
+        function buildRedirectUrl(){
+            var indexForCurrentlySelectedTab = _.findIndex(vm.tabConfig.pivots, function(pivot){ return pivot.title === vm.tabConfig.selectedPivot.title; });
+            var pattern = /#\/rfi\/[\d]{0,1}/g;
+            return encodeURIComponent(document.location.href.replace(pattern, '#/rfi/'+indexForCurrentlySelectedTab));
+        }
+
         vm.goToEditForm = function (item) {
-            var url = _spPageContextInfo.webServerRelativeUrl + "/Lists/RFI/EditForm.aspx?ID=" + item.Id + "&Source=" + encodeURIComponent(document.location.href);
+
+            var url = _spPageContextInfo.webServerRelativeUrl + "/Lists/RFI/EditForm.aspx?ID=" + item.Id + "&Source=" + buildRedirectUrl();
             var action = vm.getAction(item);
 
             if (action !== "Edit") {
@@ -4487,7 +4503,7 @@
         });
 
         vm.goToNewRfiForm = function () {
-            window.location.href = _spPageContextInfo.webServerRelativeUrl + "/Lists/Rfi/NewForm.aspx?&Source=" + encodeURIComponent(document.location.href);
+            window.location.href = _spPageContextInfo.webServerRelativeUrl + "/Lists/Rfi/NewForm.aspx?&Source=" + buildRedirectUrl();
         }
 
         vm.applyFilters = function (clickedOpr) {
@@ -4905,11 +4921,11 @@
         var pivots;
 
         vm.goToNewHelpDeskForm = function () {
-            window.location.href = _spPageContextInfo.webServerRelativeUrl + "/Lists/HelpDesk/NewForm.aspx?Source=" + encodeURIComponent(document.location.href);
+            window.location.href = _spPageContextInfo.webServerRelativeUrl + "/Lists/HelpDesk/NewForm.aspx?Source=" + buildRedirectUrl();
         }
 
         vm.goToTicket = function(item){
-            window.location.href = _spPageContextInfo.webServerRelativeUrl + "/Lists/HelpDesk/EditForm.aspx?ID="+ item.Id +"&Source=" + encodeURIComponent(document.location.href);
+            window.location.href = _spPageContextInfo.webServerRelativeUrl + "/Lists/HelpDesk/EditForm.aspx?ID="+ item.Id +"&Source=" + buildRedirectUrl();
         }
 
         activate();
@@ -4917,6 +4933,12 @@
         function activate() {
             initTabs();
             fetchData();
+        }
+
+        function buildRedirectUrl(){
+            var indexForCurrentlySelectedTab = _.findIndex(vm.tabConfig.pivots, function(pivot){ return pivot.title === vm.tabConfig.selectedPivot.title; });
+            var pattern = /#\/helpdesk\/[\d]{0,1}/g;
+            return encodeURIComponent(document.location.href.replace(pattern, '#/helpdesk/'+indexForCurrentlySelectedTab));
         }
 
         function initTabs() {

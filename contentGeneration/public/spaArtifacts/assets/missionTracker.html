@@ -10,7 +10,7 @@
     <div class="ms-Grid" ng-show="vm.tabConfig.selectedPivot.title === 'Timeline'">
       <div class="ms-Grid-row">
         <div class="ms-Grid-col ms-u-sm12 ms-u-md12 ms-u-lg12">
-          <mission-timeline missions="vm.missions" on-missions-filtered="vm.onMissionsFiltered(missions)"></mission-timeline>
+          <mission-timeline missions="vm.missions" on-missions-filtered="vm.onMissionsFiltered(missions)" redirect-url-replace="vm.redirectUrlReplace(url)"></mission-timeline>
         </div>
       </div>
     </div>
