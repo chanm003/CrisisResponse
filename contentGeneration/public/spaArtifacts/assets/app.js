@@ -281,8 +281,8 @@
             //simply requiring this singleton runs it initialization code..
         }]);
 
-    spContext.$inject = ['$http', '$resource', '$timeout', 'logger'];
-    function spContext($http, $resource, $timeout, logger) {
+    spContext.$inject = ['$http', '$q', '$resource', '$timeout', 'logger'];
+    function spContext($http, $q, $resource, $timeout, logger) {
         var service = this;
 
         var defaultHeaders = {
@@ -300,6 +300,7 @@
         }
         service.constructNgResourceForRESTCollection = constructNgResourceForRESTCollection;
         service.constructNgResourceForRESTResource = constructNgResourceForRESTResource;
+        service.copyAttachmentsBetweenListItems = copyAttachmentsBetweenListItems;
         service.makeMultiChoiceRESTCompliant = makeMultiChoiceRESTCompliant;
         service.makeMomentRESTCompliant = makeMomentRESTCompliant;
         service.makeHyperlinkFieldRESTCompliant = makeHyperlinkFieldRESTCompliant;
@@ -385,6 +386,68 @@
                         headers: httpDeleteHeaders
                     }
                 });
+        }
+
+        function copyAttachmentsBetweenListItems(operations){
+            var promiseChain = operations.reduce(function (previousPromise, operation) {
+				return previousPromise.then(function () {
+					return copyAttachment(operation);
+				});
+			}, $q.when());
+
+			//returning promise chain that caller can resolve...
+			return promiseChain;
+        }
+
+        function copyAttachment(opts){
+            return getListItemAttachmentBinary(opts).then(uploadListItemAttachmentBinary);
+        
+            function getListItemAttachmentBinary(opts){
+                var dfd = $q.defer();
+
+                var fileContentUrl = opts.webUrl + "/_api/web/Lists/getByTitle('"+opts.sourceListName+"')/Items("+opts.sourceListItemID+")/AttachmentFiles('"+opts.fileName+"')/$value";
+                var executor = new SP.RequestExecutor(opts.webUrl);
+                var request = {
+                    url: fileContentUrl,
+                    method: "GET",
+                    binaryStringResponseBody: true,
+                    success: function (data) {
+                        //binary data available in data.body
+                        opts.binary = data.body;
+                        dfd.resolve(opts);
+                    },
+                    error: function (err) {
+                        dfd.reject(JSON.stringify(err));
+                    }
+                };
+                executor.executeAsync(request);
+
+                return dfd.promise;
+            }
+
+            function uploadListItemAttachmentBinary(opts){
+                var dfd = $q.defer();
+
+                var fileContentUrl = opts.webUrl + "/_api/web/Lists/getByTitle('"+opts.destinationListName+"')/Items("+opts.destinationListItemID+")/AttachmentFiles/add(FileName='"+opts.fileName+"')";
+                var executor = new SP.RequestExecutor(opts.webUrl);
+                var request = {
+                    url: fileContentUrl,
+                    method: "POST",
+                    binaryStringRequestBody: true,
+                    body: opts.binary,
+                    state: "Update",
+                    success: function (data) {
+                        dfd.resolve();
+                    },
+                    error: function (err) {
+                        var error = JSON.stringify(err);
+                        dfd.reject(error);
+                    }
+                };
+                executor.executeAsync(request);
+
+                return dfd.promise;
+            }
         }
 
         function copyFile(webUrl, source, destination){
@@ -1569,7 +1632,6 @@
     MessageTrafficRepository.$inject = ['$http', '$q', '$resource', 'exception', 'logger', 'spContext'];
     function MessageTrafficRepository($http, $q, $resource, exception, logger, spContext) {
         var service = {
-            createFolderForMessageTrafficAttachments: createFolderForMessageTrafficAttachments,
             getAll: getAll,
             getSignificantItemsCreatedInLast24Hours: getSignificantItemsCreatedInLast24Hours,
             save: save
@@ -1589,34 +1651,6 @@
             fieldsToExpand: fieldsToExpand,
             listName: 'Message Traffic'
         };
-
-        function createFolderForMessageTrafficAttachments(listItemId){
-            var dfd = $q.defer();
-            var ctx = SP.ClientContext.get_current();
-            var web = ctx.get_web();
-            
-            var attachmentRootFolderUrl = _spPageContextInfo.webServerRelativeUrl + "/Lists/MessageTraffic/Attachments";
-            var attachmentsFolderForList = web.getFolderByServerRelativeUrl(attachmentRootFolderUrl);
-
-            var  attachmentsFolderForListItem =  attachmentsFolderForList.get_folders().add("_" + listItemId);
-            attachmentsFolderForListItem.moveTo(attachmentRootFolderUrl + '/' + listItemId);
-
-            ctx.executeQueryAsync(Function.createDelegate(this, onQuerySucceeded), Function.createDelegate(this, onQueryFailed));
-            return dfd.promise;
-
-            function onQuerySucceeded(){
-                dfd.resolve();
-            }
-
-            function onQueryFailed(sender, args){
-                var msg = args.get_message();
-                if(_.includes(msg, 'destination already exists')){
-                    dfd.resolve();
-                } else{
-                    dfd.reject(msg);
-                }
-            }
-        }
 
         function getAll() {
             return getItems();
@@ -2807,7 +2841,6 @@
         function publishScenario(injectListItemId){
             return retrieveInjectItem(injectListItemId)
                 .then(generateMessageTrafficItem)
-                .then(createFolderToHoldAttachments)
                 .then(copyAttachments)
                 .then(updateStatusForInjectItem);
 
@@ -2840,28 +2873,29 @@
                         });
             }
 
-            function createFolderToHoldAttachments(transaction){
-                return MessageTrafficRepository.createFolderForMessageTrafficAttachments(transaction.generatedMessageTrafficItem.Id)
-                    .then(function(){
-                        return transaction;
-                    });
-            }
-
             function copyAttachments(transaction){
                 if(!transaction.injectItem.AttachmentFiles.results){
                     return $q.when(transaction);
                 }
 
-                var promises = [];
+                var copyOperations = [];
                 _.each(transaction.injectItem.AttachmentFiles.results, function(item){
-                    var source = item.ServerRelativeUrl;
-                    var destination = _spPageContextInfo.webServerRelativeUrl + "/Lists/MessageTraffic/Attachments/" + transaction.generatedMessageTrafficItem.Id + "/" + item.FileName;
-                    promises.push(spContext.copyFile(_spPageContextInfo.webServerRelativeUrl, source, destination));    
+                    var copyOperation = {
+                        webUrl: _spPageContextInfo.webServerRelativeUrl,
+                        sourceListName: 'Inject',
+                        sourceListItemID: transaction.injectItem.Id,
+                        fileName: item.FileName,
+                        destinationListName: 'Message Traffic',
+                        destinationListItemID: transaction.generatedMessageTrafficItem.Id
+                    }
+
+                    copyOperations.push(copyOperation);    
                 });
 
-                return $q.all(promises).then(function(){
-                    return transaction;
-                });
+                return spContext.copyAttachmentsBetweenListItems(copyOperations)
+                    .then(function(){
+                        return transaction;
+                    });
             }
 
             function updateStatusForInjectItem(transaction){

@@ -11,8 +11,11 @@
 	<SharePoint:ProjectProperty Property="Title" runat="server"/> 	
 </asp:Content>
 <asp:Content ContentPlaceHolderId="PlaceHolderAdditionalPageHead" runat="server">
-	<style type="text/css">
-    </style>	
+	<SharePoint:ScriptLink name="MicrosoftAjax.js" OnDemand="false" runat="server" Localizable="false" LoadAfterUI="true"/>
+    <SharePoint:ScriptLink name="sp.core.js" OnDemand="false" runat="server" Localizable="false" LoadAfterUI="true"/>
+    <SharePoint:ScriptLink name="sp.js" OnDemand="false" runat="server" Localizable="false" LoadAfterUI="true"/>
+    <SharePoint:ScriptLink name="sp.requestexecutor.js" OnDemand="false" runat="server" Localizable="false" LoadAfterUI="true"/>
+    <SharePoint:ScriptLink Name="sp.publishing.js" OnDemand="false" runat="server" Localizable="false" LoadAfterUI="true"/>
 </asp:Content>
 <asp:Content ContentPlaceHolderID="PlaceHolderMain" runat="server">
 	<table width="100%" border="0" cellpadding="0" cellspacing="0" style="padding:0px 10px 10px 10px;">
