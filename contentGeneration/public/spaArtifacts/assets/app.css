@@ -1139,3 +1139,9 @@ td.NA{
     color:#337ab7;
     font-weight: bold;
  }
+
+ input[readonly], textara[readonly]{
+   /* IE HACK - when field is read-only, get rid of blinking cursor */
+   color: #444 !important;
+   cursor: default;
+ }

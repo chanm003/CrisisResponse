@@ -447,6 +447,7 @@
         }
 
         function modifyListFormsPostRender(ctx){
+            makeDateTimeFieldsReadOnly();
             customizeRfiForm(ctx);
             customizeMissionTrackerForm(ctx);
             customizeMissionDocumentsForm(ctx);
@@ -472,6 +473,7 @@
                 var fieldName = ctx.ListSchema.Field[0].Name;
                 removeHelpTextWhenReadOnlyField(fieldName);
             }
+
             function customizeRfiForm(ctx){
                 var formState = getStateForRfiForm(ctx);
 
@@ -561,6 +563,12 @@
                             SPUtility.GetSPFieldByInternalName(fieldName).Hide();
                         }
                     }
+                }
+            }
+
+            function makeDateTimeFieldsReadOnly(){
+                if(jocInBoxConfig.disableManualEntryForDateFields){
+                    $("[id$=DateTimeFieldDate]").attr('readonly', 'readonly');
                 }
             }
         }

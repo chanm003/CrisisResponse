@@ -645,6 +645,7 @@
 				'jocInBoxConfig.noConflicts = { jQuery: $.noConflict(), lodash: _.noConflict() };',
 				'jocInBoxConfig.webUrl = "' + vm.childWebUrl + '";',
 				templateDirectoryStatement,
+				'jocInBoxConfig.disableManualEntryForDateFields = true;',
 				'jocInBoxConfig.dashboards = ' + JSON.stringify(dashboards) + ";",
 				'jocInBoxConfig.missionTypes = ' + JSON.stringify(crisisResponseSchema.missionTypesMappedToDefaultApprovalAuthority) + ";"
 			].join('\n\n');
