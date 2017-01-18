@@ -1,14 +1,16 @@
-EXCON people picker
-- Typing last followed by comma does not work..."Britton," 
-- get rid of case sensitivity message
-- ensure all collected text inputs are capitalized!
+moment-with-locales.js 
+moment-timezone-with-data.min.js
+http://www.science.co.il/Language/Locale-codes.php
 
+SharePoint stores locale as:
+/_api/web/RegionalSettings/LocaleId:
+1031 should map to 'de'
 
-Master
-- CSS should get rid on "Edit Links" and redundant hyperlink
-- SharePoint message
-- Borders around web parts
-- colors left menu
+Need to convert:
+'18.01.2017' to a valid date with moment
 
-dashboard 'EXCON' groups
-- do not assume there will only be one site collection when generating the management links....so should mimic delete button
+SharePoint stores timezone as:
+/_api/web/RegionalSettings/TimeZone/Description:
+'(UTC+02:00) Jerusalem' 
+/_api/web/RegionalSettings/TimeZone/Id:
+27 
