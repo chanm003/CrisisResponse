@@ -23,17 +23,17 @@
         }
 
         vm.goToGroupMembersPage = function (group) {
-            var url = '/_layouts/15/people.aspx?MembershipGroupId=' + group.Id;
+            var url = _spPageContextInfo.siteAbsoluteUrl + '/_layouts/15/people.aspx?MembershipGroupId=' + group.Id;
             window.open(url, '_blank');
         }
 
         vm.goToGroupPermissionsPage = function (group) {
-            var url = '/_layouts/15/ViewGroupPermissions.aspx?ID=' + group.Id;
+            var url = _spPageContextInfo.siteAbsoluteUrl + '/_layouts/15/ViewGroupPermissions.aspx?ID=' + group.Id;
             window.open(url, '_blank');
         }
 
         vm.goToGroupSettingsPage = function (group) {
-            var url = '/_layouts/15/editgrp.aspx?Group=' + group.Title;
+            var url = _spPageContextInfo.siteAbsoluteUrl + '/_layouts/15/editgrp.aspx?Group=' + group.Title;
             window.open(url, '_blank');
         }
 
