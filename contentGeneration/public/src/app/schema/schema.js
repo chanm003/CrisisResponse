@@ -1075,7 +1075,7 @@ crisisResponseSchema.listDefs["Mission Documents"] = {
 		{
 			title: 'INTEL',
 			viewFields: ['DocIcon', 'Organization', 'LinkFilename', 'Mission', 'Modified', 'Editor'],
-			query: '<GroupBy Collapse="FALSE" GroupLimit="30"><FieldRef Name="Organization"/></GroupBy><OrderBy><FieldRef Name="ID" Ascending="FALSE"/></OrderBy><Where><Or><Or><Contains><FieldRef Name="TypeOfDocument"/><Value Type="Text">INTSUM</Value></Contains><Contains><FieldRef Name="TypeOfDocument"/><Value Type="Text">INTREP</Value></Contains></Or><Contains><FieldRef Name="TypeOfDocument"/><Value Type="Text">HUMINT</Value></Contains></Or></Where>',
+			query: '<GroupBy Collapse="FALSE" GroupLimit="30"><FieldRef Name="TypeOfDocument"/></GroupBy><OrderBy><FieldRef Name="ID" Ascending="FALSE"/></OrderBy><Where><Or><Or><Or><Contains><FieldRef Name="TypeOfDocument" /><Value Type="Text">INTSUM</Value></Contains><Contains><FieldRef Name="TypeOfDocument" /><Value Type="Text">INTREP</Value></Contains></Or><Contains><FieldRef Name="TypeOfDocument" /><Value Type="Text">HUMINT</Value></Contains></Or><Contains><FieldRef Name="TypeOfDocument" /><Value Type="Text">Target</Value></Contains></Or></Where>',
 			viewTypeKind: 0 
 		},
 		{
