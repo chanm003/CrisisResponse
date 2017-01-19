@@ -1562,7 +1562,8 @@
         function checkInFile(opts) {
             var webUrl = _spPageContextInfo.webServerRelativeUrl;
             var fileUrl = webUrl + "/MissionDocuments/" + opts.FileLeafRef;
-            var url = webUrl + "/_api/web/GetFileByServerRelativeUrl('" + fileUrl + "')/CheckIn(comment='',checkintype=2)";
+            //SP.CheckinType enumeration (overwriteCheckin requires elevated permissions)
+            var url = webUrl + "/_api/web/GetFileByServerRelativeUrl('" + fileUrl + "')/CheckIn(comment='',checkintype=1)";
 
             var defaultPostheaders = angular.extend({}, spContext.defaultHeaders, {
                             'X-RequestDigest': spContext.securityValidation,
