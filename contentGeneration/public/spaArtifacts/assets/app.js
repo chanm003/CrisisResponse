@@ -3356,10 +3356,18 @@
                 }
                 var parts = [
                     '<a class="' + cssClass + '" href="' + url + '" target="' + node.li_attr.target + '">',
-                    '   <span class="menu-label-when-no-flag">' + node.text + '</span>',
+                    '   <span class="menu-label-when-no-flag">' + node.text + constructLockIcon(node) + '</span>',
                     '</a>'
                 ].join('');
                 return parts;
+            }
+
+            function constructLockIcon(node){
+                if(node.orgType === "Exercise Control Group"){
+                    return ' <i class="fa fa-lock"></i>';
+                } else {
+                    return "";
+                }
             }
 
             function constructCssClassBasedOnOrgType(node){
@@ -3379,7 +3387,7 @@
                 }
                 var parts = [
                     '<a class="' + cssClass + '" href="' + url + '" target="' + node.li_attr.target + '">',
-                    '   <span class="f32"><span class="flag ' + node.flagCode + '"><span class="menu-label-when-flag">' + node.text + '</span></span></span>',
+                    '   <span class="f32"><span class="flag ' + node.flagCode + '"><span class="menu-label-when-flag">' + node.text + constructLockIcon(node) + '</span></span></span>',
                     '</a>'
                 ].join('');
                 return parts;
