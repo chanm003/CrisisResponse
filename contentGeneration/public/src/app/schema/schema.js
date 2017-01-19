@@ -462,7 +462,7 @@ crisisResponseSchema.listDefs["Mission Tracker"] = {
 				Format:"Dropdown",
 				Required: "TRUE",
 				FillInChoice: "FALSE",
-				Description: 'The task group commanding the mission',
+				Description: 'The organization planning the mission',
 				Choices: [],						//will be generated
 				Default: ''							//(optional)
 			},
