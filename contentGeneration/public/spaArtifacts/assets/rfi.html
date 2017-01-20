@@ -18,6 +18,7 @@
             <uif-table-head>
               <uif-table-row>
                 <uif-table-header>&nbsp;</uif-table-header>
+                <uif-table-header>&nbsp;</uif-table-header>
                 <uif-table-header>Title</uif-table-header>
                 <uif-table-header>Mission</uif-table-header>
                 <uif-table-header uif-order-by="PocOrganization">POC</uif-table-header>
@@ -29,8 +30,17 @@
                 <uif-table-header style="white-space:nowrap;" uif-order-by="DateClosed" ng-show="vm.tabConfig.selectedPivot.title !== 'Open'">Date Closed</uif-table-header>
               </uif-table-row>
             </uif-table-head>
-            <uif-table-body>
-              <uif-table-row ng-repeat="item in vm.selectedDataSource | orderBy:table.orderBy:!table.orderAsc">
+            <uif-table-body ng-repeat="(oprName, rfis) in vm.selectedDataSource">
+              <uif-table-row>
+                <uif-table-cell colspan="11" style="padding:0;">
+                  <div style="padding:3px 5px;color:#337ab7;"><span class="ms-fontColor-neutralTertiary ms-fontWeight-semibold">Recommended OPR:</span> <span class="ms-fontWeight-semibold">{{oprName}}</span> ({{rfis.length}})</span>
+                  </div>
+                </uif-table-cell>
+              </uif-table-row>
+              <uif-table-row ng-repeat="item in rfis | orderBy:table.orderBy:!table.orderAsc">
+                <uif-table-cell>
+
+                </uif-table-cell>
                 <uif-table-cell>
                   <a class="custombtn" ng-click="vm.goToEditForm(item)">{{vm.getButtonText(item)}}</a>
                 </uif-table-cell>
@@ -39,9 +49,7 @@
                 <uif-table-cell style="white-space:nowrap;"><span title="{{item.PocName.Title}}">{{item.PocOrganization}}</span></uif-table-cell>
                 <uif-table-cell>{{item.RfiTrackingNumber}}</uif-table-cell>
                 <uif-table-cell style="white-space:nowrap;">
-      
                     {{item.Priority}}
-            
                 </uif-table-cell>
                 <uif-table-cell style="white-space:nowrap;">{{(item.LTIOV.isValid())? item.LTIOV.format('DD MMM YY HHmm[Z]').toUpperCase() : ''}}</uif-table-cell>
                 <uif-table-cell style="white-space:nowrap;" ng-show="vm.tabConfig.selectedPivot.title !== 'Open' && vm.tabConfig.selectedPivot.title !== 'Closed'">{{item.Status}}</uif-table-cell>

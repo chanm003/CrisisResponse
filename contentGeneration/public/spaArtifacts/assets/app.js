@@ -4624,7 +4624,7 @@
             dataSources["My RFIs"] = _.filter(filteredList, { AuthorId: _spPageContextInfo.userId });
             dataSources["Manage RFIs"] = _.filter(filteredList, isCurrentUserTaggedAsManagerForRfi);
 
-            vm.selectedDataSource = dataSources[vm.tabConfig.selectedPivot.title]
+            vm.selectedDataSource = _.groupBy(dataSources[vm.tabConfig.selectedPivot.title], 'RecommendedOPR');
 
             function isCurrentUserTaggedAsManagerForRfi(item) {
                 if (!item.ManageRFIId) { return false; }
