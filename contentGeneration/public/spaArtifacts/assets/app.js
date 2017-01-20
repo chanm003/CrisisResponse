@@ -3246,26 +3246,26 @@
 
             scope.showCompletedMissions = false;
             scope.statusColorLegend = [
-                { name: "Initial Targeting", cssStyle: 'background-color:#FFFF00; border-color: #FFFF00; color: #000;' }, //yellow,black
-                { name: "JPG Assigned", cssStyle: 'background-color:#FFFF00; border-color: #FFFF00; color: #000;' }, //yellow,black
-                { name: "COA Approved", cssStyle: 'background-color:#FFFF00; border-color: #FFFF00; color: #000;' }, //yellow,black
-                { name: "CONOP Received - In Chop", cssStyle: 'background-color:#FFFF00; border-color: #FFFF00; color: #000;' }, //yellow,black
+                { name: "Initial Targeting", cssStyle: {'background-color': '#FFFF00', 'border-color': '#FFFF00', 'color': '#000'} }, //yellow,black
+                { name: "JPG Assigned", cssStyle: {'background-color': '#FFFF00', 'border-color': '#FFFF00', 'color': '#000'} }, //yellow,black
+                { name: "COA Approved", cssStyle: {'background-color': '#FFFF00', 'border-color': '#FFFF00', 'color': '#000'} }, //yellow,black
+                { name: "CONOP Received - In Chop", cssStyle: {'background-color': '#FFFF00', 'border-color': '#FFFF00', 'color': '#000'} }, //yellow,black
 
-                { name: "CONOP Disapproved", cssStyle: 'background-color:#ff0000; border-color: #ff0000; color: #fff;' }, //red,white	
+                { name: "CONOP Disapproved", cssStyle: {'background-color':'#ff0000', 'border-color': '#ff0000', 'color': '#fff' }}, //red,white	
 
-                { name: "CONOP Approved", cssStyle: 'background-color:#007f00; border-color: #007f00; color: #fff;' }, //green,black
-                { name: "FRAGO In-Chop", cssStyle: 'background-color:#007f00; border-color: #007f00; color: #fff;' }, //green,black
-                { name: "FRAGO Released", cssStyle: 'background-color:#007f00; border-color: #007f00; color: #fff;' }, //green,black
-                { name: "EXORD Released", cssStyle: 'background-color:#007f00; border-color: #007f00; color: #fff;' }, //green,black
+                { name: "CONOP Approved", cssStyle: {'background-color':'#007f00', 'border-color': '#007f00', 'color': '#fff'} }, //green,black
+                { name: "FRAGO In-Chop", cssStyle:  {'background-color':'#007f00', 'border-color': '#007f00', 'color': '#fff'} }, //green,black
+                { name: "FRAGO Released", cssStyle: {'background-color':'#007f00', 'border-color': '#007f00', 'color': '#fff'} }, //green,black
+                { name: "EXORD Released", cssStyle: {'background-color':'#007f00', 'border-color': '#007f00', 'color': '#fff'} }, //green,black
 
-                { name: "Mission In Progress", cssStyle: 'background-color:#ffa500; border-color: #ffa500; color: #000;' }, //orange, black
+                { name: "Mission In Progress", cssStyle: {'background-color':'#ffa500', 'border-color': '#ffa500', 'color': '#000'} }, //orange, black
 
-                { name: "Return to Base", cssStyle: 'background-color:#2C5197; border-color: #2C5197; color: #000;' }, //blue, black		
-                { name: "QuickLook", cssStyle: 'background-color:#2C5197; border-color: #2C5197; color: #000;' }, //blue, black	
-                { name: "StoryBoard", cssStyle: 'background-color:#2C5197; border-color: #2C5197; color: #000;' }, //blue, black
-                { name: "OPSUM", cssStyle: 'background-color:#2C5197; border-color: #2C5197; color: #000;' }, //blue, black
+                { name: "Return to Base", cssStyle: { 'background-color':'#2C5197', 'border-color': '#2C5197', 'color': '#000' } }, //blue, black		
+                { name: "QuickLook", cssStyle: { 'background-color':'#2C5197', 'border-color': '#2C5197', 'color': '#000' } }, //blue, black
+                { name: "StoryBoard", cssStyle: { 'background-color':'#2C5197', 'border-color': '#2C5197', 'color': '#000' } }, //blue, black
+                { name: "OPSUM", cssStyle: { 'background-color':'#2C5197', 'border-color': '#2C5197', 'color': '#000' } }, //blue, black
 
-                { name: "Mission Closed", cssStyle: 'background-color:#000; border-color: #000; color: #fff;' } //black, white
+                { name: "Mission Closed", cssStyle: {'background-color':'#000', 'border-color': '#000', 'color': '#fff'} } //black, white
             ];
 
 
@@ -3299,7 +3299,7 @@
                             group: item.Id,
                             start: moment.utc(item.ExpectedExecution),
                             end: moment.utc(item.ExpectedTermination),
-                            style: _.find(scope.statusColorLegend, { name: item.Status }).cssStyle,
+                            style: convertFromCssObjectToString(_.find(scope.statusColorLegend, { name: item.Status }).cssStyle),
                             title: item.buildOnHoverText()
                         };
                     })
@@ -3323,6 +3323,12 @@
             }
         }
 
+        function convertFromCssObjectToString(cssObj){
+            return _.map(cssObj, function(val, key){
+                return key + ":" + val;
+            }).join(';');
+        }
+
         function buildLegendHtml() {
             var html = '<div style="position:relative;">';
             html += buildShowLegendHyperlink();
@@ -3342,7 +3348,7 @@
                                     <p class="ms-Callout-subText ms-Callout-subText--s">\
                                         <table>\
                                             <tr ng-repeat="status in statusColorLegend">\
-                                                <td style="{{status.cssStyle + \';width:25px;\'}}">&nbsp;</td>\
+                                                <td style="width:25px;" ng-style="{{status.cssStyle}}">&nbsp;</td>\
                                                 <td>{{status.name}}</td>\
                                             </tr>\
                                         </table>\
