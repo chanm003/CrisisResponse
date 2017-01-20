@@ -21,7 +21,6 @@
                 <uif-table-header>Title</uif-table-header>
                 <uif-table-header>Mission</uif-table-header>
                 <uif-table-header uif-order-by="PocOrganization">POC</uif-table-header>
-                <uif-table-header uif-order-by="RecommendedOPR">OPR</uif-table-header>
                 <uif-table-header style="white-space:nowrap;" uif-order-by="RfiTrackingNumber">Tracking #</uif-table-header>
                 <uif-table-header uif-order-by="PrioritySort">Priority</uif-table-header>
                 <uif-table-header uif-order-by="LTIOV">LTIOV</uif-table-header>
@@ -36,15 +35,13 @@
                   <a class="custombtn" ng-click="vm.goToEditForm(item)">{{vm.getButtonText(item)}}</a>
                 </uif-table-cell>
                 <uif-table-cell>{{item.Title}}</uif-table-cell>
-                <uif-table-cell style="white-space:nowrap;">{{item.Mission.FullName}}</uif-table-cell>
+                <uif-table-cell >{{item.Mission.FullName}}</uif-table-cell>
                 <uif-table-cell style="white-space:nowrap;"><span title="{{item.PocName.Title}}">{{item.PocOrganization}}</span></uif-table-cell>
-                <uif-table-cell style="white-space:nowrap;">{{item.RecommendedOPR}}</uif-table-cell>
                 <uif-table-cell>{{item.RfiTrackingNumber}}</uif-table-cell>
-                <uif-table-cell>
-                  <div style="white-space:nowrap;" class="alert alert-warning" ng-class="{'alert-danger': item.Priority === 'Immediate (< 24 hrs)','alert-warning': item.Priority === 'Priority (24-48 hrs)', 'alert-default': item.Priority === 'Routine (48-96 hrs)'}"
-                    role="alert">
+                <uif-table-cell style="white-space:nowrap;">
+      
                     {{item.Priority}}
-                  </div>
+            
                 </uif-table-cell>
                 <uif-table-cell style="white-space:nowrap;">{{(item.LTIOV.isValid())? item.LTIOV.format('DD MMM YY HHmm[Z]').toUpperCase() : ''}}</uif-table-cell>
                 <uif-table-cell style="white-space:nowrap;" ng-show="vm.tabConfig.selectedPivot.title !== 'Open' && vm.tabConfig.selectedPivot.title !== 'Closed'">{{item.Status}}</uif-table-cell>
