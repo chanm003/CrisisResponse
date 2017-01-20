@@ -5,22 +5,13 @@
     </uif-pivot>
   </div>
   <div class="crt-tabcontent">
-
     <!--TAB 1 CONTENT -->
-    <div class="ms-Grid" ng-show="vm.tabConfig.selectedPivot.title === 'Timeline'">
-      <div class="ms-Grid-row">
-        <div class="ms-Grid-col ms-u-sm12 ms-u-md12 ms-u-lg12">
-          <mission-timeline missions="vm.missions" on-missions-filtered="vm.onMissionsFiltered(missions)" redirect-url-replace="vm.redirectUrlReplace(url)"></mission-timeline>
-        </div>
-      </div>
-    </div>
+    <mission-timeline ng-show="vm.tabConfig.selectedPivot.title === 'Timeline'" missions="vm.missions" on-missions-filtered="vm.onMissionsFiltered(missions)" redirect-url-replace="vm.redirectUrlReplace(url)"></mission-timeline>
 
-
-    <!--TAB 2 CONTENT | orderBy:table.orderBy:!table.orderAsc-->
-    <div class="ms-Grid" ng-show="vm.tabConfig.selectedPivot.title === 'Products'">
-      <div class="ms-Grid-row">
-        <div class="ms-Grid-col ms-u-sm10 ms-u-md10 ms-u-lg10">
-
+    <!--TAB 2 CONTENT -->
+    <table ng-show="vm.tabConfig.selectedPivot.title === 'Products'" style="width:100%;">
+      <tr>
+        <td style="vertical-align:top;">
           <uif-table>
             <uif-table-head>
               <uif-table-row>
@@ -49,10 +40,10 @@
               </uif-table-row>
             </uif-table-body>
           </uif-table>
-
-        </div>
-        <div class="ms-Grid-col ms-u-sm2 ms-u-md2 ms-u-lg2">
-          <uif-contextual-menu ng-show="vm.filterOptions.products.organization.length" uif-is-open="true" uif-multiselect="true" uif-close-on-click="false">
+        </td>
+        <td style="vertical-align:top;padding-left:10px;">
+          <uif-contextual-menu ng-show="vm.filterOptions.products.organization.length" uif-is-open="true" uif-multiselect="true" uif-close-on-click="false"
+            style="position:static;">
             <uif-contextual-menu-item uif-text="'Filter by Organization'" uif-type="header"></uif-contextual-menu-item>
             <uif-contextual-menu-item ng-repeat="item in vm.filterOptions.products.organization" uif-is-selected="item.isSelected" ng-click="vm.onFilterOptionClicked(item, 'missionRelatedDocs')">
               <uif-content>
@@ -60,26 +51,15 @@
               </uif-content>
             </uif-contextual-menu-item>
           </uif-contextual-menu>
-        </div>
-      </div>
-    </div>
-
+        </td>
+      </tr>
+    </table>
 
     <!--TAB 3 CONTENT -->
-    <div class="ms-Grid" ng-show="vm.tabConfig.selectedPivot.title === 'Chop'">
-      <div class="ms-Grid-row">
-        <div class="ms-Grid-col ms-u-sm12 ms-u-md12 ms-u-lg12">
-          <uif-contextual-menu uif-is-open="true" uif-multiselect="true" uif-close-on-click="false" style="margin-left:20px;position:static;float:right;"
-            class="ms-u-hiddenLgDown">
-            <uif-contextual-menu-item uif-text="'Filter by Status'" uif-type="header"></uif-contextual-menu-item>
-            <uif-contextual-menu-item ng-repeat="item in vm.filterOptions.chopProcesses.overallChopStatus" uif-is-selected="item.isSelected"
-              ng-click="vm.onFilterOptionClicked(item, 'chopProcesses')">
-              <uif-content>
-                <span style="font-size:11px;" title="{{item.key}}">{{item.key}}</span>
-              </uif-content>
-            </uif-contextual-menu-item>
-          </uif-contextual-menu>
-          <uif-table style="width:auto;">
+    <table ng-show="vm.tabConfig.selectedPivot.title === 'Chop'" style="width:100%;">
+      <tr>
+        <td style="vertical-align:top;">
+          <uif-table>
             <uif-table-head>
               <uif-table-row>
                 <uif-table-header uif-order-by="Mission.FullName">Mission</uif-table-header>
@@ -107,9 +87,21 @@
               </uif-table-row>
             </uif-table-body>
           </uif-table>
-        </div>
-      </div>
-    </div>
+        </td>
+        <td style="vertical-align:top;padding-left:10px;">
+          <div class="ms-Grid-col ms-u-sm12 ms-u-md12 ms-u-lg12">
+            <uif-contextual-menu uif-is-open="true" uif-multiselect="true" uif-close-on-click="false" style="position:static;">
+              <uif-contextual-menu-item uif-text="'Filter by Status'" uif-type="header"></uif-contextual-menu-item>
+              <uif-contextual-menu-item ng-repeat="item in vm.filterOptions.chopProcesses.overallChopStatus" uif-is-selected="item.isSelected"
+                ng-click="vm.onFilterOptionClicked(item, 'chopProcesses')">
+                <uif-content>
+                  <span style="font-size:11px;" title="{{item.key}}">{{item.key}}</span>
+                </uif-content>
+              </uif-contextual-menu-item>
+            </uif-contextual-menu>
+        </td>
+      </tr>
+    </table>
   </div>
 </div>
 

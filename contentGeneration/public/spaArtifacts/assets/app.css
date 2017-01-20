@@ -1124,7 +1124,8 @@ td.NA{
 }
 
 .crt-tabs{
-  border: 1px solid #c5c5c5;padding: .2em;border-top-left-radius: 3px;border-top-right-radius: 3px;border-bottom-left-radius: 3px;border-bottom-right-radius: 3px;
+  width:99%; display:table;
+  border: 1px solid #c5c5c5;padding: .2em;border-top-left-radius: 3px;border-top-right-radius: 3px;border-bottom-left-radius: 3px;border-bottom-right-radius: 3px; 
 }
 
 .crt-tablist{

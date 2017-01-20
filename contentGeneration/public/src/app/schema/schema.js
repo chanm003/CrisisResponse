@@ -1785,7 +1785,7 @@ crisisResponseSchema.listDefs["Inject"] = {
 			Required: "FALSE",
 			MaxLength: 255,
 			Default: "",							//(optional)		
-			Description: "Belly Button for coordination"
+			Description: ""
 		},
 		{
 			//EXAMPLE: Dropdown
