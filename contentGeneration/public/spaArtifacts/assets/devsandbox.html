@@ -32,6 +32,22 @@
 }
 </style>
 
+File Name:<br/>
+<textarea style="width:90%;" ng-model="vm.replaceExample.fileNameRelativeFromSpWeb" /> <br/>
+
+Pattern:<br/>
+<textarea style="width:90%;" ng-model="vm.replaceExample.pattern" /> <br/>
+
+Replace:<br/>
+<textarea style="width:90%;" ng-model="vm.replaceExample.replace" /> <br/>
+<br/>
+<uif-button type="button" ng-click="vm.updateFile()">Update File</uif-button>
+<br/>
+<p>
+	{{vm.replaceExample}}
+</p>
+<hr/>
+
 <uif-button type="button" ng-click="vm.testCopyAttachmentOperation()">Get File</uif-button>
 <uif-button type="button" ng-click="vm.onSendEmailButtonClicked()">Send Email</uif-button>
 <uif-button type="button" ng-click="vm.onShowCalloutButtonClicked()">Show Callout</uif-button>
