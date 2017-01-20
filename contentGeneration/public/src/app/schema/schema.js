@@ -1693,7 +1693,7 @@ crisisResponseSchema.listDefs["EXCON Watch Log"] = {
 			Type: "DateTime",
 			Required: "TRUE",
 			Format: "DateTime", 					//please use either 'DateOnly' or 'DateTime'
-			Default: ''						//(optional)	
+			Default: '[today]'						//(optional)	
 		},
 		{
 			//EXAMPLE: MULTIPLE LINE OF TEXT
