@@ -3720,7 +3720,7 @@
         var parts = [
             '<uif-panel uif-type="medium" uif-is-open="showPanel" uif-show-overlay="true" uif-show-close="true" close-panel="onPanelClosed()" uif-is-light-dismiss="false">',
             '   <uif-panel-header>',
-            '       {{document.Mission.FullName}}, Reviewer: {{selectedTab}}',
+            '       {{document.Mission.FullName}}, Reviewer: {{(selectedTab === \'CDR\') ? selectedStage.name : selectedTab}}',
             '   </uif-panel-header>',
             '   <uif-content>',
             generateTabsHtml(),
