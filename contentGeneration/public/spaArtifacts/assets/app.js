@@ -4373,7 +4373,7 @@
             var url;
 
             if(_.includes(['doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx'], fileExtension)){
-                url = _spPageContextInfo.webServerRelativeUrl + '/_layouts/15/WopiFrame2.aspx?action=interactivepreview&sourcedoc=' + item.File.ServerRelativeUrl;
+                url = _spPageContextInfo.webServerRelativeUrl + '/_layouts/15/WopiFrame2.aspx?action=default&sourcedoc=' + item.File.ServerRelativeUrl;
             } else {
                 url = item.File.ServerRelativeUrl;
             }
