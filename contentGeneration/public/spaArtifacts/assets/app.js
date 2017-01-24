@@ -3294,11 +3294,19 @@
                 var groups = new vis.DataSet(_.map(scope.missionsToShow, function (item) { return { id: item.Id, content: item.Identifier }; }));
                 var items = new vis.DataSet(
                     _.map(scope.missionsToShow, function (item) {
+                        var itemStart = moment.utc(item.ExpectedExecution);
+                        var itemEnd = null;
+                        if(item.ExpectedTermination){
+                            itemEnd = moment.utc(item.ExpectedTermination);
+                        } else {
+                            itemEnd = itemStart.clone().add(24, 'hours');
+                        }
+
                         return {
                             id: item.Id,
                             group: item.Id,
-                            start: moment.utc(item.ExpectedExecution),
-                            end: moment.utc(item.ExpectedTermination),
+                            start: itemStart,
+                            end: itemEnd,
                             style: convertFromCssObjectToString(_.find(scope.statusColorLegend, { name: item.Status }).cssStyle),
                             title: item.buildOnHoverText()
                         };
