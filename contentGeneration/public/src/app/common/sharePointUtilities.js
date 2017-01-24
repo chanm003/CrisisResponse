@@ -741,33 +741,25 @@
 				action.update();
 			});
 
-			var action = userCustomActions.add();
-			action.set_location("ScriptLink");
-			action.set_title('jocInBoxConfig.js');
-			action.set_scriptSrc('~site/SiteAssets/jocInBoxConfig.js');
-			action.set_sequence(1000 + sequenceCounter + 1);
-			action.update();
-
-			var action = userCustomActions.add();
-			action.set_location("ScriptLink");
-			action.set_title('populate-jocboxconfig.js');
-			action.set_scriptSrc('~site/SiteAssets/populate-jocboxconfig.js');
-			action.set_sequence(1000 + sequenceCounter + 2);
-			action.update();
-
-			var action = userCustomActions.add();
-			action.set_location("ScriptLink");
-			action.set_title('/displayTemplates.js');
-			action.set_scriptSrc(opts.cdn + "/displayTemplates.js");
-			action.set_sequence(1000 + sequenceCounter + 10);
-			action.update();
-
-			var action = userCustomActions.add();
-			action.set_location("ScriptLink");
-			action.set_title('app.js');
-			action.set_scriptSrc(opts.cdn + "/app.js");
-			action.set_sequence(1000 + sequenceCounter + 100);
-			action.update();
+			var appFiles = [
+				{name: 'jocInBoxConfig.js' },
+				{name: 'populate-jocboxconfig.js'},
+				{name: 'displayTemplates.js', useCDN: true},
+				{name: 'app.js', useCDN: true}
+			];
+			_.each(appFiles, function (file) {
+				var action = userCustomActions.add();
+				action.set_location("ScriptLink");
+				action.set_title(file.name);
+				if(file.useCDN){
+					action.set_scriptSrc(opts.cdn + "/" + file.name);
+				} else {
+					action.set_scriptSrc('~site/SiteAssets/' + file.name);
+				}
+				sequenceCounter = sequenceCounter + 10;
+				action.set_sequence(1000 + sequenceCounter);
+				action.update();
+			});
 
 			var siteActionMenuItem = userCustomActions.add();
 			siteActionMenuItem.set_location('Microsoft.SharePoint.StandardMenu');
