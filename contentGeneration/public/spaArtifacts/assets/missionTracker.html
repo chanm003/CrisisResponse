@@ -43,7 +43,7 @@
         </td>
         <td style="vertical-align:top;padding-left:10px;">
           <uif-contextual-menu ng-show="vm.filterOptions.products.organization.length" uif-is-open="true" uif-multiselect="true" uif-close-on-click="false"
-            style="position:static;">
+            style="position:static;float:right;">
             <uif-contextual-menu-item uif-text="'Filter by Organization'" uif-type="header"></uif-contextual-menu-item>
             <uif-contextual-menu-item ng-repeat="item in vm.filterOptions.products.organization" uif-is-selected="item.isSelected" ng-click="vm.onFilterOptionClicked(item, 'missionRelatedDocs')">
               <uif-content>
@@ -90,7 +90,7 @@
         </td>
         <td style="vertical-align:top;padding-left:10px;">
           <div class="ms-Grid-col ms-u-sm12 ms-u-md12 ms-u-lg12">
-            <uif-contextual-menu uif-is-open="true" uif-multiselect="true" uif-close-on-click="false" style="position:static;">
+            <uif-contextual-menu uif-is-open="true" uif-multiselect="true" uif-close-on-click="false" style="position:static;float:right;">
               <uif-contextual-menu-item uif-text="'Filter by Status'" uif-type="header"></uif-contextual-menu-item>
               <uif-contextual-menu-item ng-repeat="item in vm.filterOptions.chopProcesses.overallChopStatus" uif-is-selected="item.isSelected"
                 ng-click="vm.onFilterOptionClicked(item, 'chopProcesses')">

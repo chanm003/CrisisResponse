@@ -61,7 +61,7 @@
         </td>
         <td style="vertical-align:top;padding-left:10px;">
           <uif-contextual-menu ng-show="vm.filterControlDataSource.length" uif-is-open="true" uif-multiselect="true" uif-close-on-click="false"
-            style="position:static;">
+            style="position:static;float:right;">
             <uif-contextual-menu-item uif-text="'Filter by OPR'" uif-type="header"></uif-contextual-menu-item>
             <uif-contextual-menu-item ng-repeat="item in vm.filterControlDataSource" uif-is-selected="item.isSelected" ng-click="vm.applyFilters(item)">
               <uif-content>
