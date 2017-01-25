@@ -2681,7 +2681,7 @@
             $rootScope.$on("LVWP:initiatechopButtonClicked", function (evt, args) {
                 $q.all([
                     MissionDocumentRepository.getById(args.documentID),
-                    MissionTrackerRepository.getByOrganization(args.organization)
+                    MissionTrackerRepository.getByOrganization("")
                 ])
                     .then(function (data) {
                         scope.listItem = new MissionDocument(data[0]);
