@@ -3975,6 +3975,24 @@
 
 })(jocInBoxConfig.noConflicts.jQuery, jocInBoxConfig.noConflicts.lodash);
 
+/* Controller: MissionTrackerDispFormAspxController*/
+(function ($, _) {
+    angular
+        .module('app.core')
+        .controller('MissionTrackerDispFormAspxController', controller);
+
+    controller.$inject = ['$scope', '_', 'Mission', 'spContext', 'SPUtility'];
+    function controller($scope, _, Mission, spContext, SPUtility) {
+        $scope.showApprovalLevels = function(message){
+            $scope.genericModalOptions = {
+                title: "Approval Levels",
+                message: message
+            };
+            $scope.showGenericModal = true;
+        }
+    }
+})(jocInBoxConfig.noConflicts.jQuery, jocInBoxConfig.noConflicts.lodash);
+
 /* Controller: MissionTrackerDataEntryAspxController*/
 (function ($, _) {
     angular
@@ -3987,10 +4005,10 @@
         var itemOnEditFormAspxLoad = null;
         var org = _.extractOrgFromQueryString();
 
-        $scope.showApprovalLevels = function(){
+        $scope.showApprovalLevels = function(message){
             $scope.genericModalOptions = {
                 title: "Approval Levels",
-                message: generateApprovalAuthoritiesTableHtml(jocInBoxConfig.dashboards[org].routes)
+                message: message
             };
             $scope.showGenericModal = true;
         }
@@ -4041,15 +4059,6 @@
         function init() {
             itemOnEditFormAspxLoad = spContext.getContextFromEditFormASPX();
             wireUpEventHandlers();
-        }
-
-        function generateApprovalAuthoritiesTableHtml(approvalLevels){
-            console.log(approvalLevels);
-            var html = [
-                '<dl>',
-                '<% _.forEach(levels, function(level) { %><dt><%- level.name %></dt><dd><%- level.description || \'No description provided\' %></dd><% }); %>',
-                '</dl>'].join('');
-            return _.template(html)({levels: approvalLevels});
         }
 
         function wireUpEventHandlers() {
@@ -5227,6 +5236,12 @@
             spPage.attr('ng-controller', 'MissionTrackerDataEntryAspxController as vm');
             spPage.append("<genericdialog></genericdialog>");
         }
+
+        if (_.includes(currentURL, '/LISTS/MISSIONTRACKER/DISPFORM.ASPX')) {
+            spPage.attr('ng-controller', 'MissionTrackerDispFormAspxController as vm');
+            spPage.append("<genericdialog></genericdialog>");
+        }
+        
 
         if (_.includes(currentURL, '/LISTS/RFI/NEWFORM.ASPX') || _.includes(currentURL, '/LISTS/RFI/EDITFORM.ASPX')) {
             spPage.attr('ng-controller', 'RfiDataEntryAspxController as vm');

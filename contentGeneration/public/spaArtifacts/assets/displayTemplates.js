@@ -64,7 +64,7 @@
                         //LIST(s): Inject, RFI 
                         'ActionsHtml': { 'View': renderActionButton },
                         //LIST(s): Mission Tracker
-                        'ApprovalAuthority': { 'EditForm': renderApprovalAuthorityDropdown, 'NewForm': renderApprovalAuthorityDropdown },
+                        'ApprovalAuthority': { 'EditForm': renderApprovalAuthorityDropdown, 'NewForm': renderApprovalAuthorityDropdown, 'DisplayForm': renderApprovalAuthorityLabel },
                         //LIST(s): Mission Documents
                         'ChopProcessInitiationDate': { 'View': renderActionButton },
                         //LIST(s): Mission Tracker
@@ -217,6 +217,11 @@
                 }
             }
 
+            function renderApprovalAuthorityLabel(ctx) {
+                var approvalAuthorities = jocInBoxConfig.dashboards[ctx.CurrentItem.Organization].routes;
+                return SPField_FormDisplay_Default(ctx) + " " + generateHelpIconForApprovalAuthority(approvalAuthorities);
+            }
+
             function renderApprovalAuthorityDropdown(ctx) {
 
                 try {
@@ -237,9 +242,7 @@
                     }
 
                     function buildHtmlForControl(ctx, approvalAuthorities){
-                        var infoMessage_customDescriptions = '<br />';
-                        infoMessage_customDescriptions = ' <span id="ms-pageDescriptionImage" style="cursor:pointer;" ng-click="showApprovalLevels()">&nbsp;</span>';
-                        return SPFieldChoice_Edit(ctx).replace('<br />', infoMessage_customDescriptions);
+                        return SPFieldChoice_Edit(ctx).replace('<br />', generateHelpIconForApprovalAuthority(approvalAuthorities));
                     }
                 }
                 catch (err) {
@@ -247,6 +250,18 @@
                 }
             };
 
+            function generateHelpIconForApprovalAuthority(approvalLevels){
+                var message = generateHtml();
+                return ' <span id="ms-pageDescriptionImage" style="cursor:pointer;" ng-click="showApprovalLevels(\''+message+'\')">&nbsp;</span>';
+                function generateHtml(){
+                    var html = [
+                        '<dl>',
+                        '<% _.forEach(levels, function(level) { %><dt><%- level.name %></dt><dd><%- level.description || \'No description provided\' %></dd><% }); %>',
+                        '</dl>'].join('');
+                    return _.template(html)({levels: approvalLevels});
+                }
+            }
+            
             function getExerciseConductor(){
                 //finishes thru iteration of all keys in object (no short-circuit)
                 var nameOfConductor = "";
