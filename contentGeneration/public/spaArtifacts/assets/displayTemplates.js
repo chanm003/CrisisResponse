@@ -358,6 +358,14 @@
             }
         }
 
+        function getWebPartDiv(ctx) {
+            /**
+             * Webparts are automatically assigned id attributes, so if eight webparts on the screen:
+             * <div id="MSOZoneCell_WebPartWPQ8"></div>
+             */
+            return $("div[id='MSOZoneCell_WebPart" + ctx.wpq + "']");
+        }
+
         function modifyListViewWebpartsPostRender(ctx) {
             var webPartDiv = getWebPartDiv(ctx);
 
@@ -445,14 +453,6 @@
                     webPartDiv.find("table[id^='Hero-']").remove();
                 }
             }
-
-            function getWebPartDiv(ctx) {
-                /**
-                 * Webparts are automatically assigned id attributes, so if eight webparts on the screen:
-                 * <div id="MSOZoneCell_WebPartWPQ8"></div>
-                 */
-                return $("div[id='MSOZoneCell_WebPart" + ctx.wpq + "']");
-            }
         }
 
         function modifyListViewWebpartsFooter(ctx) {
@@ -461,8 +461,22 @@
             }
         }
 
+        function isOrgDashboard(){
+            return _.some(['SOCC.ASPX', 'SOAC.ASPX', 'SOTG.ASPX', 'EXCON.ASPX', 'COMMS.ASPX'], function(aspxPage){
+                return _.includes(document.location.href.toUpperCase(), '/'+aspxPage);
+            });
+        }
+
+        function collapseGroupsForLVWP(ctx){
+            if(isOrgDashboard()){
+                var webPartDiv = getWebPartDiv(ctx);
+                webPartDiv.find("img.ms-commentcollapse-icon").click();
+            }
+        }
+
         function modifyListFormsPostRender(ctx){
             makeDateTimeFieldsReadOnly();
+            collapseGroupsForLVWP(ctx);
             customizeRfiForm(ctx);
             customizeMissionTrackerForm(ctx);
             customizeMissionDocumentsForm(ctx);
