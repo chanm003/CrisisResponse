@@ -312,6 +312,7 @@
         service.sendEmail = sendEmail;
         service.generateEmailBody = generateEmailBody;
         service.getUserInfoListItem = getUserInfoListItem;
+        service.getGroupByDescription = getGroupByDescription
 
         service.htmlHelpers = {};
         service.htmlHelpers.buildHeroButton = function (text, href, ngShowAttrValue) {
@@ -558,6 +559,21 @@
         function getUserInfoListItem(userID){
             var ngResource = $resource( _spPageContextInfo.webServerRelativeUrl + "/_api/web/SiteUserInfoList/Items(:userId)",
                 { userId: userID },
+                {
+                    get: {
+                        method: 'GET',
+                        headers: defaultHeaders
+                    }
+                });
+            return ngResource.get().$promise
+                .then(function(response){
+                    return response.d;
+                });
+        }
+
+        function getGroupByDescription(description){
+            var ngResource = $resource( _spPageContextInfo.siteAbsoluteUrl + "/_api/web/SiteGroups?$filter=Description eq ':description'",
+                { description: description },
                 {
                     get: {
                         method: 'GET',
@@ -3530,6 +3546,44 @@
                 '</div>'
             ].join('');
             return parts;
+        }
+    }
+})(jocInBoxConfig.noConflicts.jQuery, jocInBoxConfig.noConflicts.lodash);
+
+/* Directive: exconGroupLink */
+(function ($, _) {
+    angular
+        .module('app.core')
+        .directive('exconGroupLink', generateDirectiveDef);
+
+    generateDirectiveDef.$inject = ['config', 'spContext', 'logger'];
+    function generateDirectiveDef(config, spContext, logger) {
+        /* 
+        USAGE: <excon-group-link></excon-group-link>
+        */
+        var directiveDefinition = {
+            restrict: 'E',
+            scope: {
+            },
+            link: link,
+            template: '<uif-message-bar><uif-content>To grant/revoke users click:</uif-content> <uif-link ng-click="findGroup()">here</uif-link> </uif-message-bar>'
+        };
+        return directiveDefinition;
+
+        function link(scope, elem, attrs) {
+            scope.findGroup = function(){
+                var groupDescription = "Created by wizard to support site: " + _spPageContextInfo.webServerRelativeUrl;
+                spContext.getGroupByDescription(groupDescription)
+                    .then(function(data){
+                        if(data.results.length !== 0){
+                            var spGroup = data.results[0];
+                            var manageUrl = _spPageContextInfo.siteAbsoluteUrl + '/_layouts/15/people.aspx?MembershipGroupId=' + spGroup.Id;
+                            window.open(manageUrl, "_blank")
+                        } else {
+                            alert('Error: Could not find a group with the description: "' + groupDescription + '"');
+                        }
+                    });
+            }
         }
     }
 })(jocInBoxConfig.noConflicts.jQuery, jocInBoxConfig.noConflicts.lodash);

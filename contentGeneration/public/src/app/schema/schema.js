@@ -2569,7 +2569,7 @@ crisisResponseSchema.webpartPageDefs['Exercise Conductor Page'] = {
 			viewFields: ['DocIcon', 'LinkFilename', 'Modified', 'Editor'],
 			viewCAML: '<GroupBy Collapse="FALSE" GroupLimit="30"><FieldRef Name="TypeOfDocument"/></GroupBy><OrderBy><FieldRef Name="FileLeafRef"/></OrderBy>',
 			zoneName: 'Right',
-			zoneIndex: 1
+			zoneIndex: 10
 		},
 		{
 			listTitle: 'Inject',
@@ -2591,6 +2591,23 @@ crisisResponseSchema.webpartPageDefs['Exercise Conductor Page'] = {
 			viewFields: ['Attachments', 'ActionsHtml', 'DTG','LinkTitle', 'OriginatorSender', 'Receiver', 'DeskResponsible', 'TaskInfo', 'ReviewedForRelease', 'IIRNumber', 'TargetEvent', 'TargetEventDate'],
 			viewCAML: '<OrderBy><FieldRef Name="DateTimeGroup"/></OrderBy><Where><Eq><FieldRef Name="Status"/><Value Type="Text">Pending</Value></Eq></Where>',
 			zoneName: 'Bottom',
+			zoneIndex: 0
+		}
+	],
+	scriptEditorWebparts: [
+		{
+			name: 'EXCON Group Link',
+			webPartProperties: [
+				{
+					attributes: {name: 'Content', type: 'string'},
+					innerText: '&lt;excon-group-link&gt;&lt;/excon-group-link&gt;'
+				},
+				{
+					attributes: {name: 'Title', type: 'string'},
+					innerText: 'Manage Permissions for this Page'
+				}
+			],
+			zoneName: 'Right',
 			zoneIndex: 0
 		}
 	]
