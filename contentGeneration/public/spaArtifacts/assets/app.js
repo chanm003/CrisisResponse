@@ -313,7 +313,6 @@
         service.generateEmailBody = generateEmailBody;
         service.getUserInfoListItem = getUserInfoListItem;
         service.getGroupByDescription = getGroupByDescription
-        service.modifyExistingFile = modifyExistingFile;
 
         service.htmlHelpers = {};
         service.htmlHelpers.buildHeroButton = function (text, href, ngShowAttrValue) {
@@ -570,58 +569,6 @@
                 .then(function(response){
                     return response.d;
                 });
-        }
-
-        function modifyExistingFile(opts){
-            return getFileBody(opts)
-                .then(updateFileBody);
-
-            function getFileBody(opts){
-                var dfd = $q.defer();
-                var fileContentUrl = opts.webUrl + "/_api/web/GetFileByServerRelativeUrl('" + opts.fileServerRelativeUrl + "')/$value";
-                var executor = new SP.RequestExecutor(opts.webUrl);
-                var request = {
-                    url: fileContentUrl,
-                    method: "GET",
-                    binaryStringResponseBody: false,
-                    success: function (data) {
-                        opts.currentFileBody = data.body;
-                        dfd.resolve(opts);
-                    },
-                    error: function (err) {
-                        dfd.reject(JSON.stringify(err));
-                    }
-                };
-                executor.executeAsync(request);
-                return dfd.promise;
-            }
-
-            function updateFileBody(opts){
-                //replace opts.currentFileBody, opts.pattern,  opts.replace
-                var pattern = new RegExp(opts.pattern, 'g');
-                opts.newBody = opts.currentFileBody.replace(pattern, opts.replace);
-                var dfd = $q.defer();
-                var spUrl = opts.webUrl + "/_api/web/GetFileByServerRelativeUrl('" + opts.fileServerRelativeUrl + "')/$value";
-                var executor = new SP.RequestExecutor(opts.webUrl);
-                executor.executeAsync({
-                    url: spUrl,
-                    method: "POST",
-                    binaryStringResponseBody: false,
-                    body: opts.newBody,
-                    headers: {
-                        "X-HTTP-Method": "PUT",
-                        "X-RequestDigest": service.securityValidation
-                    },
-                    success: function(){
-                        dfd.resolve(opts);
-                    },
-                    error: function(){
-                        dfd.reject();
-                    },
-                    state: "Update"
-                });
-                return dfd.promise;
-            }
         }
 
         function getGroupByDescription(description){

@@ -81,7 +81,8 @@
 				.then(seedRouteConfigurationListWithItems)
 				.then(provisionFilesToSiteAssets)
 				.then(provisionFilesToSitePages)
-				.then(addQuerystringFilterWebParts);
+				.then(addQuerystringFilterWebParts)
+				.then(connectQuerystringFilterWebParts);
 		}
 
 		vm.addComponentCommand = function () {
@@ -173,6 +174,66 @@
 					aspxFileUrl: vm.childWebUrl + '/SitePages/excon.aspx',
 					zoneName: 'QsFilter',
 					zoneIndex: 0
+				});
+			}
+		}
+
+		function connectQuerystringFilterWebParts(){
+			return connectOnSoccPage()
+				.then(connectOnSotgPage)
+				.then(connectOnSoacPage)
+				.then(connectOnExconPage)
+				.then(connectOnCommsPage);
+
+			function connectOnSoccPage(){
+				return sharepointUtilities.connectQuerystringWebPartFilter({
+					webUrl: vm.childWebUrl,
+					fileServerRelativeUrl: vm.childWebUrl + '/SitePages/socc.aspx',
+					listsToConnect: crisisResponseSchema.listsToConnectWithQueryStringWebPart
+				});
+			}
+
+			function connectOnSotgPage(){
+				return sharepointUtilities.connectQuerystringWebPartFilter({
+					webUrl: vm.childWebUrl,
+					fileServerRelativeUrl: vm.childWebUrl + '/SitePages/sotg.aspx',
+					listsToConnect: crisisResponseSchema.listsToConnectWithQueryStringWebPart
+				});
+			}
+
+			function connectOnSoacPage(){
+				if(!vm.optionalFeatures["Air Component"]){
+					//SKIP this step
+					return $q.when({});
+				}
+				return sharepointUtilities.connectQuerystringWebPartFilter({
+					webUrl: vm.childWebUrl,
+					fileServerRelativeUrl: vm.childWebUrl + '/SitePages/soac.aspx',
+					listsToConnect: crisisResponseSchema.listsToConnectWithQueryStringWebPart
+				});
+			}
+
+			function connectOnCommsPage(){
+				if(!vm.optionalFeatures["Communications Component"]){
+					//SKIP this step
+					return $q.when({});
+				}
+				return sharepointUtilities.connectQuerystringWebPartFilter({
+					webUrl: vm.childWebUrl,
+					fileServerRelativeUrl: vm.childWebUrl + '/SitePages/comms.aspx',
+					listsToConnect: crisisResponseSchema.listsToConnectWithQueryStringWebPart
+				});
+			}
+
+			function connectOnExconPage(){
+				if(!vm.optionalFeatures["Exercise Control Group"]){
+					//SKIP this step
+					return $q.when({});
+				}
+				return sharepointUtilities.connectQuerystringWebPartFilter({
+					webUrl: vm.childWebUrl,
+					fileServerRelativeUrl: vm.childWebUrl + '/SitePages/excon.aspx',
+					listsToConnect: crisisResponseSchema.listsToConnectWithQueryStringWebPart
 				});
 			}
 		}

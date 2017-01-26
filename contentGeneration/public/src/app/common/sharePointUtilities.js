@@ -12,6 +12,7 @@
 		return {
 			addQsFilterWebPartToPage: addQsFilterWebPartToPage,
 			assignUniquePermissions: assignUniquePermissions,
+			connectQuerystringWebPartFilter: connectQuerystringWebPartFilter, 
 			copyFile: copyFile,
 			createOrUpdateFile: createOrUpdateFile,
 			createList: createList,
@@ -25,6 +26,7 @@
 			getLists: getLists,
 			getFilesFromFolder: getFilesFromFolder,
 			getSharepointGroups: getSharepointGroups,
+			getWebParts: getWebParts,
 			provisionListViewWebparts: provisionListViewWebparts,
 			provisionScriptEditorWebparts: provisionScriptEditorWebparts,
 			seedWithListItems: seedWithListItems,
@@ -315,6 +317,68 @@
 			function onQueryFailed(sender, args) {
 				logger.logError('Request failed: ' + args.get_message(), args.get_stackTrace(), 'sharepointUtilities service, assignUniquePermissions()');
 				dfd.reject();
+			}
+		}
+
+		function connectQuerystringWebPartFilter(opts){
+			return getWebParts(opts).then(modifyAspxPageWithQueryFilterWebPart);
+			
+			function modifyAspxPageWithQueryFilterWebPart(webParts){
+				var qsFilterWebPart = _.find(webParts, function(item){ return !!item.WebPart.Properties.QueryStringParameterName;} );
+				var listViewWebParts = _.filter(webParts, function(item){ 
+					return opts.listsToConnect.hasOwnProperty(item.WebPart.Properties.ListUrl);
+				});
+
+				if(qsFilterWebPart && listViewWebParts.length){
+					var newContent = generateWebpartConnections(qsFilterWebPart, listViewWebParts, opts.listsToConnect);
+					opts.pattern = '<div id="SPProxyWebPartManagerReplace">(.*?)<\/div>';
+					opts.replace = '<div id="SPProxyWebPartManagerReplace">'+newContent+'</div>';
+					return modifyExistingFile(opts)
+						.then(function(){
+							logger.logSuccess('QuerystringFilterWebPart configured on: ' + opts.fileServerRelativeUrl, null, 'sharepointUtilities service, connectQuerystringWebPartFilter()');
+							return;
+						})
+						.catch(function(){
+							logger.logError('QuerystringFilterWebPart configuration failed on: ' + opts.fileServerRelativeUrl, null, 'sharepointUtilities service, connectQuerystringWebPartFilter()');
+						});
+				} else {
+					//either no QueryStringFilterWebPart or no ListViewWebParts for pertinent lists
+					logger.logSuccess('No webparts to connect on: ' + opts.fileServerRelativeUrl, null, 'sharepointUtilities service, connectQuerystringWebPartFilter()');
+					return $q.when();
+				}
+			}
+
+			function generateWebpartConnections(qsFilterWebPart, listViewWebParts, listsToConnect){
+				var patternForDash = new RegExp('-', 'g');
+				var qsFilterWebPartID = 'g_' + qsFilterWebPart.Id.replace(patternForDash, '_');
+				var objects = _.map(listViewWebParts, function(lvwp){
+
+					var lvwpID = lvwp.Id.replace(patternForDash, '_');
+					return {
+						ConsumerConnectionPointID: 'DFWP Filter Consumer ID',
+						ConsumerID: 'g_' + lvwpID,
+						ID: 'x_' + lvwpID,
+						ProviderConnectionPointID: 'ITransformableFilterValues',
+						ProviderID: qsFilterWebPartID,
+						ConsumerFieldNames: listsToConnect[lvwp.WebPart.Properties.ListUrl].getConsumerField(lvwp.WebPart.Properties.Title),
+						ProviderFieldNames: qsFilterWebPart.WebPart.Properties.FilterName
+					}	
+				});
+
+				var str = '<WebPartPages:SPProxyWebPartManager runat="server"><SPWebPartConnections>';
+
+				_.each(objects, function(object){
+					str += '<WebPartPages:SPWebPartConnection ConsumerConnectionPointID="DFWP Filter Consumer ID" ProviderConnectionPointID="ITransformableFilterValues" ';
+					str += 'ID="' + object.ID + '" ';
+					str += 'ConsumerID="' + object.ConsumerID + '" ';
+					str += 'ProviderID="' + object.ProviderID + '" ';
+					str += '>'
+					str += '<WebPartPages:TransformableFilterValuesToParametersTransformer ConsumerFieldNames="'+object.ConsumerFieldNames+'" ProviderFieldNames="'+object.ProviderFieldNames+'"/>';
+					str += '</WebPartPages:SPWebPartConnection>'
+				});
+
+				str += '</SPWebPartConnections></WebPartPages:SPProxyWebPartManager>';
+				return str;
 			}
 		}
 
@@ -1155,6 +1219,76 @@
 					return response.data.d.results;
 				});
 		}
+
+		function getWebParts(opts){
+			var url = opts.webUrl + "/_api/web/getFileByServerRelativeUrl('"+opts.fileServerRelativeUrl+"')/getlimitedWebpartManager(0)/webparts?$expand=WebPart/Properties";
+			return $http({
+					method: "GET",
+					url: url,
+					headers: {
+						'Accept': 'application/json;odata=verbose',
+						'Content-Type': 'application/json;odata=verbose',
+						'X-Requested-With': 'XMLHttpRequest'
+					}
+				})
+				.then(function(response){
+					return response.data.d.results;
+				});
+		}
+
+		function modifyExistingFile(opts){
+			opts.destinationWebUrl = opts.webUrl;
+            return getFileBody(opts)
+				.then(getFormDigestForTargetSite)
+                .then(updateFileBody);
+
+            function getFileBody(opts){
+                var dfd = $q.defer();
+                var fileContentUrl = opts.webUrl + "/_api/web/GetFileByServerRelativeUrl('" + opts.fileServerRelativeUrl + "')/$value";
+                var executor = new SP.RequestExecutor(opts.webUrl);
+                var request = {
+                    url: fileContentUrl,
+                    method: "GET",
+                    binaryStringResponseBody: false,
+                    success: function (data) {
+                        opts.currentFileBody = data.body;
+                        dfd.resolve(opts);
+                    },
+                    error: function (err) {
+                        dfd.reject(JSON.stringify(err));
+                    }
+                };
+                executor.executeAsync(request);
+                return dfd.promise;
+            }
+
+            function updateFileBody(opts){
+                //replace opts.currentFileBody, opts.pattern,  opts.replace
+                var pattern = new RegExp(opts.pattern, 'g');
+                opts.newBody = opts.currentFileBody.replace(pattern, opts.replace);
+                var dfd = $q.defer();
+                var spUrl = opts.webUrl + "/_api/web/GetFileByServerRelativeUrl('" + opts.fileServerRelativeUrl + "')/$value";
+                var executor = new SP.RequestExecutor(opts.webUrl);
+                executor.executeAsync({
+                    url: spUrl,
+                    method: "POST",
+                    binaryStringResponseBody: false,
+                    body: opts.newBody,
+                    headers: {
+                        "X-HTTP-Method": "PUT",
+                        "X-RequestDigest": opts.formDigestForTargetWeb
+                    },
+                    success: function(){
+                        dfd.resolve(opts);
+                    },
+                    error: function(){
+                        dfd.reject();
+                    },
+                    state: "Update"
+                });
+                return dfd.promise;
+            }
+        }
 
 		function provisionListViewWebparts(webpartPageDef) {
 			var webpartDefs = _.map(webpartPageDef.listviewWebparts, function (def) {
