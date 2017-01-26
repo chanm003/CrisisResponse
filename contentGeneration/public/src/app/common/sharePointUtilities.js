@@ -10,6 +10,7 @@
 	function dataservice($http, $location, $q, fieldXmlGeneration, logger) {
 
 		return {
+			addQsFilterWebPartToPage: addQsFilterWebPartToPage,
 			assignUniquePermissions: assignUniquePermissions,
 			copyFile: copyFile,
 			createOrUpdateFile: createOrUpdateFile,
@@ -215,6 +216,58 @@
 					logger.logError('Request to create webpart (' + opts.name + ') failed on ' + opts.aspxFileUrl + ': ' + args.get_message(), args.get_stackTrace(), 'sharepointUtilities service, addScriptEditorWebpart()');
 					dfd.reject();
 				}
+			}
+		}
+
+		function addQsFilterWebPartToPage(opts) {
+			var dfd = $q.defer();
+			var xmlToImport = generateXmlDef(opts);
+
+			var ctx = new SP.ClientContext(opts.webUrl);
+			var spWeb = ctx.get_web();
+			var aspxFile = spWeb.getFileByServerRelativeUrl(opts.aspxFileUrl);
+			var wpManager = aspxFile.getLimitedWebPartManager(SP.WebParts.PersonalizationScope.shared);
+			var wpDefinition = wpManager.importWebPart(xmlToImport);
+			var wp = wpDefinition.get_webPart();
+			wpManager.addWebPart(wp, opts.zoneName, opts.zoneIndex);
+
+			ctx.load(wp);
+
+			ctx.executeQueryAsync(
+				Function.createDelegate(this, onWebpartAdded),
+				Function.createDelegate(this, onQueryFailed)
+			);
+
+			return dfd.promise;
+
+			function generateXmlDef(opts) {
+				return '\
+					<webParts>\
+						<webPart xmlns="http://schemas.microsoft.com/WebPart/v3">\
+							<metaData>\
+							<type name="Microsoft.SharePoint.Portal.WebControls.QueryStringFilterWebPart, Microsoft.Office.Server.FilterControls, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c" />\
+							<importErrorMessage>Cannot import this web part.</importErrorMessage>\
+							</metaData>\
+							<data>\
+							<properties>\
+								<property name="FilterName" type="string">QueryString</property>\
+								<property name="QueryStringParameterName" type="string">org</property>\
+								<property name="DefaultValue" type="string">________</property>\
+								<property name="Title" type="string">Query String (URL) Filter</property>\
+							</properties>\
+							</data>\
+						</webPart>\
+					</webParts>';
+			}
+
+			function onWebpartAdded() {
+				logger.logSuccess('Querystring Filter Webpart added on ' + opts.aspxFileUrl, null, 'sharepointUtilities service, addQsFilterWebPartToPage()');
+				dfd.resolve();
+			}
+
+			function onQueryFailed(sender, args) {
+				logger.logError('Request to add Querystring Filter Webpart failed on ' + opts.aspxFileUrl + ': ' + args.get_message(), args.get_stackTrace(), 'sharepointUtilities service, addQsFilterWebPartToPage()');
+				dfd.reject();
 			}
 		}
 

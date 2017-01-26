@@ -4818,7 +4818,7 @@
 
         vm.replaceExample = {
             pathToFile: _spPageContextInfo.webServerRelativeUrl + '/SitePages/mike.aspx',
-            pattern: '<div class="SPProxyWebPartManagerReplace">(.*?)<\/div>'
+            pattern: '<div id="SPProxyWebPartManagerReplace">(.*?)<\/div>'
         };
 
         vm.updateFile = function(){
@@ -4838,7 +4838,7 @@
 
         function generateRandomReplaceText(){
             var newContent = '<asp:Label runat="server" Text="'+moment().toISOString()+'"></asp:Label>';
-            return '<div class="SPProxyWebPartManagerReplace">'+newContent+'</div>'
+            return '<div id="SPProxyWebPartManagerReplace">'+newContent+'</div>'
         }     
 
         activate();

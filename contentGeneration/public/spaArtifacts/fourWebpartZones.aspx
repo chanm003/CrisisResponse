@@ -4,6 +4,7 @@
 <%@ Import Namespace="Microsoft.SharePoint" %> 
 <%@ Assembly Name="Microsoft.Web.CommandUI, Version=15.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c" %> 
 <%@ Register Tagprefix="WebPartPages" Namespace="Microsoft.SharePoint.WebPartPages" Assembly="Microsoft.SharePoint, Version=15.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c" %>
+<%@ Register TagPrefix="SPSWC" Namespace="Microsoft.SharePoint.Portal.WebControls" Assembly="Microsoft.Office.Server.FilterControls, Version=15.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c" %>
 <asp:Content ContentPlaceHolderId="PlaceHolderPageTitle" runat="server">
 	<SharePoint:ProjectProperty Property="Title" runat="server"/> 
 </asp:Content>
@@ -18,6 +19,9 @@
     <SharePoint:ScriptLink Name="sp.publishing.js" OnDemand="false" runat="server" Localizable="false" LoadAfterUI="true"/>
 </asp:Content>
 <asp:Content ContentPlaceHolderID="PlaceHolderMain" runat="server">
+    <!--WebPart Connections-->
+	<div id="SPProxyWebPartManagerReplace"></div>
+
 	<table width="100%" border="0" cellpadding="0" cellspacing="0" style="padding:0px 10px 10px 10px;">
         <tr>
             <td colspan="2" valign="top">
@@ -38,4 +42,9 @@
             </td>
         </tr>
     </table>
+
+    <!--QueryString Filter WebPart (Must register TagPrefix for Microsoft.Office.Server.FilterControls)-->
+    <div id="qsFilterWebpartContainer">
+    	<WebPartPages:WebPartZone runat="server" FrameType="TitleBarOnly" ID="QsFilter" Title="loc:QsFilter"><ZoneTemplate></ZoneTemplate></WebPartPages:WebPartZone>
+	</div>
 </asp:Content>

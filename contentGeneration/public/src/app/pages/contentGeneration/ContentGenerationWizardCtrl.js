@@ -80,7 +80,8 @@
 				.then(generateMenuItems)
 				.then(seedRouteConfigurationListWithItems)
 				.then(provisionFilesToSiteAssets)
-				.then(provisionFilesToSitePages);
+				.then(provisionFilesToSitePages)
+				.then(addQuerystringFilterWebParts);
 		}
 
 		vm.addComponentCommand = function () {
@@ -110,6 +111,71 @@
 		}
 
 		init();
+
+		function addQuerystringFilterWebParts(){
+			return addToSoccPage()
+				.then(addToSotgPage)
+				.then(addToSoacPage)
+				.then(addToExconPage)
+				.then(addToCommsPage);
+
+			function addToSoccPage(){
+				return sharepointUtilities.addQsFilterWebPartToPage({
+					webUrl: vm.childWebUrl,
+					aspxFileUrl: vm.childWebUrl + '/SitePages/socc.aspx',
+					zoneName: 'QsFilter',
+					zoneIndex: 0
+				});
+			}
+
+			function addToSotgPage(){
+				return sharepointUtilities.addQsFilterWebPartToPage({
+					webUrl: vm.childWebUrl,
+					aspxFileUrl: vm.childWebUrl + '/SitePages/sotg.aspx',
+					zoneName: 'QsFilter',
+					zoneIndex: 0
+				});
+			}
+
+			function addToSoacPage(){
+				if(!vm.optionalFeatures["Air Component"]){
+					//SKIP this step
+					return $q.when({});
+				}
+				return sharepointUtilities.addQsFilterWebPartToPage({
+					webUrl: vm.childWebUrl,
+					aspxFileUrl: vm.childWebUrl + '/SitePages/soac.aspx',
+					zoneName: 'QsFilter',
+					zoneIndex: 0
+				});
+			}
+
+			function addToCommsPage(){
+				if(!vm.optionalFeatures["Communications Component"]){
+					//SKIP this step
+					return $q.when({});
+				}
+				return sharepointUtilities.addQsFilterWebPartToPage({
+					webUrl: vm.childWebUrl,
+					aspxFileUrl: vm.childWebUrl + '/SitePages/comms.aspx',
+					zoneName: 'QsFilter',
+					zoneIndex: 0
+				});
+			}
+
+			function addToExconPage(){
+				if(!vm.optionalFeatures["Exercise Control Group"]){
+					//SKIP this step
+					return $q.when({});
+				}
+				return sharepointUtilities.addQsFilterWebPartToPage({
+					webUrl: vm.childWebUrl,
+					aspxFileUrl: vm.childWebUrl + '/SitePages/excon.aspx',
+					zoneName: 'QsFilter',
+					zoneIndex: 0
+				});
+			}
+		}
 
 		function createCoreLists() {
 			return createAARList()
