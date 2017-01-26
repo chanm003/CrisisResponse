@@ -41,6 +41,10 @@ body #suiteBarLeft{
 	margin-right: 10px;
 }
 
+#qsFilterWebpartContainer .ms-webpartzone-cell{
+  border:none;
+}
+
 .ms-webpartzone-cell > .ms-webpart-chrome > .ms-WPBorder{
 	border:none;
 }
