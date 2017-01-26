@@ -247,7 +247,7 @@
 					<webParts>\
 						<webPart xmlns="http://schemas.microsoft.com/WebPart/v3">\
 							<metaData>\
-							<type name="Microsoft.SharePoint.Portal.WebControls.QueryStringFilterWebPart, Microsoft.Office.Server.FilterControls, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c" />\
+							<type name="Microsoft.SharePoint.Portal.WebControls.QueryStringFilterWebPart, Microsoft.Office.Server.FilterControls, Version=15.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c" />\
 							<importErrorMessage>Cannot import this web part.</importErrorMessage>\
 							</metaData>\
 							<data>\
