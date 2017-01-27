@@ -1680,64 +1680,6 @@ crisisResponseSchema.listDefs["EXCON Documents"] = {
 	]
 }
 
-crisisResponseSchema.listDefs["EXCON Watch Log"] = {
-	Title: "EXCON Watch Log",
-	BaseTemplate: 'genericList',
-	enableVersioning: false,
-	shouldHideTitleField: false,
-	fieldsToCreate:[
-		{
-			//EXAMPLE: DateTime
-			Name: "DateTimeGroup",
-			DisplayName: "Date Time Group",
-			Type: "DateTime",
-			Required: "TRUE",
-			Format: "DateTime", 					//please use either 'DateOnly' or 'DateTime'
-			Default: '[today]'						//(optional)	
-		},
-		{
-			//EXAMPLE: MULTIPLE LINE OF TEXT
-			Name: "EventDetails",
-			DisplayName: "Event Details",
-			Type: "Note",
-			Required: "FALSE",
-			NumLines: 6,
-			RichText: "FALSE",						//RECOMMENDED
-			AppendOnly: "FALSE"						//VERSIONING MUST BE TURNED ON, otherwise specifie "FALSE"	
-		},
-		{
-			//EXAMPLE: SINGLE LINE OF TEXT
-			Name: "ActionTaken",
-			DisplayName: "Action Taken",
-			Type: "Text",
-			Required: "FALSE",
-			MaxLength: 255,
-			Default: ""							//(optional)		
-		},
-		{
-			//EXAMPLE: SINGLE LINE OF TEXT
-			Name: "Initials",
-			DisplayName: "Initials",
-			Type: "Text",
-			Required: "TRUE",
-			MaxLength: 5,
-			Default: ""							//(optional)		
-		},
-		{
-			//EXAMPLE: Calculated
-			Name: 'DTG',
-			DisplayName: 'DTG',
-			Type: "Calculated",
-			Required: 'TRUE',
-			ResultType: 'Text',
-			ReadOnly: 'TRUE',
-			Formula: '=UPPER(TEXT([Date Time Group],"ddHHmm")&amp;"Z"&amp;(TEXT([Date Time Group],"MMMyy")))',
-			FieldRefs: ['DateTimeGroup'],
-			ShowInDisplayForm: 'FALSE'		
-		}
-	]
-};
-
 crisisResponseSchema.listDefs["Inject"] = {
 	Title: "Inject",
 	BaseTemplate: 'genericList',
@@ -2458,29 +2400,6 @@ crisisResponseSchema.webpartPageDefs['Exercise Conductor Page'] = {
 	folderName: 'SitePages',
 	aspxFileName: 'excon.aspx',
 	listviewWebparts: [
-		{
-			listTitle: 'EXCON Watch Log',
-			webPartProperties: [
-				{
-					attributes: {name: 'ListUrl', type: 'string'},
-					innerText: 'Lists/EXCONWatchLog'
-				},
-				{
-					attributes: {name: 'Title', type: 'string'},
-					innerText: 'Watch Log'
-				},
-				{
-					attributes: {name: 'TitleUrl', type: 'string'},
-					innerText: '#'
-				}
-			],
-			viewName: 'EXCON Watch Log',
-			viewFields: ['Attachments', 'DTG', 'LinkTitle', 'EventDetails', 'ActionTaken', 'Initials'],
-			viewCAML: '<OrderBy><FieldRef Name="DateTimeGroup" Ascending="FALSE"/></OrderBy>',
-			rowLimit: 5,
-			zoneName: 'Left',
-			zoneIndex: 0
-		},
 		{
 			listTitle: 'Message Traffic',
 			webPartProperties: [

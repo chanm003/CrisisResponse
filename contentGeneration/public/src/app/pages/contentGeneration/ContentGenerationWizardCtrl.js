@@ -399,12 +399,6 @@
 				return sharepointUtilities.createList(listSchemaDef);
 			}
 
-			function createWatchLogList(){
-				var listSchemaDef = crisisResponseSchema.listDefs["EXCON Watch Log"];
-				listSchemaDef.webUrl = vm.childWebUrl;
-				return sharepointUtilities.createList(listSchemaDef);
-			}
-
 			function provisionExconPage() {
 				return provisionWebPartPage({
 					webpartPageDefinitionName: 'Exercise Conductor Page'
@@ -419,10 +413,6 @@
 					permissionLevel: SP.RoleType.contributor,
 					loginNames: _.map(vm.exerciseControlGroups[0].selectedUsers, function(user){ return user.LoginName; }),
 					resources: [
-						{
-							type: "SP.List",
-							listName: "EXCON Watch Log"
-						},
 						{
 							type: "SP.List",
 							listName: "Inject"
@@ -441,9 +431,8 @@
 				return sharepointUtilities.createSharepointGroup(opts);
 			}
 
-			return createWatchLogList()
+			return createInjectList()
 						.then(createDocumentLibrary)
-						.then(createInjectList)
 						.then(provisionExconPage)
 						.then(customizePermissions);
 		}
