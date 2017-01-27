@@ -1065,9 +1065,9 @@ crisisResponseSchema.listDefs["Mission Documents"] = {
 			Required: 'TRUE',
 			ResultType: 'Text',
 			ReadOnly: 'TRUE',
-			Formula: '=IF(ISNUMBER(FIND("-",[Organization])),LEFT([Organization],FIND("-",[Organization])-2),[Organization])',
+			Formula: '=IF(ISNUMBER(FIND(" - ",[Organization])),LEFT([Organization],FIND(" - ",[Organization])-1),[Organization])',
 			FieldRefs: ['Organization'],
-			Description: 'Used for web part filtering.  Extract left portion whenever &quot; = &quot; is found in the &quot;Organization&quot; field',
+			Description: 'Used for web part filtering.  Extract left portion whenever &quot; - &quot; is found in the &quot;Organization&quot; field',
 			ShowInDisplayForm: 'FALSE'		
 		}
 	],
@@ -1309,9 +1309,9 @@ crisisResponseSchema.listDefs["RFI"] = {
 			Required: 'TRUE',
 			ResultType: 'Text',
 			ReadOnly: 'TRUE',
-			Formula: '=IF(ISNUMBER(FIND("-",[Recommended OPR])),LEFT([Recommended OPR],FIND("-",[Recommended OPR])-2),[Recommended OPR])',
+			Formula: '=IF(ISNUMBER(FIND(" - ",[Recommended OPR])),LEFT([Recommended OPR],FIND(" - ",[Recommended OPR])-1),[Recommended OPR])',
 			FieldRefs: ['RecommendedOPR'],
-			Description: 'Used for web part filtering.  Extract left portion whenever &quot; = &quot; is found in the &quot;Recommended OPR&quot; field',
+			Description: 'Used for web part filtering.  Extract left portion whenever &quot; - &quot; is found in the &quot;Recommended OPR&quot; field',
 			ShowInDisplayForm: 'FALSE'		
 		}
 	]
