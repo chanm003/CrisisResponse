@@ -345,7 +345,8 @@
                         method: 'GET',
                         params: {
                             '$select': opts.fieldsToSelect,
-                            '$expand': opts.fieldsToExpand
+                            '$expand': opts.fieldsToExpand,
+                            '$top': 5000
                         },
                         headers: defaultHeaders
                     },
