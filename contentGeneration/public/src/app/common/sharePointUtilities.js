@@ -861,7 +861,7 @@
 			var appFiles = [
 				{name: 'jocInBoxConfig.js' },
 				{name: 'populate-jocboxconfig.js'},
-				{name: 'postConfigurationUtilities.js', useCDN: true},
+				{name: 'postConfiguration-utilities.js', useCDN: true},
 				{name: 'displayTemplates.js', useCDN: true},
 				{name: 'app.js', useCDN: true}
 			];

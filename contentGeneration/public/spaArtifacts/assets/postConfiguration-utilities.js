@@ -45,7 +45,6 @@
                         ctx.executeQueryAsync(Function.createDelegate(this, function () { }), Function.createDelegate(this, function (sender, args) { }));
                     }
                 }
-                window.location.reload(true);
             }
         }
 
