@@ -1,10 +1,11 @@
 //USAGE
 performJavascriptShuffle({
-    existingUrl: '/SiteAssets/app808.js',
-    newUrl: '/SiteAssets/app415.js'
+    existingUrl: '/siteassets/app.js'
 });
 
 function performJavascriptShuffle(opts) {
+    var pattern = new RegExp('[\.]{1}([0-9]+)[\.]{1}js');
+    opts.newUrl = opts.existingUrl.replace(pattern, '.' + moment().format("YYYYMMDDHHmmss") + '.js')
     renameFile(opts)
         .then(modifyScriptSrc);
 
@@ -25,7 +26,8 @@ function performJavascriptShuffle(opts) {
             while (enumerator.moveNext()) {
                 var action = enumerator.get_current();
 
-                if (action.get_scriptSrc() == existingScriptSrc) {
+                var scriptSrc = action.get_scriptSrc() || "";
+                if (scriptSrc.toUpperCase() == existingScriptSrc.toUpperCase()) {
                     action.set_scriptSrc(newScriptSrc);
                     action.update();
                     ctx.executeQueryAsync(Function.createDelegate(this, function () { }), Function.createDelegate(this, function (sender, args) { }));
