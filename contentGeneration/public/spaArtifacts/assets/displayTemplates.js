@@ -468,7 +468,7 @@
         }
 
         function collapseGroupsForLVWP(ctx){
-            if(isOrgDashboard()){
+            if(isOrgDashboard() && ctx.BaseViewID === 1){
                 var webPartDiv = getWebPartDiv(ctx);
                 webPartDiv.find("img.ms-commentcollapse-icon").click();
             }
