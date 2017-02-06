@@ -279,6 +279,14 @@
                         return renderAsReadOnly(ctx);
                     }
 
+                    if(isDataEntryFormFor(ctx, "RFI", "EditForm")){
+                        if(_.includes(['respond', 'reopen'], getStateForRfiForm(ctx))){
+                            return renderAsReadOnly(ctx);
+                        } else {
+                            return SPFieldChoice_Edit(ctx);
+                        }
+                    }
+
                     if(isUserEditingInboundMessage(ctx)){
                         return renderAsReadOnly(ctx);
                     }
@@ -542,7 +550,6 @@
                         "Priority": ['respond', 'reopen'],
                         "LTIOV": ['respond', 'reopen'],
                         "PocPhone": ['respond', 'reopen'],
-                        "PocOrganization": ['respond', 'reopen'],
                         "RecommendedOPR": ['reopen'],
                         "RespondentPhone": ['reopen'],
                         "ResponseToRequest": ['reopen'],
