@@ -1705,10 +1705,10 @@
         }
 
         function getMissionRelated() {
-            //FOLLOWING does not work on-premise: { $filter: "MissionId ne null" };
+            //FOLLOWING does not work on-premise: { $filter: "Mission/Id ne null" };
             return getItems()
                         .then(function(results){
-                            var missionRelated = _.filter(results, function(item){ return !!item.MissionId; });
+                            var missionRelated = _.filter(results, function(item){ return !!item.Mission.FullName; });
                             return missionRelated;
                         });
         }
