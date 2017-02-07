@@ -1456,7 +1456,7 @@ crisisResponseSchema.listDefs["Message Traffic"] = {
 			Required: "TRUE",
 			Description: "Message details",
 			NumLines: 6,
-			RichText: "FALSE",						//RECOMMENDED
+			RichText: "TRUE",						
 			AppendOnly: "FALSE"						//VERSIONING MUST BE TURNED ON, otherwise specifie "FALSE"
 		},
 		{
@@ -1877,7 +1877,7 @@ crisisResponseSchema.webpartPageDefs['Component Command Page'] = {
 				}
 			],
 			viewName: 'SOCC Inbound Messages',
-			viewFields: ['Attachments', 'DTG', 'OriginatorSender', 'LinkTitle', 'LinkToMissionDocument', 'Initials', 'Significant'],
+			viewFields: ['Attachments', 'DTG', 'OriginatorSender', 'LinkTitle', 'LinkToMissionDocument', 'Initials', 'Significant', 'TaskInfo'],
 			viewCAML: '<OrderBy><FieldRef Name="DateTimeGroup" Ascending="FALSE"/></OrderBy>',
 			rowLimit: 5,
 			zoneName: 'Left',
@@ -2055,7 +2055,7 @@ crisisResponseSchema.webpartPageDefs['Task Group Page'] = {
 				}
 			],
 			viewName: 'SOTG Inbound Messages',
-			viewFields: ['Attachments', 'DTG', 'OriginatorSender', 'LinkTitle', 'LinkToMissionDocument', 'Initials', 'Significant'],
+			viewFields: ['Attachments', 'DTG', 'OriginatorSender', 'LinkTitle', 'LinkToMissionDocument', 'Initials', 'Significant', 'TaskInfo'],
 			viewCAML: '<OrderBy><FieldRef Name="DateTimeGroup" Ascending="FALSE"/></OrderBy>',
 			rowLimit: 5,
 			zoneName: 'Left',
@@ -2280,7 +2280,7 @@ crisisResponseSchema.webpartPageDefs['Air Component Page'] = {
 				}
 			],
 			viewName: 'SOAC Inbound Messages',
-			viewFields: ['Attachments', 'DTG', 'OriginatorSender', 'LinkTitle', 'LinkToMissionDocument', 'Initials', 'Significant'],
+			viewFields: ['Attachments', 'DTG', 'OriginatorSender', 'LinkTitle', 'LinkToMissionDocument', 'Initials', 'Significant', 'TaskInfo'],
 			viewCAML: '<OrderBy><FieldRef Name="DateTimeGroup" Ascending="FALSE"/></OrderBy>',
 			rowLimit: 5,
 			zoneName: 'Left',
@@ -2417,7 +2417,7 @@ crisisResponseSchema.webpartPageDefs['Exercise Conductor Page'] = {
 				}
 			],
 			viewName: 'EXCON Inbound Messages',
-			viewFields: ['Attachments', 'DTG', 'OriginatorSender', 'LinkTitle', 'LinkToMissionDocument', 'Initials', 'Significant'],
+			viewFields: ['Attachments', 'DTG', 'OriginatorSender', 'LinkTitle', 'LinkToMissionDocument', 'Initials', 'Significant', 'TaskInfo'],
 			viewCAML: '<OrderBy><FieldRef Name="DateTimeGroup" Ascending="FALSE"/></OrderBy>',
 			rowLimit: 5,
 			zoneName: 'Left',
