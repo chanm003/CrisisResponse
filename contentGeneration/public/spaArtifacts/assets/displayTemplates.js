@@ -227,13 +227,20 @@
                 try {
                     var infoMessage_explicitSequence = '<span style="display:none;"><uif-message-bar ng-show="routeMessage"> <uif-content><strong>Documents associated to this mission will be routed as follows: </strong><div>{{routeMessage}}</div></uif-content> </uif-message-bar></span>'; 
                     
-                    var approvalAuthorities = getApprovalAuthorityOptionsBasedOnQueryString();
+                    var approvalAuthorities = getApprovalAuthorityOptions();
                     ctx.CurrentFieldSchema.Choices = _.map(approvalAuthorities, 'name');
                     setDropdownOnNewFormWhenOnlyOneOption(ctx);
                     return buildHtmlForControl(ctx, approvalAuthorities)
                     
-                    function getApprovalAuthorityOptionsBasedOnQueryString() {
-                        var org = _.extractOrgFromQueryString();
+                    function getApprovalAuthorityOptions() {
+                        var org;
+                        
+                        if(ctx.BaseViewID === "EditForm"){
+                            org = ctx.CurrentItem.Organization;
+                        } else if(ctx.BaseViewID === "NewForm"){
+                            org = _.extractOrgFromQueryString();
+                        }
+                        
                         if (org) {
                             return jocInBoxConfig.dashboards[org].routes;
                         } else {
