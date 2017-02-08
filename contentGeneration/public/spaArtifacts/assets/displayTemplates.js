@@ -623,7 +623,7 @@
                 }
                 return RenderHeaderTemplate(renderCtx, columnNames);   
             }
-         }
+        }
 
         function registerPostRenderEvent() {
             SPClientTemplates.TemplateManager.RegisterTemplateOverrides({

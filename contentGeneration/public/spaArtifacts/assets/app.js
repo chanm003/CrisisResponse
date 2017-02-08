@@ -2459,7 +2459,7 @@
                             })
 
                     },
-                    timeFormat: 'HHmm',
+                    timeFormat: "HHmm[Z]",
                     eventRender: function(evt, element, view){
                         var selectedCategories = _.map(_.filter(scope.categories, {selected: true}), 'text');
                         return _.intersection(evt.category, selectedCategories).length > 0;
