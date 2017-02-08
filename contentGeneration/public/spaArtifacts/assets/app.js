@@ -4018,14 +4018,26 @@
         .module('app.core')
         .controller('OrgDashboardAspxController', OrgDashboardAspxController);
 
-    OrgDashboardAspxController.$inject = ['_', 'Mission', 'MissionTrackerRepository'];
-    function OrgDashboardAspxController(_, Mission, MissionTrackerRepository) {
+    OrgDashboardAspxController.$inject = ['$compile', '$scope', '_', 'Mission', 'MissionTrackerRepository'];
+    function OrgDashboardAspxController($compile, $scope, _, Mission, MissionTrackerRepository) {
         var vm = this;
 
         vm.selectedOrg = (_.getQueryStringParam("org") || "");
         MissionTrackerRepository.getByOrganization(vm.selectedOrg).then(function (data) {
             vm.missions = _.map(data, function (item) { return new Mission(item); });
         });
+
+        $("body").on('webpartRendered', function(evt, domElem){
+            var directivesUnknownToWG = $(domElem).find('a[initiatechopbutton][data-id]');
+            directivesUnknownToWG.each(function(){
+                var parentContainer = $(this).parent();
+                var htmlToCompile = parentContainer.html();
+                parentContainer.html('');
+                var content = $compile(htmlToCompile)($scope);
+                parentContainer.append(content);
+            });
+        });
+
     }
 
 

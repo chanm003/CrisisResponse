@@ -389,7 +389,16 @@
                 disableNavigationToSharepointLists(ctx, webPartDiv);
                 hideToolbarForSpecificWebparts(ctx, webPartDiv);
                 ensureUploadFormIsNotDialog(ctx, webPartDiv);
+                collapseGroupsForLVWP(ctx);
+                broadcastPostRenderEvent(ctx, webPartDiv);
             }
+
+            function broadcastPostRenderEvent(ctx, webPartDiv){
+                if(_.includes(ctx.listUrlDir.toUpperCase(), '/MISSIONDOCUMENTS')){
+                    $("body").trigger('webpartRendered', webPartDiv);
+                }
+            }
+
             function addExpandCollapseButtons(ctx, webPartDiv) {
                 /**
                  * ISSUES with LVWP that Group By Collapsed=TRUE are well documented:
@@ -491,7 +500,6 @@
 
         function modifyListFormsPostRender(ctx){
             makeDateTimeFieldsReadOnly();
-            collapseGroupsForLVWP(ctx);
             customizeRfiForm(ctx);
             customizeMissionTrackerForm(ctx);
             customizeMissionDocumentsForm(ctx);
