@@ -45,6 +45,6 @@
 
     <!--QueryString Filter WebPart (Must register TagPrefix for Microsoft.Office.Server.FilterControls)-->
     <div id="qsFilterWebpartContainer">
-    	<WebPartPages:WebPartZone runat="server" FrameType="TitleBarOnly" ID="QsFilter" Title="loc:QsFilter"><ZoneTemplate></ZoneTemplate></WebPartPages:WebPartZone>
+    	<WebPartPages:WebPartZone AllowLayoutChange="False" runat="server" FrameType="TitleBarOnly" ID="QsFilter" Title="loc:QsFilter"><ZoneTemplate></ZoneTemplate></WebPartPages:WebPartZone>
 	</div>
 </asp:Content>
