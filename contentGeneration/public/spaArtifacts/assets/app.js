@@ -1548,9 +1548,16 @@
             return dfd.promise;
         }
 
-        function getOpenHighPriority(){
+        function getOpenHighPriority(org){
             var params = {$filter:"Priority eq 'Immediate (< 24 hrs)' and Status eq 'Open'"};
-            return getItems(params);
+            return getItems(params)
+                .then(function(data){
+                    if(org){
+                        return _.filter(data, function(item){ return _.includes(item.RecommendedOPR, org);});
+                    } else {
+                        return data;
+                    }
+                });
         }
 
         function convertToFieldLookupValue(lookupID) {
@@ -5006,7 +5013,7 @@
                 MessageTrafficRepository.getSignificantItemsCreatedInLast24Hours($routeParams.org),
                 MissionTrackerRepository.getOpenMissionsByApprovalChain($routeParams.org),
                 MissionDocumentRepository.getMissionRelated(),
-                RFIRepository.getOpenHighPriority()
+                RFIRepository.getOpenHighPriority($routeParams.org)
             ])
             .then(function(data){
                 vm.lastRefreshedTime = moment.utc().format('DD MMM YY HHmm[Z]').toUpperCase();
