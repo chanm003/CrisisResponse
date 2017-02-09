@@ -394,7 +394,8 @@
             }
 
             function broadcastPostRenderEvent(ctx, webPartDiv){
-                if(_.includes(ctx.listUrlDir.toUpperCase(), '/MISSIONDOCUMENTS')){
+                var listURL = (ctx.listUrlDir) ? ctx.listUrlDir.toUpperCase() : "";
+                if(_.includes(listURL, '/MISSIONDOCUMENTS')  || _.includes(listURL, '/LISTS/RFI') || _.includes(listURL, '/LISTS/INJECT') ){
                     $("body").trigger('webpartRendered', webPartDiv);
                 }
             }

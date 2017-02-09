@@ -2555,6 +2555,8 @@
         /* 
         SP2013 display template will render ActionsHtml column (anytime it appears in LVWP) as:
             <a class="custombtn" rfibutton="" data-id="1">Respond</a>
+        Post-link it becomes:
+            <a class="custombtn ng-isolate-scope" rfibutton="">Respond</a>
         */
         var directiveDefinition = {
             restrict: 'A',
@@ -2566,6 +2568,7 @@
         function link(scope, elem, attrs) {
             var $elem = $(elem);
             var listItemID = $elem.attr("data-id");
+            $elem.removeAttr("data-id");
             var buttonText = $elem.text();
 
             $elem.on('click', function () {
@@ -2586,8 +2589,10 @@
 
     function initiatechopbutton($rootScope, $q, logger, Mission, MissionDocument, MissionDocumentRepository, MissionTrackerRepository) {
         /* 
-       SP2013 display template will render ChopProcessInitiationDate column (anytime it appears in LVWP) as:
-           <a class="custombtn" initiatechopbutton="" data-id="1" data-chop-process='10/7/2016 19:08'>Chop</a>
+        SP2013 display template will render ChopProcessInitiationDate column (anytime it appears in LVWP) as:
+            <a class="custombtn" initiatechopbutton="" data-id="1">Chop</a>
+        Post-link it becomes:
+            <a ng-class="getButtonClass()" title="Click to start chop process now" ng-click="openChopDialog()" class="custombtn" initiatechopbutton="">Chop</a>
        */
         var directiveDefinition = {
             restrict: 'A',
@@ -2831,9 +2836,12 @@
         .directive('injectbutton', injectbutton);
 
     function injectbutton($rootScope, $q, logger, Mission, MissionDocument, MissionDocumentRepository, MissionTrackerRepository) {
-        /* 
-           <a class="custombtn" injectbutton="" data-id="1" data-receivers='SOTG 10;SOTG 30'>Inject</a>
-       */
+        /*
+        SP2013 display template will render ActionsHtml column (anytime it appears in LVWP) as: 
+            <a class="custombtn" injectbutton="" data-id="1" data-status="Pending" data-injecttitle="Dolore suscipit nihil sunt dolore" data-dtg="091205ZFEB17" data-receivers="SOTG 20;SOTG 30" title="Publish this scenario to SOTG 20, SOTG 30">Inject</a>
+        Post-link it becomes:
+            <a ng-class="getButtonClass()" title="Publish this scenario to SOTG 20, SOTG 30 " ng-click="openInjectDialog()" class="custombtn" injectbutton="">Inject</a>
+        */
         var directiveDefinition = {
             restrict: 'A',
             scope: {
@@ -4028,7 +4036,7 @@
         });
 
         $("body").on('webpartRendered', function(evt, domElem){
-            var directivesUnknownToWG = $(domElem).find('a[initiatechopbutton][data-id]');
+            var directivesUnknownToWG = $(domElem).find('a[initiatechopbutton][data-id],a[injectbutton][data-id],a[rfibutton][data-id]');
             directivesUnknownToWG.each(function(){
                 var parentContainer = $(this).parent();
                 var htmlToCompile = parentContainer.html();
@@ -5253,6 +5261,7 @@
         }
 
         if (_.includes(currentURL, '/SITEPAGES/EXCON.ASPX') ) {
+            spPage.attr('ng-controller', 'OrgDashboardAspxController as vm');
             spPage.append("<publishscenariodialog></publishscenariodialog>");
         }
 
