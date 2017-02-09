@@ -192,6 +192,10 @@ body #suiteBarLeft{
 
 /*#region Override Office UI Fabric:  BEGIN*/
 
+.ms-Callout-subText{
+  line-height: 1.5em;
+}
+
 .ms-Table td {
   vertical-align: top;
   border-bottom: solid 1px rgb(234, 234, 234);

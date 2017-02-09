@@ -3218,16 +3218,16 @@
 
         function buildCalloutHtml() {
             var html = '\
-                <div ng-transclude></div>\
+                <span ng-transclude></span>\
                 <div class="ms-Callout" ng-class="getClass()" style="position:absolute;left:-2000px;" ng-style="popupCSS" ng-show="isShown" >\
                     <div class="ms-Callout-main">\
                         <div class="ms-Callout-header">\
-                            <span class="ms-fontWeight-light" style="float:right;">{{lastChop.Created  | date:"MM/dd/yyyy @ hhmm": "+0000" }}Z</span> <strong>{{lastChop.OrganizationalRole}}</strong> \
+                            <span class="ms-fontWeight-light" style="float:right;">{{lastChop.Created  | date:"MM/dd/yyyy @ hhmm": "+0000" }}Z</span> <strong>{{(lastChop.OrganizationalRole === \'CDR\') ? lastChop.Organization : lastChop.OrganizationalRole }}</strong> \
                         </div>\
                         <div class="ms-Callout-inner">\
                             <div class="ms-Callout-content">\
                                 <p class="ms-Callout-subText ms-Callout-subText--s">\
-                                    {{lastChop.Author.Title}} wrote:<br/>\
+                                    <span style="color:#337ab7;font-weight:bold;">{{lastChop.Author.Title}}</span><br/>\
                                     {{lastChop.Comments}}\
                                 </p>\
                             </div>\
@@ -3627,14 +3627,16 @@
             '<button ng-click="chopButtonClicked()" ng-if="document.chopProcessInfo.selectedRouteStage.cdrDecisions.length === 0" type="button" class="cdr-chop-button-no-decisions-yet">',
             '   {{document.chopProcessInfo.selectedRouteStage.name}}',
             '</button>',
-            '<button ng-click="chopButtonClicked()" ng-if="document.chopProcessInfo.selectedRouteStage.cdrDecisions.length !== 0" type="button" class="cdr-chop-button" last-chop-popover tooltip-position="left" last-chop="document.chopProcessInfo.selectedRouteStage.cdrDecisions[0]">',
+            '<span ng-if="document.chopProcessInfo.selectedRouteStage.cdrDecisions.length !== 0" last-chop-popover tooltip-position="left" last-chop="document.chopProcessInfo.selectedRouteStage.cdrDecisions[0]">',
+            '<button ng-click="chopButtonClicked()" ng-if="document.chopProcessInfo.selectedRouteStage.cdrDecisions.length !== 0" type="button" class="cdr-chop-button" style="position: relative; text-align: left; white-space: normal;">',
             '   <span>',
             '       <i ng-if="document.chopProcessInfo.selectedRouteStage.cdrDecisions[0].Verdict === \'Concur\'" class="fa fa-thumbs-up" style="color:green;font-size:1.4em;"></i>',
             '       <i ng-if="document.chopProcessInfo.selectedRouteStage.cdrDecisions[0].Verdict === \'Nonconcur\'" class="fa fa-thumbs-down" style="color:red;font-size:1.4em;"></i>',
             '       <i ng-if="document.chopProcessInfo.selectedRouteStage.cdrDecisions[0].Verdict === \'Pending\'" class="fa fa-hourglass-start" style="font-size:1.2em;"></i>',
             '       {{document.chopProcessInfo.selectedRouteStage.name}}',
             '   </span>',
-            '</button>'
+            '</button>',
+            '</span>'
             ].join('');
             return parts;
         }
@@ -3678,7 +3680,8 @@
                 '           <button ng-if="decisions.length === 0" type="button" class="staff-chop-button-no-decisions-yet">',
                 '               {{tryToShorten(sectionName)}}',
                 '           </button>',
-                '           <button ng-if="decisions.length !== 0" type="button" class="staff-chop-button" last-chop-popover tooltip-position="left" last-chop="decisions[0]">',
+                '           <span ng-if="decisions.length !== 0" last-chop-popover tooltip-position="left" last-chop="decisions[0]">',
+                '           <button ng-if="decisions.length !== 0" type="button" class="staff-chop-button" style="position: relative; text-align: left; white-space: normal;">',
                 '               <span>',
                 '                   <i ng-if="decisions[0].Verdict === \'Concur\'" class="fa fa-thumbs-up" style="color:green;font-size:1.4em;"></i>',
                 '                   <i ng-if="decisions[0].Verdict === \'Nonconcur\'" class="fa fa-thumbs-down" style="color:red;font-size:1.4em;"></i>',
@@ -3686,6 +3689,7 @@
                 '                   {{tryToShorten(sectionName)}}',
                 '               </span>',
                 '           </button>',
+                '           </span>',
                 '       </span>'
             ].join('');
             return parts;
