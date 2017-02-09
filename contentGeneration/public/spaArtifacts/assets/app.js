@@ -1505,6 +1505,7 @@
     function RfiRepository($http, $q, $resource, exception, logger, spContext) {
         var service = {
             getAll: getAll,
+            getMissionRelated: getMissionRelated,
             getOpenHighPriority: getOpenHighPriority,
             save: save
         };
@@ -1546,6 +1547,15 @@
                     dfd.reject(error);
                 });
             return dfd.promise;
+        }
+
+        function getMissionRelated() {
+            //FOLLOWING does not work on-premise: { $filter: "Mission/Id ne null" };
+            return getItems()
+                        .then(function(results){
+                            var missionRelated = _.filter(results, function(item){ return !!item.Mission.FullName; });
+                            return missionRelated;
+                        });
         }
 
         function getOpenHighPriority(org){
@@ -4432,8 +4442,8 @@
         .module('app.core')
         .controller('MissionTrackerController', MissionTrackerController);
 
-    MissionTrackerController.$inject = ['$q', '$routeParams', '_', 'logger', 'DocumentChopsRepository', 'MissionDocument', 'MissionDocumentRepository', 'Mission', 'MissionTrackerRepository'];
-    function MissionTrackerController($q, $routeParams, _, logger, DocumentChopsRepository, MissionDocument, MissionDocumentRepository, Mission, MissionTrackerRepository) {
+    MissionTrackerController.$inject = ['$q', '$routeParams', '_', 'logger', 'DocumentChopsRepository', 'MissionDocument', 'MissionDocumentRepository', 'Mission', 'MissionTrackerRepository', 'RfiRepository'];
+    function MissionTrackerController($q, $routeParams, _, logger, DocumentChopsRepository, MissionDocument, MissionDocumentRepository, Mission, MissionTrackerRepository, RfiRepository) {
         var vm = this;
         var dataSources = {
             missionRelatedDocs: [],
@@ -4472,7 +4482,16 @@
             applyFilters();
         }
 
-        vm.openDocument = function(item){
+        vm.openMissionProduct= function(item){
+            if(item.TypeOfDocument === "RFI"){
+                var url = _spPageContextInfo.webServerRelativeUrl + '/Lists/RFI/DispForm.aspx?ID=' + item.Id;
+                window.open(url, "_blank");
+            } else {
+                openDocument(item);
+            }
+        }
+
+        function openDocument(item){
             var fileExtension = item.File.ServerRelativeUrl.substr(item.File.ServerRelativeUrl.lastIndexOf('.')+1);
             var url;
 
@@ -4605,7 +4624,8 @@
             return $q.all([
                 MissionDocumentRepository.getMissionRelated(),
                 DocumentChopsRepository.getAll(),
-                getMissions()
+                getMissions(),
+                RfiRepository.getMissionRelated()
             ])
                 .then(function (data) {
                     var missions = data[2];
@@ -4619,8 +4639,22 @@
                         doc.refreshChopProcessInfo();
                         return doc;
                     });
+
+                    var rfis = _.map(data[3], function(item){
+                        var rfi = new MissionDocument();
+                        rfi.Id = item.Id;
+                        rfi.TypeOfDocument = "RFI";
+                        rfi.File = {Name: item.Title};
+                        rfi.Organization = item.RecommendedOPR;
+                        rfi.Modified = moment(item.Modified);
+                        rfi.Editor = item.Editor;
+                        rfi.Mission = item.Mission;
+                        rfi.MissionId = item.MissionId;
+                        return rfi; 
+                    });
+
                     return {
-                        documents: docs,
+                        documents: docs.concat(rfis),
                         missions: missions
                     };
                 });

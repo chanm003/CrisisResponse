@@ -33,7 +33,7 @@
               <uif-table-row ng-repeat="item in products">
                 <uif-table-cell></uif-table-cell>
                 <uif-table-cell>{{item.TypeOfDocument}}</uif-table-cell>
-                <uif-table-cell><a ng-click="vm.openDocument(item)" style="text-decoration:underline;cursor:pointer;" class="ms-fontColor-themePrimary">{{item.File.Name}}</a></uif-table-cell>
+                <uif-table-cell><a ng-click="vm.openMissionProduct(item)" style="text-decoration:underline;cursor:pointer;" class="ms-fontColor-themePrimary">{{item.File.Name}}</a></uif-table-cell>
                 <uif-table-cell>{{item.Organization}}</uif-table-cell>
                 <uif-table-cell>{{item.Modified.format('DD MMM YY HHmm[Z]').toUpperCase()}}</uif-table-cell>
                 <uif-table-cell>{{item.Editor.Title}}</uif-table-cell>
