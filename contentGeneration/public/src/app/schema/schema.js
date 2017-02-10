@@ -781,12 +781,13 @@ crisisResponseSchema.listDefs["Phonebook"] = {
 				Type: "Text",
 				Required: "FALSE",
 				MaxLength: 255,
+				Description: "Base, site or city where located",
 				Default: ""							//(optional)
 			},
 			{
 				//EXAMPLE: SINGLE LINE OF TEXT
-				Name: "BuildingNumber",
-				DisplayName: "Building Number",
+				Name: "Building",
+				DisplayName: "Building",
 				Type: "Text",
 				Required: "FALSE",
 				MaxLength: 255,
@@ -830,8 +831,17 @@ crisisResponseSchema.listDefs["Phonebook"] = {
 			},
 			{
 				//EXAMPLE: SINGLE LINE OF TEXT
-				Name: "BicesVtc",
-				DisplayName: "BICES VTC",
+				Name: "SiprPhone",
+				DisplayName: "SIPR Phone",
+				Type: "Text",
+				Required: "FALSE",
+				MaxLength: 255,
+				Default: ""							//(optional)
+			},
+			{
+				//EXAMPLE: SINGLE LINE OF TEXT
+				Name: "UnclassPhone",
+				DisplayName: "Unclass Phone",
 				Type: "Text",
 				Required: "FALSE",
 				MaxLength: 255,
@@ -841,15 +851,6 @@ crisisResponseSchema.listDefs["Phonebook"] = {
 				//EXAMPLE: SINGLE LINE OF TEXT
 				Name: "CellPhone",
 				DisplayName: "Cell Phone",
-				Type: "Text",
-				Required: "FALSE",
-				MaxLength: 255,
-				Default: ""							//(optional)
-			},
-			{
-				//EXAMPLE: SINGLE LINE OF TEXT
-				Name: "OtherPhone",
-				DisplayName: "Other Phone",
 				Type: "Text",
 				Required: "FALSE",
 				MaxLength: 255,
@@ -892,8 +893,8 @@ crisisResponseSchema.listDefs["Phonebook"] = {
 		viewsToCreate:[
 			{
 				title: 'By Organization',
-				viewFields: ['Organization', 'TitleRole', 'Nation', 'LastName', 'FirstName', 'ShiftWatch', 'Rank', 'UnclassEmail', 'BicesEmail', 'SiprEmail', 'CellPhone', 'BicesPhone', 'OtherPhone', 'BicesVtc', 'Location', 'BuildingNumber'],
-				query: '<GroupBy Collapse="FALSE" GroupLimit="30"><FieldRef Name="Organization"/></GroupBy><OrderBy><FieldRef Name="TitleRole"/></OrderBy>',
+				viewFields: ['Organization', 'TitleRole', 'Nation', 'LastName', 'FirstName', 'Rank', 'ShiftWatch', 'BicesEmail', 'SiprEmail', 'UnclassEmail', 'BicesPhone', 'SiprPhone', 'UnclassPhone', 'CellPhone', 'Location', 'Building'],
+				query: '<GroupBy Collapse="FALSE" GroupLimit="500"><FieldRef Name="Organization"/></GroupBy><OrderBy><FieldRef Name="TitleRole"/></OrderBy>',
 				viewTypeKind: 0 
 			}
 		]
