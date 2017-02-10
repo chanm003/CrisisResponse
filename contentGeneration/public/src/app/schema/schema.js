@@ -33,8 +33,8 @@ crisisResponseSchema.listDefs["AAR"] = {
 		},
 		{
 			//EXAMPLE: MULTIPLE LINE OF TEXT
-			Name: "Observation",
-			DisplayName: "Observation",
+			Name: "Issue",
+			DisplayName: "Issue",
 			Type: "Note",
 			Required: "TRUE",
 			NumLines: 6,
@@ -43,8 +43,8 @@ crisisResponseSchema.listDefs["AAR"] = {
 		},
 		{
 			//EXAMPLE: MULTIPLE LINE OF TEXT
-			Name: "Insight",
-			DisplayName: "Insight",
+			Name: "Discussion",
+			DisplayName: "Discussion",
 			Type: "Note",
 			Required: "FALSE",
 			NumLines: 6,
@@ -53,8 +53,8 @@ crisisResponseSchema.listDefs["AAR"] = {
 		},
 		{
 			//EXAMPLE: MULTIPLE LINE OF TEXT
-			Name: "Lesson",
-			DisplayName: "Lesson",
+			Name: "Recommendation",
+			DisplayName: "Recommendation",
 			Type: "Note",
 			Required: "FALSE",
 			NumLines: 6,
@@ -78,6 +78,7 @@ crisisResponseSchema.listDefs["AAR"] = {
 		{
 			title: 'Recent',
 			defaultView: true,
+			viewFields: ['Title', 'Date', 'Issue', 'Discussion', 'Recommendation', 'Organization', 'Author'],
 			query: '<OrderBy><FieldRef Name="Modified" Ascending="FALSE"/></OrderBy>',
 			viewTypeKind: 0
 		}
