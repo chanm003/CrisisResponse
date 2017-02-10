@@ -1854,7 +1854,7 @@ crisisResponseSchema.webpartPageDefs['Component Command Page'] = {
 				}
 			],
 			viewName: 'SOCC Watch Log',
-			viewFields: ['Attachments', 'DTG', 'LinkTitle', 'EventDetails', 'ActionTaken', 'Initials', 'Significant'],
+			viewFields: ['DTG', 'LinkTitleNoMenu', 'EventDetails', 'Significant'],
 			viewCAML: '<OrderBy><FieldRef Name="DateTimeGroup" Ascending="FALSE"/></OrderBy>',
 			rowLimit: 5,
 			zoneName: 'Top',
@@ -1877,7 +1877,7 @@ crisisResponseSchema.webpartPageDefs['Component Command Page'] = {
 				}
 			],
 			viewName: 'SOCC Inbound Messages',
-			viewFields: ['Attachments', 'DTG', 'OriginatorSender', 'LinkTitle', 'LinkToMissionDocument', 'Initials', 'Significant', 'TaskInfo'],
+			viewFields: ['Attachments', 'DTG', 'OriginatorSender', 'LinkTitleNoMenu', 'LinkToMissionDocument', 'Initials', 'Significant'],
 			viewCAML: '<OrderBy><FieldRef Name="DateTimeGroup" Ascending="FALSE"/></OrderBy>',
 			rowLimit: 5,
 			zoneName: 'Left',
@@ -1900,7 +1900,7 @@ crisisResponseSchema.webpartPageDefs['Component Command Page'] = {
 				}
 			],
 			viewName: 'SOCC Outbound Messages',
-			viewFields: ['DTG', 'Receiver', 'LinkTitle', 'LinkToMissionDocument', 'Initials', 'Significant'],
+			viewFields: ['DTG', 'Receiver', 'LinkTitleNoMenu', 'LinkToMissionDocument', 'Initials', 'Significant'],
 			viewCAML: '<OrderBy><FieldRef Name="DateTimeGroup" Ascending="FALSE"/></OrderBy>',
 			rowLimit: 5,
 			zoneName: 'Left',
@@ -1923,8 +1923,8 @@ crisisResponseSchema.webpartPageDefs['Component Command Page'] = {
 				}
 			],
 			viewName: 'SOCC RFI',
-			viewFields: ['ActionsHtml', 'LinkTitle', 'Priority', 'LTIOV'],
-			viewCAML: '<GroupBy Collapse="FALSE" GroupLimit="30"><FieldRef Name="RecommendedOPR"/></GroupBy><OrderBy><FieldRef Name="LTIOV"/><FieldRef Name="PrioritySort"/></OrderBy><Where><Eq><FieldRef Name="Status"/><Value Type="Text">Open</Value></Eq></Where>',
+			viewFields: ['ActionsHtml', 'LinkTitle', 'Priority', 'LTIOV', 'Created'],
+			viewCAML: '<GroupBy Collapse="FALSE" GroupLimit="30"><FieldRef Name="RecommendedOPR"/></GroupBy><OrderBy><FieldRef Name="PrioritySort"/><FieldRef Name="LTIOV"/></OrderBy><Where><Eq><FieldRef Name="Status"/><Value Type="Text">Open</Value></Eq></Where>',
 			zoneName: 'Left',
 			zoneIndex: 20
 		},
@@ -1945,7 +1945,7 @@ crisisResponseSchema.webpartPageDefs['Component Command Page'] = {
 				}
 			],
 			viewName: 'SOCC Documents',
-			viewFields: ['DocIcon', 'LinkFilename', 'Modified', 'Editor', 'ChopProcessInitiationDate'],
+			viewFields: ['DocIcon', 'LinkFilename', 'Author', 'ChopProcessInitiationDate'],
 			viewCAML: '<GroupBy Collapse="FALSE" GroupLimit="30"><FieldRef Name="TypeOfDocument"/><FieldRef Name="Organization"/></GroupBy><OrderBy><FieldRef Name="FileLeafRef"/></OrderBy>',
 			zoneName: 'Right',
 			zoneIndex: 10
@@ -2032,7 +2032,7 @@ crisisResponseSchema.webpartPageDefs['Task Group Page'] = {
 				}
 			],
 			viewName: 'SOTG Watch Log',
-			viewFields: ['Attachments', 'DTG', 'LinkTitle', 'EventDetails', 'ActionTaken', 'Initials', 'Significant'],
+			viewFields: ['DTG', 'LinkTitleNoMenu', 'EventDetails', 'Significant'],
 			viewCAML: '<OrderBy><FieldRef Name="DateTimeGroup" Ascending="FALSE"/></OrderBy>',
 			rowLimit: 5,
 			zoneName: 'Top',
@@ -2055,7 +2055,7 @@ crisisResponseSchema.webpartPageDefs['Task Group Page'] = {
 				}
 			],
 			viewName: 'SOTG Inbound Messages',
-			viewFields: ['Attachments', 'DTG', 'OriginatorSender', 'LinkTitle', 'LinkToMissionDocument', 'Initials', 'Significant', 'TaskInfo'],
+			viewFields: ['Attachments', 'DTG', 'OriginatorSender', 'LinkTitleNoMenu', 'LinkToMissionDocument', 'Initials', 'Significant'],
 			viewCAML: '<OrderBy><FieldRef Name="DateTimeGroup" Ascending="FALSE"/></OrderBy>',
 			rowLimit: 5,
 			zoneName: 'Left',
@@ -2078,7 +2078,7 @@ crisisResponseSchema.webpartPageDefs['Task Group Page'] = {
 				}
 			],
 			viewName: 'SOTG Outbound Messages',
-			viewFields: ['DTG', 'Receiver', 'LinkTitle', 'LinkToMissionDocument', 'Initials', 'Significant'],
+			viewFields: ['DTG', 'Receiver', 'LinkTitleNoMenu', 'LinkToMissionDocument', 'Initials', 'Significant'],
 			viewCAML: '<OrderBy><FieldRef Name="DateTimeGroup" Ascending="FALSE"/></OrderBy>',
 			rowLimit: 5,
 			zoneName: 'Left',
@@ -2101,8 +2101,8 @@ crisisResponseSchema.webpartPageDefs['Task Group Page'] = {
 				}
 			],
 			viewName: 'SOTG RFI',
-			viewFields: ['ActionsHtml', 'LinkTitle', 'Priority', 'LTIOV'],
-			viewCAML: '<OrderBy><FieldRef Name="LTIOV"/></OrderBy><Where><Eq><FieldRef Name="Status"/><Value Type="Text">Open</Value></Eq></Where>',
+			viewFields: ['ActionsHtml', 'LinkTitle', 'Priority', 'LTIOV', 'Created'],
+			viewCAML: '<OrderBy><FieldRef Name="PrioritySort"/><FieldRef Name="LTIOV"/></OrderBy><Where><Eq><FieldRef Name="Status"/><Value Type="Text">Open</Value></Eq></Where>',
 			zoneName: 'Left',
 			zoneIndex: 30
 		},
@@ -2123,7 +2123,7 @@ crisisResponseSchema.webpartPageDefs['Task Group Page'] = {
 				}
 			],
 			viewName: 'SOTG Documents',
-			viewFields: ['DocIcon', 'LinkFilename', 'Modified', 'Editor', 'ChopProcessInitiationDate'],
+			viewFields: ['DocIcon', 'LinkFilename', 'Author', 'ChopProcessInitiationDate'],
 			viewCAML: '<GroupBy Collapse="FALSE" GroupLimit="30"><FieldRef Name="TypeOfDocument"/></GroupBy><OrderBy><FieldRef Name="FileLeafRef"/></OrderBy>',
 			zoneName: 'Right',
 			zoneIndex: 10
@@ -2188,7 +2188,7 @@ crisisResponseSchema.webpartPageDefs['Communications Component Page'] = {
 				}
 			],
 			viewName: 'Comms Watch Log',
-			viewFields: ['Attachments', 'DTG', 'LinkTitle', 'EventDetails', 'ActionTaken', 'Initials', 'Significant'],
+			viewFields: ['DTG', 'LinkTitleNoMenu', 'EventDetails', 'Significant'],
 			viewCAML: '<OrderBy><FieldRef Name="DateTimeGroup" Ascending="FALSE"/></OrderBy>',
 			rowLimit: 5,
 			zoneName: 'Bottom',
@@ -2235,7 +2235,7 @@ crisisResponseSchema.webpartPageDefs['Air Component Page'] = {
 				}
 			],
 			viewName: 'SOAC Watch Log',
-			viewFields: ['Attachments', 'DTG', 'LinkTitle', 'EventDetails', 'ActionTaken', 'Initials', 'Significant'],
+			viewFields: ['DTG', 'LinkTitleNoMenu', 'EventDetails', 'Significant'],
 			viewCAML: '<OrderBy><FieldRef Name="DateTimeGroup" Ascending="FALSE"/></OrderBy>',
 			rowLimit: 5,
 			zoneName: 'Left',
@@ -2258,8 +2258,8 @@ crisisResponseSchema.webpartPageDefs['Air Component Page'] = {
 				}
 			],
 			viewName: 'SOAC RFI',
-			viewFields: ['ActionsHtml', 'LinkTitle', 'Priority', 'LTIOV'],
-			viewCAML: '<OrderBy><FieldRef Name="LTIOV"/></OrderBy><Where><Eq><FieldRef Name="Status"/><Value Type="Text">Open</Value></Eq></Where>',
+			viewFields: ['ActionsHtml', 'LinkTitle', 'Priority', 'LTIOV', 'Created'],
+			viewCAML: '<GroupBy Collapse="FALSE" GroupLimit="30"><FieldRef Name="RecommendedOPR"/></GroupBy><OrderBy><FieldRef Name="PrioritySort"/><FieldRef Name="LTIOV"/></OrderBy><Where><Eq><FieldRef Name="Status"/><Value Type="Text">Open</Value></Eq></Where>',
 			zoneName: 'Left',
 			zoneIndex: 10
 		},
@@ -2280,7 +2280,7 @@ crisisResponseSchema.webpartPageDefs['Air Component Page'] = {
 				}
 			],
 			viewName: 'SOAC Inbound Messages',
-			viewFields: ['Attachments', 'DTG', 'OriginatorSender', 'LinkTitle', 'LinkToMissionDocument', 'Initials', 'Significant', 'TaskInfo'],
+			viewFields: ['Attachments', 'DTG', 'OriginatorSender', 'LinkTitleNoMenu', 'LinkToMissionDocument', 'Initials', 'Significant'],
 			viewCAML: '<OrderBy><FieldRef Name="DateTimeGroup" Ascending="FALSE"/></OrderBy>',
 			rowLimit: 5,
 			zoneName: 'Left',
@@ -2303,7 +2303,7 @@ crisisResponseSchema.webpartPageDefs['Air Component Page'] = {
 				}
 			],
 			viewName: 'SOAC Outbound Messages',
-			viewFields: ['DTG', 'Receiver', 'LinkTitle', 'LinkToMissionDocument', 'Initials', 'Significant'],
+			viewFields: ['DTG', 'Receiver', 'LinkTitleNoMenu', 'LinkToMissionDocument', 'Initials', 'Significant'],
 			viewCAML: '<OrderBy><FieldRef Name="DateTimeGroup" Ascending="FALSE"/></OrderBy>',
 			rowLimit: 5,
 			zoneName: 'Left',
@@ -2326,7 +2326,7 @@ crisisResponseSchema.webpartPageDefs['Air Component Page'] = {
 				}
 			],
 			viewName: 'SOAC Daily Products',
-			viewFields: ['DocIcon', 'LinkFilename', 'TypeOfDocument', 'Organization', 'ChopProcessInitiationDate'],
+			viewFields: ['DocIcon', 'LinkFilename', 'TypeOfDocument', 'Organization'],
 			viewCAML: '<OrderBy><FieldRef Name="ID" Ascending="FALSE"/></OrderBy><Where><And><Eq><FieldRef Name="FlaggedForSoacDailyUpdate" /><Value Type="Text">Yes</Value></Eq><Eq><FieldRef Name="DailyProductDate" /><Value Type="DateTime"><Today /></Value></Eq></And></Where>',
 			zoneName: 'Right',
 			zoneIndex: 0
@@ -2348,7 +2348,7 @@ crisisResponseSchema.webpartPageDefs['Air Component Page'] = {
 				}
 			],
 			viewName: 'SOAC Documents',
-			viewFields: ['DocIcon', 'LinkFilename', 'Modified', 'Editor', 'ChopProcessInitiationDate'],
+			viewFields: ['DocIcon', 'LinkFilename', 'Author', 'ChopProcessInitiationDate'],
 			viewCAML: '<GroupBy Collapse="FALSE" GroupLimit="30"><FieldRef Name="Organization"/><FieldRef Name="TypeOfDocument"/></GroupBy><OrderBy><FieldRef Name="FileLeafRef"/></OrderBy>',
 			zoneName: 'Right',
 			zoneIndex: 1
@@ -2417,7 +2417,7 @@ crisisResponseSchema.webpartPageDefs['Exercise Conductor Page'] = {
 				}
 			],
 			viewName: 'EXCON Inbound Messages',
-			viewFields: ['Attachments', 'DTG', 'OriginatorSender', 'LinkTitle', 'LinkToMissionDocument', 'Initials', 'Significant', 'TaskInfo'],
+			viewFields: ['Attachments', 'DTG', 'OriginatorSender', 'LinkTitleNoMenu', 'LinkToMissionDocument', 'Initials', 'Significant'],
 			viewCAML: '<OrderBy><FieldRef Name="DateTimeGroup" Ascending="FALSE"/></OrderBy>',
 			rowLimit: 5,
 			zoneName: 'Left',
@@ -2440,7 +2440,7 @@ crisisResponseSchema.webpartPageDefs['Exercise Conductor Page'] = {
 				}
 			],
 			viewName: 'EXCON Outbound Messages',
-			viewFields: ['DTG', 'Receiver', 'LinkTitle', 'LinkToMissionDocument', 'Initials', 'Significant'],
+			viewFields: ['DTG', 'Receiver', 'LinkTitleNoMenu', 'LinkToMissionDocument', 'Initials', 'Significant'],
 			viewCAML: '<OrderBy><FieldRef Name="DateTimeGroup" Ascending="FALSE"/></OrderBy>',
 			rowLimit: 5,
 			zoneName: 'Left',
@@ -2463,8 +2463,8 @@ crisisResponseSchema.webpartPageDefs['Exercise Conductor Page'] = {
 				}
 			],
 			viewName: 'EXCON RFI',
-			viewFields: ['ActionsHtml', 'LinkTitle', 'Priority', 'LTIOV'],
-			viewCAML: '<OrderBy><FieldRef Name="LTIOV"/></OrderBy><Where><Eq><FieldRef Name="Status"/><Value Type="Text">Open</Value></Eq></Where>',
+			viewFields: ['ActionsHtml', 'LinkTitle', 'Priority', 'LTIOV', 'Created'],
+			viewCAML: '<OrderBy><FieldRef Name="PrioritySort"/><FieldRef Name="LTIOV"/></OrderBy><Where><Eq><FieldRef Name="Status"/><Value Type="Text">Open</Value></Eq></Where>',
 			zoneName: 'Left',
 			zoneIndex: 30
 		},
@@ -2485,7 +2485,7 @@ crisisResponseSchema.webpartPageDefs['Exercise Conductor Page'] = {
 				}
 			],
 			viewName: 'EXCON Documents',
-			viewFields: ['DocIcon', 'LinkFilename', 'Modified', 'Editor'],
+			viewFields: ['DocIcon', 'LinkFilename', 'Author'],
 			viewCAML: '<GroupBy Collapse="FALSE" GroupLimit="30"><FieldRef Name="TypeOfDocument"/></GroupBy><OrderBy><FieldRef Name="FileLeafRef"/></OrderBy>',
 			zoneName: 'Right',
 			zoneIndex: 10
