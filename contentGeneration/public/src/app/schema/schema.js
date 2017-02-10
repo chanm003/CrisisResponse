@@ -894,6 +894,7 @@ crisisResponseSchema.listDefs["Phonebook"] = {
 		viewsToCreate:[
 			{
 				title: 'By Organization',
+				defaultView: true,
 				viewFields: ['Organization', 'TitleRole', 'Nation', 'LastName', 'FirstName', 'Rank', 'ShiftWatch', 'BicesEmail', 'SiprEmail', 'UnclassEmail', 'BicesPhone', 'SiprPhone', 'UnclassPhone', 'CellPhone', 'Location', 'Building'],
 				query: '<GroupBy Collapse="FALSE" GroupLimit="500"><FieldRef Name="Organization"/></GroupBy><OrderBy><FieldRef Name="TitleRole"/></OrderBy>',
 				viewTypeKind: 0 
