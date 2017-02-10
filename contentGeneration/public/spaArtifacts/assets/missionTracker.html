@@ -73,7 +73,7 @@
               <uif-table-row ng-repeat="item in vm.chopProcessesDataSource | orderBy:table.orderBy:!table.orderAsc">
                 <uif-table-cell>{{item.Mission.FullName}}</uif-table-cell>
                 <uif-table-cell>
-                  <a ng-click="vm.openDocument(item)" style="text-decoration:underline;cursor:pointer;" class="ms-fontColor-themePrimary">{{item.TypeOfDocument}}</a>
+                  <a ng-click="vm.openMissionProduct(item)" style="text-decoration:underline;cursor:pointer;" class="ms-fontColor-themePrimary">{{item.TypeOfDocument}}</a>
                 </uif-table-cell>
                 <uif-table-cell style="white-space:nowrap;">
                   <routing-process-visualization document="item"></routing-process-visualization>

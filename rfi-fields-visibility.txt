@@ -1,0 +1,19 @@
+				            NEW	    EDIT	RESPOND		REOPEN
+Title				        E	    E	    RO		    RO
+Status				        HIDE	RO	    RO		    RO
+RFI Tracking		        HIDE	E	    E		    RO
+Mission				        E	    E	    E		    E
+Details				        E	    E	    RO		    RO
+Priority			        E	    E	    RO		    RO
+LTIOV				        E	    E	    RO		    RO
+PocName				        E	    E	    RO		    RO
+PocPhone			        E	    E	    RO		    RO
+PocOrganization			    E	    E	    RO		    RO
+RecommendedOPR			    E	    E	    E		    RO
+ManageRFI			        E	    E	    HIDE		HIDE
+RespondentName			    HIDE	HIDE	E		    RO
+RespondentPhone			    HIDE	HIDE	E		    RO
+ResponseToRequest		    HIDE	HIDE	E		    RO
+DateClosed			        HIDE	HIDE	E		    RO
+ResponseSufficient		    HIDE	HIDE	HIDE		E
+InsufficientExplanation		HIDE	HIDE	HIDE		E
