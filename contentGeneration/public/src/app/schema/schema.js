@@ -1080,7 +1080,7 @@ crisisResponseSchema.listDefs["Mission Documents"] = {
 		},
 		{
 			title: 'SITREP',
-			viewFields: ['DocIcon', 'Organization', 'LinkFilename', 'Mission', 'Modified', 'Editor'],
+			viewFields: ['DocIcon', 'Organization', 'LinkFilename', 'Mission', 'Created', 'Author'],
 			query: '<GroupBy Collapse="FALSE" GroupLimit="30"><FieldRef Name="Organization"/></GroupBy><OrderBy><FieldRef Name="ID" Ascending="FALSE"/></OrderBy><Where><Contains><FieldRef Name="TypeOfDocument"/><Value Type="Text">SITREP</Value></Contains></Where>',
 			viewTypeKind: 0 
 		},
