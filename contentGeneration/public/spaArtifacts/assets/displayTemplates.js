@@ -145,7 +145,7 @@
                 if(_.includes(["", "edit"], rfiFormState)){
                     return getDefaultHtmlOutput(ctx);
                 } else if(_.includes(["respond","reopen"], rfiFormState)){
-                    return SPFieldNote_Display(ctx) + wrapInHiddenDiv(SPFieldNote_Edit(ctx));
+                    return wrapInHiddenDiv(SPFieldNote_Edit(ctx));
                 }
             }
 
@@ -165,8 +165,12 @@
                 if(_.includes(["", "edit"], rfiFormState)){
                     return getDefaultHtmlOutput(ctx);
                 } else if(_.includes(["respond","reopen"], rfiFormState)){
-                    return RenderFieldValueDefault(ctx).replace(/:0$/g, ":00") + wrapInHiddenDiv(SPFieldDateTime_Edit(ctx));
+                    return renderField_DateTime(ctx) + wrapInHiddenDiv(SPFieldDateTime_Edit(ctx));
                 }
+            }
+
+            function renderField_DateTime(ctx){
+                return RenderFieldValueDefault(ctx).replace(/:0$/g, ":00").replace(/:5$/g, ":05")
             }
 
             function renderField_PocName(ctx){
@@ -239,7 +243,7 @@
                 if(_.includes(["", "edit", "respond"], rfiFormState)){
                     return getDefaultHtmlOutput(ctx);
                 } else if(_.includes(["reopen"], rfiFormState)){
-                    return SPFieldNote_Display(ctx) + wrapInHiddenDiv(SPFieldNote_Edit(ctx));
+                    return wrapInHiddenDiv(SPFieldNote_Edit(ctx));
                 }
             }
 
@@ -249,7 +253,7 @@
                 if(_.includes(["", "edit", "respond"], rfiFormState)){
                     return getDefaultHtmlOutput(ctx);
                 } else if(_.includes(["reopen"], rfiFormState)){
-                    return RenderFieldValueDefault(ctx).replace(/:0$/g, ":00") + wrapInHiddenDiv(SPFieldDateTime_Edit(ctx));
+                    return renderField_DateTime(ctx) + wrapInHiddenDiv(SPFieldDateTime_Edit(ctx));
                 }
             }
 
