@@ -4238,20 +4238,25 @@
             var errors = rfi.validate(formState, itemOnEditFormAspxLoad);
             if (errors) {
                 alert(errors);
+                //prevent default save behavior
+                return false;
             } else {
                 var itemOnAspxLoad = spContext.getContextFromEditFormASPX();
                 rfi.setHiddenFieldsPriorToSave(formState, itemOnAspxLoad);
-                rfi.save(formState)
-                    .then(function () {
-                        $("input:button[value='Cancel'][id!='attachCancelButton']").eq(0).click();
-                    })
-                    .catch(function (error) {
-                        alert(error);
-                    })
+                
+                if(rfi.DateClosed === null){
+                    SPUtility.GetSPFieldByInternalName("DateClosed").SetValue(null);
+                    SPUtility.GetSPFieldByInternalName("Status").SetValue("Open");
+                }
+
+                if(rfi.Status === "Closed"){
+                    SPUtility.GetSPFieldByInternalName("ResponseSufficient").SetValue("Yes");
+                    SPUtility.GetSPFieldByInternalName("Status").SetValue("Closed");
+                }
+                return true;
             }
 
-            //prevent default save behavior
-            return false;
+            
         }
 
         function generateModelFromSpListForm(formState) {

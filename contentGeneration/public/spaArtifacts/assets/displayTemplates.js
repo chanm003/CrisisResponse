@@ -72,7 +72,7 @@
                         //LIST(s): Mission Tracker
                         'FullName': { 'EditForm': renderAsReadOnly },
                         //LIST(s): Mission Documents
-                        'MessageOriginatorSender': { 'EditForm': trimDropdownWithOrganizations },
+                        'MessageOriginatorSender': { 'EditForm': trimOrganizationsFromDropdown },
                         //LIST(s): Mission Documents
                         'MessageRecipients': { 'EditForm': removeMultiChoiceOptionBasedOnQueryString },
                         //LIST(s): Mission Tracker
@@ -81,19 +81,177 @@
                         'Organization': { 'EditForm': renderOrganizationDropdown, 'NewForm': renderOrganizationDropdown },
                         //LIST(s): Inject, Message Traffic 
                         'OriginatorSender': { 'NewForm': renderOrganizationDropdown, 'EditForm': renderOrganizationDropdown },
-                        //LIST(s): Participating Organizations
+                        //LIST(s): Mission Tracker
                         'ParticipatingOrganizations': { 'NewForm': preselectCheckboxForOrganization },
-                        //LIST(s): RFI 
-                        'PocName': { 'EditForm': renderPeoplePicker },
-                        //LIST(s): RFI 
-                        'PocOrganization': { 'EditForm': renderOrganizationDropdown, 'NewForm': renderOrganizationDropdown },
                         //LIST(s): Inject, Message Traffic 
                         'Receiver': { 'NewForm': removeMultiChoiceOptionBasedOnQueryString, 'EditForm': removeMultiChoiceOptionBasedOnQueryString  },
-                        //LIST(s): RFI 
-                        'RespondentName': { 'EditForm': renderPeoplePicker }
+                        
+                        //RFI LIST
+                        'Title': { 'EditForm': renderField_Title },
+                        'Status': { 'EditForm': renderField_Status },
+                        'RfiTrackingNumber': { 'EditForm': renderField_RfiTrackingNumber },
+                        'Details': { 'EditForm': renderField_Details },
+                        'Priority': { 'EditForm': renderField_Priority },
+                        'LTIOV': {'EditForm': renderField_LTIOV },
+                        'PocName': { 'EditForm': renderField_PocName },
+                        'PocPhone': { 'EditForm': renderField_PocPhone },
+                        'PocOrganization': { 'EditForm': renderField_PocOrganization, 'NewForm': renderField_PocOrganization },
+                        'RecommendedOPR': {'EditForm': renderField_RecommendedOPR },
+                        'RespondentName': {'EditForm': renderField_RespondentName },
+                        'RespondentPhone': {'EditForm': renderField_RespondentPhone },
+                        'ResponseToRequest': {'EditForm': renderField_ResponseToRequest },
+                        'DateClosed': {'EditForm': renderField_DateClosed }
                     }
                 }
             });
+
+            function wrapInHiddenDiv(str){
+                return '<div style="border:solid 1px red;display:none;">' + str + '</div>';
+            }
+
+            function renderField_Title(ctx){
+                var rfiFormState = getStateForRfiForm(ctx);
+                
+                if(_.includes(["", "edit"], rfiFormState)){
+                    return getDefaultHtmlOutput(ctx);
+                } else if(_.includes(["respond", "reopen"], rfiFormState)){
+                    return SPField_FormDisplay_Default(ctx) + wrapInHiddenDiv(SPFieldText_Edit(ctx));
+                }
+            }
+
+            function renderField_Status(ctx){
+                var rfiFormState = getStateForRfiForm(ctx);
+                
+                if(_.includes([""], rfiFormState)){
+                    return getDefaultHtmlOutput(ctx);
+                } else if(_.includes(["edit", "respond", "reopen"], rfiFormState)){
+                    return SPField_FormDisplay_Default(ctx) + wrapInHiddenDiv(SPFieldChoice_Edit(ctx));
+                }
+            }
+
+            function renderField_RfiTrackingNumber(ctx){
+                var rfiFormState = getStateForRfiForm(ctx);
+                
+                if(_.includes(["", "edit", "respond"], rfiFormState)){
+                    return getDefaultHtmlOutput(ctx);
+                } else if(_.includes(["reopen"], rfiFormState)){
+                    return SPField_FormDisplay_Default(ctx) + wrapInHiddenDiv(SPFieldText_Edit(ctx));
+                }
+            }
+
+            function renderField_Details(ctx){
+                var rfiFormState = getStateForRfiForm(ctx);
+                
+                if(_.includes(["", "edit"], rfiFormState)){
+                    return getDefaultHtmlOutput(ctx);
+                } else if(_.includes(["respond","reopen"], rfiFormState)){
+                    return SPFieldNote_Display(ctx) + wrapInHiddenDiv(SPFieldNote_Edit(ctx));
+                }
+            }
+
+            function renderField_Priority(ctx){
+                var rfiFormState = getStateForRfiForm(ctx);
+                
+                if(_.includes(["", "edit"], rfiFormState)){
+                    return getDefaultHtmlOutput(ctx);
+                } else if(_.includes(["respond","reopen"], rfiFormState)){
+                    return SPField_FormDisplay_Default(ctx) + wrapInHiddenDiv(SPFieldChoice_Edit(ctx));
+                }
+            }
+
+            function renderField_LTIOV(ctx){
+                var rfiFormState = getStateForRfiForm(ctx);
+                
+                if(_.includes(["", "edit"], rfiFormState)){
+                    return getDefaultHtmlOutput(ctx);
+                } else if(_.includes(["respond","reopen"], rfiFormState)){
+                    return RenderFieldValueDefault(ctx).replace(/:0$/g, ":00") + wrapInHiddenDiv(SPFieldDateTime_Edit(ctx));
+                }
+            }
+
+            function renderField_PocName(ctx){
+                var rfiFormState = getStateForRfiForm(ctx);
+                
+                if(_.includes(["", "edit"], rfiFormState)){
+                    return getDefaultHtmlOutput(ctx);
+                } else if(_.includes(["respond","reopen"], rfiFormState)){
+                    prepareUserFieldValue(ctx);
+                    return SPFieldUser_Display(ctx);
+                }
+            }
+
+            function renderField_PocPhone(ctx){
+                var rfiFormState = getStateForRfiForm(ctx);
+                
+                if(_.includes(["", "edit"], rfiFormState)){
+                    return getDefaultHtmlOutput(ctx);
+                } else if(_.includes(["respond","reopen"], rfiFormState)){
+                    return SPField_FormDisplay_Default(ctx) + wrapInHiddenDiv(SPFieldText_Edit(ctx));
+                }
+            }
+
+            function renderField_PocOrganization(ctx){
+                var rfiFormState = getStateForRfiForm(ctx);
+                if(_.includes([""], rfiFormState)){
+                    return getDefaultHtmlOutput(ctx);
+                } else if(_.includes(["new"], rfiFormState)){
+                    return trimOrganizationsFromDropdown(ctx);
+                } else if(_.includes(["edit"], rfiFormState)){
+                    return trimOrganizationsFromDropdown(ctx, ctx.CurrentItem.PocOrganization);
+                } else if(_.includes(["respond","reopen"], rfiFormState)){
+                    return SPField_FormDisplay_Default(ctx) + wrapInHiddenDiv(SPFieldChoice_Edit(ctx));
+                }  
+            }
+
+            function renderField_RecommendedOPR(ctx){
+                var rfiFormState = getStateForRfiForm(ctx);
+                if(_.includes(["", "edit", "respond"], rfiFormState)){
+                    return getDefaultHtmlOutput(ctx);
+                } else if(_.includes(["reopen"], rfiFormState)){
+                    return SPField_FormDisplay_Default(ctx) + wrapInHiddenDiv(SPFieldChoice_Edit(ctx));     
+                }
+            }
+
+            function renderField_RespondentName(ctx){
+                var rfiFormState = getStateForRfiForm(ctx);
+                
+                if(_.includes(["", "edit", "respond"], rfiFormState)){
+                    return getDefaultHtmlOutput(ctx);
+                } else if(_.includes(["reopen"], rfiFormState)){
+                    prepareUserFieldValue(ctx);
+                    return SPFieldUser_Display(ctx);
+                }
+            }
+
+            function renderField_RespondentPhone(ctx){
+                var rfiFormState = getStateForRfiForm(ctx);
+                
+                if(_.includes(["", "edit", "respond"], rfiFormState)){
+                    return getDefaultHtmlOutput(ctx);
+                } else if(_.includes(["reopen"], rfiFormState)){
+                    return SPField_FormDisplay_Default(ctx) + wrapInHiddenDiv(SPFieldText_Edit(ctx)); 
+                }
+            }
+
+            function renderField_ResponseToRequest(ctx){
+                var rfiFormState = getStateForRfiForm(ctx);
+                
+                if(_.includes(["", "edit", "respond"], rfiFormState)){
+                    return getDefaultHtmlOutput(ctx);
+                } else if(_.includes(["reopen"], rfiFormState)){
+                    return SPFieldNote_Display(ctx) + wrapInHiddenDiv(SPFieldNote_Edit(ctx));
+                }
+            }
+
+            function renderField_DateClosed(ctx){
+                var rfiFormState = getStateForRfiForm(ctx);
+                
+                if(_.includes(["", "edit", "respond"], rfiFormState)){
+                    return getDefaultHtmlOutput(ctx);
+                } else if(_.includes(["reopen"], rfiFormState)){
+                    return RenderFieldValueDefault(ctx).replace(/:0$/g, ":00") + wrapInHiddenDiv(SPFieldDateTime_Edit(ctx));
+                }
+            }
 
             function getDefaultHtmlOutput(ctx){
                 // get the default templates for each field type
@@ -286,14 +444,6 @@
                         return renderAsReadOnly(ctx);
                     }
 
-                    if(isDataEntryFormFor(ctx, "RFI", "EditForm")){
-                        if(_.includes(['respond', 'reopen'], getStateForRfiForm(ctx))){
-                            return renderAsReadOnly(ctx);
-                        } else {
-                            return SPFieldChoice_Edit(ctx);
-                        }
-                    }
-
                     if(isUserEditingInboundMessage(ctx)){
                         return renderAsReadOnly(ctx);
                     }
@@ -306,7 +456,7 @@
                         ctx.CurrentFieldValue = getExerciseConductor();
                     }
 
-                    return trimDropdownWithOrganizations(ctx);
+                    return trimOrganizationsFromDropdown(ctx);
                 }
                 catch (err) {
                     return 'Error parsing column "'+ctx.CurrentFieldSchema.Name+'"';
@@ -343,9 +493,9 @@
                 }
             }
 
-            function trimDropdownWithOrganizations(ctx){
+            function trimOrganizationsFromDropdown(ctx, org){
                 try {
-                    ctx.CurrentFieldSchema.Choices = trimOrganizationChoicesBasedOnQueryString(ctx.CurrentFieldSchema.Choices);
+                    ctx.CurrentFieldSchema.Choices = trimOrganizations(ctx.CurrentFieldSchema.Choices, org);
                     setDropdownOnNewFormWhenOnlyOneOption(ctx);
                     return SPFieldChoice_Edit(ctx);
                 }
@@ -354,8 +504,16 @@
                 }
             };
 
-            function trimOrganizationChoicesBasedOnQueryString(existingOptions) {
-                var org = _.extractOrgFromQueryString();
+            function trimOrganizations(existingOptions, org) {
+                if(!org){
+                    org = _.extractOrgFromQueryString();
+                }
+
+                if(!!org && org.indexOf(' - ') >= 0 ){
+                    //extract "CJSOTF NORTH" from "CJSOTF NORTH - J2"
+                    org = org.substr(0, org.indexOf(' - '));
+                }
+
                 if (org) {
                     return _.intersection(existingOptions, jocInBoxConfig.dashboards[org].optionsForChoiceField);
                 } else {
@@ -533,8 +691,6 @@
                 if(formState){
                     var fieldName = ctx.ListSchema.Field[0].Name;
                     hideRow(fieldName, formState);
-                    makeFieldReadOnly(fieldName, formState);
-                    setFieldThenMakeReadOnly(fieldName, formState);
                     removeHelpTextWhenReadOnlyField(fieldName);
                 }
 
@@ -554,33 +710,6 @@
                     var fieldCustomization = fieldsToHide[fieldName];
                     if(_.includes(fieldCustomization, formState)){
                         SPUtility.GetSPFieldByInternalName(fieldName).Hide();
-                    }
-                }
-
-                function makeFieldReadOnly(fieldName, formState){
-                    var readOnlyFields = {
-                        "Title": ['respond', 'reopen'],
-                        "Status": ['edit', 'respond', 'reopen'],
-                        "RfiTrackingNumber": ['reopen'],
-                        "Details": ['respond', 'reopen'],
-                        "Priority": ['respond', 'reopen'],
-                        "LTIOV": ['respond', 'reopen'],
-                        "PocPhone": ['respond', 'reopen'],
-                        "RecommendedOPR": ['reopen'],
-                        "RespondentPhone": ['reopen'],
-                        "ResponseToRequest": ['reopen'],
-                        "DateClosed": ['reopen']
-                    };
-                    
-                    var fieldCustomization = readOnlyFields[fieldName];
-                    if(_.includes(fieldCustomization, formState)){
-                        SPUtility.GetSPFieldByInternalName(fieldName).MakeReadOnly();
-                    }
-                }
-
-                function setFieldThenMakeReadOnly(fieldName, formState){
-                    if(fieldName === "ResponseSufficient" && formState === "reopen"){
-                        //SPUtility.GetSPFieldByInternalName(fieldName).SetValue('No').MakeReadOnly();
                     }
                 }
             }
@@ -752,9 +881,8 @@
          */
         var spUtilityField = SPUtility.GetSPFieldByInternalName(fieldName);
         var formbodyCell = $(spUtilityField.ControlsRow.cells[1]);  
-        var hiddenUsingSpUtility = (formbodyCell.children("span.ms-metadata").length === 1 && formbodyCell.children(".sputility-readonly").length !==0);
-        var isHelpTextOnlyChildElement = (formbodyCell.children().not("br").length === 1 && formbodyCell.children("span.ms-metadata").length === 1);
-        if(hiddenUsingSpUtility || isHelpTextOnlyChildElement){
+        var hasControls = formbodyCell.find("input:visible,select:visible,textarea:visible").size();
+        if(!hasControls || isHelpTextOnlyChildElement){
             //if only one child, and that child is help text then hide the help text
             formbodyCell.children("span.ms-metadata").hide();
         }
