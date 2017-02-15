@@ -81,8 +81,7 @@
 				.then(seedRouteConfigurationListWithItems)
 				.then(provisionFilesToSiteAssets)
 				.then(provisionFilesToSitePages)
-				.then(addQuerystringFilterWebParts)
-				.then(connectQuerystringFilterWebParts);
+				.then(addQuerystringFilterWebParts);
 		}
 
 		vm.addComponentCommand = function () {
