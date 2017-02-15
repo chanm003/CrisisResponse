@@ -2054,6 +2054,7 @@
             var camlCalendarDate = midPoint.format("YYYY-MM-DD[T]HH:mm:ss[Z]");
 
             var camlIntervals = {
+                "day": "<Month />",
                 "month": "<Month />",
                 "week": "<Week />"
             };
@@ -2459,9 +2460,9 @@
                     header: {
                         left: 'prev,next today',
                         center: 'title',
-                        right: 'month, agendaWeek'
+                        right: 'month, agendaWeek, agendaDay'
                     },
-                    defaultView: "month", // Set the default view to month
+                    defaultView: "agendaDay", // Set the default view to month
                     firstHour: "0", // Set the first visible hour in agenda views to 5 a.m.
                     weekMode: "liquid", // Only display the weeks that are needed
                     theme: false, // Use a jQuery UI theme instead of the default fullcalendar theme
@@ -2477,6 +2478,7 @@
 
                     },
                     timeFormat: "HHmm[Z]",
+                    slotLabelFormat: "HHmm[Z]",
                     eventRender: function(evt, element, view){
                         var selectedCategories = _.map(_.filter(scope.categories, {selected: true}), 'text');
                         return _.intersection(evt.category, selectedCategories).length > 0;
