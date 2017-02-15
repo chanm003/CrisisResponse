@@ -4525,6 +4525,15 @@
                     _.chain(dataSources.chopProcesses)
                         .filter(shouldShowBasedOnSelectedMissions)
                         .filter(shouldShowBasedOnSelectedChopStatuses)
+                        .sortBy(function(item){
+                            var sort = 100;
+                            if(item.chopProcessInfo.overallChopStatus === "In Chop"){
+                                sort = 10
+                            } else if(item.chopProcessInfo.overallChopStatus === "Approved"){
+                                sort = 50;
+                            }
+                            return sort;
+                        })
                         .value();
             }
 
