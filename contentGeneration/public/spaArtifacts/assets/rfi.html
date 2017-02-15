@@ -30,14 +30,14 @@
                 <uif-table-header style="white-space:nowrap;" uif-order-by="DateClosed" ng-show="vm.tabConfig.selectedPivot.title !== 'Open'">Date Closed</uif-table-header>
               </uif-table-row>
             </uif-table-head>
-            <uif-table-body ng-repeat="(oprName, rfis) in vm.selectedDataSource">
+            <uif-table-body ng-repeat="group in vm.selectedDataSource">
               <uif-table-row>
                 <uif-table-cell colspan="11" style="padding:0;">
-                  <div style="padding:3px 5px;color:#337ab7;"><span class="ms-fontColor-neutralTertiary ms-fontWeight-semibold">Recommended OPR:</span> <span class="ms-fontWeight-semibold">{{oprName}}</span> ({{rfis.length}})</span>
+                  <div style="padding:3px 5px;color:#337ab7;"><span class="ms-fontColor-neutralTertiary ms-fontWeight-semibold">Recommended OPR:</span> <span class="ms-fontWeight-semibold">{{group.name}}</span> ({{group.items.length}})</span>
                   </div>
                 </uif-table-cell>
               </uif-table-row>
-              <uif-table-row ng-repeat="item in rfis | orderBy:table.orderBy:!table.orderAsc">
+              <uif-table-row ng-repeat="item in group.items | orderBy:table.orderBy:!table.orderAsc">
                 <uif-table-cell>
 
                 </uif-table-cell>

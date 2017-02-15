@@ -4769,7 +4769,11 @@
             dataSources["My RFIs"] = _.filter(filteredList, { AuthorId: _spPageContextInfo.userId });
             dataSources["Manage RFIs"] = _.filter(filteredList, isCurrentUserTaggedAsManagerForRfi);
 
-            vm.selectedDataSource = _.groupBy(dataSources[vm.tabConfig.selectedPivot.title], 'RecommendedOPR');
+            vm.selectedDataSource = _.chain(dataSources[vm.tabConfig.selectedPivot.title])
+                .groupBy('RecommendedOPR')
+                .map(function (items, groupName) { return { name: groupName, items: _.sortBy(items, function(item){ return item.PrioritySort + item.LTIOV.format('YYYYMMDDHHmm'); }), isExpanded: true }; })
+                .sortBy(['name'])
+                .value();
 
             function isCurrentUserTaggedAsManagerForRfi(item) {
                 if (!item.ManageRFIId) { return false; }
