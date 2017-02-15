@@ -365,15 +365,16 @@
 					}	
 				});
 
-				var str = '<WebPartPages:SPProxyWebPartManager runat="server"><SPWebPartConnections>';
+				var str = '<WebPartPages:SPProxyWebPartManager runat="server" ID="__ProxyWebPartManagerForConnections__"><SPWebPartConnections>';
 
 				_.each(objects, function(object){
-					str += '<WebPartPages:SPWebPartConnection ConsumerConnectionPointID="DFWP Filter Consumer ID" ProviderConnectionPointID="ITransformableFilterValues" ';
-					str += 'ID="' + object.ID + '" ';
+					str += '<WebPartPages:SPWebPartConnection ';
+					str += 'ConsumerConnectionPointID="DFWP Filter Consumer ID" ';
 					str += 'ConsumerID="' + object.ConsumerID + '" ';
-					str += 'ProviderID="' + object.ProviderID + '" ';
-					str += '>'
-					str += '<WebPartPages:TransformableFilterValuesToParametersTransformer ConsumerFieldNames="'+object.ConsumerFieldNames+'" ProviderFieldNames="'+object.ProviderFieldNames+'"/>';
+					str += 'ID="' + object.ID + '" ';
+					str += 'ProviderConnectionPointID="ITransformableFilterValues" ';
+					str += 'ProviderID="' + object.ProviderID + '">';
+					str += '<WebPartPages:TransformableFilterValuesToParametersTransformer ConsumerFieldNames="'+object.ConsumerFieldNames+'" ProviderFieldNames="'+object.ProviderFieldNames+'"></WebPartPages:TransformableFilterValuesToParametersTransformer>';
 					str += '</WebPartPages:SPWebPartConnection>'
 				});
 
