@@ -5140,7 +5140,7 @@
 
         function startScrolling() {
             if(!vm.scrollStarted){ return; }
-            timer = setInterval(scrollPage, 30);
+            timer = setInterval(scrollPage, 50);
 
             function scrollPage(){
                 window.scroll(0, getCurrentPosition());
