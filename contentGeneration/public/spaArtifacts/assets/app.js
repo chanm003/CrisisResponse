@@ -3336,7 +3336,12 @@
 
                 scope.onMissionsFiltered({ missions: scope.missionsToShow });
 
-                var groups = new vis.DataSet(_.map(scope.missionsToShow, function (item) { return { id: item.Id, content: item.Identifier }; }));
+                var groups = new vis.DataSet(_.map(scope.missionsToShow, function (item) { 
+                    return { 
+                        id: item.Id, 
+                        content: '<a title="'+item.buildOnHoverText()+'" href="'+generateUrlForMissionDetails(item.Id)+'">' + item.Identifier + '</a>' 
+                    }; 
+                }));
                 var items = new vis.DataSet(
                     _.map(scope.missionsToShow, function (item) {
                         var itemStart = moment.utc(item.ExpectedExecution);
@@ -3363,16 +3368,19 @@
                 timeline.setItems(items);
                 timeline.on('click', function (props) {
                     if (props.what === 'group-label' || props.what === 'item') {
-                        var redirect = scope.redirectUrlReplace({url: document.location.href});
-                        if(!redirect){
-                            redirect = document.location.href;
-                        }
-                        var url = _spPageContextInfo.webServerRelativeUrl + '/Lists/MissionTracker/DispForm.aspx?ID=' + props.group + "&Source=" + encodeURIComponent(redirect);
+                        var url = generateUrlForMissionDetails(props.group);
                         document.location.href = url;
                     }
                 })
 
-
+                function generateUrlForMissionDetails(id){
+                    var redirect = scope.redirectUrlReplace({url: document.location.href});
+                    if(!redirect){
+                        redirect = document.location.href;
+                    }
+                    var url = _spPageContextInfo.webServerRelativeUrl + '/Lists/MissionTracker/DispForm.aspx?ID=' + id + "&Source=" + encodeURIComponent(redirect);
+                    return url;      
+                }
             }
         }
 
@@ -4651,6 +4659,7 @@
                         var doc = new MissionDocument(item);
                         doc.Mission.ApprovalAuthority = associatedMission.ApprovalAuthority;
                         doc.Mission.Organization = associatedMission.Organization;
+                        doc.Mission.onHoverText = associatedMission.buildOnHoverText();
                         doc.relatedChops = getRelatedChops(doc, chopsJSON);
                         doc.refreshChopProcessInfo();
                         return doc;
