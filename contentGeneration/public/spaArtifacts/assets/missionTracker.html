@@ -23,14 +23,18 @@
                 <uif-table-header>Modified By</uif-table-header>
               </uif-table-row>
             </uif-table-head>
-            <uif-table-body ng-repeat="(missionName, products) in vm.missionProductsDataSource">
+            <uif-table-body ng-repeat="group in vm.missionProductsDataSource" ng-if="group.meetsFilterCriteria && group.filteredItems.length > 0">
               <uif-table-row>
                 <uif-table-cell colspan="6" style="padding:0;">
-                  <div style="padding:3px 5px;color:#337ab7;"><span class="ms-fontColor-neutralTertiary ms-fontWeight-semibold">Mission:</span> <span class="ms-fontWeight-semibold">{{missionName}}</span>                    ({{products.length}})</span>
+                  <div style="padding:3px 5px;color:#337ab7;">
+                      
+                      <span class="ms-fontColor-neutralTertiary ms-fontWeight-semibold">
+                        <i style="cursor:pointer;" ng-click="group.isExpanded = !group.isExpanded" class="fa" ng-class="{'fa-plus-square-o': !group.isExpanded, 'fa-minus-square-o': group.isExpanded }" aria-hidden="true"></i>
+                        Mission:</span> <span class="ms-fontWeight-semibold">{{group.name}}</span> ({{group.filteredItems.length}})</span>
                   </div>
                 </uif-table-cell>
               </uif-table-row>
-              <uif-table-row ng-repeat="item in products">
+              <uif-table-row ng-if="group.meetsFilterCriteria && group.isExpanded" ng-repeat="item in group.filteredItems">
                 <uif-table-cell></uif-table-cell>
                 <uif-table-cell>{{item.TypeOfDocument}}</uif-table-cell>
                 <uif-table-cell><a ng-click="vm.openMissionProduct(item)" style="text-decoration:underline;cursor:pointer;" class="ms-fontColor-themePrimary">{{item.File.Name}}</a></uif-table-cell>
@@ -44,7 +48,7 @@
         <td style="vertical-align:top;padding-left:10px;">
           <uif-contextual-menu ng-show="vm.filterOptions.products.organization.length" uif-is-open="true" uif-multiselect="true" uif-close-on-click="false"
             style="position:static;float:right;">
-            <uif-contextual-menu-item uif-text="'Filter by Organization'" uif-type="header"></uif-contextual-menu-item>
+            <uif-contextual-menu-item uif-text="'Filter by'" uif-type="header"></uif-contextual-menu-item>
             <uif-contextual-menu-item ng-repeat="item in vm.filterOptions.products.organization" uif-is-selected="item.isSelected" ng-click="vm.onFilterOptionClicked(item, 'missionRelatedDocs')">
               <uif-content>
                 <span style="font-size:11px;" title="{{item.key}}">{{item.key}}</span>

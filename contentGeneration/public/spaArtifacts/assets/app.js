@@ -4547,16 +4547,16 @@
 
             function filterProducts() {
                 if (dataSourceName && dataSourceName !== 'missionRelatedDocs') { return; }
-                if (!dataSources.missionRelatedDocs.length) {
-                    vm.missionProductsDataSource = {};
-                    return;
-                }
-                vm.missionProductsDataSource =
-                    _.chain(dataSources.missionRelatedDocs)
-                        .filter(shouldShowBasedOnSelectedMissions)
-                        .filter(shouldShowBasedOnSelectedOrganizations)
-                        .groupBy(function (item) { return item.Mission.FullName; })
-                        .value();
+
+
+                var selectedOrganizations = getSelectedOrganizations();
+
+                _.each(vm.missionProductsDataSource, function(group){
+                    group.meetsFilterCriteria = _.includes(vm.selectedMissions_idList, group.id);
+                    group.filteredItems = _.filter(group.items, function(item){
+                        return _.includes(selectedOrganizations, item.Organization);
+                    });
+                });
             }
         }
 
@@ -4570,9 +4570,9 @@
             return _.includes(selectedOptions, item.chopProcessInfo.overallChopStatus);
         }
 
-        function shouldShowBasedOnSelectedOrganizations(item) {
+        function getSelectedOrganizations() {
             var selectedOptions = _.map(_.filter(vm.filterOptions.products.organization, { isSelected: true }), 'key');
-            return _.includes(selectedOptions, item.Organization);
+            return selectedOptions;
         }
 
         function activate() {
@@ -4583,6 +4583,22 @@
                     dataSources.chopProcesses = _.filter(dataSources.missionRelatedDocs, function (doc) { return !!doc.ChopProcessInitiationDate; });
                     buildFilterControlsForProducts();
                     buildFilterControlsForChopProcesses();
+
+                    vm.missionProductsDataSource =
+                        _.chain(dataSources.missionRelatedDocs)
+                            .groupBy(function (item) { return item.Mission.FullName; })
+                            .map(function (items, groupName) { 
+                                return { name: groupName,
+                                    id: items[0].Mission.Id, 
+                                    items: items,
+                                    filteredItems: [],
+                                    meetsFilterCriteria: false, 
+                                    isExpanded: false 
+                                }; 
+                            })
+                            .sortBy(['name'])
+                            .value();
+
                     logger.info('Activated Mission Tacker View');
                 });
         }
