@@ -418,20 +418,7 @@ crisisResponseSchema.listDefs["Mission Tracker"] = {
 		BaseTemplate: 'genericList',
 		shouldHideTitleField: true,
 		fieldsToCreate:[
-			{
-				//EXAMPLE: SINGLE LINE OF TEXT
-				//This field should be hidden one new form and read only on edit.  
-				//Generated on save using following format: Organization_XXX_MissionType, ex. SOTG10_003_KS
-				Name: "MissionID",
-				DisplayName: "Mission ID",
-				Type: "Text",
-				Required: "False",
-				MaxLength: 255,
-				Default: "",							//(optional)
-				ShowInNewForm: 'FALSE',
-				ShowInEditForm: 'TRUE'
-			},
-			{
+						{
 				//EXAMPLE: SINGLE LINE OF TEXT
 				//This field should be hidden one new form and read only on edit
 				//Generated on save using following format: Organization_XXX_MissionType (ObjectiveName, OperationName), ex. SOTG10_003_KS (OBJ_HAN, OBJ, SOLO)
@@ -446,14 +433,16 @@ crisisResponseSchema.listDefs["Mission Tracker"] = {
 			},
 			{
 				//EXAMPLE: SINGLE LINE OF TEXT
-				Name: "ObjectiveName",
-				DisplayName: "Objective Name",
+				//This field should be hidden one new form and read only on edit.  
+				//Generated on save using following format: Organization_XXX_MissionType, ex. SOTG10_003_KS
+				Name: "MissionID",
+				DisplayName: "Mission ID",
 				Type: "Text",
-				Required: "TRUE",
+				Required: "False",
 				MaxLength: 255,
-				Description: "Name of Objective/Target. One word, all CAPs, prefix name with OBJ.",
-				Default: "OBJ_"							//(optional)
-				
+				Default: "",							//(optional)
+				ShowInNewForm: 'FALSE',
+				ShowInEditForm: 'TRUE'
 			},
 			{
 				//EXAMPLE: Dropdown
@@ -488,6 +477,17 @@ crisisResponseSchema.listDefs["Mission Tracker"] = {
 				FillInChoice: "FALSE",
 				Choices: [], 
 				Default: ''							//(optional)
+			},
+			{
+				//EXAMPLE: SINGLE LINE OF TEXT
+				Name: "ObjectiveName",
+				DisplayName: "Objective Name",
+				Type: "Text",
+				Required: "TRUE",
+				MaxLength: 255,
+				Description: "Name of Objective/Target. One word, all CAPs, prefix name with OBJ.",
+				Default: "OBJ_"							//(optional)
+				
 			},
 			{
 				//EXAMPLE: SINGLE LINE OF TEXT
