@@ -779,7 +779,6 @@
                 this.RespondentPhone = undefined; //string or null
                 this.ResponseSufficient = undefined; //string or null
                 this.ResponseToRequest = undefined; //string or null
-                this.RfiTrackingNumber = undefined; //integer or null
                 this.Status = undefined; //string
                 this.__metadata = {
                     type: "SP.Data.RfiListItem"
@@ -1580,7 +1579,7 @@
 
         var fieldsToSelect = [
             spContext.SP2013REST.selectForCommonListFields,
-            'Status,RfiTrackingNumber,MissionId,Details,Priority,LTIOV,PocNameId,PocPhone,PocOrganization,RecommendedOPR',
+            'Status,MissionId,Details,Priority,LTIOV,PocNameId,PocPhone,PocOrganization,RecommendedOPR',
             'ManageRFIId,RespondentNameId,RespondentPhone,ResponseToRequest,DateClosed,ResponseSufficient,InsufficientExplanation,PrioritySort',
             'Mission/FullName,PocName/Title,ManageRFI/Title,RespondentName/Title'
         ].join(',');
@@ -1663,7 +1662,6 @@
 
             if (_.includes(['new', 'edit'], formState)) {
                 listItem.set_item('Title', rfi.Title);
-                listItem.set_item('RfiTrackingNumber', (rfi.RfiTrackingNumber || null));
                 listItem.set_item('Mission', convertToFieldLookupValue(rfi.MissionId));
                 listItem.set_item('Details', rfi.Details);
                 listItem.set_item('Priority', rfi.Priority);
@@ -1676,7 +1674,6 @@
             }
 
             if (formState === 'respond') {
-                listItem.set_item('RfiTrackingNumber', (rfi.RfiTrackingNumber || null));
                 listItem.set_item('Mission', convertToFieldLookupValue(rfi.MissionId));
                 listItem.set_item('RecommendedOPR', rfi.RecommendedOPR);
 
@@ -4416,7 +4413,6 @@
             rfi.Id = _.getQueryStringParam("ID");
             rfi.Title = SPUtility.GetSPFieldByInternalName("Title").GetValue();
             rfi.Status = SPUtility.GetSPFieldByInternalName("Status").GetValue();
-            rfi.RfiTrackingNumber = SPUtility.GetSPFieldByInternalName("RfiTrackingNumber").GetValue();
             rfi.MissionId = spContext.getIdFromLookupField("Mission");
             rfi.Details = SPUtility.GetSPFieldByInternalName("Details").GetValue();
             rfi.Priority = SPUtility.GetSPFieldByInternalName("Priority").GetValue();

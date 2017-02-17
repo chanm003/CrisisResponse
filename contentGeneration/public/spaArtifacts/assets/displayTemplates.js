@@ -89,7 +89,6 @@
                         //RFI LIST
                         'Title': { 'EditForm': renderField_Title },
                         'Status': { 'EditForm': renderField_Status },
-                        'RfiTrackingNumber': { 'EditForm': renderField_RfiTrackingNumber },
                         'Details': { 'EditForm': renderField_Details },
                         'Priority': { 'EditForm': renderField_Priority },
                         'LTIOV': {'EditForm': renderField_LTIOV },
@@ -126,16 +125,6 @@
                     return getDefaultHtmlOutput(ctx);
                 } else if(_.includes(["edit", "respond", "reopen"], rfiFormState)){
                     return SPField_FormDisplay_Default(ctx) + wrapInHiddenDiv(SPFieldChoice_Edit(ctx));
-                }
-            }
-
-            function renderField_RfiTrackingNumber(ctx){
-                var rfiFormState = getStateForRfiForm(ctx);
-                
-                if(_.includes(["", "edit", "respond"], rfiFormState)){
-                    return getDefaultHtmlOutput(ctx);
-                } else if(_.includes(["reopen"], rfiFormState)){
-                    return SPField_FormDisplay_Default(ctx) + wrapInHiddenDiv(SPFieldText_Edit(ctx));
                 }
             }
 
@@ -705,7 +694,6 @@
                         "RespondentName": ['new', 'edit'],
                         "RespondentPhone": ['new', 'edit'],
                         "ResponseToRequest": ['new', 'edit'],
-                        "RfiTrackingNumber": ['new'],
                         "DateClosed": ['new', 'edit'],
                         "ResponseSufficient": ['new', 'edit', 'respond'],
                         "InsufficientExplanation": ['new', 'edit', 'respond']

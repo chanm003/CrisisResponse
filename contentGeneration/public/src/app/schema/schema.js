@@ -1114,14 +1114,6 @@ crisisResponseSchema.listDefs["RFI"] = {
 			Default: 'Open'							//(optional)
 		},
 		{
-			//EXAMPLE: Number
-			Name: "RfiTrackingNumber",
-			DisplayName: "RFI Tracking",
-			Type: "Number",
-			Required: "FALSE",
-			Decimals: 0
-		},
-		{
 			//EXAMPLE: Lookup field
 			Name: "Mission",
 			DisplayName: "Mission",

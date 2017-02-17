@@ -140,7 +140,6 @@
             <tr>
                 <th>POC Organization</th>
                 <th>Recommended OPR</th>
-                <th>Tracking #</th>
                 <th>Title</th>
                 <th>LTIOV</th>
                 <th>Status</th>
@@ -151,7 +150,6 @@
             <tr ng-repeat="item in vm.openRFIs">
                 <td>{{item.PocOrganization}}</td>
                 <td>{{item.RecommendedOPR}}</td>
-                <td>{{item.RfiTrackingNumber}}</td>
                 <td>{{item.Title}} <span ng-show="vm.isNew(item.Created)" class="ms-newdocument-iconouter"><img class="ms-newdocument-icon" src="/_layouts/15/images/spcommon.png?rev=44" alt="new" title="new"></span></td>
                 <td>
                     {{(item.LTIOV.isValid())? item.LTIOV.format('DD MMM YY HHmm[Z]').toUpperCase() : ''}}
