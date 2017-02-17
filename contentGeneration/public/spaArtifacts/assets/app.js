@@ -1956,7 +1956,7 @@
         }
 
         function getOpenMissionsByApprovalChain(org){
-            return getItems({$filter:"Status ne 'Mission Closed'"})
+            return getItems({$filter:"Status ne 'Mission Completed'"})
                         .then(function(results){
                             if (org) {
                                 results = _.filter(results, function (item) {
@@ -3452,7 +3452,7 @@
                 { name: "StoryBoard", cssStyle: { 'background-color':'#2C5197', 'border-color': '#2C5197', 'color': '#000' } }, //blue, black
                 { name: "OPSUM", cssStyle: { 'background-color':'#2C5197', 'border-color': '#2C5197', 'color': '#000' } }, //blue, black
 
-                { name: "Mission Closed", cssStyle: {'background-color':'#000', 'border-color': '#000', 'color': '#fff'} } //black, white
+                { name: "Mission Completed", cssStyle: {'background-color':'#000', 'border-color': '#000', 'color': '#fff'} } //black, white
             ];
 
 
@@ -3473,7 +3473,7 @@
 
                 var now = moment();
                 scope.missionsToShow = _.filter(scope.missions, function (item) {
-                    return scope.showCompletedMissions || item.Status !== 'Mission Closed';
+                    return scope.showCompletedMissions || item.Status !== 'Mission Completed';
                 });
 
                 scope.onMissionsFiltered({ missions: scope.missionsToShow });
@@ -3569,8 +3569,8 @@
         }
 
         function buildCheckboxHtml() {
-            var html = '<uif-choicefield-option uif-type="checkbox" value="value1" ng-model="showCompletedMissions" ng-true-value="true" ng-false-value="false"> Show Closed Missions</uif-choicefield-option>';
-            //var html = '<input type="checkbox" ng-model="showCompletedMissions"> <label>Show Closed Missions</label>';
+            var html = '<uif-choicefield-option uif-type="checkbox" value="value1" ng-model="showCompletedMissions" ng-true-value="true" ng-false-value="false"> Show Completed Missions</uif-choicefield-option>';
+            //var html = '<input type="checkbox" ng-model="showCompletedMissions"> <label>Show Completed Missions</label>';
             return html;
         }
 
@@ -5282,7 +5282,7 @@
                 { name: "StoryBoard" },
                 { name: "OPSUM" },
 
-                { name: "Mission Closed" }
+                { name: "Mission Completed" }
             ];
 
             _.map(groupings, function(group){
