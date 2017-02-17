@@ -1,0 +1,90 @@
+<div class="crt-tabs">
+    <div class="crt-tablist">
+        <uif-pivot uif-type="{{vm.tabConfig.selectedType}}" uif-size="{{vm.tabConfig.selectedSize}}" uif-pivots="vm.tabConfig.pivots"
+            uif-selected="vm.tabConfig.selectedPivot" id="msPivot" class="pivot-overflow-fix">
+        </uif-pivot>
+    </div>
+    <div class="crt-tabcontent">
+
+        <!--TAB 1 CONTENT -->
+        <table ng-show="vm.tabConfig.selectedPivot.title === 'Document'" class="ms-formtable" style="margin-top: 8px;" border="0" cellpadding="0" id="formTbl" cellspacing="0" width="100%">
+            <tbody>
+                <tr>
+                    <td nowrap="true" valign="top" width="113px" class="ms-formlabel">
+                        <span class="ms-h3 ms-standardheader">
+                            Version
+                        </span>
+                    </td>
+                    <td valign="top" class="ms-formbody" width="350px">
+                        {{vm.document.OData__UIVersionString}}
+                    </td>
+                </tr>
+                <tr>
+                    <td nowrap="true" valign="top" width="113px" class="ms-formlabel">
+                        <span class="ms-h3 ms-standardheader">
+                            Organization
+                        </span>
+                    </td>
+                    <td valign="top" class="ms-formbody" width="350px">
+                        {{vm.document.Organization}}
+                    </td>
+                </tr>
+                <tr>
+                    <td nowrap="true" valign="top" width="113px" class="ms-formlabel">
+                        <span class="ms-h3 ms-standardheader">
+                            Type of Document
+                        </span>
+                    </td>
+                    <td valign="top" class="ms-formbody" width="350px">
+                        {{vm.document.TypeOfDocument}}
+                    </td>
+                </tr>
+                <tr>
+                    <td nowrap="true" valign="top" width="113px" class="ms-formlabel">
+                        <span class="ms-h3 ms-standardheader">
+                            Mission
+                        </span>
+                    </td>
+                    <td valign="top" class="ms-formbody" width="350px">
+                        <div>{{vm.document.Mission.FullName}}</div>
+                        <div>{{vm.document.Mission.MissionType}}</div>
+                        <div>{{vm.document.Mission.ApprovalAuthority}}</div>
+                    </td>
+                </tr>
+                <tr>
+                    <td nowrap="true" valign="top" width="113px" class="ms-formlabel">
+                        <span class="ms-h3 ms-standardheader">
+                            File
+                        </span>
+                    </td>
+                    <td valign="top" class="ms-formbody" width="350px">
+                            <filepreview mission-document="vm.document"></filepreview>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!--TAB 3 CONTENT -->
+        <uif-table ng-show="vm.tabConfig.selectedPivot.title === 'Previous Versions'">
+            <uif-table-head>
+                <uif-table-row>
+                    <uif-table-header>No</uif-table-header>
+                    <uif-table-header>Modified</uif-table-header>
+                    <uif-table-header>Modified By</uif-table-header>
+                </uif-table-row>
+            </uif-table-head>
+
+            <uif-table-body>
+              <uif-table-row ng-repeat="item in vm.document.versions">
+                <uif-table-cell>
+                    <a ng-href="{{item.Url}}">
+                        {{item.VersionLabel}}
+                    </a>
+                </uif-table-cell>
+                <uif-table-cell>{{item.Created}}</uif-table-cell>
+                <uif-table-cell>{{item.CreatedBy.Title}}</uif-table-cell>
+              </uif-table-row>
+            </uif-table-body>
+        </uif-table>
+    </div>
+</div>

@@ -196,6 +196,14 @@ body #suiteBarLeft{
   line-height: 1.5em;
 }
 
+.ms-NavBar-link:hover{
+  text-decoration: none;
+}
+
+.ms-NavBar-link:visited{
+  color: #333;
+}
+
 .ms-Table td {
   vertical-align: top;
   border-bottom: solid 1px rgb(234, 234, 234);

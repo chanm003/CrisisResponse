@@ -240,6 +240,10 @@
                 templateUrl: jocInBoxConfig.htmlTemplatesLocation + '/helpdesk.html',
                 controller: 'HelpDeskController as vm'
             })
+            .when('/document/:id?', {
+                templateUrl: jocInBoxConfig.htmlTemplatesLocation + '/mission-document-details.html',
+                controller: 'DocumentDetailsController as vm'
+            })
             .otherwise({
                 controller : function(){
                     
@@ -312,7 +316,8 @@
         service.sendEmail = sendEmail;
         service.generateEmailBody = generateEmailBody;
         service.getUserInfoListItem = getUserInfoListItem;
-        service.getGroupByDescription = getGroupByDescription
+        service.getGroupByDescription = getGroupByDescription;
+        service.getFileVersions = getFileVersions;
 
         service.htmlHelpers = {};
         service.htmlHelpers.buildHeroButton = function (text, href, ngShowAttrValue) {
@@ -569,6 +574,21 @@
             return ngResource.get().$promise
                 .then(function(response){
                     return response.d;
+                });
+        }
+
+        function getFileVersions(fileUrl){
+            var ngResource = $resource( _spPageContextInfo.siteAbsoluteUrl + "/_api/web/getFileByServerRelativeUrl(':fileUrl')/Versions?$orderby=Created desc&$select=CheckInComment,Created,CreatedBy/Title,ID,Url,VersionLabel&$expand=CreatedBy",
+                { fileUrl: fileUrl },
+                {
+                    get: {
+                        method: 'GET',
+                        headers: defaultHeaders
+                    }
+                });
+            return ngResource.get().$promise
+                .then(function(response){
+                    return response.d.results;
                 });
         }
 
@@ -1089,6 +1109,40 @@
             return DocumentChopsRepository.save(dto);
         }
 
+        MissionDocument.prototype.openInNewTab = function(){
+            window.open(this.generateUrl(), "_blank");
+        }
+
+        MissionDocument.prototype.getFileExtension = function(){
+            if(_.includes(this.File.ServerRelativeUrl, '.')){
+                return this.File.ServerRelativeUrl.substr(this.File.ServerRelativeUrl.lastIndexOf('.')+1);
+            } else {
+                return "";
+            }
+        }
+
+        MissionDocument.prototype.generateUrl = function(wopiAction){
+            var url;
+
+            if(this.isOfficeDocument()){
+                wopiAction = wopiAction || 'default';
+                url = _spPageContextInfo.webServerRelativeUrl + '/_layouts/15/WopiFrame2.aspx?action='+wopiAction+'&sourcedoc=' + this.File.ServerRelativeUrl;
+            } else {
+                url = this.File.ServerRelativeUrl;
+            }
+            return url;
+        }
+
+        MissionDocument.prototype.isImage = function(){
+            var fileExtension = this.getFileExtension();
+            return !!fileExtension && _.includes(['jpg', 'bmp', 'png', 'gif', 'tif'], fileExtension);
+        }
+
+        MissionDocument.prototype.isOfficeDocument = function(){
+            var fileExtension = this.getFileExtension();
+            return !!fileExtension && _.includes(['doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx'], fileExtension);
+        }
+
         MissionDocument.prototype.refreshChopProcessInfo = function () {
             if (!this.ChopProcessInitiationDate) {
                 this.chopProcessInfo = null;
@@ -1120,7 +1174,11 @@
         }
 
         function buildRouteStages(doc, jocInBoxConfig) {
-            //approval chain (lookup based on Organization conducting the mission and approval authority for the mission)
+            if(!doc.Mission.Organization || !doc.Mission.ApprovalAuthority){
+                //approval chain (lookup based on Organization conducting the mission and approval authority for the mission)
+                return [];
+            }
+
             var stageNames = _.find(jocInBoxConfig.dashboards[doc.Mission.Organization].routes, { name: doc.Mission.ApprovalAuthority }).sequence;
             var routeStages = _.map(stageNames, function (stageName) {
                 var routeStage = {
@@ -1417,6 +1475,7 @@
     function DocumentChopsRepository($http, $q, $resource, exception, logger, spContext) {
         var service = {
             getAll: getAll,
+            getByDocumentId: getByDocumentId,
             save: save
         };
 
@@ -1437,6 +1496,15 @@
 
         function getAll() {
             var qsParams = {}; //{$filter:"FavoriteNumber eq 8"};
+            return getItems(qsParams);
+        }
+
+        function getByDocumentId(id){
+            var qsParams = {$filter: "DocumentId eq '"+id+"'"};
+            return getItems(qsParams);
+        }
+
+        function getItems(qsParams){
             return spContext.constructNgResourceForRESTCollection(ngResourceConstructParams).get(qsParams).$promise
                 .then(function (response) {
                     return response.d.results;
@@ -1665,7 +1733,7 @@
         var fieldsToSelect = [
             spContext.SP2013REST.selectForCommonDocumentFields,
             'Organization,TypeOfDocument,MissionId,FlaggedForSoacDailyUpdate,DailyProductDate',
-            'VersionBeingChopped,ChopProcessInitiationDate',
+            'VersionBeingChopped,ChopProcessInitiationDate,OData__UIVersionString',
             'Mission/Id,Mission/FullName'
         ].join(',');
 
@@ -1824,6 +1892,7 @@
     MissionTrackerRepository.$inject = ['$http', '$q', '$resource', 'exception', 'logger', 'spContext'];
     function MissionTrackerRepository($http, $q, $resource, exception, logger, spContext) {
         var service = {
+            getAll: getAll,
             getByOrganization: getByOrganization,
             getOpenMissionsByApprovalChain: getOpenMissionsByApprovalChain,
             save: save,
@@ -1862,6 +1931,10 @@
                     item.deriveFullName();
                     return item;
                 });
+        }
+
+        function getAll(){
+            return getItems();
         }
 
         function getById(id) {
@@ -2559,6 +2632,75 @@
                 scope.document.chopProcessInfo.selectedRouteStage = _.find(scope.document.chopProcessInfo.routeStages, {name: stepName});
                 
             }
+        }
+    }
+
+})(jocInBoxConfig.noConflicts.jQuery, jocInBoxConfig.noConflicts.lodash);
+
+/* Directive: filepreview */
+(function ($, _) {
+    angular
+        .module('app.core')
+        .directive('filepreview', filepreview);
+
+    function filepreview() {
+        /* 
+        USAGE: <filepreview mission-document=""></filepreview>
+        */
+        var directiveDefinition = {
+            restrict: 'E',
+            link: linkFunc,
+            scope: {
+                missionDocument: "="
+            },
+            template:
+                '<div class="js-callout-bodySection">\
+                    <div class="js-filePreview-containingElement">\
+                    </div>\
+                </div>'
+        };
+        return directiveDefinition;
+
+        function linkFunc(scope, elem, attrs){
+            scope.$watch('missionDocument', function(newVal, oldVal){
+                if(newVal !== oldVal){
+                    var container = elem.find(".js-filePreview-containingElement");
+                    if(newVal.isOfficeDocument()){
+                        renderIFrame(container, newVal);
+                    } else if(newVal.isImage()){
+                        renderImage(container, newVal);
+                    } else {
+                        renderAnchor(container, newVal);
+                    }
+                }
+            });
+        }
+
+        function renderAnchor(elem, missionDoc){
+            var url = missionDoc.generateUrl();
+            var html = 
+                '<a href="'+url+'">\
+                </a>';
+
+            elem.html(html);
+        }
+
+        function renderIFrame(elem, missionDoc){
+            var url = missionDoc.generateUrl('interactivepreview') + "&wdSmallView=1";
+            var html = 
+                '<div class="js-frame-wrapper" style="line-height: 0">\
+                    <iframe style="width:758px; height:504px;" src="'+url+'" frameborder="0"></iframe>\
+                </div>';
+
+            elem.html(html);
+        }
+
+        function renderImage(elem, missionDoc){
+            var url = missionDoc.generateUrl();
+            var html = 
+                '<img alt="'+missionDoc.File.Name+'" title="'+missionDoc.File.Name+'" src="'+url+'" style="max-width: 350px; max-height: 250px;" onload="(event.srcElement ? event.srcElement : event.target).style.minHeight = \'\';">';
+
+            elem.html(html);
         }
     }
 
@@ -4502,21 +4644,12 @@
                 var url = _spPageContextInfo.webServerRelativeUrl + '/Lists/RFI/DispForm.aspx?ID=' + item.Id;
                 window.open(url, "_blank");
             } else {
-                openDocument(item);
+                openInNewTab(item);
             }
         }
 
-        function openDocument(item){
-            var fileExtension = item.File.ServerRelativeUrl.substr(item.File.ServerRelativeUrl.lastIndexOf('.')+1);
-            var url;
-
-            if(_.includes(['doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx'], fileExtension)){
-                url = _spPageContextInfo.webServerRelativeUrl + '/_layouts/15/WopiFrame2.aspx?action=default&sourcedoc=' + item.File.ServerRelativeUrl;
-            } else {
-                url = item.File.ServerRelativeUrl;
-            }
-
-            window.open(url, "_blank");
+        function openInNewTab(doc){
+            doc.openInNewTab();
         }
 
         function applyFilters(dataSourceName) {
@@ -5336,6 +5469,82 @@
                     .groupBy(pivot.groupByFieldName)
                     .value();
             });
+        }
+    }
+})(jocInBoxConfig.noConflicts.jQuery, jocInBoxConfig.noConflicts.lodash);
+
+/* Controller: DocumentDetailsController with route for SPA*/
+(function ($, _) {
+    angular
+        .module('app.core')
+        .controller('DocumentDetailsController', ControllerDefFunc);
+
+    ControllerDefFunc.$inject = ['$q', '$scope', '$routeParams', '_', 'logger', 'spContext','MissionDocument','MissionDocumentRepository', 'DocumentChopsRepository', 'Mission', 'MissionTrackerRepository'];
+    function ControllerDefFunc($q, $scope, $routeParams, _, logger, spContext, MissionDocument, MissionDocumentRepository, DocumentChopsRepository, Mission, MissionTrackerRepository) {
+        var vm = this;
+        var pivots;
+        activate();
+        
+        function fetchData(){
+            return $q.all([
+                MissionDocumentRepository.getById($routeParams.id),
+                DocumentChopsRepository.getByDocumentId($routeParams.id),
+                MissionTrackerRepository.getAll() //would be superfluous if Organization and Approval Authority were Single Line of Text instead of Choice
+            ])
+            .then(function(data){
+                var document = new MissionDocument(data[0]);
+
+                var associatedMission = _.find(data[2], {Id: document.MissionId});
+                if(associatedMission){
+                    var associatedMission = new Mission(associatedMission);
+                    document.Mission = associatedMission;
+                    document.relatedChops = data[1];
+                    document.refreshChopProcessInfo();  
+                }
+                return document;
+            })
+            .then(getVersions);
+
+            function getVersions(document){
+                return spContext.getFileVersions(document.File.ServerRelativeUrl)
+                    .then(function(versions){
+                        document.versions = versions;
+                        return document;
+                    });
+            }
+        }
+
+        function activate() {
+            initTabs();
+            fetchData()
+                .then(function (data) {
+                    vm.document = data;
+                    console.log(vm.document);
+                    logger.info('Activated Document Details View');
+                });
+        }
+
+        function initTabs() {
+            pivots = [
+                { 
+                    title: "Document", 
+                },
+                { 
+                    title: "Chop Process", 
+                },{ 
+                    title: "Previous Versions", 
+                }
+            ];
+
+            var selectedIndex = (!$routeParams.tabIndex || $routeParams.tabIndex >= pivots.length) ? 0 : $routeParams.tabIndex;
+
+            vm.tabConfig = {
+                selectedSize: "large",
+                selectedType: "tabs",
+                pivots: pivots,
+                selectedPivot: pivots[selectedIndex],
+                menuOpened: false
+            }
         }
     }
 })(jocInBoxConfig.noConflicts.jQuery, jocInBoxConfig.noConflicts.lodash);
