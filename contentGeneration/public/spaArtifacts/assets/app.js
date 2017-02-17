@@ -1303,7 +1303,7 @@
         var Mission = function (data) {
             if (!data) {
                 this.Id = undefined; //number
-                this.Identifier = undefined; //string
+                this.MissionID = undefined; //string
                 this.FullName = undefined; //string
                 this.ObjectiveName = undefined; //string 
                 this.Organization = undefined; //string
@@ -1329,7 +1329,7 @@
         }
 
         Mission.prototype.deriveFullName = function () {
-            var parts = [this.Identifier, " (", this.ObjectiveName];
+            var parts = [this.MissionID, " (", this.ObjectiveName];
             if (this.OperationName) {
                 parts.push(", ");
                 parts.push(this.OperationName);
@@ -1338,12 +1338,12 @@
             this.FullName = parts.join("");
         }
 
-        Mission.prototype.deriveIdentifier = function (numMissionsCommanded) {
+        Mission.prototype.deriveMissionID = function (numMissionsCommanded) {
             var orgAsOneWord = _.words(this.Organization, /[a-zA-Z0-9-_]+/g).join("").toUpperCase(); //from "SOTG 10" to "SOTG10"
             numMissionsCommanded = numMissionsCommanded + 1;
             var threeDigitKey = _.padStart(numMissionsCommanded, 3, 0);  //from "8" to "008"
             var missionTypeAcronym = this.MissionType.split(":")[0]; //from "MA: Military Assistance" to "MA"
-            this.Identifier = [orgAsOneWord, threeDigitKey, missionTypeAcronym].join("_");
+            this.MissionID = [orgAsOneWord, threeDigitKey, missionTypeAcronym].join("_");
         }
 
         Mission.prototype.validate = function () {
@@ -1901,7 +1901,7 @@
 
         var fieldsToSelect = [
             spContext.SP2013REST.selectForCommonListFields,
-            "Identifier,FullName,ObjectiveName,Organization,MissionType,ApprovalAuthority,OperationName,Status,MissionApproved",
+            "MissionID,FullName,ObjectiveName,Organization,MissionType,ApprovalAuthority,OperationName,Status,MissionApproved",
             "ExpectedExecution,ExpectedTermination,ParticipatingOrganizations,Comments"
         ].join(',');
 
@@ -1915,7 +1915,7 @@
             listName: 'Mission Tracker'
         };
 
-        function generateMissionIdentifier(item) {
+        function generateMissionMissionID(item) {
             if (item.Id) {
                 //do nothing, since Identifer column only gets generated on new item created
                 item.deriveFullName();
@@ -1927,7 +1927,7 @@
             return restCollection.get(qsParams).$promise
                 .then(function (response) {
                     var numberOfMissionsCommandedByOrganizaton = response.d.results.length;
-                    item.deriveIdentifier(numberOfMissionsCommandedByOrganizaton);
+                    item.deriveMissionID(numberOfMissionsCommandedByOrganizaton);
                     item.deriveFullName();
                     return item;
                 });
@@ -1991,7 +1991,7 @@
 
         function save(item) {
             return validate(item)
-                .then(generateMissionIdentifier)
+                .then(generateMissionMissionID)
                 .then(performHttpPost);
 
             function performHttpPost(item) {
@@ -2902,7 +2902,7 @@
                 '               <span>Associate this document to a Mission:</span>',
                 '           </uif-dialog-subtext>',
                 '           <uif-dropdown ng-model="listItem.Mission.Id">',
-                '               <uif-dropdown-option ng-repeat="mission in missions" value="{{mission.Id}}" title="{{mission.Identifier}}">{{mission.Identifier}}</uif-dropdown-option>',
+                '               <uif-dropdown-option ng-repeat="mission in missions" value="{{mission.Id}}" title="{{mission.MissionID}}">{{mission.MissionID}}</uif-dropdown-option>',
                 '           </uif-dropdown>',
                 '           <uif-message-bar uif-type="error" ng-show="isFormValid()">',
                 '               <uif-content>This is a required field</uif-content>',
@@ -3481,7 +3481,7 @@
                 var groups = new vis.DataSet(_.map(scope.missionsToShow, function (item) { 
                     return { 
                         id: item.Id, 
-                        content: '<a title="'+item.buildOnHoverText()+'" href="'+generateUrlForMissionDetails(item.Id)+'">' + item.Identifier + '</a>' 
+                        content: '<a title="'+item.buildOnHoverText()+'" href="'+generateUrlForMissionDetails(item.Id)+'">' + item.MissionID + '</a>' 
                     }; 
                 }));
                 var items = new vis.DataSet(
@@ -4284,7 +4284,7 @@
             msn.OperationName = SPUtility.GetSPFieldByInternalName("OperationName").GetValue();
             msn.ParticipatingOrganizations = SPUtility.GetSPFieldByInternalName("ParticipatingOrganizations").GetValue();
             msn.Status = SPUtility.GetSPFieldByInternalName("Status").GetValue();
-            msn.Identifier = (itemOnEditFormAspxLoad) ? itemOnEditFormAspxLoad.Identifier : "";
+            msn.MissionID = (itemOnEditFormAspxLoad) ? itemOnEditFormAspxLoad.MissionID : "";
 
             var currentURL = document.location.pathname.toUpperCase();
             if (_.includes(currentURL, "/NEWFORM.ASPX")) {
@@ -5301,7 +5301,7 @@
             vm.missionDocsDialog = {
                 show: true,
                 documents: mission.relatedDocs,
-                header: "Documents for " + mission.Identifier
+                header: "Documents for " + mission.MissionID
             };
         }
 

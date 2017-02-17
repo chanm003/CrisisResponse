@@ -68,7 +68,7 @@
                         //LIST(s): Mission Documents
                         'ChopProcessInitiationDate': { 'View': renderActionButton },
                         //LIST(s): Mission Tracker
-                        'Identifier': { 'EditForm': renderAsReadOnly },
+                        'MissionID': { 'EditForm': renderAsReadOnly },
                         //LIST(s): Mission Tracker
                         'FullName': { 'EditForm': renderAsReadOnly },
                         //LIST(s): Mission Documents

@@ -422,8 +422,8 @@ crisisResponseSchema.listDefs["Mission Tracker"] = {
 				//EXAMPLE: SINGLE LINE OF TEXT
 				//This field should be hidden one new form and read only on edit.  
 				//Generated on save using following format: Organization_XXX_MissionType, ex. SOTG10_003_KS
-				Name: "Identifier",
-				DisplayName: "Identifier",
+				Name: "MissionID",
+				DisplayName: "Mission ID",
 				Type: "Text",
 				Required: "False",
 				MaxLength: 255,
