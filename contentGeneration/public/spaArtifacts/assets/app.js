@@ -992,6 +992,7 @@
                 this.Title = undefined; //string or null
                 this.Organization = undefined; //string
                 this.TypeOfDocument = undefined; //string
+                this.KeyDocument = undefined; //bool
                 this.MissionId = undefined; //integer or null
                 this.FlaggedForSoacDailyUpdate = undefined; //string or null
                 this.DailyProductDate = undefined; //string (ISO) or null "2016-08-01T07:00:00Z"
@@ -4546,6 +4547,7 @@
             doc.FileLeafRef = SPUtility.GetSPFieldByInternalName("FileLeafRef").GetValue();
             doc.Organization = SPUtility.GetSPFieldByInternalName("Organization").GetValue();
             doc.TypeOfDocument = SPUtility.GetSPFieldByInternalName("TypeOfDocument").GetValue();
+            doc.KeyDocument = SPUtility.GetSPFieldByInternalName("KeyDocument").GetValue();
             doc.MissionId = spContext.getIdFromLookupField("Mission");
             doc.FlaggedForSoacDailyUpdate = SPUtility.GetSPFieldByInternalName("FlaggedForSoacDailyUpdate").GetValue();
             doc.DailyProductDate = moment.utc(SPUtility.GetSPFieldByInternalName("DailyProductDate").GetValue().toString());

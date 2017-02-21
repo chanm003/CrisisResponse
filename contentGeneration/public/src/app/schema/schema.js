@@ -932,6 +932,14 @@ crisisResponseSchema.listDefs["Mission Documents"] = {
 			Default: ''							//(optional)
 		},
 		{
+			//EXAMPLE: Yes/No 
+			Name: "KeyDocument",
+			DisplayName: "Key Document",
+			Type: "Boolean",
+			Description: 'Check her to highlight as a key document',
+			Default: 0								//(optional) Use 0 if you want default to be 'No', 1 if for 'Yes'
+		},
+		{
 			//EXAMPLE: Lookup field
 			Name: "Mission",
 			DisplayName: "Mission",
@@ -1651,6 +1659,14 @@ crisisResponseSchema.listDefs["EXCON Documents"] = {
 			Default: ''							//(optional)
 		},
 		{
+			//EXAMPLE: Yes/No 
+			Name: "KeyDocument",
+			DisplayName: "Key Document",
+			Type: "Boolean",
+			Description: 'Check her to highlight as a key document',
+			Default: 0								//(optional) Use 0 if you want default to be 'No', 1 if for 'Yes'
+		},
+		{
 			//EXAMPLE: Dropdown
 			Name: "Subject",
 			DisplayName: "Subject",
@@ -1932,6 +1948,28 @@ crisisResponseSchema.webpartPageDefs['Component Command Page'] = {
 				},
 				{
 					attributes: {name: 'Title', type: 'string'},
+					innerText: 'Key Documents'
+				},
+				{
+					attributes: {name: 'TitleUrl', type: 'string'},
+					innerText: '#'
+				}
+			],
+			viewName: 'SOCC Key Documents',
+			viewFields: ['DocIcon', 'TypeOfDocument','LinkFilename', 'Author'],
+			viewCAML: '<OrderBy><FieldRef Name="TypeOfDocument"/><FieldRef Name="FileLeafRef"/></OrderBy><Where><Eq><FieldRef Name="KeyDocument"/><Value Type="Boolean">1</Value></Eq></Where>',
+			zoneName: 'Right',
+			zoneIndex: 0
+		},
+		{
+			listTitle: 'Mission Documents',
+			webPartProperties: [
+				{
+					attributes: {name: 'ListUrl', type: 'string'},
+					innerText: 'MissionDocuments'
+				},
+				{
+					attributes: {name: 'Title', type: 'string'},
 					innerText: 'Documents'
 				},
 				{
@@ -1943,7 +1981,7 @@ crisisResponseSchema.webpartPageDefs['Component Command Page'] = {
 			viewFields: ['DocIcon', 'LinkFilename', 'Author', 'ChopProcessInitiationDate'],
 			viewCAML: '<GroupBy Collapse="FALSE" GroupLimit="30"><FieldRef Name="TypeOfDocument"/><FieldRef Name="Organization"/></GroupBy><OrderBy><FieldRef Name="FileLeafRef"/></OrderBy>',
 			zoneName: 'Right',
-			zoneIndex: 10
+			zoneIndex: 20
 		},
 		{
 			listTitle: 'CCIR',
@@ -1986,7 +2024,7 @@ crisisResponseSchema.webpartPageDefs['Component Command Page'] = {
 				}
 			],
 			zoneName: 'Right',
-			zoneIndex: 0
+			zoneIndex: 10
 		},
 		{
 			name: 'Full Calendar',
@@ -2110,6 +2148,28 @@ crisisResponseSchema.webpartPageDefs['Task Group Page'] = {
 				},
 				{
 					attributes: {name: 'Title', type: 'string'},
+					innerText: 'Key Documents'
+				},
+				{
+					attributes: {name: 'TitleUrl', type: 'string'},
+					innerText: '#'
+				}
+			],
+			viewName: 'SOTG Key Documents',
+			viewFields: ['DocIcon', 'TypeOfDocument','LinkFilename', 'Author'],
+			viewCAML: '<OrderBy><FieldRef Name="TypeOfDocument"/><FieldRef Name="FileLeafRef"/></OrderBy><Where><Eq><FieldRef Name="KeyDocument"/><Value Type="Boolean">1</Value></Eq></Where>',
+			zoneName: 'Right',
+			zoneIndex: 0
+		},
+		{
+			listTitle: 'Mission Documents',
+			webPartProperties: [
+				{
+					attributes: {name: 'ListUrl', type: 'string'},
+					innerText: 'MissionDocuments'
+				},
+				{
+					attributes: {name: 'Title', type: 'string'},
 					innerText: 'Documents'
 				},
 				{
@@ -2121,7 +2181,7 @@ crisisResponseSchema.webpartPageDefs['Task Group Page'] = {
 			viewFields: ['DocIcon', 'LinkFilename', 'Author', 'ChopProcessInitiationDate'],
 			viewCAML: '<GroupBy Collapse="FALSE" GroupLimit="30"><FieldRef Name="TypeOfDocument"/></GroupBy><OrderBy><FieldRef Name="FileLeafRef"/></OrderBy>',
 			zoneName: 'Right',
-			zoneIndex: 10
+			zoneIndex: 20
 		}
 	],
 	scriptEditorWebparts: [
@@ -2142,7 +2202,7 @@ crisisResponseSchema.webpartPageDefs['Task Group Page'] = {
 				}
 			],
 			zoneName: 'Right',
-			zoneIndex: 0
+			zoneIndex: 10
 		},
 		{
 			name: 'Full Calendar',
@@ -2472,6 +2532,28 @@ crisisResponseSchema.webpartPageDefs['Exercise Conductor Page'] = {
 				},
 				{
 					attributes: {name: 'Title', type: 'string'},
+					innerText: 'Key Documents'
+				},
+				{
+					attributes: {name: 'TitleUrl', type: 'string'},
+					innerText: '#'
+				}
+			],
+			viewName: 'EXCON Key Documents',
+			viewFields: ['DocIcon', 'TypeOfDocument','LinkFilename', 'Author'],
+			viewCAML: '<OrderBy><FieldRef Name="TypeOfDocument"/><FieldRef Name="FileLeafRef"/></OrderBy><Where><Eq><FieldRef Name="KeyDocument"/><Value Type="Boolean">1</Value></Eq></Where>',
+			zoneName: 'Right',
+			zoneIndex: 10
+		},
+		{
+			listTitle: 'EXCON Documents',
+			webPartProperties: [
+				{
+					attributes: {name: 'ListUrl', type: 'string'},
+					innerText: 'ExconDocuments'
+				},
+				{
+					attributes: {name: 'Title', type: 'string'},
 					innerText: 'Documents'
 				},
 				{
@@ -2483,7 +2565,7 @@ crisisResponseSchema.webpartPageDefs['Exercise Conductor Page'] = {
 			viewFields: ['DocIcon', 'LinkFilename', 'Author'],
 			viewCAML: '<GroupBy Collapse="FALSE" GroupLimit="30"><FieldRef Name="TypeOfDocument"/></GroupBy><OrderBy><FieldRef Name="FileLeafRef"/></OrderBy>',
 			zoneName: 'Right',
-			zoneIndex: 10
+			zoneIndex: 20
 		},
 		{
 			listTitle: 'Inject',
