@@ -1456,6 +1456,9 @@
 			DisplayName: function (val) {
 				return _.isString(val);
 			},
+			EnforceUniqueValues: function (val) {
+				return _.isString(val) && _.contains(['TRUE', 'FALSE'], val.toUpperCase());
+			},
 			FillInChoice: function (val) {
 				return _.isString(val) && _.contains(['TRUE', 'FALSE'], val.toUpperCase());
 			},
@@ -1463,6 +1466,9 @@
 				return _.isString(val) && _.contains(['Calculated', 'DateOnly', 'DateTime', 'Dropdown', 'Hyperlink', 'Image', 'RadioButtons'], val);
 			},
 			Hidden: function (val) {
+				return _.isString(val) && _.contains(['TRUE', 'FALSE'], val.toUpperCase());
+			},
+			Indexed: function (val) {
 				return _.isString(val) && _.contains(['TRUE', 'FALSE'], val.toUpperCase());
 			},
 			List: function (val) {
@@ -1630,7 +1636,7 @@
 		}
 
 		function generateCamlForChoiceField(mapping) {
-			var supported = ["Name", "DisplayName", "Type", "Format", "Required", "Choices", "FillInChoice", "Default", "Description", "ShowInNewForm", "ShowInEditForm", "Hidden"];
+			var supported = ["Name", "DisplayName", "Type", "Format", "Required", "Choices", "FillInChoice", "Default", "Description", "ShowInNewForm", "ShowInEditForm", "Hidden", "EnforceUniqueValues", "Indexed"];
 			return generateCaml(mapping, supported);
 		}
 

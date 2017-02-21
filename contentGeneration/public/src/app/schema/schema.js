@@ -922,6 +922,40 @@ crisisResponseSchema.listDefs["Links"] = {
 		}
 	]
 }; 
+
+crisisResponseSchema.listDefs["RFI Notification"] = {
+	Title: "RFI Notification",
+	BaseTemplate: 'genericList',
+	enableFolderCreation: false,
+	enableVersioning: false,
+	shouldHideTitleField: true,
+	fieldsToCreate:[
+		{
+			//EXAMPLE: Dropdown
+			Name: "Organization",
+			DisplayName: "Organization",
+			Type: "Choice",
+			Format:"Dropdown",
+			Required: "TRUE",
+			FillInChoice: "FALSE",
+			EnforceUniqueValues: "TRUE",
+			Indexed: "TRUE",
+			Choices: [],						//will be generated 
+			Default: ''							//(optional)
+		},
+		{
+			//EXAMPLE: Person or Group (allow multiple)
+			Name: "Recipients",
+			DisplayName: "Recipients",
+			Type: "UserMulti",
+			Required: "TRUE",
+			UserSelectionMode: "PeopleOnly",	//please specify either 'PeopleOnly' or 'PeopleAndGroups'
+			ShowField: 'ImnName',				//Name with presence	
+			Mult: "TRUE",
+			Description: "Identify the persons to receive the notification of a new RFI"
+		}
+	]
+}; 
 	
 crisisResponseSchema.listDefs["Mission Documents"] = {
 	Title: "Mission Documents",
@@ -2941,6 +2975,19 @@ crisisResponseSchema.organizationalChoiceFields = [
 			includeTaskGroups: true,
 			includeStaffSections: true,
 			includeNotionals: true,
+			includeExerciseControlGroup: true,
+			includeAirComponent: true,
+			includeCommunicationsComponent: false
+		}
+	},
+	{
+		listName: "RFI Notification",
+		fieldName: "Organization",
+		generationFlags: {
+			includeComponentCommands: true,
+			includeTaskGroups: true,
+			includeStaffSections: true,
+			includeNotionals: false,
 			includeExerciseControlGroup: true,
 			includeAirComponent: true,
 			includeCommunicationsComponent: false
