@@ -1932,7 +1932,7 @@ crisisResponseSchema.webpartPageDefs['Component Command Page'] = {
 				}
 			],
 			viewName: 'SOCC Outbound Messages',
-			viewFields: ['DTG', 'Receiver', 'LinkTitleNoMenu', 'LinkToMissionDocument', 'Initials', 'Significant'],
+			viewFields: ['DTG', 'LinkTitleNoMenu', 'Receiver', 'LinkToMissionDocument', 'Initials', 'Significant'],
 			viewCAML: '<OrderBy><FieldRef Name="DateTimeGroup" Ascending="FALSE"/></OrderBy>',
 			rowLimit: 5,
 			zoneName: 'Left',
@@ -2154,7 +2154,7 @@ crisisResponseSchema.webpartPageDefs['Task Group Page'] = {
 				}
 			],
 			viewName: 'SOTG Outbound Messages',
-			viewFields: ['DTG', 'Receiver', 'LinkTitleNoMenu', 'LinkToMissionDocument', 'Initials', 'Significant'],
+			viewFields: ['DTG', 'LinkTitleNoMenu', 'Receiver', 'LinkToMissionDocument', 'Initials', 'Significant'],
 			viewCAML: '<OrderBy><FieldRef Name="DateTimeGroup" Ascending="FALSE"/></OrderBy>',
 			rowLimit: 5,
 			zoneName: 'Left',
@@ -2423,7 +2423,7 @@ crisisResponseSchema.webpartPageDefs['Air Component Page'] = {
 				}
 			],
 			viewName: 'SOAC Outbound Messages',
-			viewFields: ['DTG', 'Receiver', 'LinkTitleNoMenu', 'LinkToMissionDocument', 'Initials', 'Significant'],
+			viewFields: ['DTG', 'LinkTitleNoMenu', 'Receiver', 'LinkToMissionDocument', 'Initials', 'Significant'],
 			viewCAML: '<OrderBy><FieldRef Name="DateTimeGroup" Ascending="FALSE"/></OrderBy>',
 			rowLimit: 5,
 			zoneName: 'Left',
@@ -2582,7 +2582,7 @@ crisisResponseSchema.webpartPageDefs['Exercise Conductor Page'] = {
 				}
 			],
 			viewName: 'EXCON Outbound Messages',
-			viewFields: ['DTG', 'Receiver', 'LinkTitleNoMenu', 'LinkToMissionDocument', 'Initials', 'Significant'],
+			viewFields: ['DTG', 'LinkTitleNoMenu', 'Receiver', 'LinkToMissionDocument', 'Initials', 'Significant'],
 			viewCAML: '<OrderBy><FieldRef Name="DateTimeGroup" Ascending="FALSE"/></OrderBy>',
 			rowLimit: 5,
 			zoneName: 'Left',
