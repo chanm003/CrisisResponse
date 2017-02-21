@@ -251,6 +251,8 @@
 						.then(createRFIList)
 						.then(createRouteConfigurationList)
 						.then(createMissionDocumentsLibrary)
+						.then(modifyPermissionsOnSitePagesLibrary)
+						.then(modifyPermissionsOnSiteAssetsLibrary)
 						.then(modifyPermissionsOnConfigList);
 
 			function createAARList() {
@@ -351,6 +353,26 @@
 					loginName: 'c:0(.s|true', //aka 'EVERYONE'
 					type: 'SP.List',
 					listName: 'Config',
+					permissionLevel: SP.RoleType.reader
+				});
+			}
+
+			function modifyPermissionsOnSitePagesLibrary(){
+				return sharepointUtilities.assignUniquePermissions({
+					webUrl: vm.childWebUrl,
+					loginName: 'c:0(.s|true', //aka 'EVERYONE'
+					type: 'SP.List',
+					listName: 'Site Pages',
+					permissionLevel: SP.RoleType.reader
+				});
+			}
+
+			function modifyPermissionsOnSiteAssetsLibrary(){
+				return sharepointUtilities.assignUniquePermissions({
+					webUrl: vm.childWebUrl,
+					loginName: 'c:0(.s|true', //aka 'EVERYONE'
+					type: 'SP.List',
+					listName: 'Site Assets',
 					permissionLevel: SP.RoleType.reader
 				});
 			}
