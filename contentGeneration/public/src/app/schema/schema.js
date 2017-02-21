@@ -78,8 +78,8 @@ crisisResponseSchema.listDefs["AAR"] = {
 		{
 			title: 'Recent',
 			defaultView: true,
-			viewFields: ['Title', 'Date', 'Issue', 'Discussion', 'Recommendation', 'Organization', 'Author'],
-			query: '<OrderBy><FieldRef Name="Modified" Ascending="FALSE"/></OrderBy>',
+			viewFields: ['Title', 'Date', 'Issue', 'Discussion', 'Recommendation', 'Organization', 'Created', 'Author'],
+			query: '<OrderBy><FieldRef Name="ID" Ascending="FALSE"/></OrderBy>',
 			viewTypeKind: 0
 		}
 	]
@@ -1109,6 +1109,12 @@ crisisResponseSchema.listDefs["Mission Documents"] = {
 			viewFields: ['DocIcon', 'Organization', 'LinkFilename', 'Mission', 'Modified', 'Editor'],
 			query: '<GroupBy Collapse="FALSE" GroupLimit="30"><FieldRef Name="TypeOfDocument"/></GroupBy><OrderBy><FieldRef Name="ID" Ascending="FALSE"/></OrderBy><Where><Or><Or><Or><Or><Or><Contains><FieldRef Name="TypeOfDocument" /><Value Type="Text">INTSUM</Value></Contains><Contains><FieldRef Name="TypeOfDocument" /><Value Type="Text">INTREP</Value></Contains></Or><Contains><FieldRef Name="TypeOfDocument" /><Value Type="Text">HUMINT</Value></Contains></Or><Contains><FieldRef Name="TypeOfDocument" /><Value Type="Text">Target</Value></Contains></Or><Contains><FieldRef Name="TypeOfDocument" /><Value Type="Text">GRINT</Value></Contains></Or><Contains><FieldRef Name="TypeOfDocument" /><Value Type="Text">Priority Intelligence Requirements</Value></Contains></Or></Where>',
 			viewTypeKind: 0 
+		},
+		{
+			title: 'My Untagged Documents',
+			viewFields: ['DocIcon','LinkFilename', 'Organization', 'TypeOfDocument', 'Mission', 'KeyDocument','Created', 'Author'],
+			query: '<OrderBy><FieldRef Name="ID" Ascending="FALSE"/></OrderBy><Where><And><IsNull><FieldRef Name="Organization"/></IsNull><Eq><FieldRef Name="Author"/><Value Type="Integer"><UserID Type="Integer"/></Value></Eq></And></Where>',
+			viewTypeKind: 2048 
 		},
 		{
 			title: 'SITREP',
