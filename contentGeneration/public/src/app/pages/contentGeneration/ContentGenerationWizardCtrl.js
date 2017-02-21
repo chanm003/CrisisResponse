@@ -247,6 +247,7 @@
 						.then(createPhonebookList)
 						.then(createWatchLogList)
 						.then(createDocumentChopsList)
+						.then(createLinksList)
 						.then(createRFIList)
 						.then(createRouteConfigurationList)
 						.then(createMissionDocumentsLibrary)
@@ -283,6 +284,13 @@
 			function createDocumentChopsList(){
 				//DEPENDENCIES: None
 				var listSchemaDef = crisisResponseSchema.listDefs["DocumentChops"];
+				listSchemaDef.webUrl = vm.childWebUrl;
+				return sharepointUtilities.createList(listSchemaDef);
+			} 
+
+			function createLinksList(){
+				//DEPENDENCIES: None
+				var listSchemaDef = crisisResponseSchema.listDefs["Links"];
 				listSchemaDef.webUrl = vm.childWebUrl;
 				return sharepointUtilities.createList(listSchemaDef);
 			} 

@@ -901,6 +901,27 @@ crisisResponseSchema.listDefs["Phonebook"] = {
 			}
 		]
 };
+
+crisisResponseSchema.listDefs["Links"] = {
+	Title: "Links",
+	BaseTemplate: 'links',
+	enableFolderCreation: false,
+	enableVersioning: false,
+	shouldHideTitleField: true,
+	fieldsToCreate:[
+		{
+			//EXAMPLE: Dropdown
+			Name: "Organization",
+			DisplayName: "Organization",
+			Type: "Choice",
+			Format:"Dropdown",
+			Required: "FALSE",
+			FillInChoice: "FALSE",
+			Choices: [],						//will be generated 
+			Default: ''							//(optional)
+		}
+	]
+}; 
 	
 crisisResponseSchema.listDefs["Mission Documents"] = {
 	Title: "Mission Documents",
@@ -1984,6 +2005,28 @@ crisisResponseSchema.webpartPageDefs['Component Command Page'] = {
 			zoneIndex: 20
 		},
 		{
+			listTitle: 'Links',
+			webPartProperties: [
+				{
+					attributes: {name: 'ListUrl', type: 'string'},
+					innerText: 'Lists/Links'
+				},
+				{
+					attributes: {name: 'Title', type: 'string'},
+					innerText: 'Links'
+				},
+				{
+					attributes: {name: 'TitleUrl', type: 'string'},
+					innerText: '#'
+				}
+			],
+			viewName: 'SOCC Links',
+			viewFields: ['URLwMenu'],
+			viewCAML: '<OrderBy><FieldRef Name="URLwMenu"/></OrderBy>',
+			zoneName: 'Right',
+			zoneIndex: 30
+		},
+		{
 			listTitle: 'CCIR',
 			webPartProperties: [
 				{
@@ -2182,6 +2225,28 @@ crisisResponseSchema.webpartPageDefs['Task Group Page'] = {
 			viewCAML: '<GroupBy Collapse="FALSE" GroupLimit="30"><FieldRef Name="TypeOfDocument"/></GroupBy><OrderBy><FieldRef Name="FileLeafRef"/></OrderBy>',
 			zoneName: 'Right',
 			zoneIndex: 20
+		},
+		{
+			listTitle: 'Links',
+			webPartProperties: [
+				{
+					attributes: {name: 'ListUrl', type: 'string'},
+					innerText: 'Lists/Links'
+				},
+				{
+					attributes: {name: 'Title', type: 'string'},
+					innerText: 'Links'
+				},
+				{
+					attributes: {name: 'TitleUrl', type: 'string'},
+					innerText: '#'
+				}
+			],
+			viewName: 'SOTG Links',
+			viewFields: ['URLwMenu'],
+			viewCAML: '<OrderBy><FieldRef Name="URLwMenu"/></OrderBy>',
+			zoneName: 'Right',
+			zoneIndex: 30
 		}
 	],
 	scriptEditorWebparts: [
@@ -2406,7 +2471,29 @@ crisisResponseSchema.webpartPageDefs['Air Component Page'] = {
 			viewFields: ['DocIcon', 'LinkFilename', 'Author', 'ChopProcessInitiationDate'],
 			viewCAML: '<GroupBy Collapse="FALSE" GroupLimit="30"><FieldRef Name="Organization"/><FieldRef Name="TypeOfDocument"/></GroupBy><OrderBy><FieldRef Name="FileLeafRef"/></OrderBy>',
 			zoneName: 'Right',
-			zoneIndex: 1
+			zoneIndex: 20
+		},
+		{
+			listTitle: 'Links',
+			webPartProperties: [
+				{
+					attributes: {name: 'ListUrl', type: 'string'},
+					innerText: 'Lists/Links'
+				},
+				{
+					attributes: {name: 'Title', type: 'string'},
+					innerText: 'Links'
+				},
+				{
+					attributes: {name: 'TitleUrl', type: 'string'},
+					innerText: '#'
+				}
+			],
+			viewName: 'SOAC Links',
+			viewFields: ['URLwMenu'],
+			viewCAML: '<OrderBy><FieldRef Name="URLwMenu"/></OrderBy>',
+			zoneName: 'Right',
+			zoneIndex: 30
 		}
 	],
 	scriptEditorWebparts: [
@@ -2427,7 +2514,7 @@ crisisResponseSchema.webpartPageDefs['Air Component Page'] = {
 				}
 			],
 			zoneName: 'Right',
-			zoneIndex: 2
+			zoneIndex: 10
 		},
 		{
 			name: 'Full Calendar',
@@ -2568,6 +2655,28 @@ crisisResponseSchema.webpartPageDefs['Exercise Conductor Page'] = {
 			zoneIndex: 20
 		},
 		{
+			listTitle: 'Links',
+			webPartProperties: [
+				{
+					attributes: {name: 'ListUrl', type: 'string'},
+					innerText: 'Lists/Links'
+				},
+				{
+					attributes: {name: 'Title', type: 'string'},
+					innerText: 'Links'
+				},
+				{
+					attributes: {name: 'TitleUrl', type: 'string'},
+					innerText: '#'
+				}
+			],
+			viewName: 'EXCON Links',
+			viewFields: ['URLwMenu'],
+			viewCAML: '<OrderBy><FieldRef Name="URLwMenu"/></OrderBy>',
+			zoneName: 'Right',
+			zoneIndex: 30
+		},
+		{
 			listTitle: 'Inject',
 			webPartProperties: [
 				{
@@ -2684,6 +2793,19 @@ crisisResponseSchema.organizationalChoiceFields = [
 			includeStaffSections: false,
 			includeNotionals: false,
 			includeExerciseControlGroup: false,
+			includeAirComponent: true,
+			includeCommunicationsComponent: false
+		}
+	},
+	{
+		listName: "Links",
+		fieldName: "Organization",
+		generationFlags: {
+			includeComponentCommands: true,
+			includeTaskGroups: true,
+			includeStaffSections: false,
+			includeNotionals: false,
+			includeExerciseControlGroup: true,
 			includeAirComponent: true,
 			includeCommunicationsComponent: false
 		}
