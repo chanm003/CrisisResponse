@@ -4646,6 +4646,14 @@
             }
         }
 
+        vm.toggleSelectAll = function(filters){
+            var atLeastOneChecked = _.some(filters, ['isSelected', true]);
+            _.each(filters, function(item){
+                item.isSelected = !atLeastOneChecked;
+            });
+            applyFilters();
+        }
+
         function openInNewTab(doc){
             doc.openInNewTab();
         }
@@ -4656,6 +4664,9 @@
 
             function filterChopProcesses() {
                 if (dataSourceName && dataSourceName !== 'chopProcesses') { return; }
+
+                vm.atLeastOneChopStatusSelected = _.filter(vm.filterOptions.chopProcesses.overallChopStatus, { isSelected: true }).length > 0;
+
                 if (!dataSources.chopProcesses.length) {
                     vm.chopProcessesDataSource = [];
                     return;
@@ -4681,6 +4692,7 @@
 
 
                 var selectedOrganizations = getSelectedOrganizations();
+                vm.atLeastOneOrganizationSelected = selectedOrganizations.length > 0;
 
                 _.each(vm.missionProductsDataSource, function(group){
                     group.meetsFilterCriteria = _.includes(vm.selectedMissions_idList, group.id);
