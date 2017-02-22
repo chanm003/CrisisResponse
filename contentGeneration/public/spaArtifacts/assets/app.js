@@ -4930,6 +4930,14 @@
             window.location.href = _spPageContextInfo.webServerRelativeUrl + "/Lists/Rfi/NewForm.aspx?&Source=" + buildRedirectUrl();
         }
 
+        vm.toggleSelectAll = function(filters){
+            var atLeastOneChecked = _.some(filters, ['isSelected', true]);
+            _.each(filters, function(item){
+                item.isSelected = !atLeastOneChecked;
+            });
+            vm.applyFilters();
+        }
+
         vm.applyFilters = function (clickedOpr) {
             if (clickedOpr) {
                 clickedOpr.isSelected = !clickedOpr.isSelected;
@@ -4939,6 +4947,7 @@
                 .filter({ isSelected: true })
                 .map('key')
                 .value();
+            vm.atLeastOneOprSelected = selectedOprs.length > 0;
             var filteredList = _.filter(rfiList, isRecommendedOprOneOfTheSelected);
 
             dataSources["Open"] = _.filter(filteredList, { Status: "Open" });
