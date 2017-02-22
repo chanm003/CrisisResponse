@@ -250,6 +250,7 @@
 						.then(createDocumentChopsList)
 						.then(createLinksList)
 						.then(createRFIList)
+						.then(createRFINotificationList)
 						.then(createRouteConfigurationList)
 						.then(createMissionDocumentsLibrary)
 						.then(modifyPermissionsOnSitePagesLibrary)
@@ -330,6 +331,13 @@
 			function createRFIList() {
 				//DEPENDENCIES: Mission Tracker
 				var listSchemaDef = crisisResponseSchema.listDefs["RFI"];
+				listSchemaDef.webUrl = vm.childWebUrl;
+				return sharepointUtilities.createList(listSchemaDef);
+			}
+
+			function createRFINotificationList() {
+				//DEPENDENCIES: None
+				var listSchemaDef = crisisResponseSchema.listDefs["RFI Notification"];
 				listSchemaDef.webUrl = vm.childWebUrl;
 				return sharepointUtilities.createList(listSchemaDef);
 			}
