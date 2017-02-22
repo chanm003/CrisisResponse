@@ -10,6 +10,7 @@
 	function dataservice($http, $location, $q, fieldXmlGeneration, logger) {
 
 		return {
+			addLinksToTopNavigation: addLinksToTopNavigation,
 			addQsFilterWebPartToPage: addQsFilterWebPartToPage,
 			assignUniquePermissions: assignUniquePermissions,
 			connectQuerystringWebPartFilter: connectQuerystringWebPartFilter, 
@@ -33,6 +34,40 @@
 			setWelcomePage: setWelcomePage,
 			updateChoiceFields: updateChoiceFields
 		};
+
+		function addLinksToTopNavigation(opts){
+			var dfd = $q.defer();
+
+			var ctx = new SP.ClientContext(opts.webUrl);
+			var spWeb = ctx.get_web();
+			var navNodes = spWeb.get_navigation().get_topNavigationBar();
+
+			_.each(opts.linksToAdd, function(link){
+				var nnci = new SP.NavigationNodeCreationInformation();
+				nnci.set_title(link.title);
+				nnci.set_url(link.url);
+				nnci.set_asLastNode(true);
+				navNodes.add(nnci);
+			});
+
+			ctx.load(navNodes);
+			ctx.executeQueryAsync(
+				Function.createDelegate(this, onRequestSucceeded),
+				Function.createDelegate(this, onQueryFailed)
+			);
+
+			return dfd.promise;
+
+			function onRequestSucceeded(){
+				logger.logSuccess('Top navigation changed for ' + opts.webUrl + ": " + _.map(opts.linksToAdd, 'title'), null, 'sharepointUtilities service, addLinksToTopNavigation()');
+				dfd.resolve();
+			}
+
+			function onQueryFailed(sender, args) {
+				logger.logError('Request to configure top navigation failed: ' + args.get_message(), args.get_stackTrace(), 'sharepointUtilities service, addLinksToTopNavigation()');
+				dfd.reject();
+			}
+		}
 
 		function addListViewWebPart(opts) {
 			return addWebPartToPage(opts);
@@ -606,7 +641,6 @@
 					titleField.setShowInDisplayForm(false);
 					titleField.setShowInNewForm(false);
 					titleField.setShowInEditForm(false);
-					titleField.set_hidden(true);
 					titleField.set_required(false);
 					titleField.update();
 				}
@@ -614,11 +648,12 @@
 				//update to default view
 				var defaultViews = {
 					documentLibrary: 'All Documents',
-					events: 'All Events'
+					events: 'All Events',
+					links: 'All Links'
 				};
 				var viewName = defaultViews[opts.BaseTemplate] || "All Items";
 				var defaultView = createdList.get_views().getByTitle(viewName);
-				if (opts.shouldHideTitleField && viewName !== 'All Documents') {
+				if (opts.shouldHideTitleField && viewName !== 'All Documents' && viewName !== 'All Links') {
 					defaultView.get_viewFields().remove("LinkTitle");
 				}
 				var internalFieldNamesForHiddenFields = _.pluck(_.where(opts.fieldsToCreate, { Hidden: 'TRUE' }), "Name");

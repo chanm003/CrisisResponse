@@ -57,7 +57,8 @@
 			return createCoreLists()
 				.then(provisionComponentCommandPage)
 				.then(provisionTaskGroupPage)
-				.then(setWelcomePage);
+				.then(setWelcomePage)
+				.then(addLinksToTopNavigation);
 		}
 
 		vm.onAdditionalFeaturesCollected = function () {
@@ -734,6 +735,17 @@
 
 		function setWelcomePage(){
 			return sharepointUtilities.setWelcomePage(vm.childWebUrl, 'SitePages/socc.aspx?org='+ vm.componentCommands[0].name);
+		}
+
+		function addLinksToTopNavigation(){
+			var links = [
+				{ title: 'Phonebook', url: vm.childWebUrl + '/Lists/Phonebook' },
+				{ title: 'Tag Documents Added via DRAG/DROP', url: vm.childWebUrl + '/MissionDocuments/Forms/My Untagged Documents.aspx' }
+			];
+			return sharepointUtilities.addLinksToTopNavigation({
+				webUrl: vm.childWebUrl,
+				linksToAdd: links
+			});
 		}
 
 		function generateJocInBoxConfigFile() {
