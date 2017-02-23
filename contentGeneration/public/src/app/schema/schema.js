@@ -3023,6 +3023,7 @@ crisisResponseSchema.organizationalChoiceFields = [
 
 crisisResponseSchema.listsToConnectWithQueryStringWebPart = {
 	'Lists/CCIR': { getConsumerField: function(webpartTitle){ return "Organization"; } },
+	'Lists/Links': { getConsumerField: function(webpartTitle){ return "Organization"; } },
 	'Lists/MessageTraffic': { getConsumerField: function(webpartTitle){ return (webpartTitle === 'Inbound Messages') ? 'Receiver': 'OriginatorSender'; } },
 	'Lists/RFI': { getConsumerField: function(webpartTitle){ return "OrgFilter"; } },
 	'Lists/WatchLog': { getConsumerField: function(webpartTitle){ return "Organization"; } },
