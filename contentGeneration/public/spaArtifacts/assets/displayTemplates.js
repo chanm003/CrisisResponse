@@ -539,6 +539,7 @@
                 addExpandCollapseButtons(ctx, webPartDiv);
                 disableNavigationToSharepointLists(ctx, webPartDiv);
                 hideToolbarForSpecificWebparts(ctx, webPartDiv);
+                discourageQuickEditFeatureForWebparts(ctx, webPartDiv);
                 ensureUploadFormIsNotDialog(ctx, webPartDiv);
                 collapseGroupsForLVWP(ctx);
                 broadcastPostRenderEvent(ctx, webPartDiv);
@@ -588,6 +589,15 @@
                 function expandAll() {
                     webPartDiv.find("img.ms-commentexpand-icon").click();
                 }
+            }
+
+            function discourageQuickEditFeatureForWebparts(ctx, webPartDiv){
+                if(!isOrgDashboard()){ return; }
+                if(ctx.ListTemplateType === SP.ListTemplateType.documentLibrary){ return; }
+                var td = webPartDiv.find("td.ms-list-addnew");
+                var newItemLink = td.find("a").eq(0);
+                td.html('');
+                td.append(newItemLink);
             }
 
             function disableNavigationToSharepointLists(ctx, webPartDiv) {
