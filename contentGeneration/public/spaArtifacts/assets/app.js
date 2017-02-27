@@ -3137,7 +3137,7 @@
                 newMsg.Receiver = transaction.injectItem.Receiver.results; 
                 newMsg.DateTimeGroup = moment.utc(transaction.injectItem.DateTimeGroup);
                 newMsg.Significant = "No";
-                newMsg.Initials = "EXCON";   
+                newMsg.Initials = _.findKey(jocInBoxConfig.dashboards, {orgType: "Exercise Control Group"});   
 
                 return newMsg.save()
                         .then(function(data){
