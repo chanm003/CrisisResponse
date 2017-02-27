@@ -1808,7 +1808,7 @@ crisisResponseSchema.listDefs["Inject"] = {
 			Type: "Choice",
 			Format:"Dropdown",
 			Required: "TRUE",
-			FillInChoice: "FALSE",
+			FillInChoice: "TRUE",
 			Choices: [],						//will be generated
 			Description: 'Inject Originator',
 			Default: ''							//(optional)
