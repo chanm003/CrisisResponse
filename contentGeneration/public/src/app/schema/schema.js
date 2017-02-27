@@ -2987,7 +2987,7 @@ crisisResponseSchema.organizationalChoiceFields = [
 			includeComponentCommands: true,
 			includeTaskGroups: true,
 			includeStaffSections: true,
-			includeNotionals: false,
+			includeNotionals: true,
 			includeExerciseControlGroup: true,
 			includeAirComponent: true,
 			includeCommunicationsComponent: false
