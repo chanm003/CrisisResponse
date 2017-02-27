@@ -1179,3 +1179,8 @@ td.NA{
    color: #444 !important;
    cursor: default;
  }
+
+ .fc-time, .fc-title {
+   /* SAME as SP2013 OOTB Calendar*/
+   font-size: 13px !important;
+ }
