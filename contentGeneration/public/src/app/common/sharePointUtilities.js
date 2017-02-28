@@ -842,15 +842,6 @@
 			navigation.set_source(1);
 			webNavSettings.update();
 
-			/*
-			Change Alternate CSS Url
-			configured in /_layouts/15/ChangeSiteMasterPage.aspx (available only when publishing is activated)
-			*/
-			var serverRelativeURL = (opts.parentWeb + "/" + opts.acronym).replace(document.location.protocol + "//", "").replace(document.location.host, "");
-			var alternateCssUrl = serverRelativeURL + "/SiteAssets/app.css";
-			childWeb.set_alternateCssUrl(alternateCssUrl);
-			childWeb.update();
-
 			var userCustomActions = childWeb.get_userCustomActions();
 			var vendorFiles = [
 				'jquery.min.js',
