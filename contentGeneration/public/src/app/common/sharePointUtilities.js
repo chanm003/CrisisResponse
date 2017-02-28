@@ -843,19 +843,6 @@
 			webNavSettings.update();
 
 			/*
-			Ensure child web has proper regional settings
-			/_layouts/15/regionalsetng.aspx
-			*/
-			var regionalSettings = childWeb.get_regionalSettings();
-			regionalSettings.set_time24(true); //24 hour clock
-			//Full list here: https://msdn.microsoft.com/library/microsoft.sharepoint.spregionalsettings.timezones.aspx
-			var timeZone = regionalSettings.get_timeZones().getById(93); 
-			// 2 is (UTC) Dublin, Edinburgh, Lisbon, London (daylight bias of -60)
-			// 93 is ((UTC) Coordinated Universal Time)
-			regionalSettings.set_timeZone(timeZone);
-			regionalSettings.update();
-
-			/*
 			Change Alternate CSS Url
 			configured in /_layouts/15/ChangeSiteMasterPage.aspx (available only when publishing is activated)
 			*/
