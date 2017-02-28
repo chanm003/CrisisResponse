@@ -1474,7 +1474,7 @@ crisisResponseSchema.listDefs["Message Traffic"] = {
 			Type: "Choice",
 			Format:"Dropdown",
 			Required: "TRUE",
-			FillInChoice: "FALSE",
+			FillInChoice: "TRUE",
 			Choices: [],						//will be generated
 			Description: 'The organization that sent the message',
 			Default: ''							//(optional)
@@ -1808,7 +1808,7 @@ crisisResponseSchema.listDefs["Inject"] = {
 			Type: "Choice",
 			Format:"Dropdown",
 			Required: "TRUE",
-			FillInChoice: "TRUE",
+			FillInChoice: "FALSE",
 			Choices: [],						//will be generated
 			Description: 'Inject Originator',
 			Default: ''							//(optional)
