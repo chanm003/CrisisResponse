@@ -507,7 +507,7 @@
                     org = org.substr(0, org.indexOf(' - '));
                 }
 
-                if (org) {
+                if (org && jocInBoxConfig.dashboards[org]) {
                     return _.intersection(existingOptions, jocInBoxConfig.dashboards[org].optionsForChoiceField);
                 } else {
                     return existingOptions;
