@@ -1,5 +1,3 @@
-/*
-UNCOMMENT THIS BLOCK PRIOR FOR THE PRODUCTION RELEASE
 @import url("font-awesome.min.css");        
 @import url("lobibox.min.css");        
 @import url("fabric.min.css");        
@@ -9,9 +7,7 @@ UNCOMMENT THIS BLOCK PRIOR FOR THE PRODUCTION RELEASE
 @import url("fullcalendar.min.css"); 
 @import url("vis.min.css");        
 @import url("jstree.min.css");     
-*/
 
-/*#region UNCOMMENT IF SOCEUR STYLING PREFERENCES is desired
 ul.ms-core-listMenu-root > li:first-child > a:first-child {
 	display:none;	
 }
@@ -73,7 +69,6 @@ body #suiteBarLeft{
   background-color: #1f1f1f !important;
   color:white !important;
 }
-#endregion UNCOMMENT IF SOCEUR STYLING PREFERENCES is desired*/	
 
 #DeltaPlaceHolderLeftNavBar{
   display: none;

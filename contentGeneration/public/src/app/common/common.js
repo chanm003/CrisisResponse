@@ -76,7 +76,7 @@
 		};
 
 		//CHANGE THIS LINE FOR THE PRODUCTION RELEASE
-		this.settings = devSettings;
+		this.settings = productionSettings;
 
     	this.$get = function () {
       		return {
