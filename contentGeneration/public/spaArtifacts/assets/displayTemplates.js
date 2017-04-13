@@ -596,6 +596,7 @@
                 if(ctx.ListTemplateType === SP.ListTemplateType.documentLibrary){ return; }
                 var td = webPartDiv.find("td.ms-list-addnew");
                 var newItemLink = td.find("a").eq(0);
+                newItemLink.detach();
                 td.html('');
                 td.append(newItemLink);
             }
