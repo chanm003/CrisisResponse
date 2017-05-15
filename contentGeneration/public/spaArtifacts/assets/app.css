@@ -11,7 +11,6 @@ UNCOMMENT THIS BLOCK PRIOR FOR THE PRODUCTION RELEASE
 @import url("jstree.min.css");     
 */
 
-/*#region UNCOMMENT IF SOCEUR STYLING PREFERENCES is desired
 ul.ms-core-listMenu-root > li:first-child > a:first-child {
 	display:none;	
 }
@@ -60,7 +59,7 @@ body #suiteBarLeft{
 }
 
 #jocboxmenu a.taskGroupLand{    
-  background-color: #4b5320 !important;
+  background-color: #007f00 !important;
   color:white !important;
 }
 
@@ -73,7 +72,7 @@ body #suiteBarLeft{
   background-color: #1f1f1f !important;
   color:white !important;
 }
-#endregion UNCOMMENT IF SOCEUR STYLING PREFERENCES is desired*/	
+
 
 #DeltaPlaceHolderLeftNavBar{
   display: none;
