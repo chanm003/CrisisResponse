@@ -507,7 +507,7 @@
                     org = org.substr(0, org.indexOf(' - '));
                 }
 
-                if (org) {
+                if (org && jocInBoxConfig.dashboards[org]) {
                     return _.intersection(existingOptions, jocInBoxConfig.dashboards[org].optionsForChoiceField);
                 } else {
                     return existingOptions;
@@ -596,6 +596,7 @@
                 if(ctx.ListTemplateType === SP.ListTemplateType.documentLibrary){ return; }
                 var td = webPartDiv.find("td.ms-list-addnew");
                 var newItemLink = td.find("a").eq(0);
+                newItemLink.detach();
                 td.html('');
                 td.append(newItemLink);
             }
