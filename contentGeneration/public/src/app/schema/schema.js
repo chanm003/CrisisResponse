@@ -559,6 +559,26 @@ crisisResponseSchema.listDefs["Mission Tracker"] = {
 				Required: "FALSE",
 				Format: "DateTime", 			//please use either 'DateOnly' or 'DateTime'
 				Default: ''						//(optional)	
+			},
+			{
+				//EXAMPLE: Number
+				Name: "LAT",
+				DisplayName: "LAT",
+				Type: "Number",
+				Required: "FALSE",
+				Decimals: 3,
+				Min: -90,									
+				Max: -90
+			},
+			{
+				//EXAMPLE: Number
+				Name: "LONG",
+				DisplayName: "LONG",
+				Type: "Number",
+				Required: "FALSE",
+				Decimals: 3,
+				Min: -180,									
+				Max: 180
 			}		
 		]
 };
