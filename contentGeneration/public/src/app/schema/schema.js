@@ -2665,7 +2665,7 @@ crisisResponseSchema.webpartPageDefs['Exercise Conductor Page'] = {
 				}
 			],
 			viewName: 'EXCON RFI',
-			viewFields: ['ActionsHtml', 'LinkTitle', 'Priority', 'LTIOV', 'Created'],
+			viewFields: ['ActionsHtml', 'RecommendedOPR', 'LinkTitle', 'Priority', 'LTIOV', 'Created'],
 			viewCAML: '<OrderBy><FieldRef Name="PrioritySort"/><FieldRef Name="LTIOV"/></OrderBy><Where><Eq><FieldRef Name="Status"/><Value Type="Text">Open</Value></Eq></Where>',
 			zoneName: 'Left',
 			zoneIndex: 30
