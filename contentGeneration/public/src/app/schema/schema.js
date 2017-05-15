@@ -1221,7 +1221,7 @@ crisisResponseSchema.listDefs["RFI"] = {
 			Type: "DateTime",
 			Required: "FALSE",
 			Format: "DateTime", 					//please use either 'DateOnly' or 'DateTime'
-			Description: "Last Time Information of Value",
+			Description: "Specify (ZULU). Last Time Information of Value",
 			Default: ''						//(optional)	
 		},
 		{
@@ -1317,7 +1317,7 @@ crisisResponseSchema.listDefs["RFI"] = {
 			Required: "FALSE",
 			Format: "DateTime", 					//please use either 'DateOnly' or 'DateTime'
 			Default: '',						//(optional)	
-			Description: 'If all information has been provided, populate this date to close the RFI'
+			Description: 'Specify (ZULU).  If all information has been provided, populate this date to close the RFI'
 		},
 		{
 			//EXAMPLE: Dropdown
