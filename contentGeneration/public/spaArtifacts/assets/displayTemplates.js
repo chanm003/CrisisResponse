@@ -73,8 +73,6 @@
                         'FullName': { 'EditForm': renderAsReadOnly },
                         //LIST(s): Mission Documents
                         'MessageOriginatorSender': { 'EditForm': trimOrganizationsFromDropdown },
-                        //LIST(s): Mission Documents
-                        'MessageRecipients': { 'EditForm': removeMultiChoiceOptionBasedOnQueryString },
                         //LIST(s): Mission Tracker
                         'MissionType': { 'EditForm': renderAsReadOnly },
                         //LIST(s): AAR, Calendar, CCIR, Help Desk, Mission Documents, Mission Tracker, Phonebook, Watch Log
@@ -83,8 +81,6 @@
                         'OriginatorSender': { 'NewForm': renderOrganizationDropdown, 'EditForm': renderOrganizationDropdown },
                         //LIST(s): Mission Tracker
                         'ParticipatingOrganizations': { 'NewForm': preselectCheckboxForOrganization },
-                        //LIST(s): Inject, Message Traffic 
-                        'Receiver': { 'NewForm': removeMultiChoiceOptionBasedOnQueryString, 'EditForm': removeMultiChoiceOptionBasedOnQueryString  },
                         
                         //RFI LIST
                         'Title': { 'EditForm': renderField_Title },
