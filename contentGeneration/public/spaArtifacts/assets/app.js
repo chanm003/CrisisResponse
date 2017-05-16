@@ -3728,8 +3728,8 @@
 
             function constructCssClassBasedOnOrgType(node){
                 if(!node.orgType){ return ""; }
-                if(node.orgType === "Task Group"){
-                    return _.camelCase(node.orgType + node.type);
+                if(node.orgType === "Task Group" || node.orgType === "Air Component"){
+                    return _.camelCase(node.type);
                 } else {
                     return  _.camelCase(node.orgType);
                 }
@@ -3759,6 +3759,7 @@
             }
             if (orgConfig && orgConfig.type) {
                 item.type = orgConfig.type;
+                console.log(item.type)
             }
         }
 

@@ -53,18 +53,23 @@ body #suiteBarLeft{
   color:white !important;
 }
 
-#jocboxmenu a.airComponent{    
+#jocboxmenu a.air{    
   background-color: #0078d7 !important;
   color:white !important;
 }
 
-#jocboxmenu a.taskGroupLand{    
+#jocboxmenu a.land{    
   background-color: #007f00 !important;
   color:white !important;
 }
 
-#jocboxmenu a.taskGroupMaritime{    
+#jocboxmenu a.maritime{    
   background-color: #000080 !important;
+  color:white !important;
+}
+
+#jocboxmenu a.joint{    
+  background-color: #660099 !important;
   color:white !important;
 }
 

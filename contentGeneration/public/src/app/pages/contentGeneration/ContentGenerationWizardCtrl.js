@@ -527,6 +527,7 @@
 				{
 					name: wizard.defaults["Air Component"].name,
 					country: resolveCountry(wizard.defaults["Air Component"].flagCode),
+					type: wizard.defaults["Air Component"].type || "Air",
 					staffSections: wizard.defaults["Staff Sections for Air Component"].slice() /* by value copy for primitives only */
 				}
 			];
@@ -788,7 +789,8 @@
 				dashboards[org.name] = {
 					orgType: 'Air Component',
 					optionsForChoiceField: [org.name].concat(generateChoiceOptionsForStaffSection(org.name, org.staffSections)),
-					flagCode: org.country.flag
+					flagCode: org.country.flag,
+					type: org.type
 				};
 			});
 

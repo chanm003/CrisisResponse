@@ -93,6 +93,7 @@
         <div class="col-md-12">
             <div ba-panel>
                 <ba-wizard>
+                    
                     <ba-wizard-step title="Create Site" on-next-step-clicked="vm.onSiteInfoCollected()">
                         <div class="row">
                             <div class="col-md-4">
@@ -105,22 +106,6 @@
                                     <textarea placeholder="Description" class="form-control" ng-model="vm.siteInfo.description"></textarea>
                                 </div>
                             </div>
-                            <!--
-                            <div class="col-md-4">
-                                 <div class="form-group">
-                                    <label>Select the parent web site</label>
-                                    <input type="text" class="form-control" placeholder="Parent Web Site" ng-model="vm.siteInfo.parentWeb" disabled>
-                                </div>
-                                <div class="form-group" ng-show="vm.siteInfo.parentWeb">
-                                    <label>Exercise Site Address</label>
-                                    <div class="input-group">
-                                        <span class="input-group-addon input-group-addon-primary addon-left">{{ vm.serverLocation + vm.siteInfo.parentWeb}}/</span>
-                                        <input type="text" class="form-control with-primary-addon" placeholder="URL" ng-model="vm.siteInfo.acronym">
-                                    </div>
-                                    <span class="help-block sub-little-text">Should be abbreviation or short acronym e.g. TF16</span>
-                                </div>
-                            </div>
-                            -->
                             <div class="col-md-4">
                                 <div class="form-group">
                                     <label>URL</label>
@@ -132,7 +117,7 @@
                             </div>
                         </div>
                     </ba-wizard-step>
-
+                   
                     <ba-wizard-step title="Commands/Task Groups" on-next-step-clicked="vm.onOrganizationsIdentified()">
 
                         <h3 class="with-line"><i class="gi gi-capitol"></i>Component Commands <small class="text-muted">at least one required</small></h3>
@@ -230,6 +215,22 @@
                                                     </div>
                                                 </a>
                                             </li>
+                                            <li class="nya-bs-option" data-value="Air">
+                                                <a>
+                                                    <div>
+                                                        <i class="gi gi-airplane gi-2x" style=" vertical-align: middle;"></i>
+                                                        <span>Air</span>
+                                                    </div>
+                                                </a>
+                                            </li>
+                                            <li class="nya-bs-option" data-value="Joint">
+                                                <a>
+                                                    <div>
+                                                        <i class="gi gi-handshake gi-2x" style=" vertical-align: middle;"></i>
+                                                        <span>Joint</span>
+                                                    </div>
+                                                </a>
+                                            </li>
                                         </ol>
                                     </td>
                                     <td class="col-md-1">
@@ -252,7 +253,7 @@
                             </tfoot>
                         </table>
                     </ba-wizard-step>      
-                         
+                        
                     <ba-wizard-step title="Additional Features" on-next-step-clicked="vm.onAdditionalFeaturesCollected()">
                         <h3 class="with-line">
                             <i class="gi gi-airplane"></i> Air Component <small class="text-muted">optional</small>
@@ -265,6 +266,7 @@
                                 <tr class="black-muted-bg">
                                     <th>Name</th>
                                     <th>Country</th>
+                                    <th>Type</th>
                                     <th>Staff Sections</th>
                                 </tr>
                             </thead>
@@ -284,7 +286,27 @@
                                             </li>
                                         </ol>
                                     </td>
-                                    <td class="col-md-7">
+                                    <td class="col-md-2">
+                                        <ol class="nya-bs-select" ng-model="org.type" title="Select a Type">
+                                            <li class="nya-bs-option" data-value="Air">
+                                                <a>
+                                                    <div>
+                                                        <i class="gi gi-airplane gi-2x" style=" vertical-align: middle;"></i>
+                                                        <span>Air</span>
+                                                    </div>
+                                                </a>
+                                            </li>
+                                            <li class="nya-bs-option" data-value="Joint">
+                                                <a>
+                                                    <div>
+                                                        <i class="gi gi-handshake gi-2x" style=" vertical-align: middle;"></i>
+                                                        <span>Joint</span>
+                                                    </div>
+                                                </a>
+                                            </li>
+                                        </ol>
+                                    </td>
+                                    <td class="col-md-5">
                                         <tag-input placeholder='add another...' selected-tags='org.staffSections'></tag-input>
                                     </td>
                                 </tr>
