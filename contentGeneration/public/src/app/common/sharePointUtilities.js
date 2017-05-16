@@ -32,7 +32,8 @@
 			provisionScriptEditorWebparts: provisionScriptEditorWebparts,
 			seedWithListItems: seedWithListItems,
 			setWelcomePage: setWelcomePage,
-			updateChoiceFields: updateChoiceFields
+			updateChoiceFields: updateChoiceFields,
+			updateFormulaForCalculatedField: updateFormulaForCalculatedField
 		};
 
 		function addLinksToTopNavigation(opts){
@@ -1473,6 +1474,40 @@
 			return promiseChain.then(function () {
 				console.log("All Choice fields updated")
 			});
+		}
+
+		function updateFormulaForCalculatedField(opts){
+			var dfd = $q.defer();
+			
+			var ctx = new SP.ClientContext(opts.webUrl);
+			var web = ctx.get_web();
+			var list = web.get_lists().getByTitle(opts.listName);
+			var field = list.get_fields().getByInternalNameOrTitle(opts.fieldName);
+			ctx.load(field, "SchemaXml");
+			ctx.executeQueryAsync(
+				Function.createDelegate(this, onFieldXmlRetrieved),
+				Function.createDelegate(this, onQueryFailed)
+			);
+
+			return dfd.promise;
+
+			function onFieldXmlRetrieved() {
+				field.set_schemaXml(field.get_schemaXml().replace(/<Formula>(.*?)<\/Formula>/, opts.newFormula));
+				ctx.executeQueryAsync(
+					Function.createDelegate(this, onQuerySucceeded),
+					Function.createDelegate(this, onQueryFailed)
+				);
+			}
+
+			function onQuerySucceeded() {
+				logger.logSuccess('Formula for Calculated field (' + opts.fieldName + ') updated in the list ' + opts.listName + ' with the fomula: ' + opts.newFormula, null, 'sharepointUtilities service, updateFormulaForCalculatedField()');
+				dfd.resolve();
+			}
+
+			function onQueryFailed(sender, args) {
+				logger.logError('Request failed: Updating calculated field formula failed (' + opts.fieldName + ') for the list ' + opts.listName + ': ' + args.get_message(), args.get_stackTrace(), 'sharepointUtilities service, updateFormulaForCalculatedField()');
+				dfd.reject();
+			}
 		}
 	}
 

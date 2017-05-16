@@ -3759,7 +3759,6 @@
             }
             if (orgConfig && orgConfig.type) {
                 item.type = orgConfig.type;
-                console.log(item.type)
             }
         }
 

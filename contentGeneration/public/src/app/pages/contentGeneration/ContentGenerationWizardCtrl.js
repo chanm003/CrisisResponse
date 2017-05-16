@@ -471,10 +471,34 @@
 				return sharepointUtilities.createSharepointGroup(opts);
 			}
 
+			function updateOrgFilterColumnForRfiList(){
+				var ecg = vm.exerciseControlGroups[0];				
+
+				return sharepointUtilities.updateFormulaForCalculatedField({
+					webUrl: vm.childWebUrl,
+					listName:'RFI',
+					fieldName: 'OrgFilter',
+					newFormula: '<Formula>' + generateFormula(ecg.name, ecg.notionals) + '</Formula>'
+				});	
+
+				function generateFormula(excon, notionals){
+					var conditions = [];
+					conditions.push('[Recommended OPR]="' + excon + '"');
+					notionals.forEach(function(n){
+						conditions.push('[Recommended OPR]="' + n + '"');
+					});
+					var mainClause = '=IF(ISNUMBER(FIND(" - ",[Recommended OPR])),LEFT([Recommended OPR],FIND(" - ",[Recommended OPR])-1),';
+					var nestedUgliness = 'IF(OR(' + conditions.join(',') + '),"' + excon + '", [Recommended OPR])';
+					var mainClauseClose  = ')';
+					return mainClause + nestedUgliness + mainClauseClose;
+				}
+			}
+
 			return createInjectList()
 						.then(createDocumentLibrary)
 						.then(provisionExconPage)
-						.then(customizePermissions);
+						.then(customizePermissions)
+						.then(updateOrgFilterColumnForRfiList);
 		}
 
 		function resolveCountry(flagCode){
