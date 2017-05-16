@@ -1786,7 +1786,7 @@ crisisResponseSchema.listDefs["Inject"] = {
 			Format:"Dropdown",
 			Required: "TRUE",
 			FillInChoice: "FALSE",
-			Choices: ['Pending', 'Completed'],						//will be generated
+			Choices: ['Pending', 'Completed', 'Do Not Send'],						//will be generated
 			Description: '',
 			Default: 'Pending',							//(optional)
 			ShowInNewForm: "FALSE",
@@ -1924,6 +1924,11 @@ crisisResponseSchema.listDefs["Inject"] = {
 		{
 			title: 'Completed',
 			query: '<OrderBy><FieldRef Name="Modified" Ascending="FALSE"/></OrderBy><Where><Eq><FieldRef Name="Status"/><Value Type="Text">Completed</Value></Eq></Where>',
+			viewTypeKind: 0
+		},
+		{
+			title: 'Do Not Send',
+			query: '<OrderBy><FieldRef Name="Modified" Ascending="FALSE"/></OrderBy><Where><Eq><FieldRef Name="Status"/><Value Type="Text">Do Not Send</Value></Eq></Where>',
 			viewTypeKind: 0
 		}
 	]
