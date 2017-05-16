@@ -2094,7 +2094,7 @@ crisisResponseSchema.webpartPageDefs['Component Command Page'] = {
 				}
 			],
 			viewName: 'SOCC Inbound Messages',
-			viewFields: ['Attachments', 'DTG', 'OriginatorSender', 'LinkTitleNoMenu', 'LinkToMissionDocument', 'Initials', 'Significant'],
+			viewFields: ['Attachments', 'DTG', 'OriginatorSender', 'Receiver', 'LinkTitleNoMenu', 'LinkToMissionDocument', 'Initials', 'Significant'],
 			viewCAML: '<OrderBy><FieldRef Name="DateTimeGroup" Ascending="FALSE"/></OrderBy>',
 			rowLimit: 5,
 			zoneName: 'Left',
@@ -2316,7 +2316,7 @@ crisisResponseSchema.webpartPageDefs['Task Group Page'] = {
 				}
 			],
 			viewName: 'SOTG Inbound Messages',
-			viewFields: ['Attachments', 'DTG', 'OriginatorSender', 'LinkTitleNoMenu', 'LinkToMissionDocument', 'Initials', 'Significant'],
+			viewFields: ['Attachments', 'DTG', 'OriginatorSender', 'Receiver', 'LinkTitleNoMenu', 'LinkToMissionDocument', 'Initials', 'Significant'],
 			viewCAML: '<OrderBy><FieldRef Name="DateTimeGroup" Ascending="FALSE"/></OrderBy>',
 			rowLimit: 5,
 			zoneName: 'Left',
@@ -2585,7 +2585,7 @@ crisisResponseSchema.webpartPageDefs['Air Component Page'] = {
 				}
 			],
 			viewName: 'SOAC Inbound Messages',
-			viewFields: ['Attachments', 'DTG', 'OriginatorSender', 'LinkTitleNoMenu', 'LinkToMissionDocument', 'Initials', 'Significant'],
+			viewFields: ['Attachments', 'DTG', 'OriginatorSender', 'Receiver', 'LinkTitleNoMenu', 'LinkToMissionDocument', 'Initials', 'Significant'],
 			viewCAML: '<OrderBy><FieldRef Name="DateTimeGroup" Ascending="FALSE"/></OrderBy>',
 			rowLimit: 5,
 			zoneName: 'Left',
@@ -2766,7 +2766,7 @@ crisisResponseSchema.webpartPageDefs['Exercise Conductor Page'] = {
 				}
 			],
 			viewName: 'EXCON Inbound Messages',
-			viewFields: ['Attachments', 'DTG', 'OriginatorSender', 'LinkTitleNoMenu', 'LinkToMissionDocument', 'Initials', 'Significant'],
+			viewFields: ['Attachments', 'DTG', 'OriginatorSender', 'Receiver', 'LinkTitleNoMenu', 'LinkToMissionDocument', 'Initials', 'Significant'],
 			viewCAML: '<OrderBy><FieldRef Name="DateTimeGroup" Ascending="FALSE"/></OrderBy>',
 			rowLimit: 5,
 			zoneName: 'Left',
