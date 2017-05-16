@@ -103,7 +103,7 @@
 	<script src="vendor/angular-progress-button-styles/dist/angular-progress-button-styles.min.js"></script>
 	<script src="vendor/bootstrap-switch/dist/js/bootstrap-switch.min.js"></script>
 	<script src="vendor/typeahead.js/dist/typeahead.bundle.min.js"></script>
-
+	<script src="vendor/camljs/camljs.js"></script>
 
 	
 	<script src="src/app/schema/schema.js"></script>

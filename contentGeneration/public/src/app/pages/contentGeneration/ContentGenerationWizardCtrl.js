@@ -440,9 +440,29 @@
 			}
 
 			function provisionExconPage() {
+				updateInboundMessagesWebpartDefinition();
 				return provisionWebPartPage({
 					webpartPageDefinitionName: 'Exercise Conductor Page'
 				});
+
+				function updateInboundMessagesWebpartDefinition(){
+					var ecg = vm.exerciseControlGroups[0];
+					var cb = new CamlBuilder().Where();
+					cb = cb.TextField('Receiver').EqualTo(ecg.name);
+					_.each(ecg.notionals, function(notional){
+						cb = cb.Or().TextField('Receiver').EqualTo(notional);
+					});
+					var whereClause = cb.ToString();
+
+					//modify definition first
+					var inboundMessageWebpartDef = _.findWhere(crisisResponseSchema.webpartPageDefs["Exercise Conductor Page"].listviewWebparts, {viewName: "EXCON Inbound Messages"});
+					
+					if(inboundMessageWebpartDef.viewCAML.includes('<Where>')){
+						inboundMessageWebpartDef.viewCAML = inboundMessageWebpartDef.viewCAML.replace(/<Where>(.*?)<\/Where>/, whereClause);
+					} else {
+						inboundMessageWebpartDef.viewCAML += whereClause;
+					}
+				}
 			}
 
 			function customizePermissions(){
