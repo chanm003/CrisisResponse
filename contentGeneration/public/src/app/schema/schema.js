@@ -2059,8 +2059,8 @@ crisisResponseSchema.webpartPageDefs['Component Command Page'] = {
 				}
 			],
 			viewName: 'SOCC Documents',
-			viewFields: ['DocIcon', 'LinkFilename', 'Author', 'ChopProcessInitiationDate'],
-			viewCAML: '<GroupBy Collapse="FALSE" GroupLimit="30"><FieldRef Name="TypeOfDocument"/><FieldRef Name="Organization"/></GroupBy><OrderBy><FieldRef Name="FileLeafRef"/></OrderBy>',
+			viewFields: ['DocIcon', 'Organization', 'LinkFilename', 'Author', 'ChopProcessInitiationDate'],
+			viewCAML: '<GroupBy Collapse="FALSE" GroupLimit="30"><FieldRef Name="TypeOfDocument"/></GroupBy><OrderBy><FieldRef Name="Organization"/><FieldRef Name="FileLeafRef"/></OrderBy>',
 			zoneName: 'Right',
 			zoneIndex: 20
 		},
@@ -2528,8 +2528,8 @@ crisisResponseSchema.webpartPageDefs['Air Component Page'] = {
 				}
 			],
 			viewName: 'SOAC Documents',
-			viewFields: ['DocIcon', 'LinkFilename', 'Author', 'ChopProcessInitiationDate'],
-			viewCAML: '<GroupBy Collapse="FALSE" GroupLimit="30"><FieldRef Name="Organization"/><FieldRef Name="TypeOfDocument"/></GroupBy><OrderBy><FieldRef Name="FileLeafRef"/></OrderBy>',
+			viewFields: ['DocIcon', 'Organization', 'LinkFilename', 'Author', 'ChopProcessInitiationDate'],
+			viewCAML: '<GroupBy Collapse="FALSE" GroupLimit="30"><FieldRef Name="TypeOfDocument"/></GroupBy><OrderBy><FieldRef Name="Organization"/><FieldRef Name="FileLeafRef"/></OrderBy>',
 			zoneName: 'Right',
 			zoneIndex: 20
 		},
