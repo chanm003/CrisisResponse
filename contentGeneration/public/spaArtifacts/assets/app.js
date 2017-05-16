@@ -1714,6 +1714,68 @@
     }
 })(jocInBoxConfig.noConflicts.jQuery, jocInBoxConfig.noConflicts.lodash);
 
+/* Data Repository: MSR */
+(function ($, _) {
+    angular.module('app.data')
+        .service('MsrRepository', defineRepository);
+    defineRepository.$inject = ['$http', '$q', '$resource', 'exception', 'logger', 'spContext'];
+    function defineRepository($http, $q, $resource, exception, logger, spContext) {
+        var service = {
+            getAll: getAll,
+            getMissionRelated: getMissionRelated
+        };
+
+        var fieldsToSelect = [
+            spContext.SP2013REST.selectForCommonListFields,
+            'RequestingUnit,OpType,Requestor,Status',
+            'Mission/FullName'
+        ].join(',');
+
+        var fieldsToExpand = [
+            spContext.SP2013REST.expandoForCommonListFields,
+            'Mission'
+        ].join(',');
+
+        var ngResourceConstructParams = {
+            fieldsToSelect: fieldsToSelect,
+            fieldsToExpand: fieldsToExpand,
+            listName: 'MSR'
+        };
+
+        function getAll(){
+            return getItems();
+        }
+
+        function getItems(params) {
+            var qsParams = params || {}; //{$filter:"FavoriteNumber eq 8"};
+            var dfd = $q.defer();
+            spContext.constructNgResourceForRESTCollection(ngResourceConstructParams).get(qsParams,
+                function (data) {
+                    dfd.resolve(_.map(data.d.results, function(item){
+                        item.LTIOV = moment(item.LTIOV);
+                        item.Created = moment(item.Created);
+                        return item;
+                    }));
+                },
+                function (error) {
+                    dfd.reject(error);
+                });
+            return dfd.promise;
+        }
+
+        function getMissionRelated() {
+            //FOLLOWING does not work on-premise: { $filter: "Mission/Id ne null" };
+            return getItems()
+                        .then(function(results){
+                            var missionRelated = _.filter(results, function(item){ return !!item.Mission.FullName; });
+                            return missionRelated;
+                        });
+        }
+
+        return service;
+    }
+})(jocInBoxConfig.noConflicts.jQuery, jocInBoxConfig.noConflicts.lodash);
+
 /* Data Repository: Mission Documents */
 (function ($, _) {
     angular.module('app.data')
@@ -4597,8 +4659,8 @@
         .module('app.core')
         .controller('MissionTrackerController', MissionTrackerController);
 
-    MissionTrackerController.$inject = ['$q', '$routeParams', '_', 'logger', 'DocumentChopsRepository', 'MissionDocument', 'MissionDocumentRepository', 'Mission', 'MissionTrackerRepository', 'RfiRepository'];
-    function MissionTrackerController($q, $routeParams, _, logger, DocumentChopsRepository, MissionDocument, MissionDocumentRepository, Mission, MissionTrackerRepository, RfiRepository) {
+    MissionTrackerController.$inject = ['$q', '$routeParams', '_', 'logger', 'DocumentChopsRepository', 'MissionDocument', 'MissionDocumentRepository', 'Mission', 'MissionTrackerRepository', 'RfiRepository', 'MsrRepository'];
+    function MissionTrackerController($q, $routeParams, _, logger, DocumentChopsRepository, MissionDocument, MissionDocumentRepository, Mission, MissionTrackerRepository, RfiRepository, MsrRepository) {
         var vm = this;
         var dataSources = {
             missionRelatedDocs: [],
@@ -4693,7 +4755,6 @@
 
                 var selectedOrganizations = getSelectedOrganizations();
                 vm.atLeastOneOrganizationSelected = selectedOrganizations.length > 0;
-
                 _.each(vm.missionProductsDataSource, function(group){
                     group.meetsFilterCriteria = _.includes(vm.selectedMissions_idList, group.id);
                     group.filteredItems = _.filter(group.items, function(item){
@@ -4732,7 +4793,7 @@
                             .groupBy(function (item) { return item.Mission.FullName; })
                             .map(function (items, groupName) { 
                                 return { name: groupName,
-                                    id: items[0].Mission.Id, 
+                                    id: items[0].MissionId, 
                                     items: items,
                                     filteredItems: [],
                                     meetsFilterCriteria: false, 
@@ -4808,7 +4869,8 @@
                 MissionDocumentRepository.getMissionRelated(),
                 DocumentChopsRepository.getAll(),
                 getMissions(),
-                RfiRepository.getMissionRelated()
+                RfiRepository.getMissionRelated(),
+                MsrRepository.getMissionRelated()
             ])
                 .then(function (data) {
                     var missions = data[2];
@@ -4836,9 +4898,22 @@
                         rfi.MissionId = item.MissionId;
                         return rfi; 
                     });
+      
+                    var msrs = _.map(data[4], function(item){
+                        var msr = new MissionDocument();
+                        msr.Id = item.Id;
+                        msr.TypeOfDocument = "MSR";
+                        msr.File = {Name: item.Title};
+                        msr.Organization = item.RequestingUnit;
+                        msr.Modified = moment(item.Modified);
+                        msr.Editor = item.Editor;
+                        msr.Mission = item.Mission;
+                        msr.MissionId = item.MissionId;
+                        return msr; 
+                    });
 
                     return {
-                        documents: docs.concat(rfis),
+                        documents: docs.concat(rfis).concat(msrs),
                         missions: missions
                     };
                 });

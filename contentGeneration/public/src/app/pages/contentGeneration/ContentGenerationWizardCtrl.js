@@ -415,8 +415,10 @@
 				return $q.when({});
 			}
 
-			//no extra lists required at this time
-			return provisionAirComponentPage();
+			var listSchemaDef = crisisResponseSchema.listDefs["MSR"];
+			listSchemaDef.webUrl = vm.childWebUrl;
+
+			return sharepointUtilities.createList(listSchemaDef).then(provisionAirComponentPage);
 		}
 
 		function createExconApp(){

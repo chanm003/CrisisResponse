@@ -1929,6 +1929,126 @@ crisisResponseSchema.listDefs["Inject"] = {
 	]
 }
 
+crisisResponseSchema.listDefs["MSR"] = {
+	Title: "MSR",
+	BaseTemplate: 'genericList',
+	enableVersioning: false,
+	shouldHideTitleField: false,	
+	fieldsToCreate:[
+		{
+			//EXAMPLE: Lookup field
+			Name: "Mission",
+			DisplayName: "Mission",
+			Type: "Lookup",
+			Required: "FALSE",
+			List: "Mission Tracker",
+			ShowField: 'FullName'								
+		},
+		{
+			//EXAMPLE: SINGLE LINE OF TEXT
+			Name: "RequestingUnit",
+			DisplayName: "Requesting Unit",
+			Type: "Text",
+			Required: "FALSE",
+			MaxLength: 255,
+			Default: ""							//(optional)		
+		},
+		{
+			//EXAMPLE: Dropdown
+			Name: "OpType",
+			DisplayName: "OP Type",
+			Type: "Choice",
+			Format:"Dropdown",
+			Required: "FALSE",
+			FillInChoice: "FALSE",
+			Choices: ['Infill/Exfill', 'HAAR/TARR', 'Personnel/Equipment Drop', 'FARP', 'Fire Support', 'ISR', 'SCAR-C'], 
+			Default: '',							//(optional)
+			Description: ""
+		},
+		{
+			//EXAMPLE: SINGLE LINE OF TEXT
+			Name: "Requestor",
+			DisplayName: "Requestor",
+			Type: "Text",
+			Required: "FALSE",
+			MaxLength: 255,
+			Default: ""							//(optional)		
+		},
+		{
+			//EXAMPLE: SINGLE LINE OF TEXT
+			Name: "RequestorEmail",
+			DisplayName: "Requestor Email",
+			Type: "Text",
+			Required: "FALSE",
+			MaxLength: 255,
+			Default: ""							//(optional)		
+		},
+		{
+			//EXAMPLE: SINGLE LINE OF TEXT
+			Name: "RequestorPhone",
+			DisplayName: "Requestor Phone",
+			Type: "Text",
+			Required: "FALSE",
+			MaxLength: 255,
+			Default: ""							//(optional)		
+		},
+		{
+			//EXAMPLE: DateTime
+			Name: "MissionStart",
+			DisplayName: "Mission Start",
+			Type: "DateTime",
+			Required: "FALSE",
+			Format: "DateTime", 					//please use either 'DateOnly' or 'DateTime'
+			Description: "ZULU",
+			Default: ''						//(optional)	
+		},
+		{
+			//EXAMPLE: DateTime
+			Name: "MissionEnd",
+			DisplayName: "Mission End",
+			Type: "DateTime",
+			Required: "FALSE",
+			Format: "DateTime", 					//please use either 'DateOnly' or 'DateTime'
+			Description: "ZULU",
+			Default: ''						//(optional)	
+		},
+		{
+			//EXAMPLE: MULTIPLE LINE OF TEXT
+			Name: "Location",
+			DisplayName: "Location",
+			Type: "Note",
+			Required: "FALSE",
+			NumLines: 6,
+			RichText: "FALSE",						//RECOMMENDED
+			AppendOnly: "FALSE",						//VERSIONING MUST BE TURNED ON, otherwise specifie "FALSE"
+			Description: ""	
+		},
+		{
+			//EXAMPLE: Dropdown
+			Name: "Status",
+			DisplayName: "Status",
+			Type: "Choice",
+			Format:"Dropdown",
+			Required: "FALSE",
+			FillInChoice: "FALSE",
+			Choices: ['Submitted', 'Tasked', 'Approved', 'Rejected', 'Cannot Support', 'Completed'], 
+			Default: '',							//(optional)
+			Description: ""
+		},
+		{
+			//EXAMPLE: MULTIPLE LINE OF TEXT
+			Name: "Comments",
+			DisplayName: "Comments",
+			Type: "Note",
+			Required: "FALSE",
+			NumLines: 6,
+			RichText: "FALSE",						//RECOMMENDED
+			AppendOnly: "FALSE",						//VERSIONING MUST BE TURNED ON, otherwise specifie "FALSE"
+			Description: ""	
+		}
+	]
+};
+
 crisisResponseSchema.webpartPageDefs['Component Command Page'] = {
 	folderName: 'SitePages',
 	aspxFileName: 'socc.aspx',
@@ -2554,6 +2674,28 @@ crisisResponseSchema.webpartPageDefs['Air Component Page'] = {
 			viewCAML: '<OrderBy><FieldRef Name="URLwMenu"/></OrderBy>',
 			zoneName: 'Right',
 			zoneIndex: 30
+		},
+		{
+			listTitle: 'MSR',
+			webPartProperties: [
+				{
+					attributes: {name: 'ListUrl', type: 'string'},
+					innerText: 'Lists/MSR'
+				},
+				{
+					attributes: {name: 'Title', type: 'string'},
+					innerText: 'MSR'
+				},
+				{
+					attributes: {name: 'TitleUrl', type: 'string'},
+					innerText: '#'
+				}
+			],
+			viewName: 'SOAC MSR',
+			viewFields: ['LinkTitle', 'RequestingUnit', 'OpType', 'Requestor', 'RequestorEmail', 'RequestorPhone', 'MissionStart', 'MissionEnd', 'Location', 'Status', 'Attachments', 'Comments'],
+			viewCAML: '<OrderBy><FieldRef Name="Created"/></OrderBy>',
+			zoneName: 'Bottom',
+			zoneIndex: 0
 		}
 	],
 	scriptEditorWebparts: [
@@ -2593,7 +2735,7 @@ crisisResponseSchema.webpartPageDefs['Air Component Page'] = {
 				}
 			],
 			zoneName: 'Bottom',
-			zoneIndex: 0
+			zoneIndex: 10
 		}
 	]
 }
