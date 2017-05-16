@@ -450,18 +450,20 @@
 					webUrl: vm.childWebUrl,
                 	groupName: vm.siteInfo.name + " EXCON",
                 	groupDescription: "Created by wizard to support site: " + vm.childWebUrl,
-					permissionLevel: SP.RoleType.contributor,
 					loginNames: _.map(vm.exerciseControlGroups[0].selectedUsers, function(user){ return user.LoginName; }),
 					resources: [
 						{
+							permissionLevel: SP.RoleType.contributor,
 							type: "SP.List",
 							listName: "Inject"
 						},
 						{
+							permissionLevel: SP.RoleType.contributor,
 							type: "SP.List",
 							listName: "EXCON Documents"
 						},
 						{
+							permissionLevel: SP.RoleType.reader,
 							type: "SP.File",
 							serverRelativeUrl: vm.childWebUrl + "/SitePages/excon.aspx"
 						}

@@ -762,24 +762,21 @@
                 createdGroup.get_users().addUser(user);     
             });
 
-			if(opts.permissionLevel){
+			//resource
+			_.each(opts.resources, function(resource){
+				if(resource.type === "SP.List"){
+					resource.spObject = ctx.get_web().get_lists().getByTitle(resource.listName);
+				} else if (resource.type === "SP.File"){
+					//SP.File not securable object, so we get the associated list item
+					resource.spObject = ctx.get_web().getFileByServerRelativeUrl(resource.serverRelativeUrl).get_listItemAllFields();
+				}
+				resource.spObject.breakRoleInheritance(false);
 				//permission
 				var collRoleDefinitionBinding = SP.RoleDefinitionBindingCollection.newObject(ctx);
-				collRoleDefinitionBinding.add(ctx.get_web().get_roleDefinitions().getByType(opts.permissionLevel));
-
-				//resource
-				_.each(opts.resources, function(resource){
-					if(resource.type === "SP.List"){
-						resource.spObject = ctx.get_web().get_lists().getByTitle(resource.listName);
-					} else if (resource.type === "SP.File"){
-						//SP.File not securable object, so we get the associated list item
-						resource.spObject = ctx.get_web().getFileByServerRelativeUrl(resource.serverRelativeUrl).get_listItemAllFields();
-					}
-					resource.spObject.breakRoleInheritance(false);  
-					resource.spObject.get_roleAssignments().add(createdGroup, collRoleDefinitionBinding); 
-				});
-			}
-
+				collRoleDefinitionBinding.add(ctx.get_web().get_roleDefinitions().getByType(resource.permissionLevel));  
+				resource.spObject.get_roleAssignments().add(createdGroup, collRoleDefinitionBinding); 
+			});
+			
            	ctx.executeQueryAsync(
 				Function.createDelegate(this, onQuerySucceeded),
 				Function.createDelegate(this, onQueryFailed)
@@ -804,7 +801,7 @@
 					} else if (resource.type === "SP.File"){
 						resourceName = resource.serverRelativeUrl
 					}
-					var msg = "Broke permissions on '" + resourceName + "' and granted '" + roleTypeEnum[opts.permissionLevel] + "' to the group '" + opts.groupName + "'"; 
+					var msg = "Broke permissions on '" + resourceName + "' and granted '" + roleTypeEnum[resource.permissionLevel] + "' to the group '" + opts.groupName + "'"; 
 					logger.logSuccess(msg, null, 'sharepointUtilities service, createSharepointGroup()');
 				});
 				
