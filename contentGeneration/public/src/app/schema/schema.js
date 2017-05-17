@@ -1955,7 +1955,7 @@ crisisResponseSchema.listDefs["MSR"] = {
 			DisplayName: "Requesting Unit",
 			Type: "Text",
 			Required: "FALSE",
-			MaxLength: 255,
+			MaxLength: 20, //this shows on sidebar filter
 			Default: ""							//(optional)		
 		},
 		{
