@@ -1727,7 +1727,7 @@
 
         var fieldsToSelect = [
             spContext.SP2013REST.selectForCommonListFields,
-            'RequestingUnit,OpType,Requestor,Status',
+            'RequestingUnit,OpType,Requestor,Status,MissionId',
             'Mission/FullName'
         ].join(',');
 
