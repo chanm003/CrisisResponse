@@ -1789,7 +1789,7 @@ crisisResponseSchema.listDefs["Inject"] = {
 			Choices: ['Pending', 'Completed', 'Do Not Send'],						//will be generated
 			Description: '',
 			Default: 'Pending',							//(optional)
-			ShowInNewForm: "FALSE",
+			ShowInNewForm: "TRUE",
 			ShowInEditForm: "TRUE"
 		},
 		{
