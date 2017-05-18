@@ -83,6 +83,7 @@
 				.then(provisionFilesToSiteAssets)
 				.then(provisionFilesToSitePages)
 				.then(addQuerystringFilterWebParts)
+				.then(connectQuerystringFilterWebParts)
 				.then(modifyPermissionsOnSitePagesLibrary)
 				.then(modifyPermissionsOnSiteAssetsLibrary);
 		}

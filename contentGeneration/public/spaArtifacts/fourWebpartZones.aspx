@@ -25,26 +25,26 @@
 	<table width="100%" border="0" cellpadding="0" cellspacing="0" style="padding:0px 10px 10px 10px;">
         <tr>
             <td colspan="2" valign="top">
-                <WebPartPages:WebPartZone runat="server" FrameType="TitleBarOnly" ID="Top" Title="loc:Top"><ZoneTemplate></ZoneTemplate></WebPartPages:WebPartZone>
+                <WebPartPages:WebPartZone AllowCustomization="False" runat="server" FrameType="TitleBarOnly" ID="Top" Title="loc:Top"><ZoneTemplate></ZoneTemplate></WebPartPages:WebPartZone>
             </td>
         </tr>
         <tr>
             <td valign="top" width="70%" style="padding-right:5px">
-                <WebPartPages:WebPartZone runat="server" FrameType="TitleBarOnly" ID="Left" Title="loc:Left"><ZoneTemplate></ZoneTemplate></WebPartPages:WebPartZone>
+                <WebPartPages:WebPartZone AllowCustomization="False" runat="server" FrameType="TitleBarOnly" ID="Left" Title="loc:Left"><ZoneTemplate></ZoneTemplate></WebPartPages:WebPartZone>
             </td>
             <td valign="top" width="30%" style="padding-left:5px">
-                <WebPartPages:WebPartZone runat="server" FrameType="TitleBarOnly" ID="Right" Title="loc:Right"><ZoneTemplate></ZoneTemplate></WebPartPages:WebPartZone>
+                <WebPartPages:WebPartZone AllowCustomization="False" runat="server" FrameType="TitleBarOnly" ID="Right" Title="loc:Right"><ZoneTemplate></ZoneTemplate></WebPartPages:WebPartZone>
             </td>
         </tr>
         <tr>
             <td colspan="2" valign="top">
-                <WebPartPages:WebPartZone runat="server" FrameType="TitleBarOnly" ID="Bottom" Title="loc:Bottom"><ZoneTemplate></ZoneTemplate></WebPartPages:WebPartZone>
+                <WebPartPages:WebPartZone AllowCustomization="False" runat="server" FrameType="TitleBarOnly" ID="Bottom" Title="loc:Bottom"><ZoneTemplate></ZoneTemplate></WebPartPages:WebPartZone>
             </td>
         </tr>
     </table>
 
     <!--QueryString Filter WebPart (Must register TagPrefix for Microsoft.Office.Server.FilterControls)-->
     <div id="qsFilterWebpartContainer">
-    	<WebPartPages:WebPartZone AllowLayoutChange="False" runat="server" FrameType="TitleBarOnly" ID="QsFilter" Title="loc:QsFilter"><ZoneTemplate></ZoneTemplate></WebPartPages:WebPartZone>
+    	<WebPartPages:WebPartZone AllowCustomization="False" AllowLayoutChange="False" runat="server" FrameType="TitleBarOnly" ID="QsFilter" Title="loc:QsFilter"><ZoneTemplate></ZoneTemplate></WebPartPages:WebPartZone>
 	</div>
 </asp:Content>
