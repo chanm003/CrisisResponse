@@ -458,7 +458,7 @@
 					//modify definition first
 					var inboundMessageWebpartDef = _.findWhere(crisisResponseSchema.webpartPageDefs["Exercise Conductor Page"].listviewWebparts, {viewName: "EXCON Inbound Messages"});
 					
-					if(inboundMessageWebpartDef.viewCAML.includes('<Where>')){
+					if(_.includes(inboundMessageWebpartDef.viewCAML,'<Where>')){
 						inboundMessageWebpartDef.viewCAML = inboundMessageWebpartDef.viewCAML.replace(/<Where>(.*?)<\/Where>/, whereClause);
 					} else {
 						inboundMessageWebpartDef.viewCAML += whereClause;
