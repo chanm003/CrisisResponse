@@ -50,6 +50,10 @@
 					vm.siteInfo.acronym = url.substr(url.lastIndexOf('/')+1);
 					vm.childWebUrl = vm.siteInfo.parentWeb + "/" + vm.siteInfo.acronym;
 				}
+
+				if (vm.childWebUrl.startsWith('//')) {
+					vm.childWebUrl = vm.childWebUrl.replace(/\/\//g, '/');
+				}
 			}
 		}
 

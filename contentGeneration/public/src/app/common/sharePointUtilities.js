@@ -859,6 +859,9 @@
 			*/
 			var serverRelativeURL = (opts.parentWeb + "/" + opts.acronym).replace(document.location.protocol + "//", "").replace(document.location.host, "");
 			var alternateCssUrl = serverRelativeURL + "/SiteAssets/app.css";
+			if (alternateCssUrl.startsWith('//')) {
+				alternateCssUrl = alternateCssUrl.replace(/\/\//g, '/');
+			}
 			childWeb.set_alternateCssUrl(alternateCssUrl);
 			childWeb.update();
 
