@@ -1758,7 +1758,11 @@
                     }));
                 },
                 function (error) {
-                    dfd.reject(error);
+                    if (error.status === 404) {
+                        dfd.resolve([]);
+                    } else {
+                        dfd.reject(error);
+                    }
                 });
             return dfd.promise;
         }
