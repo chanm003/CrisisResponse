@@ -2550,7 +2550,7 @@
         return directiveDefinition;
 
         function buildHeroButtonHtml() {
-            var newFormUrl = _spPageContextInfo.webServerRelativeUrl + "/Lists/Calendar/NewForm.aspx?Source=" + document.location.href;
+            var newFormUrl = _spPageContextInfo.webServerRelativeUrl + "/Lists/Calendar/NewForm.aspx?Source=" + encodeURIComponent(document.location.href);
             return spContext.htmlHelpers.buildHeroButton('new item', newFormUrl, 'showNewItemLink');
         }
 
@@ -3635,7 +3635,7 @@
         }
 
         function buildHeroButtonHtml() {
-            var newFormUrl = _spPageContextInfo.webServerRelativeUrl + "/Lists/MissionTracker/NewForm.aspx?Source=" + document.location.href;
+            var newFormUrl = _spPageContextInfo.webServerRelativeUrl + "/Lists/MissionTracker/NewForm.aspx?Source=" + encodeURIComponent(document.location.href);
             return spContext.htmlHelpers.buildHeroButton('new item', newFormUrl, 'showNewItemLink');
         }
 
