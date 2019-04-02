@@ -589,7 +589,7 @@
 
             function discourageQuickEditFeatureForWebparts(ctx, webPartDiv){
                 if(!isOrgDashboard()){ return; }
-                if(ctx.ListTemplateType === SP.ListTemplateType.documentLibrary){ return; }
+                if(!SP.ListTemplateType || ctx.ListTemplateType === SP.ListTemplateType.documentLibrary){ return; }
                 var td = webPartDiv.find("td.ms-list-addnew");
                 var newItemLink = td.find("a").eq(0);
                 newItemLink.detach();
